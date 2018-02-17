@@ -10,7 +10,7 @@ main() {
     echo "Time:"
     echo "Result: $(time python3 leibniz.py)"
 
-    printf "\\n> PHP7\\n"
+    printf "\\n> PHP\\n"
     echo "Version: $(php7 --version)"
     echo "Time:"
     echo "Result: $(time php7 leibniz.php)"
@@ -21,6 +21,11 @@ main() {
     rustc leibniz.rs
     echo "Time:"
     echo "Result: $(time ./leibniz)"
+
+    printf "\\n> JS (node.js)\\n"
+    echo "Version: $(node --version)"
+    echo "Time:"
+    echo "Result: $(time node leibniz.js)"
 }
 
 main

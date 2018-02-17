@@ -32,12 +32,12 @@ Rounds used: 1000000
 > Python 3
 Version: Python 3.6.3
 Time:
-real    0m 0.37s
-user    0m 0.37s
+real    0m 0.33s
+user    0m 0.32s
 sys     0m 0.00s
 Result: π = 3.1415936535887745
 
-> PHP7
+> PHP
 Version: PHP 7.1.14 (cli) (built: Feb  8 2018 15:10:11) ( NTS )
 Copyright (c) 1997-2018 The PHP Group
 Zend Engine v3.1.0, Copyright (c) 1998-2018 Zend Technologies
@@ -50,9 +50,17 @@ Result: π = 3.1415936535887745
 > Rust
 Version: rustc 1.22.1
 Time:
-real    0m 0.13s
+real    0m 0.12s
 user    0m 0.12s
 sys     0m 0.00s
+Result: π = 3.1415936535887745
+
+> JS (node.js)
+Version: v8.9.3
+Time:
+real    0m 0.08s
+user    0m 0.07s
+sys     0m 0.01s
 Result: π = 3.1415936535887745
 ```
 

@@ -4,6 +4,7 @@ RUN  apk add --update \
     python3 \
     php7 \
     rust \
+    nodejs \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app
