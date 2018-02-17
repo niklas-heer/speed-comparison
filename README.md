@@ -54,7 +54,7 @@ Result: π = 3.1415936535887745
 > Go
 Version: go version go1.9.2 linux/amd64
 Time: 0m0.005s
-Result: π =  3.1415936535887745
+Result: π = 3.1415936535887745
 ```
 
 ## Thanks
