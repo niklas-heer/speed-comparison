@@ -3,6 +3,8 @@
 main() {
     printf "\\n======= Comparison =======\\n"
 
+    printf "Rounds used: %s\\n\\n" "$(cat ./rounds.txt)"
+
     printf "\\n> Python 3\\n"
     echo "Version: $(python3 --version)"
     echo "Time:"

@@ -26,6 +26,8 @@ Just run: `make`
 
 ```text
 ======= Comparison =======
+Rounds used: 1000000
+
 
 > Python 3
 Version: Python 3.6.3
