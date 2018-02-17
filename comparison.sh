@@ -12,11 +12,6 @@ main() {
     printf "Time: "
     echo "Result: $(time python3 leibniz.py)"
 
-    printf "\\n> PHP\\n"
-    echo "Version: $(php7 --version)"
-    printf "Time: "
-    echo "Result: $(time php7 leibniz.php)"
-
     printf "\\n> Rust\\n"
     echo "Version: $(rustc --version)"
     export RUST_BACKTRACE=1
@@ -28,6 +23,11 @@ main() {
     echo "Version: $(node --version)"
     printf "Time: "
     echo "Result: $(time node leibniz.js)"
+
+    printf "\\n> PHP\\n"
+    echo "Version: $(php7 --version)"
+    printf "Time: "
+    echo "Result: $(time php7 leibniz.php)"
 
     printf "\\n> Go\\n"
     echo "Version: $(go version)"
