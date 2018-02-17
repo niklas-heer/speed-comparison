@@ -10,6 +10,7 @@ fn main() {
 
     let rounds = &contents.trim().parse::<i32>().unwrap();
 
+    // We need to use f64 instead of f32 because otherwise the precision would be off
     let mut x: f64 = 1.0;
     let mut pi: f64 = 1.0;
 
