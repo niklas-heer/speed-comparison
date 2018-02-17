@@ -6,6 +6,7 @@ RUN  apk add --update \
     rust \
     nodejs \
     go \
+    bash \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app
