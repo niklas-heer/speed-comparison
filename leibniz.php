@@ -1,4 +1,5 @@
 <?php
+ini_set('precision', 17); # makes it as precise as other languages
 
 $rounds = (int)file_get_contents("./rounds.txt", true);
 
