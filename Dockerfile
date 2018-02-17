@@ -5,6 +5,7 @@ RUN  apk add --update \
     php7 \
     rust \
     nodejs \
+    go \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app

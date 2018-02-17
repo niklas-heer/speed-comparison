@@ -26,6 +26,12 @@ main() {
     echo "Version: $(node --version)"
     echo "Time:"
     echo "Result: $(time node leibniz.js)"
+
+    printf "\\n> Go\\n"
+    echo "Version: $(go version)"
+    go build leibniz.go
+    printf "Time: "
+    echo "Result: $(time ./leibniz)"
 }
 
 main
