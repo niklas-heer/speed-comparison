@@ -24,7 +24,8 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 
 Everything is run by a Docker container and a bash script which envokes the programs.
 
-To measure the execution time the built-in [`time`](https://en.wikipedia.org/wiki/Time_(Unix)) function of bash is used.
+To measure the execution time a diff of the [`date`](http://man7.org/linux/man-pages/man1/date.1.html) command is used.
+It is measure by nanoseconds but displayed in milliseconds.
 
 ### Requirements
 

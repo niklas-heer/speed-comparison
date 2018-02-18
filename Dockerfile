@@ -15,6 +15,7 @@ RUN  apk add --update \
     ruby \
     lua5.3 \
     julia \
+    coreutils \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app
