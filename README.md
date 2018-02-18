@@ -43,49 +43,54 @@ Just run: `make`
 Rounds used: 1000000
 
 
+> Julia
+Version: julia version 0.6.0
+Time: 805 ms
+Result: π = 3.1415916535917745
+
 > Python 3 (CPython)
 Version: Python 3.6.3
-Time: 0m0.336s
+Time: 336 ms
 Result: π = 3.1415936535887745
 
 > Ruby
 Version: ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-linux-musl]
-Time: 0m0.212s
+Time: 209 ms
 Result: π = 3.1415916535917745
 
 > Rust
 Version: rustc 1.22.1
-Time: 0m0.128s
+Time: 128 ms
 Result: π = 3.1415936535887745
 
 > JS (node.js)
 Version: v8.9.3
-Time: 0m0.094s
+Time: 94 ms
 Result: π = 3.1415936535887745
 
 > Lua
 Version: Lua 5.3.4  Copyright (C) 1994-2017 Lua.org, PUC-Rio
-Time: 0m0.086s
+Time: 86 ms
 Result: π = 3.1415916535917745
 
 > PHP
 Version: PHP 7.1.14 (cli) (built: Feb  8 2018 15:10:11) ( NTS )
-Time: 0m0.059s
+Time: 57 ms
 Result: π = 3.1415936535887745
 
 > Crystal
 Version: Crystal 0.24.1 (2017-12-22)
-Time: 0m0.005s
+Time: 9 ms
 Result: π = 3.1415916535917745
 
 > Go
 Version: go version go1.9.2 linux/amd64
-Time: 0m0.004s
+Time: 4 ms
 Result: π = 3.1415936535887745
 
 > C
 Version: gcc (Alpine 6.4.0) 6.4.0
-Time: 0m0.003s
+Time: 3 ms
 Result: π = 3.141594
 ```
 
