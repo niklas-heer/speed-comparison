@@ -110,6 +110,15 @@ Because I think this is a more realistic scenario to compare speeds.
 
 No they are not included, because when running the program in the real world this would also be done before.
 
+## TODO
+
+- [ ] Add an example for Ada
+- [ ] Add an example for C++
+- [ ] Add an example for Haskell
+- [ ] Add an example for Elixir
+- [ ] Add an example for Java
+- [ ] Use also pypy for Python
+
 ## Thanks
 
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
