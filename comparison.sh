@@ -7,7 +7,7 @@ main() {
 
     printf "Rounds used: %s\\n\\n" "$(cat ./rounds.txt)"
 
-    printf "\\n> Python 3\\n"
+    printf "\\n> Python 3 (CPython)\\n"
     echo "Version: $(python3 --version)"
     printf "Time: "
     echo "Result: $(time python3 leibniz.py)"
