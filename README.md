@@ -20,10 +20,6 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 - [Go](https://golang.org/) - compiled
 - [C](https://en.wikipedia.org/wiki/C_(programming_language)) - compiled
 
-### Execute it
-
-Just run: `make`
-
 ## Results
 
 ```text
@@ -93,6 +89,10 @@ It is measure by nanoseconds but displayed in milliseconds.
 
 - `Docker`
 - `Makefile` support
+
+### Execute it
+
+Just run: `make`
 
 ## FAQ
 
