@@ -69,7 +69,12 @@ Time: 0m0.005s
 Result: π = 3.1415936535887745
 ```
 
+## FAQ
+
+> Why do you also count reading a file and printing the output?
+
+Because I think this is a more realistic scenario to compare speeds.
+
 ## Thanks
 
-This projects tries to recreate the results which [Thomas](https://www.thomaschristlieb.de) did [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
-It also tries to include languages which Thomas didn't cover in his post.
+This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
