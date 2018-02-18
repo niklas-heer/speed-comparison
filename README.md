@@ -9,16 +9,16 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 
 ## Languages used in this comparison
 
-- [Julia](http://julialang.org/)
-- [Python](https://www.python.org/)
-- [Ruby](https://www.ruby-lang.org/)
-- [Rust](https://www.rust-lang.org/)
-- [Javascript](https://www.ecma-international.org/publications/standards/Ecma-402.htm) using [Node.js](https://nodejs.org/)
-- [Lua](https://www.lua.org/)
-- [PHP](https://secure.php.net/)
-- [Crystal](https://crystal-lang.org/)
-- [Go](https://golang.org/)
-- [C](https://en.wikipedia.org/wiki/C_(programming_language))
+- [Julia](http://julialang.org/) - JIT
+- [Python](https://www.python.org/) - interpreted (CPython)
+- [Ruby](https://www.ruby-lang.org/) - interpreted
+- [Rust](https://www.rust-lang.org/)  - compiled
+- [Javascript](https://www.ecma-international.org/publications/standards/Ecma-402.htm) using [Node.js](https://nodejs.org/) - interpreted, JIT
+- [Lua](https://www.lua.org/) - interpreted
+- [PHP](https://secure.php.net/) - interpreted
+- [Crystal](https://crystal-lang.org/) - compiled
+- [Go](https://golang.org/) - compiled
+- [C](https://en.wikipedia.org/wiki/C_(programming_language)) - compiled
 
 ## Run it yourself
 
