@@ -35,7 +35,7 @@ main() {
     echo "Result: $(time lua5.3 leibniz.lua)"
 
     printf "\\n> PHP\\n"
-    echo "Version: $(php7 --version)"
+    echo "Version: $(php7 --version | head -n 1)"
     printf "Time: "
     echo "Result: $(time php7 leibniz.php)"
 
