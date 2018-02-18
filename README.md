@@ -100,6 +100,10 @@ Result: π = 3.141594
 
 Because I think this is a more realistic scenario to compare speeds.
 
+> Are the compile times included in the measurements?
+
+No they are not included, because when running the program in the real world this would also be done before.
+
 ## Thanks
 
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
