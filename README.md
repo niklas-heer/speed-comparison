@@ -7,6 +7,17 @@ It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.o
 Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
 
 In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing.
+## Languages used in this comparison
+
+- [Python](https://www.python.org/)
+- [Ruby](https://www.ruby-lang.org/)
+- [Rust](https://www.rust-lang.org/)
+- [Javascript](https://www.ecma-international.org/publications/standards/Ecma-402.htm) using [Node.js](https://nodejs.org/)
+- [Lua](https://www.lua.org/)
+- [PHP](https://secure.php.net/)
+- [Crystal](https://crystal-lang.org/)
+- [Go](https://golang.org/)
+- [C](https://en.wikipedia.org/wiki/C_(programming_language))
 
 ## Run it yourself
 
