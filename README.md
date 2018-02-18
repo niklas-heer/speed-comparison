@@ -15,6 +15,7 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 - [Rust](https://www.rust-lang.org/)  - compiled
 - [Javascript](https://www.ecma-international.org/publications/standards/Ecma-402.htm) using [Node.js](https://nodejs.org/) - interpreted, JIT
 - [Lua](https://www.lua.org/) - interpreted
+- [Nim](https://nim-lang.org/) - compiled
 - [PHP](https://secure.php.net/) - interpreted
 - [Crystal](https://crystal-lang.org/) - compiled
 - [Go](https://golang.org/) - compiled
@@ -39,7 +40,7 @@ Result: π = 3.1415936535887745
 
 > Ruby
 Version: ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-linux-musl]
-Time: 209 ms
+Time: 199 ms
 Result: π = 3.1415916535917745
 
 > Rust
@@ -49,12 +50,12 @@ Result: π = 3.1415936535887745
 
 > JS (node.js)
 Version: v8.9.3
-Time: 94 ms
+Time: 93 ms
 Result: π = 3.1415936535887745
 
 > Lua
 Version: Lua 5.3.4  Copyright (C) 1994-2017 Lua.org, PUC-Rio
-Time: 86 ms
+Time: 85 ms
 Result: π = 3.1415916535917745
 
 > PHP
@@ -62,9 +63,14 @@ Version: PHP 7.1.14 (cli) (built: Feb  8 2018 15:10:11) ( NTS )
 Time: 57 ms
 Result: π = 3.1415936535887745
 
+> Nim
+Version: 0.17.2
+Time: 31 ms
+Result: π = 3.141591653591775
+
 > Crystal
 Version: Crystal 0.24.1 (2017-12-22)
-Time: 9 ms
+Time: 6 ms
 Result: π = 3.1415916535917745
 
 > Go

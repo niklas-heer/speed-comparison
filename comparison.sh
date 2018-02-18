@@ -54,6 +54,12 @@ main() {
     printf "Time: "
     echo "Result: $(measure php7 leibniz.php)"
 
+    printf "\\n> Nim\\n"
+    echo "Version: 0.17.2"  # printing nim --version is not possible
+    nim c --verbosity:0 leibniz.nim > /dev/null 2>&1
+    printf "Time: "
+    echo "Result: $(measure ./leibniz)"
+
     printf "\\n> Crystal\\n"
     echo "Version: $(crystal --version | head -n 1)"
     crystal build leibniz.cr
