@@ -9,6 +9,7 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 
 ## Languages used in this comparison
 
+- [Julia](http://julialang.org/)
 - [Python](https://www.python.org/)
 - [Ruby](https://www.ruby-lang.org/)
 - [Rust](https://www.rust-lang.org/)

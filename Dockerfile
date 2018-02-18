@@ -14,6 +14,7 @@ RUN  apk add --update \
     shards \
     ruby \
     lua5.3 \
+    julia \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app

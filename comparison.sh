@@ -7,6 +7,11 @@ main() {
 
     printf "Rounds used: %s\\n\\n" "$(cat ./rounds.txt)"
 
+    printf "\\n> Julia\\n"
+    echo "Version: $(julia --version)"
+    printf "Time: "
+    echo "Result: $(measure julia leibniz.jl)"
+
     printf "\\n> Python 3 (CPython)\\n"
     echo "Version: $(python3 --version)"
     printf "Time: "
