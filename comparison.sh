@@ -12,6 +12,11 @@ main() {
     printf "Time: "
     echo "Result: $(time python3 leibniz.py)"
 
+    printf "\\n> Ruby\\n"
+    echo "Version: $(ruby --version)"
+    printf "Time: "
+    echo "Result: $(time ruby leibniz.rb)"
+
     printf "\\n> Rust\\n"
     echo "Version: $(rustc --version)"
     export RUST_BACKTRACE=1

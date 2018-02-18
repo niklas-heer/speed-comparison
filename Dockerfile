@@ -7,6 +7,7 @@ RUN  apk add --update \
     nodejs \
     go \
     bash \
+    ruby \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app
