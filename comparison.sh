@@ -34,6 +34,12 @@ main() {
     printf "Time: "
     echo "Result: $(time php7 leibniz.php)"
 
+    printf "\\n> Crystal\\n"
+    echo "Version: $(crystal --version | head -n 1)"
+    crystal build leibniz.cr
+    printf "Time: "
+    echo "Result: $(time ./leibniz)"
+
     printf "\\n> Go\\n"
     echo "Version: $(go version)"
     go build leibniz.go

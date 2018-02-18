@@ -1,5 +1,7 @@
 FROM alpine:3.7
 
+RUN wget http://public.portalier.com/alpine/julien@portalier.com-56dab02e.rsa.pub -O /etc/apk/keys/julien@portalier.com-56dab02e.rsa.pub
+RUN echo http://public.portalier.com/alpine/testing >> /etc/apk/repositories
 RUN  apk add --update \
     python3 \
     php7 \
@@ -7,6 +9,9 @@ RUN  apk add --update \
     nodejs \
     go \
     bash \
+    crystal \
+    gcc \
+    shards \
     ruby \
   && rm -rf /var/cache/apk/*
 
