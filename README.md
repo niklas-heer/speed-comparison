@@ -22,7 +22,8 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 ## Run it yourself
 
 Everything is run by a Docker container and a bash script which envokes the programs.
-To measure the execution time the command [`time`](https://en.wikipedia.org/wiki/Time_(Unix)) is used.
+
+To measure the execution time the built-in [`time`](https://en.wikipedia.org/wiki/Time_(Unix)) function of bash is used.
 
 ### Requirements
 
