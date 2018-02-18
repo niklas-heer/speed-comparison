@@ -13,6 +13,7 @@ RUN  apk add --update \
     gcc \
     shards \
     ruby \
+    lua5.3 \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app

@@ -29,6 +29,11 @@ main() {
     printf "Time: "
     echo "Result: $(time node leibniz.js)"
 
+    printf "\\n> Lua\\n"
+    echo "Version: $(lua5.3 -v)"
+    printf "Time: "
+    echo "Result: $(time lua5.3 leibniz.lua)"
+
     printf "\\n> PHP\\n"
     echo "Version: $(php7 --version)"
     printf "Time: "
