@@ -45,6 +45,12 @@ main() {
     go build leibniz.go
     printf "Time: "
     echo "Result: $(time ./leibniz)"
+
+    printf "\\n> C\\n"
+    echo "Version: $(gcc --version | head -n 1)"
+    gcc leibniz.c -o leibniz
+    printf "Time: "
+    echo "Result: $(time ./leibniz)"
 }
 
 main
