@@ -9,7 +9,7 @@ Here is a video which explains how it works: [Calculating π by hand](https://ww
 
 ## Disclaimer
 
-I'm no expert in all this languages, so take my results with a grain of salt.<br>
+I'm no expert in all these languages, so take my results with a grain of salt.<br>
 Also the findings just show how good the languages can handle floating point operations, which is only one aspect of a programming language.
 
 You are also welcome to contribute and help me make fix my possible misuse of some languages. :smile:
