@@ -31,6 +31,8 @@ int main()
     pi *= 4;
 
     printf("π = %f\n", pi);
+
+    return 0;
 }
 
 
