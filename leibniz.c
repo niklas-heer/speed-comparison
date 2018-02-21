@@ -5,8 +5,6 @@
 
 int main()
 {
-    // TODO: make the precision better.
-
     // Read the file into a string
     char *file_contents;
     long input_file_size;
@@ -30,7 +28,7 @@ int main()
 
     pi *= 4;
 
-    printf("π = %f\n", pi);
+    printf("%.17g\n", pi);
 
     return 0;
 }
