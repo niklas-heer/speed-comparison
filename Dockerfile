@@ -18,6 +18,7 @@ RUN  apk add --update \
     julia \
     coreutils \
     nim@testing \
+    g++ \
   && rm -rf /var/cache/apk/*
 
 ADD . /usr/src/app

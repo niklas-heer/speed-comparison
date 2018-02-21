@@ -74,6 +74,10 @@ Result: π = 3.1415936535887745
 Version: 0.17.2
 Time: 31 ms
 Result: π = 3.141591653591775
+> C++
+Version: g++ (Alpine 6.4.0) 6.4.0
+Time: 7 ms
+Result: π = 3.1415936535887745
 
 > Crystal
 Version: Crystal 0.24.1 (2017-12-22)
@@ -120,7 +124,7 @@ No they are not included, because when running the program in the real world thi
 ## TODO
 
 - [ ] Add an example for Ada
-- [ ] Add an example for C++
+- [x] Add an example for C++
 - [ ] Add an example for Haskell
 - [ ] Add an example for Elixir
 - [ ] Add an example for Java

@@ -60,6 +60,12 @@ main() {
     printf "Time: "
     echo "Result: $(measure ./leibniz)"
 
+    printf "\\n> C++\\n"
+    echo "Version: $(g++ --version | head -n 1)"
+    g++ leibniz.cpp -o leibniz
+    printf "Time: "
+    echo "Result: π = $(measure ./leibniz)"
+
     printf "\\n> Crystal\\n"
     echo "Version: $(crystal --version | head -n 1)"
     crystal build leibniz.cr
