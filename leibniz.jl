@@ -10,4 +10,4 @@ for i in 2:(rounds + 2)
 end
 
 pi *= 4
-print("π = ", pi)
+print(pi)

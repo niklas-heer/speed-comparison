@@ -20,45 +20,45 @@ main() {
     printf "\\n> Julia\\n"
     echo "Version: $(julia --version)"
     printf "Time: "
-    echo "Result: $(measure julia leibniz.jl)"
+    echo "Result: π = $(measure julia leibniz.jl)"
 
     printf "\\n> Python 3 (CPython)\\n"
     echo "Version: $(python3 --version)"
     printf "Time: "
-    echo "Result: $(measure python3 leibniz.py)"
+    echo "Result: π = $(measure python3 leibniz.py)"
 
     printf "\\n> Ruby\\n"
     echo "Version: $(ruby --version)"
     printf "Time: "
-    echo "Result: $(measure ruby leibniz.rb)"
+    echo "Result: π = $(measure ruby leibniz.rb)"
 
     printf "\\n> Rust\\n"
     echo "Version: $(rustc --version)"
     export RUST_BACKTRACE=1
     rustc leibniz.rs
     printf "Time: "
-    echo "Result: $(measure ./leibniz)"
+    echo "Result: π = $(measure ./leibniz)"
 
     printf "\\n> JS (node.js)\\n"
     echo "Version: $(node --version)"
     printf "Time: "
-    echo "Result: $(measure node leibniz.js)"
+    echo "Result: π = $(measure node leibniz.js)"
 
     printf "\\n> Lua\\n"
     echo "Version: $(lua5.3 -v)"
     printf "Time: "
-    echo "Result: $(measure lua5.3 leibniz.lua)"
+    echo "Result: π = $(measure lua5.3 leibniz.lua)"
 
     printf "\\n> PHP\\n"
     echo "Version: $(php7 --version | head -n 1)"
     printf "Time: "
-    echo "Result: $(measure php7 leibniz.php)"
+    echo "Result: π = $(measure php7 leibniz.php)"
 
     printf "\\n> Nim\\n"
     echo "Version: 0.17.2"  # printing nim --version is not possible
     nim c --verbosity:0 leibniz.nim > /dev/null 2>&1
     printf "Time: "
-    echo "Result: $(measure ./leibniz)"
+    echo "Result: π = $(measure ./leibniz)"
 
     printf "\\n> C++\\n"
     echo "Version: $(g++ --version | head -n 1)"
@@ -70,19 +70,19 @@ main() {
     echo "Version: $(crystal --version | head -n 1)"
     crystal build leibniz.cr
     printf "Time: "
-    echo "Result: $(measure ./leibniz)"
+    echo "Result: π = $(measure ./leibniz)"
 
     printf "\\n> Go\\n"
     echo "Version: $(go version)"
     go build leibniz.go
     printf "Time: "
-    echo "Result: $(measure ./leibniz)"
+    echo "Result: π = $(measure ./leibniz)"
 
     printf "\\n> C\\n"
     echo "Version: $(gcc --version | head -n 1)"
     gcc leibniz.c -o leibniz
     printf "Time: "
-    echo "Result: $(measure ./leibniz)"
+    echo "Result: π = $(measure ./leibniz)"
 }
 
 main

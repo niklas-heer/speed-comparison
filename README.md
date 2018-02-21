@@ -74,7 +74,8 @@ Result: π = 3.1415936535887745
 > Nim
 Version: 0.17.2
 Time: 31 ms
-Result: π = 3.141591653591775
+Result: π = 3.1415916535917745
+
 > C++
 Version: g++ (Alpine 6.4.0) 6.4.0
 Time: 7 ms

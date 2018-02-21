@@ -21,5 +21,5 @@ fn main() {
 
     pi = pi * 4.0;
 
-    println!("π = {}", pi);
+    println!("{}", pi);
 }

@@ -23,5 +23,5 @@ func main() {
 	}
 
 	pi *= 4
-	fmt.Println("π =", pi)
+	fmt.Println(pi)
 }

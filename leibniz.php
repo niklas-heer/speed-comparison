@@ -12,4 +12,4 @@ for ($i = 2; $i < $rounds + 2; $i++) {
 }
 
 $pi *= 4;
-echo("π = " . $pi);
+echo($pi);

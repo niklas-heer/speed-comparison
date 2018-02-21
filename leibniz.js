@@ -11,4 +11,4 @@ for (i = 2; i < rounds + 2; i++) {
 
 pi *= 4;
 
-console.log("π = " + pi);
+console.log(pi);

@@ -15,4 +15,4 @@ for i in (2..rounds+2) do
 end
 
 pi *= 4
-puts "π = #{pi}"
+puts "#{pi}"

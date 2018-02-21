@@ -15,5 +15,5 @@ for i in range(2, rounds + 2):
 
 pi *= 4
 
-print("π = {0}".format(pi))
+print(pi)
 
