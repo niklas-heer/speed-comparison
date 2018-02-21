@@ -1,5 +1,6 @@
 import parseutils
 import strutils
+import strutils
 
 var
     rounds = parseInt($strip(readFile("rounds.txt")))
@@ -11,4 +12,4 @@ for i in 2..(rounds + 2):
     pi += x / float(2 * i - 1)
 
 pi *= 4.0
-echo "π = " & $pi
+echo pi.formatFloat(ffDecimal, 16)
