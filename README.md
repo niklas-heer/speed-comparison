@@ -24,6 +24,7 @@ You are also welcome to contribute and help me make fix my possible misuse of so
 - [Lua](https://www.lua.org/) - interpreted
 - [Nim](https://nim-lang.org/) - compiled
 - [PHP](https://secure.php.net/) - interpreted
+- [C++](https://isocpp.org/) - compiled
 - [Crystal](https://crystal-lang.org/) - compiled
 - [Go](https://golang.org/) - compiled
 - [C](https://en.wikipedia.org/wiki/C_(programming_language)) - compiled
