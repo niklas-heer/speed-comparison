@@ -25,5 +25,7 @@ ADD . /usr/src/app
 WORKDIR /usr/src/app
 ENV PYTHONPATH /usr/src/app
 
-COPY ./comparison.sh /
-CMD ["/comparison.sh"]
+RUN pip3 install -r requirements.txt
+
+COPY ./comparison.py /
+CMD ["/comparison.py"]

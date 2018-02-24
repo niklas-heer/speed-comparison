@@ -17,4 +17,4 @@ end
 
 pi = pi * 4
 
-print(string.format("%03.16f\n",pi))
+print(string.format("%03.16f",pi))

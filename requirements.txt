@@ -1,0 +1,2 @@
+lauda==1.2.0
+delegator.py==0.0.14
