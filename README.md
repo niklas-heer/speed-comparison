@@ -101,8 +101,7 @@ Result: π = 3.141594
 
 Everything is run by a Docker container and a bash script which envokes the programs.
 
-To measure the execution time a diff of the [`date`](http://man7.org/linux/man-pages/man1/date.1.html) command is used.
-It is measure by nanoseconds but displayed in milliseconds.
+To measure the execution time a [python package](https://pypi.python.org/pypi/lauda/1.2.0) is used.
 
 ### Requirements
 
