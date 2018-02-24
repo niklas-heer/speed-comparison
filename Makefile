@@ -4,4 +4,4 @@ build:
 	docker build -t="niklas-heer/speed-comparison" .
 
 up:
-	docker run -it --rm niklas-heer/speed-comparison
+	docker run -v "$$PWD/results":/usr/src/app/results -it --rm niklas-heer/speed-comparison
