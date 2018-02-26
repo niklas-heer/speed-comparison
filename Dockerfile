@@ -3,27 +3,30 @@ FROM base/archlinux:latest
 # Base installation
 RUN pacman -Syu --noconfirm  && \
     pacman --noconfirm -S \
-    base-devel \
+    base-devel
+
+# Install python
+RUN pacman --noconfirm -S \
     python \
-    python-pip \
-    ttf-roboto
+    python-pip
 
 # Programming languages
-RUN pacman --noconfirm -S \
-    pypy \
-    ruby \
-    php \
-    rust \
-    go \
-    nodejs \
-    lua \
-    julia \
-    nim \
-    crystal \
-    r
+RUN pacman --noconfirm -S pypy
+RUN pacman --noconfirm -S ruby
+RUN pacman --noconfirm -S php
+RUN pacman --noconfirm -S rust
+RUN pacman --noconfirm -S go
+RUN pacman --noconfirm -S nodejs
+RUN pacman --noconfirm -S lua
+RUN pacman --noconfirm -S julia
+RUN pacman --noconfirm -S nim
+RUN pacman --noconfirm -S crystal
 
-# Install R packages
-RUN R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')"
+# Install R incl. packages + font for rendering
+RUN pacman --noconfirm -S \
+    r \
+    ttf-roboto && \
+    R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')"
 
 # Add user, group sudo; switch to user
 RUN /usr/sbin/groupadd --system sudo && \
