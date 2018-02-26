@@ -1,3 +1,7 @@
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/img/plot.png "Speed comparison of programming languages")
+
+---
+
 # Speed comparison of programming languages
 
 This projects tries to compare the speed of different programming languages.
@@ -33,68 +37,124 @@ You are also welcome to contribute and help me make fix my possible misuse of so
 
 ```text
 ======= Comparison =======
-Rounds used: 1000000
-
+Iterations: 1000000
 
 > Julia
-Version: julia version 0.6.0
-Time: 805 ms
-Result: π = 3.1415916535917745
+Version: julia version 0.6.2
+Speed (all): 747ms, 723ms, 715ms, 730ms, 724ms, 701ms, 718ms, 726ms, 710ms, 725ms
+Speed (best): 701ms
+Speed (worst): 747ms
+Speed (median): 723.5ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
 
-> Python 3 (CPython)
-Version: Python 3.6.3
-Time: 336 ms
-Result: π = 3.1415936535887745
+> Python (CPython)
+Version: Python 3.6.4
+Speed (all): 245ms, 259ms, 223ms, 235ms, 247ms, 255ms, 260ms, 242ms, 226ms, 228ms
+Speed (best): 223ms
+Speed (worst): 260ms
+Speed (median): 243.5ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > Ruby
-Version: ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-linux-musl]
-Time: 199 ms
-Result: π = 3.1415916535917745
+Version: ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
+Speed (all): 139ms, 133ms, 125ms, 120ms, 124ms, 134ms, 127ms, 123ms, 133ms, 136ms
+Speed (best): 120ms
+Speed (worst): 139ms
+Speed (median): 130.0ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
 
-> Rust
-Version: rustc 1.22.1
-Time: 128 ms
-Result: π = 3.1415936535887745
+> JS (node)
+Version: v9.6.1
+Speed (all): 69ms, 65ms, 67ms, 66ms, 66ms, 66ms, 66ms, 70ms, 72ms, 65ms
+Speed (best): 65ms
+Speed (worst): 72ms
+Speed (median): 66.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
-> JS (node.js)
-Version: v8.9.3
-Time: 93 ms
-Result: π = 3.1415936535887745
+> Python (pypy)
+Version: 5.10.0-5
+Speed (all): 112ms, 40ms, 41ms, 43ms, 42ms, 41ms, 40ms, 41ms, 41ms, 43ms
+Speed (best): 40ms
+Speed (worst): 112ms
+Speed (median): 41.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > Lua
 Version: Lua 5.3.4  Copyright (C) 1994-2017 Lua.org, PUC-Rio
-Time: 85 ms
-Result: π = 3.1415916535917745
+Speed (all): 74ms, 67ms, 72ms, 70ms, 72ms, 72ms, 72ms, 68ms, 75ms, 76ms
+Speed (best): 67ms
+Speed (worst): 76ms
+Speed (median): 72.0ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
+
+> Rust
+Version: rustc 1.24.0
+Speed (all): 75ms, 74ms, 73ms, 71ms, 74ms, 71ms, 71ms, 67ms, 68ms, 70ms
+Speed (best): 67ms
+Speed (worst): 75ms
+Speed (median): 71.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > PHP
-Version: PHP 7.1.14 (cli) (built: Feb  8 2018 15:10:11) ( NTS )
-Time: 57 ms
-Result: π = 3.1415936535887745
+Version: PHP 7.2.2 (cli) (built: Jan 30 2018 19:18:38) ( NTS )
+Speed (all): 60ms, 58ms, 57ms, 59ms, 58ms, 58ms, 58ms, 56ms, 55ms, 60ms
+Speed (best): 55ms
+Speed (worst): 60ms
+Speed (median): 58.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > Nim
-Version: 0.17.2
-Time: 31 ms
-Result: π = 3.1415916535917745
+Version: 0.17.2-2
+Speed (all): 43ms, 39ms, 45ms, 41ms, 40ms, 39ms, 40ms, 40ms, 38ms, 39ms
+Speed (best): 38ms
+Speed (worst): 45ms
+Speed (median): 40.0ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
 
 > C++
-Version: g++ (Alpine 6.4.0) 6.4.0
-Time: 7 ms
-Result: π = 3.1415936535887745
+Version: g++ (GCC) 7.3.0
+Speed (all): 11ms, 10ms, 10ms, 9ms, 10ms, 9ms, 10ms, 8ms, 8ms, 8ms
+Speed (best): 8ms
+Speed (worst): 11ms
+Speed (median): 9.5ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > Crystal
-Version: Crystal 0.24.1 (2017-12-22)
-Time: 6 ms
-Result: π = 3.1415916535917745
+Version: Crystal 0.24.1 (2017-12-20)
+Speed (all): 12ms, 10ms, 9ms, 9ms, 9ms, 9ms, 9ms, 9ms, 9ms, 10ms
+Speed (best): 9ms
+Speed (worst): 12ms
+Speed (median): 9.0ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
 
 > Go
-Version: go version go1.9.2 linux/amd64
-Time: 4 ms
-Result: π = 3.1415936535887745
+Version: go version go1.10 linux/amd64
+Speed (all): 7ms, 6ms, 6ms, 6ms, 5ms, 5ms, 6ms, 5ms, 6ms, 6ms
+Speed (best): 5ms
+Speed (worst): 7ms
+Speed (median): 6.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > C
-Version: gcc (Alpine 6.4.0) 6.4.0
-Time: 3 ms
-Result: π = 3.141594
+Version: gcc (GCC) 7.3.0
+Speed (all): 9ms, 7ms, 6ms, 7ms, 7ms, 6ms, 6ms, 6ms, 6ms, 6ms
+Speed (best): 6ms
+Speed (worst): 9ms
+Speed (median): 6.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 ```
 
 ## Run it yourself
@@ -108,9 +168,17 @@ To measure the execution time a [python package](https://pypi.python.org/pypi/la
 - `Docker`
 - `Makefile` support
 
-### Execute it
+### Run measurement
 
 Just run: `make`
+
+### Print plot
+
+`make plot`
+
+### Run cli
+
+`make cli`
 
 ## FAQ
 
@@ -124,12 +192,15 @@ No they are not included, because when running the program in the real world thi
 
 ## TODO
 
-- [ ] Add an example for Ada
-- [x] Add an example for C++
-- [ ] Add an example for Haskell
-- [ ] Add an example for Elixir
-- [ ] Add an example for Java
-- [ ] Use also pypy for Python
+- [x] Add C++
+- [x] Add run pypy for Python
+- [ ] Add Kotlin
+- [ ] Add Swift
+- [ ] Add Ada
+- [ ] Add Haskell
+- [ ] Add Elixir
+- [ ] Add Java
+- [ ] Produce graphic with results
 
 ## Thanks
 
