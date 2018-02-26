@@ -21,6 +21,7 @@ RUN pacman --noconfirm -S lua
 RUN pacman --noconfirm -S julia
 RUN pacman --noconfirm -S nim
 RUN pacman --noconfirm -S crystal
+RUN pacman --noconfirm -S kotlin
 
 # Install R incl. packages + font for rendering
 RUN pacman --noconfirm -S \

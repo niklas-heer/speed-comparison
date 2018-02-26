@@ -155,6 +155,7 @@ def measurement():
         ["Ruby", "ruby --version", "ruby leibniz.rb"],
         ["JS (node)", "node --version", "node leibniz.js"],
         ["Python (pypy)", "pacman -Qi pypy | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "pypy leibniz.py"],
+        ["Java", "pacman -Qi jdk8-openjdk | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "java leibniz", "javac leibniz.java"],
         ["Lua", "lua -v", "lua leibniz.lua"],
         ["Rust", "rustc --version", "./leibniz", "export RUST_BACKTRACE=1; rustc leibniz.rs"],
         ["PHP", "php --version", "php leibniz.php"],

@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/img/plot.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.0.png "Speed comparison of programming languages")
 
 ---
 
@@ -65,6 +65,15 @@ Speed (worst): 139ms
 Speed (median): 130.0ms
 Result: 3.1415916535917745
 Accuracy: 66.67%
+
+> Java
+Version: 8.u144-1
+Speed (all): 72ms, 76ms, 73ms, 83ms, 75ms, 68ms, 77ms, 79ms, 76ms, 77ms
+Speed (best): 68ms
+Speed (worst): 83ms
+Speed (median): 76.0ms
+Result: 3.1415936535887745
+Accuracy: 72.22%
 
 > JS (node)
 Version: v9.6.1
@@ -194,13 +203,13 @@ No they are not included, because when running the program in the real world thi
 
 - [x] Add C++
 - [x] Add run pypy for Python
+- [x] Produce graphic with results
+- [x] Add Java
 - [ ] Add Kotlin
 - [ ] Add Swift
 - [ ] Add Ada
 - [ ] Add Haskell
 - [ ] Add Elixir
-- [ ] Add Java
-- [ ] Produce graphic with results
 
 ## Thanks
 
