@@ -153,17 +153,17 @@ def measurement():
         ["Julia", "julia --version", "julia leibniz.jl"],
         ["Python (CPython)", "python --version", "python leibniz.py"],
         ["Ruby", "ruby --version", "ruby leibniz.rb"],
-        ["JS (node)", "node --version", "node leibniz.js"],
-        ["Python (pypy)", "pacman -Qi pypy | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "pypy leibniz.py"],
         ["Java", "pacman -Qi jdk8-openjdk | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "java leibniz", "javac leibniz.java"],
         ["Lua", "lua -v", "lua leibniz.lua"],
         ["Rust", "rustc --version", "./leibniz", "export RUST_BACKTRACE=1; rustc leibniz.rs"],
+        ["JS (node)", "node --version", "node leibniz.js"],
         ["PHP", "php --version", "php leibniz.php"],
+        ["Python (pypy)", "pacman -Qi pypy | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "pypy leibniz.py"],
         ["Nim", "pacman -Qi nim | grep 'Version' | cut -d: -f2 | cut -d ' ' -f2", "./leibniz", "nim c --verbosity:0 leibniz.nim"],
         ["C++", "g++ --version", "./leibniz", "g++ leibniz.cpp -o leibniz"],
         ["Crystal", "crystal --version", "./leibniz", "crystal build leibniz.cr"],
+        ["C", "gcc --version", "./leibniz", "gcc leibniz.c -o leibniz"],
         ["Go", "go version", "./leibniz", "go build leibniz.go"],
-        ["C", "gcc --version", "./leibniz", "gcc leibniz.c -o leibniz"]
     ]
 
     complete_results = []
