@@ -69,8 +69,11 @@ class Measure:
         print(f"Result: {result}")
 
         # Calculate accuracy
-        accuracy = self.diff_letters("{:.16f}".format(math.pi), result)
-        print("Accuracy: {:.2%}".format(accuracy))
+        if not self.debug:
+            accuracy = self.diff_letters(f"{math.pi:.{len(result)-2}f}", result)
+            print(f"Accuracy: {accuracy:.2%}")
+        else:
+            accuracy = 0.0000
 
         print()  # new line
 
