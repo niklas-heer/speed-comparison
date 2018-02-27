@@ -217,10 +217,16 @@ No they are not included, because when running the program in the real world thi
 - [x] Produce graphic with results
 - [x] Add Java
 - [x] Add Swift
+- [ ] Add Smalltalk
+- [ ] Add R
+- [ ] Add C#
+- [ ] Add Perl
 - [ ] Add Kotlin
-- [ ] Add Ada
 - [ ] Add Haskell
 - [ ] Add Elixir
+- [ ] Add Lisp
+- [ ] Add Ada
+- [ ] Add COBOL
 
 ## Thanks
 
