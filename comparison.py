@@ -181,11 +181,11 @@ def measurement():
 
         keys = complete_results[0].keys()
 
-        with open(f"data.csv", "w", newline="", encoding="utf8") as file:
+        with open("data.csv", "w", newline="", encoding="utf8") as file:
             dict_writer = csv.DictWriter(file, keys)
             dict_writer.writeheader()
             dict_writer.writerows(complete_results)
 
-        print("Saved the results in: {0}".format(colored(f"results/data.csv", 'red', attrs=['bold'])))
+        print(f"Saved the results in: {colored('results/data.csv', 'red', attrs=['bold'])}")
 
 measurement()
