@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.0.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.1.png "Speed comparison of programming languages")
 
 ---
 
@@ -23,6 +23,8 @@ You are also welcome to contribute and help me make fix my possible misuse of so
 - [Julia](http://julialang.org/) - JIT
 - [Python](https://www.python.org/) - interpreted (CPython)
 - [Ruby](https://www.ruby-lang.org/) - interpreted
+- [Swift](https://swift.org/) - compiled (in this test interpreted due to Linux Swift limitations)
+- [Java](http://www.oracle.com/technetwork/java/index.html) - compiled, VM
 - [Rust](https://www.rust-lang.org/)  - compiled
 - [Javascript](https://www.ecma-international.org/publications/standards/Ecma-402.htm) using [Node.js](https://nodejs.org/) - interpreted, JIT
 - [Lua](https://www.lua.org/) - interpreted
@@ -65,6 +67,15 @@ Speed (worst): 139ms
 Speed (median): 130.0ms
 Result: 3.1415916535917745
 Accuracy: 66.67%
+
+> Swift
+Version: Swift version 4.0.3 (swift-4.0.3-RELEASE)
+Speed (all): 112ms, 100ms, 98ms, 97ms, 105ms, 98ms, 99ms, 98ms, 101ms, 103ms
+Speed (best): 97ms
+Speed (worst): 112ms
+Speed (median): 99.5ms
+Result: 3.14159165359177
+Accuracy: 75.00%
 
 > Java
 Version: 8.u144-1
@@ -205,8 +216,8 @@ No they are not included, because when running the program in the real world thi
 - [x] Add run pypy for Python
 - [x] Produce graphic with results
 - [x] Add Java
+- [x] Add Swift
 - [ ] Add Kotlin
-- [ ] Add Swift
 - [ ] Add Ada
 - [ ] Add Haskell
 - [ ] Add Elixir

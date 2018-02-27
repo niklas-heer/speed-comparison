@@ -153,6 +153,7 @@ def measurement():
         ["Julia", "julia --version", "julia leibniz.jl"],
         ["Python (CPython)", "python --version", "python leibniz.py"],
         ["Ruby", "ruby --version", "ruby leibniz.rb"],
+        ["Swift", "swift --version", "swift leibniz.swift"],
         ["Java", "pacman -Qi jdk8-openjdk | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "java leibniz", "javac leibniz.java"],
         ["Lua", "lua -v", "lua leibniz.lua"],
         ["Rust", "rustc --version", "./leibniz", "export RUST_BACKTRACE=1; rustc leibniz.rs"],

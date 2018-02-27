@@ -46,6 +46,17 @@ RUN cd /tmp && \
     install -Dm755 ${yay_folder}/yay /usr/bin/yay && \
     install -Dm644 ${yay_folder}/yay.8 /usr/share/man/man8/yay.8
 
+# Switch user to be able to use yay
+USER user
+
+# Get the keys
+RUN gpg --recv-keys --keyserver hkp://pgp.mit.edu EF5430F071E1B235 && \
+    gpg --recv-keys --keyserver hkp://pgp.mit.edu 702353E0F7E48EDB
+
+# Install packages from the AUR
+RUN yay --noconfirm -S swift-bin
+
+USER root
 # Set correct locale
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
