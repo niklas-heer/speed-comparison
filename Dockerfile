@@ -3,7 +3,8 @@ FROM base/archlinux:latest
 # Base installation
 RUN pacman -Syu --noconfirm  && \
     pacman --noconfirm -S \
-    base-devel
+    base-devel \
+    ttf-roboto
 
 # Install python
 RUN pacman --noconfirm -S \
@@ -24,10 +25,11 @@ RUN pacman --noconfirm -S crystal
 RUN pacman --noconfirm -S kotlin
 
 # Install R incl. packages + font for rendering
-RUN pacman --noconfirm -S \
-    r \
-    ttf-roboto && \
-    R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')"
+RUN pacman --noconfirm -S r
+
+# Install R packages
+RUN R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')" && \
+    R -e "install.packages('readr', repos='http://cran.rstudio.com/')"
 
 # Add user, group sudo; switch to user
 RUN /usr/sbin/groupadd --system sudo && \

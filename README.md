@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.1.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.2.png "Speed comparison of programming languages")
 
 ---
 
@@ -21,6 +21,7 @@ You are also welcome to contribute and help me make fix my possible misuse of so
 ## Languages used in this comparison
 
 - [Julia](http://julialang.org/) - JIT
+- [R](https://www.r-project.org/) - interpreted
 - [Python](https://www.python.org/) - interpreted (CPython)
 - [Ruby](https://www.ruby-lang.org/) - interpreted
 - [Swift](https://swift.org/) - compiled (in this test interpreted due to Linux Swift limitations)
@@ -47,6 +48,15 @@ Speed (all): 747ms, 723ms, 715ms, 730ms, 724ms, 701ms, 718ms, 726ms, 710ms, 725m
 Speed (best): 701ms
 Speed (worst): 747ms
 Speed (median): 723.5ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
+
+> R
+Version: R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Speed (all): 458ms, 454ms, 421ms, 426ms, 434ms, 445ms, 416ms, 421ms, 448ms, 560ms
+Speed (best): 416ms
+Speed (worst): 560ms
+Speed (median): 439.5ms
 Result: 3.1415916535917745
 Accuracy: 66.67%
 
@@ -217,8 +227,8 @@ No they are not included, because when running the program in the real world thi
 - [x] Produce graphic with results
 - [x] Add Java
 - [x] Add Swift
+- [X] Add R
 - [ ] Add Smalltalk
-- [ ] Add R
 - [ ] Add C#
 - [ ] Add Perl
 - [ ] Add Kotlin

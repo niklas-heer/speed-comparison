@@ -154,6 +154,7 @@ def measurement():
     languages = [
         # language name / version command / execute command / compile command
         ["Julia", "julia --version", "julia leibniz.jl"],
+        ["R", "R --version", "Rscript leibniz.r"]
         ["Python (CPython)", "python --version", "python leibniz.py"],
         ["Ruby", "ruby --version", "ruby leibniz.rb"],
         ["Swift", "swift --version", "swift leibniz.swift"],
