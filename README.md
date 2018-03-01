@@ -227,7 +227,10 @@ No they are not included, because when running the program in the real world thi
 - [x] Produce graphic with results
 - [x] Add Java
 - [x] Add Swift
-- [X] Add R
+- [x] Add R
+- [ ] Add [Php 5.6](https://aur.archlinux.org/packages/php56/)
+- [ ] Add phpv8js
+- [ ] Add python2
 - [ ] Add Smalltalk
 - [ ] Add C#
 - [ ] Add Perl
