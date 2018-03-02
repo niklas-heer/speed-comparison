@@ -154,8 +154,8 @@ def measurement():
     languages = [
         # language name / version command / execute command / compile command
         ["Julia", "julia --version", "julia leibniz.jl"],
-        ["R", "R --version", "Rscript leibniz.r"],
         ["Python 3 (CPython)", "python --version", "python leibniz.py"],
+        ["R", "R --version", "Rscript leibniz.r"],
         ["Ruby", "ruby --version", "ruby leibniz.rb"],
         ["PHP 5.6", "php56 --version", "php56 leibniz.php"],
         ["Java", "pacman -Qi jdk8-openjdk | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "java leibniz", "javac leibniz.java"],

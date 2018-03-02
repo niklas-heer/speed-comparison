@@ -28,8 +28,7 @@ RUN pacman --noconfirm -S kotlin
 RUN pacman --noconfirm -S r
 
 # Install R packages
-RUN R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')" && \
-    R -e "install.packages('readr', repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')"
 
 # Add user, group sudo; switch to user
 RUN /usr/sbin/groupadd --system sudo && \

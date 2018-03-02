@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.3.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.4.png "Speed comparison of programming languages")
 
 ---
 
@@ -51,15 +51,6 @@ Speed (median): 723.5ms
 Result: 3.1415916535917745
 Accuracy: 66.67%
 
-> R
-Version: R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
-Speed (all): 458ms, 454ms, 421ms, 426ms, 434ms, 445ms, 416ms, 421ms, 448ms, 560ms
-Speed (best): 416ms
-Speed (worst): 560ms
-Speed (median): 439.5ms
-Result: 3.1415916535917745
-Accuracy: 66.67%
-
 > Python 3 (CPython)
 Version: Python 3.6.4
 Speed (all): 245ms, 259ms, 223ms, 235ms, 247ms, 255ms, 260ms, 242ms, 226ms, 228ms
@@ -68,6 +59,15 @@ Speed (worst): 260ms
 Speed (median): 243.5ms
 Result: 3.1415936535887745
 Accuracy: 72.22%
+
+> R
+Version: R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Speed (all): 175ms, 170ms, 182ms, 182ms, 181ms, 190ms, 177ms, 180ms, 181ms, 182ms
+Speed (best): 170ms
+Speed (worst): 190ms
+Speed (median): 181.0ms
+Result: 3.1415916535917745
+Accuracy: 66.67%
 
 > Ruby
 Version: ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]

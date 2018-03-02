@@ -1,5 +1,5 @@
-library(readr)
-rounds <- as.numeric(read_file("rounds.txt"))
+fileName <- "rounds.txt"
+rounds <- as.numeric(readChar(fileName, file.info(fileName)$size))
 
 x = 1.0
 pi = 1.0
