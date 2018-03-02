@@ -58,6 +58,7 @@ RUN gpg --recv-keys --keyserver hkp://pgp.mit.edu EF5430F071E1B235 && \
 
 # Install packages from the AUR
 RUN yay --noconfirm -S php56
+# RUN yay --noconfirm -S swift-bin # doesn't work atm due to faulty icu55 package
 
 # Switch back
 USER root

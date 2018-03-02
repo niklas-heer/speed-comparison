@@ -154,10 +154,9 @@ def measurement():
     languages = [
         # language name / version command / execute command / compile command
         ["Julia", "julia --version", "julia leibniz.jl"],
-        ["R", "R --version", "Rscript leibniz.r"]
+        ["R", "R --version", "Rscript leibniz.r"],
         ["Python 3 (CPython)", "python --version", "python leibniz.py"],
         ["Ruby", "ruby --version", "ruby leibniz.rb"],
-        ["Swift", "swift --version", "swift leibniz.swift"],
         ["PHP 5.6", "php56 --version", "php56 leibniz.php"],
         ["Java", "pacman -Qi jdk8-openjdk | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "java leibniz", "javac leibniz.java"],
         ["Lua", "lua -v", "lua leibniz.lua"],
@@ -170,6 +169,8 @@ def measurement():
         ["Crystal", "crystal --version", "./leibniz", "crystal build leibniz.cr"],
         ["C", "gcc --version", "./leibniz", "gcc leibniz.c -o leibniz"],
         ["Go", "go version", "./leibniz", "go build leibniz.go"],
+
+        # ["Swift", "swift --version", "swift leibniz.swift"],
     ]
 
     complete_results = []
