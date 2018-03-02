@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.2.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.3.png "Speed comparison of programming languages")
 
 ---
 
@@ -60,7 +60,7 @@ Speed (median): 439.5ms
 Result: 3.1415916535917745
 Accuracy: 66.67%
 
-> Python (CPython)
+> Python 3 (CPython)
 Version: Python 3.6.4
 Speed (all): 245ms, 259ms, 223ms, 235ms, 247ms, 255ms, 260ms, 242ms, 226ms, 228ms
 Speed (best): 223ms
@@ -87,6 +87,14 @@ Speed (median): 99.5ms
 Result: 3.14159165359177
 Accuracy: 75.00%
 
+> PHP 5.6
+Version: PHP 5.6.33 (cli) (built: Mar  1 2018 23:44:30)
+Speed (all): 84ms, 80ms, 78ms, 80ms, 79ms, 80ms, 77ms, 83ms, 79ms, 78ms
+Speed (best): 77ms
+Speed (worst): 84ms
+Speed (median): 79.5ms
+Result: 3.1415936535887745
+
 > Java
 Version: 8.u144-1
 Speed (all): 72ms, 76ms, 73ms, 83ms, 75ms, 68ms, 77ms, 79ms, 76ms, 77ms
@@ -105,7 +113,7 @@ Speed (median): 66.0ms
 Result: 3.1415936535887745
 Accuracy: 72.22%
 
-> Python (pypy)
+> Python 3 (pypy)
 Version: 5.10.0-5
 Speed (all): 112ms, 40ms, 41ms, 43ms, 42ms, 41ms, 40ms, 41ms, 41ms, 43ms
 Speed (best): 40ms
@@ -132,12 +140,12 @@ Speed (median): 71.0ms
 Result: 3.1415936535887745
 Accuracy: 72.22%
 
-> PHP
+> PHP 7
 Version: PHP 7.2.2 (cli) (built: Jan 30 2018 19:18:38) ( NTS )
-Speed (all): 60ms, 58ms, 57ms, 59ms, 58ms, 58ms, 58ms, 56ms, 55ms, 60ms
-Speed (best): 55ms
-Speed (worst): 60ms
-Speed (median): 58.0ms
+Speed (all): 58ms, 55ms, 52ms, 55ms, 54ms, 52ms, 55ms, 57ms, 54ms, 53ms
+Speed (best): 52ms
+Speed (worst): 58ms
+Speed (median): 54.5ms
 Result: 3.1415936535887745
 Accuracy: 72.22%
 
@@ -228,7 +236,7 @@ No they are not included, because when running the program in the real world thi
 - [x] Add Java
 - [x] Add Swift
 - [x] Add R
-- [ ] Add [Php 5.6](https://aur.archlinux.org/packages/php56/)
+- [x] Add [Php 5.6](https://aur.archlinux.org/packages/php56/)
 - [ ] Add phpv8js
 - [ ] Add python2
 - [ ] Add Smalltalk

@@ -53,12 +53,18 @@ USER user
 
 # Get the keys
 RUN gpg --recv-keys --keyserver hkp://pgp.mit.edu EF5430F071E1B235 && \
+    gpg --recv-keys --keyserver hkp://pgp.mit.edu C2BF0BC433CFC8B3 && \
     gpg --recv-keys --keyserver hkp://pgp.mit.edu 702353E0F7E48EDB
 
 # Install packages from the AUR
-RUN yay --noconfirm -S swift-bin
+RUN yay --noconfirm -S php56
 
+# Switch back
 USER root
+
+# Fix the problem with open_basedir restriction while running php56
+RUN sed -i '/open_basedir/d' /etc/php56/php.ini
+
 # Set correct locale
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
