@@ -160,7 +160,7 @@ def measurement():
         ["PHP 5.6", "php56 --version", "php56 leibniz.php"],
         ["Java", "pacman -Qi jdk8-openjdk | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "java leibniz", "javac leibniz.java"],
         ["Lua", "lua -v", "lua leibniz.lua"],
-        ["Rust", "rustc --version", "./leibniz", "export RUST_BACKTRACE=1; rustc leibniz.rs"],
+        ["Rust", "rustc --version", "./leibniz", "export RUST_BACKTRACE=1; rustc -C debuginfo=0 -C opt-level=3 leibniz.rs"],
         ["JS (node)", "node --version", "node leibniz.js"],
         ["PHP 7", "php --version", "php leibniz.php"],
         ["Python 3 (pypy)", "pacman -Qi pypy | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "pypy leibniz.py"],
