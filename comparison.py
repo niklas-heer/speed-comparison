@@ -165,9 +165,9 @@ def measurement():
         ["PHP 7", "php --version", "php leibniz.php"],
         ["Python 3 (pypy)", "pacman -Qi pypy | grep 'Version' | cut -d: -f2- | cut -d ' ' -f2", "pypy leibniz.py"],
         ["Nim", "pacman -Qi nim | grep 'Version' | cut -d: -f2 | cut -d ' ' -f2", "./leibniz", "nim c --verbosity:0 leibniz.nim"],
-        ["C++", "g++ --version", "./leibniz", "g++ leibniz.cpp -o leibniz"],
+        ["C", "gcc --version", "./leibniz", "gcc leibniz.c -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer"],
+        ["C++", "g++ --version", "./leibniz", "g++ leibniz.cpp -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer"],
         ["Crystal", "crystal --version", "./leibniz", "crystal build leibniz.cr"],
-        ["C", "gcc --version", "./leibniz", "gcc leibniz.c -o leibniz"],
         ["Go", "go version", "./leibniz", "go build leibniz.go"],
 
         # ["Swift", "swift --version", "swift leibniz.swift"],
