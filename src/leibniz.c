@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 unsigned rounds;
-double x = 1.0;
+float x = 1.0f;
 double pi = 1.0;
 
 int main()
