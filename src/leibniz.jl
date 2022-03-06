@@ -10,6 +10,5 @@ function f(rounds)
     return pi*4
 end
 
-file = open("rounds.txt")
-rounds = parse(Int64, strip(readstring(file)))
+rounds = parse(Int64, readchomp(joinpath(@__DIR__, "rounds.txt")))
 print(f(rounds))
