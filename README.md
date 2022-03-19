@@ -35,6 +35,7 @@ You are also welcome to contribute and help me make fix my possible misuse of so
 - [Crystal](https://crystal-lang.org/) - compiled
 - [Go](https://golang.org/) - compiled
 - [C](https://en.wikipedia.org/wiki/C_(programming_language)) - compiled
+- [Elixir](https://elixir-lang.org/) - compiled
 
 ## Results
 
