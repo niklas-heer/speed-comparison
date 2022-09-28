@@ -169,6 +169,7 @@ def measurement():
         ["Crystal", "crystal --version", "./leibniz", "crystal build leibniz.cr"],
         ["C", "gcc --version", "./leibniz", "gcc leibniz.c -o leibniz"],
         ["Go", "go version", "./leibniz", "go build leibniz.go"],
+        ["Elixir", "elixir --version", "elixir leibniz.ex"],
 
         # ["Swift", "swift --version", "swift leibniz.swift"],
     ]

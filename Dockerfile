@@ -27,6 +27,7 @@ RUN pacman --noconfirm -S julia
 RUN pacman --noconfirm -S nim
 RUN pacman --noconfirm -S crystal
 RUN pacman --noconfirm -S kotlin
+RUN pacman --noconfirm -S elixir
 
 # Install R
 RUN pacman --noconfirm -S r
