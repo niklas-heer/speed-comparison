@@ -1,33 +1,29 @@
-#include <iostream>
-#include <string>
 #include <fstream>
-#include <streambuf>
-#include <limits>
+#include <iostream>
+
+unsigned rounds;
+float x = 1.0f;
+double pi = 1.0;
 
 int main()
 {
-    // Needed to automatically use the max. precision
-    typedef std::numeric_limits< double > dbl;
-
-    // Read rounds from file
-    std::ifstream t("rounds.txt");
-    std::string str((std::istreambuf_iterator<char>(t)),
-                    std::istreambuf_iterator<char>());
-
-    int rounds = std::stoi(str);  // convert to int
-
-    double x = 1.0;
-    double pi = 1.0;
-
-    for (int i = 2; i < rounds + 2; i++) {
-        x *= -1;
-        pi += (x / (2.0 * i - 1.0));
-    }
-
-    pi *= 4;
-
-    std::cout.precision(dbl::max_digits10);  // see: https://stackoverflow.com/a/554134
-    std::cout << pi << std::endl;
-
-    return 0;
+	std::ios::sync_with_stdio(false);   // cout speedhack
+	
+	std::ifstream infile("rounds.txt"); // open input file
+	infile >> rounds; // read number from file
+	infile.close(); // close input file
+	
+	rounds += 2u; // do this outside the loop
+	
+	for (unsigned i=2 ; i < rounds ; ++i) // use ++i instead of i++
+	{
+		x = -x; // some compilers optimize this better than x *= -1
+		pi += (x / (2u * i - 1u)); // double / unsigned = double
+	}
+	
+	pi *= 4;
+	
+	std::cout.precision(17); // set no. of decimal digits (upto 50)
+	std::cout << pi << std::endl; // print pi to console
+	return 0;
 }

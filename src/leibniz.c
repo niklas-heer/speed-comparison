@@ -1,36 +1,24 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
+unsigned rounds;
+float x = 1.0f;
+double pi = 1.0;
 
 int main()
 {
-    // Read the file into a string
-    char *file_contents;
-    long input_file_size;
-    FILE *input_file = fopen("rounds.txt", "rb");
-    fseek(input_file, 0, SEEK_END);
-    input_file_size = ftell(input_file);
-    rewind(input_file);
-    file_contents = malloc(input_file_size * (sizeof(char)));
-    fread(file_contents, sizeof(char), input_file_size, input_file);
-    fclose(input_file);
-
-    int rounds = atoi(file_contents);    // convert into an int
-
-    double x = 1.0;
-    double pi = 1.0;
-
-    for (int i = 2; i < rounds + 2; i++) {
-        x *= -1;
-        pi += (x / (2.0 * i - 1.0));
-    }
-
-    pi *= 4;
-
-    printf("%.17g\n", pi);
-
-    return 0;
+	FILE* infile = fopen("rounds.txt", "r"); // open file
+	fscanf(infile, "%u", &rounds); // read from file
+	fclose(infile); // close file
+	
+	rounds += 2u; // do this outside the loop
+	
+	for (unsigned i=2 ; i < rounds ; ++i) // use ++i instead of i++
+	{
+		x = -x; // some compilers optimize this better than x *= -1
+		pi += (x / (2u * i - 1u));  // double / unsigned = double
+	}
+	
+	pi *= 4;
+	printf("%.16f\n", pi); // print 16 decimal digits of pi
+	return 0;
 }
-
-
