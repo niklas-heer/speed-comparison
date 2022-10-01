@@ -30,8 +30,9 @@ all:
   BUILD +elixir
   BUILD +go
   BUILD +java
-
   BUILD +julia
+  BUILD +nodejs
+
   BUILD +python
   BUILD +ruby
 
@@ -109,6 +110,14 @@ julia:
   COPY ./src/leibniz.jl ./
   RUN --no-cache ./scbench "julia leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia.json
+
+nodejs:
+  FROM +alpine
+  RUN apk add --no-cache nodejs-current
+
+  COPY ./src/leibniz.js ./
+  RUN --no-cache ./scbench "node leibniz.js" -i $iterations -l "node --version" --export json --lang "Javascript (nodejs)"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nodejs.json
 
 python:
   FROM +alpine
