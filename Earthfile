@@ -105,7 +105,7 @@ java:
   # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
   # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
   RUN --no-cache ./scbench "java leibniz" -i $iterations -l "echo 19.36" --export json --lang "Java"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/go.json
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/java.json
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
@@ -131,7 +131,7 @@ lua:
 
   COPY ./src/leibniz.lua ./
   RUN --no-cache ./scbench "lua5.4 leibniz.lua" -i $iterations -l "lua5.4 -v" --export json --lang "Lua"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/python.json
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/lua.json
 
 python:
   FROM +alpine
