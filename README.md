@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/plot_v1.4.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.png "Speed comparison of programming languages")
 
 ---
 
