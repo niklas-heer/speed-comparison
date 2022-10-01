@@ -20,6 +20,7 @@ alpine:
   COPY +build/scbench ./
 
 all:
+  # Preparing
   BUILD +build
   BUILD +alpine
 
@@ -32,9 +33,14 @@ all:
   BUILD +java
   BUILD +julia
   BUILD +nodejs
-
+  BUILD +lua
+  # BUILD +nim
+  # BUILD +php
   BUILD +python
+  # BUILD +r
   BUILD +ruby
+  # BUILD +rust
+  # BUILD +swift
 
 c:
   FROM +alpine
@@ -118,6 +124,14 @@ nodejs:
   COPY ./src/leibniz.js ./
   RUN --no-cache ./scbench "node leibniz.js" -i $iterations -l "node --version" --export json --lang "Javascript (nodejs)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nodejs.json
+
+lua:
+  FROM +alpine
+  RUN apk add --no-cache lua5.4
+
+  COPY ./src/leibniz.lua ./
+  RUN --no-cache ./scbench "lua5.4 leibniz.lua" -i $iterations -l "lua5.4 -v" --export json --lang "Lua"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/python.json
 
 python:
   FROM +alpine
