@@ -41,7 +41,7 @@ all:
   BUILD +r
   BUILD +ruby
   BUILD +rust
-  # BUILD +swift
+  BUILD +swift
 
 c:
   FROM +alpine
@@ -193,3 +193,15 @@ rust:
   RUN --no-cache export RUST_BACKTRACE=1; rustc -C debuginfo=0 -C opt-level=3 leibniz.rs
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "rustc --version" --export json --lang "Rust"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/rust.json
+
+swift:
+  # There is no swift package on alpine
+  # TODO: try to use slim version again. For now it seems broken.
+  # https://forums.swift.org/t/bug-in-docker-image-swift-5-7-slim-swift-command-not-found/60609
+  FROM swift:5.7-jammy
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  COPY ./src/leibniz.swift ./
+  RUN --no-cache ./scbench "swift leibniz.swift" -i $iterations -l "swift --version" --export json --lang "Swift"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/swift.json
