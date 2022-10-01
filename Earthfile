@@ -22,10 +22,14 @@ alpine:
 all:
   BUILD +build
   BUILD +alpine
+
+  # Work through programming languages
   BUILD +c
   BUILD +cpp
   BUILD +crystal
   BUILD +elixir
+  BUILD +go
+
   BUILD +julia
   BUILD +python
   BUILD +ruby
@@ -69,6 +73,17 @@ elixir:
   # flag: [...] -L 1 (it starts with 0)
   RUN --no-cache ./scbench "elixir leibniz.ex" -i $iterations -l "elixir --version" --export json --lang "Elixir" -L 1
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/elixir.json
+
+go:
+  # We can reuse the build image of the scbench tool
+  FROM golang:1.19.1-alpine
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  COPY ./src/leibniz.go ./
+  RUN --no-cache go build leibniz.go
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "go version" --export json --lang "Go"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/go.json
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
