@@ -35,7 +35,7 @@ all:
   BUILD +nodejs
   BUILD +lua
   BUILD +nim
-  # BUILD +php
+  BUILD +php
   BUILD +python
   # BUILD +r
   BUILD +ruby
@@ -141,6 +141,14 @@ nim:
   RUN --no-cache nim c --verbosity:0 leibniz.nim
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "nim --version" --export json --lang "Nim"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nim.json
+
+php:
+  FROM +alpine
+  RUN apk add --no-cache php81
+
+  COPY ./src/leibniz.php ./
+  RUN --no-cache ./scbench "php81 leibniz.php" -i $iterations -l "php81 --version" --export json --lang "PHP"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/php.json
 
 python:
   FROM +alpine
