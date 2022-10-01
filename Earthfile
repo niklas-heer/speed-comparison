@@ -38,7 +38,7 @@ all:
   BUILD +php
   BUILD +cpython
   BUILD +pypy
-  # BUILD +r
+  BUILD +r
   BUILD +ruby
   # BUILD +rust
   # BUILD +swift
@@ -160,6 +160,7 @@ cpython:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cpython.json
 
 pypy:
+  # There is no pypy package on alpine
   FROM pypy:3.9-slim
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
@@ -167,6 +168,14 @@ pypy:
   COPY ./src/leibniz.py ./
   RUN --no-cache ./scbench "pypy leibniz.py" -i $iterations -l "pypy --version" --export json --lang "Python (PyPy)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/pypy.json
+
+r:
+  FROM +alpine
+  RUN apk add --no-cache R
+
+  COPY ./src/leibniz.r ./
+  RUN --no-cache ./scbench "Rscript leibniz.r" -i $iterations -l "R --version" --export json --lang "R"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/R.json
 
 ruby:
   FROM +alpine
