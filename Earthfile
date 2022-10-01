@@ -29,6 +29,7 @@ all:
   BUILD +crystal
   BUILD +elixir
   BUILD +go
+  BUILD +java
 
   BUILD +julia
   BUILD +python
@@ -53,7 +54,6 @@ cpp:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cpp.json
 
 crystal:
-  # Use alpine, because there is an old version on Nix
   FROM +alpine
   RUN apk add --no-cache crystal
 
@@ -63,7 +63,6 @@ crystal:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/crystal.json
 
 elixir:
-  # Use alpine, since there are some problems on Nix with UTF8
   FROM +alpine
   RUN apk add --no-cache elixir
 
@@ -83,6 +82,22 @@ go:
   COPY ./src/leibniz.go ./
   RUN --no-cache go build leibniz.go
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "go version" --export json --lang "Go"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/go.json
+
+java:
+  # Using a dedicated image due to the packages on alpine being not up to date.
+  FROM eclipse-temurin:19_36-jdk-alpine
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  COPY ./src/leibniz.java ./
+  RUN --no-cache javac leibniz.java
+  # TODO: Change scbench to be able to handle Java version. For now it's static.
+  # $ java -version
+  # openjdk version "19" 2022-09-20
+  # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
+  # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
+  RUN --no-cache ./scbench "java leibniz" -i $iterations -l "echo 19.36" --export json --lang "Java"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/go.json
 
 julia:
