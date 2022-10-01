@@ -13,13 +13,6 @@ build:
   RUN go build -v -o build/scbench ./cmd/scbench
   SAVE ARTIFACT build/scbench /scbench
 
-nixos:
-  FROM nixos/nix:2.11.1
-  RUN nix-channel --update
-
-  COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
-
 alpine:
   FROM alpine:3.16
 
@@ -28,7 +21,6 @@ alpine:
 
 all:
   BUILD +build
-  BUILD +nixos
   BUILD +alpine
   BUILD +c
   BUILD +cpp
@@ -39,8 +31,8 @@ all:
   BUILD +ruby
 
 c:
-  FROM +nixos
-  RUN nix-env -iA nixpkgs.gcc
+  FROM +alpine
+  RUN apk add --no-cache gcc build-base
 
   COPY ./src/leibniz.c ./
   RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
@@ -48,12 +40,12 @@ c:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/c.json
 
 cpp:
-  FROM +nixos
-  RUN nix-env -iA nixpkgs.gcc
+  FROM +alpine
+  RUN apk add --no-cache gcc build-base
 
   COPY ./src/leibniz.cpp ./
-  RUN --no-cache c++ leibniz.cpp -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "c++ --version" --export json --lang "C++ (gcc)"
+  RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "g++ --version" --export json --lang "C++ (g++)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cpp.json
 
 crystal:
@@ -79,9 +71,10 @@ elixir:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/elixir.json
 
 julia:
-  # TODO: get rid of nixos
-  FROM +nixos
-  RUN nix-env -iA nixpkgs.julia-bin
+  # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
+  FROM julia:1.6.7-alpine3.16
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
 
   COPY ./src/leibniz.jl ./
   RUN --no-cache ./scbench "julia leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
