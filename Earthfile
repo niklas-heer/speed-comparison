@@ -34,7 +34,7 @@ all:
   BUILD +julia
   BUILD +nodejs
   BUILD +lua
-  # BUILD +nim
+  BUILD +nim
   # BUILD +php
   BUILD +python
   # BUILD +r
@@ -132,6 +132,15 @@ lua:
   COPY ./src/leibniz.lua ./
   RUN --no-cache ./scbench "lua5.4 leibniz.lua" -i $iterations -l "lua5.4 -v" --export json --lang "Lua"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/lua.json
+
+nim:
+  FROM +alpine
+  RUN apk add --no-cache gcc build-base nim
+
+  COPY ./src/leibniz.nim ./
+  RUN --no-cache nim c --verbosity:0 leibniz.nim
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "nim --version" --export json --lang "Nim"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nim.json
 
 python:
   FROM +alpine
