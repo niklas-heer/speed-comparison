@@ -1,0 +1,3 @@
+global:
+  buildkit_max_parallelism: 1
+  conversion_parallelism: 1
