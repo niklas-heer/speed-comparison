@@ -36,7 +36,8 @@ all:
   BUILD +lua
   BUILD +nim
   BUILD +php
-  BUILD +python
+  BUILD +cpython
+  BUILD +pypy
   # BUILD +r
   BUILD +ruby
   # BUILD +rust
@@ -150,13 +151,22 @@ php:
   RUN --no-cache ./scbench "php81 leibniz.php" -i $iterations -l "php81 --version" --export json --lang "PHP"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/php.json
 
-python:
+cpython:
   FROM +alpine
   RUN apk add --no-cache python3
 
   COPY ./src/leibniz.py ./
   RUN --no-cache ./scbench "python3 leibniz.py" -i $iterations -l "python3 --version" --export json --lang "Python (CPython)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/python.json
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cpython.json
+
+pypy:
+  FROM pypy:3.9-slim
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  COPY ./src/leibniz.py ./
+  RUN --no-cache ./scbench "pypy leibniz.py" -i $iterations -l "pypy --version" --export json --lang "Python (PyPy)"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/pypy.json
 
 ruby:
   FROM +alpine
