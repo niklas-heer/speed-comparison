@@ -2,4 +2,5 @@
 .idea
 results/*.csv
 results/*.png
+results/*.json
 leibniz
