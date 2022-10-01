@@ -52,10 +52,10 @@ Everything is run by a Docker container and a bash script which envokes the prog
 To measure the execution time a [python package](https://pypi.python.org/pypi/lauda/1.2.0) is used.
 
 ### Requirements
-<!-- TODO: update requirements -->
 - `Docker`
-- `Makefile` support
+- [earthly](https://earthly.dev/)
 
+<!-- TODO: update how to do stuff -->
 ### Run measurement
 
 Just run: `make`
@@ -87,7 +87,6 @@ No they are not included, because when running the program in the real world thi
 - [x] Add Swift
 - [x] Add R
 - [x] Add Elixir
-- [ ] Add phpv8js
 - [ ] Add Smalltalk
 - [ ] Add C#
 - [ ] Add Perl
@@ -112,7 +111,7 @@ _(Please feel free to add yourself to the list.)_
 
 ### Special thanks
 #### Shravan-1908
-The `scbench` tools uses the great application `[bench](https://github.com/Shravan-1908/bench)` from [Shravan-1908](https://github.com/Shravan-1908) as a basis. Thank you very much for creating this tool!
+The `scbench` tool uses the great application [bench](https://github.com/Shravan-1908/bench) from [Shravan-1908](https://github.com/Shravan-1908) as a basis. Thank you very much for creating this tool!
 
 #### Thomas
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
