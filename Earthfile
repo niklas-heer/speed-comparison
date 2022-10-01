@@ -40,7 +40,7 @@ all:
   BUILD +pypy
   BUILD +r
   BUILD +ruby
-  # BUILD +rust
+  BUILD +rust
   # BUILD +swift
 
 c:
@@ -185,3 +185,11 @@ ruby:
   RUN --no-cache ./scbench "ruby leibniz.rb" -i $iterations -l "ruby --version" --export json --lang "Ruby"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/ruby.json
 
+rust:
+  FROM +alpine
+  RUN apk add --no-cache rust
+
+  COPY ./src/leibniz.rs ./
+  RUN --no-cache export RUST_BACKTRACE=1; rustc -C debuginfo=0 -C opt-level=3 leibniz.rs
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "rustc --version" --export json --lang "Rust"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/rust.json
