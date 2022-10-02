@@ -10,5 +10,5 @@ function f(rounds)
     return pi*4
 end
 
-rounds = parse(Int64, readchomp(joinpath(@__DIR__, "rounds.txt")))
+const rounds = parse(Int64, readchomp(joinpath(@__DIR__, "rounds.txt")))
 print(f(rounds))
