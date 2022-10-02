@@ -19,7 +19,7 @@ alpine:
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
 
-all:
+collect-data:
   # Preparing
   BUILD +build
   BUILD +alpine
@@ -42,6 +42,10 @@ all:
   BUILD +ruby
   BUILD +rust
   BUILD +swift
+
+all:
+  BUILD +collect-data
+  BUILD +analysis
 
 c:
   FROM +alpine
@@ -205,3 +209,17 @@ swift:
   COPY ./src/leibniz.swift ./
   RUN --no-cache ./scbench "swift leibniz.swift" -i $iterations -l "swift --version" --export json --lang "Swift"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/swift.json
+
+analysis:
+  # alpine doesn't seem to work with the pandas package 🤷‍♂️
+  FROM python:3.10-slim
+
+  COPY ./requirements.txt ./
+  COPY ./*.py ./
+  COPY --dir results ./
+
+  RUN pip install -r ./requirements.txt
+
+  # Combine all results
+  RUN --no-cache python combine-results.py --folder ./results/ --out ./
+  SAVE ARTIFACT ./*.csv AS LOCAL ./results/
