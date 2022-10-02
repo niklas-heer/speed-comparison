@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.png "Speed comparison of programming languages")
+![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2022-10-02_22:18.png "Speed comparison of programming languages")
 
 ---
 
@@ -39,11 +39,12 @@ You are also welcome to contribute and help me fix my possible horrible code in 
 
 ## Results
 
-- `2018-03-02_01:26`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.csv) [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.png)
-- `2018-03-02_01:14`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:14.csv) [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:14.png)
-- `2018-03-02_00:08`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_00:08.csv) [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_00:08.png)
-- `2018-02-27`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-27.csv) [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-27.png)
-- `2018-02-26`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-26.csv) [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-26.png)
+- `2022-10-02_22:18`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2022-10-02_22:18.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2022-10-02_22:18.png)
+- `2018-03-02_01:26`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.png)
+- `2018-03-02_01:14`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:14.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:14.png)
+- `2018-03-02_00:08`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_00:08.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_00:08.png)
+- `2018-02-27`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-27.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-27.png)
+- `2018-02-26`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-26.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-26.png)
 
 ## Run it yourself
 
@@ -55,18 +56,29 @@ To measure the execution time a [python package](https://pypi.python.org/pypi/la
 - `Docker`
 - [earthly](https://earthly.dev/)
 
-<!-- TODO: update how to do stuff -->
-### Run measurement
+### Run everything
+Earthly allows to run everything with a single command:
+```bash
+earthly --config earthly-config.yml +all
+```
+This will run all tasks to collect all measurements and then run the analysis.
 
-Just run: `make`
+### Collect data
+To collect data for all languages run:
+```bash
+earthly --config earthly-config.yml +collect-data
+```
 
-### Print plot
+To collect data for a single languages run:
+```bash
+earthly --config earthly-config.yml +<replace me with language name>
+```
 
-`make plot`
-
-### Run cli
-
-`make cli`
+### Analyse results
+To generate the combined CSV out of all results use this command:
+```bash
+earthly --config earthly-config.yml +analysis
+```
 
 ## FAQ
 
