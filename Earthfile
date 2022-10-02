@@ -216,10 +216,12 @@ analysis:
 
   COPY ./requirements.txt ./
   COPY ./*.py ./
+  COPY ./src/rounds.txt ./
   COPY --dir results ./
 
   RUN pip install -r ./requirements.txt
 
   # Combine all results
-  RUN --no-cache python combine-results.py --folder ./results/ --out ./
+  RUN --no-cache python analyze.py --folder ./results/ --out ./ --rounds ./rounds.txt
   SAVE ARTIFACT ./*.csv AS LOCAL ./results/
+  SAVE ARTIFACT ./*.png AS LOCAL ./results/
