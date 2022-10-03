@@ -52,7 +52,7 @@ c:
   RUN apk add --no-cache gcc build-base
 
   COPY ./src/leibniz.c ./
-  RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
+  RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gcc --version" --export json --lang "C (gcc)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/c.json
 
@@ -61,7 +61,7 @@ cpp:
   RUN apk add --no-cache gcc build-base
 
   COPY ./src/leibniz.cpp ./
-  RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
+  RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "g++ --version" --export json --lang "C++ (g++)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cpp.json
 
