@@ -1,5 +1,5 @@
 function f(rounds)
-    x = 1.0
+    x = 1.f0
     pi = 1.0
 
     for i in 2:(rounds + 2)
