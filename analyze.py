@@ -54,7 +54,7 @@ def plot(df, rounds, to_file):
 
     # Title
     plt.suptitle(
-        "Speed comparison of various porgramming languages\n",
+        "Speed comparison of various programming languages\n",
         fontweight="bold",
         fontsize=20,
         y=1.02,
