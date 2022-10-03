@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 unsigned rounds;
-float x = 1.0f;
+double x = 1.0;
 double pi = 1.0;
 
 int main()
@@ -12,7 +12,7 @@ int main()
 
     rounds += 2u; // do this outside the loop
 
-    for (unsigned i = 2; i < rounds; ++i) // use ++i instead of i++
+    for (unsigned i=2u; i < rounds; ++i) // use ++i instead of i++
     {
         x = -x;                    // some compilers optimize this better than x *= -1
         pi += (x / (2u * i - 1u)); // double / unsigned = double
