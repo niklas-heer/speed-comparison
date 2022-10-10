@@ -194,7 +194,7 @@ rust:
   RUN apk add --no-cache rust
 
   COPY ./src/leibniz.rs ./
-  RUN --no-cache export RUST_BACKTRACE=1; rustc -C debuginfo=0 -C opt-level=3 leibniz.rs
+  RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "rustc --version" --export json --lang "Rust"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/rust.json
 
