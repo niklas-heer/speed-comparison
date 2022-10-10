@@ -14,7 +14,7 @@ fn main() {
     let mut x = 1.0;
     let pi = (2..rounds).fold(1.0f64, |pi, i| {
         x *= -1.0;
-        pi + (x / (2u32 * i - 1) as f32) as f64
+        pi + (x / f64::from(2u32 * i - 1))
     }) * 4.0;
 
     println!("{:.16}", pi);
