@@ -5,13 +5,11 @@
 # Speed comparison of programming languages
 
 This projects tries to compare the speed of different programming languages.
-In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing.
+In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing. <br />
+It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison. <br />
+Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
 
 You can find the results here: https://niklas-heer.github.io/speed-comparison/
-
-It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison.
-
-Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
 
 ## Disclaimer
 
