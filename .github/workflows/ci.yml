@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - next
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Put back the git branch into git (Earthly uses it for tagging)
+        run: |
+          branch=""
+          if [ -n "$GITHUB_HEAD_REF" ]; then
+            branch="$GITHUB_HEAD_REF"
+          else
+            branch="${GITHUB_REF##*/}"
+          fi
+          git checkout -b "$branch" || true
+      - name: Download latest earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.26/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Earthly version
+        run: earthly --version
+      - name: Run build
+        run: earthly --ci --config earthly-config.yml +all
+      - name: Archive individual test results
+        uses: actions/upload-artifact@v3
+          with:
+            name: json-results
+            path: results/*.json
+      - name: Archive combined test results
+        uses: actions/upload-artifact@v3
+          with:
+            name: csv-result
+            path: results/*.csv
+      - name: Archive image of the test results
+        uses: actions/upload-artifact@v3
+          with:
+            name: png-result
+            path: results/*.png
