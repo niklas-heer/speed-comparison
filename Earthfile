@@ -2,7 +2,7 @@ VERSION 0.6
 FROM earthly/dind:alpine
 
 # Variables
-ARG iterations=10
+ARG iterations=3
 
 
 build:
