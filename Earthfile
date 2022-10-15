@@ -114,7 +114,7 @@ java:
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
-  FROM julia:1.6.7-alpine3.16
+  FROM julia:1.8.2-alpine3.16
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
 
