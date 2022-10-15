@@ -1,0 +1,11 @@
+{
+    "Started": "15-10-2022 16:43:30",
+    "Ended": "15-10-2022 16:43:30",
+    "Language": "Go",
+    "Version": "1.19.1",
+    "Command": "./leibniz",
+    "Accuracy": 0.7222222222222222,
+    "CalculatedPi": "3.1415936535887745",
+    "Iterations": 10,
+    "Average": "3.214088ms"
+}

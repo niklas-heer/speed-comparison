@@ -1,0 +1,11 @@
+{
+    "Started": "15-10-2022 16:44:17",
+    "Ended": "15-10-2022 16:44:17",
+    "Language": "Python (PyPy)",
+    "Version": "3.9.12",
+    "Command": "pypy leibniz.py",
+    "Accuracy": 0.7222222222222222,
+    "CalculatedPi": "3.1415936535887745",
+    "Iterations": 10,
+    "Average": "43.412922ms"
+}

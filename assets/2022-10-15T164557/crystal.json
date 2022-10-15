@@ -1,0 +1,11 @@
+{
+    "Started": "15-10-2022 16:43:12",
+    "Ended": "15-10-2022 16:43:12",
+    "Language": "Crystal",
+    "Version": "1.4.1",
+    "Command": "./leibniz",
+    "Accuracy": 0.6666666666666666,
+    "CalculatedPi": "3.1415916535917745",
+    "Iterations": 10,
+    "Average": "17.347989ms"
+}

@@ -1,0 +1,11 @@
+{
+    "Started": "15-10-2022 16:43:58",
+    "Ended": "15-10-2022 16:43:59",
+    "Language": "Lua",
+    "Version": "5.4.4",
+    "Command": "lua5.4 leibniz.lua",
+    "Accuracy": 0.6666666666666666,
+    "CalculatedPi": "3.1415916535917745",
+    "Iterations": 10,
+    "Average": "57.358515ms"
+}

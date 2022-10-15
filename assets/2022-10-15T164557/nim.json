@@ -1,0 +1,11 @@
+{
+    "Started": "15-10-2022 16:42:52",
+    "Ended": "15-10-2022 16:42:53",
+    "Language": "Nim",
+    "Version": "1.6.6",
+    "Command": "./leibniz",
+    "Accuracy": 0.6666666666666666,
+    "CalculatedPi": "3.1415916535917745",
+    "Iterations": 10,
+    "Average": "83.293325ms"
+}

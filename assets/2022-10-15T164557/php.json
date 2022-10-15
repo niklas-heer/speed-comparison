@@ -1,0 +1,11 @@
+{
+    "Started": "15-10-2022 16:44:04",
+    "Ended": "15-10-2022 16:44:04",
+    "Language": "PHP",
+    "Version": "8.1.11",
+    "Command": "php81 leibniz.php",
+    "Accuracy": 0.7222222222222222,
+    "CalculatedPi": "3.1415936535887745",
+    "Iterations": 10,
+    "Average": "36.501814ms"
+}
