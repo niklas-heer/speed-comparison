@@ -119,8 +119,7 @@ julia:
   COPY +build/scbench ./
 
   COPY ./src/leibniz.jl ./
-  RUN julia -e 'using Pkg; Pkg.add("PackageCompiler"); using PackageCompiler; cre
-ate_sysimage(; sysimage_path="mainjl.so",  precompile_execution_file="leibniz.jl")'
+  RUN julia -e 'using Pkg; Pkg.add("PackageCompiler"); using PackageCompiler; create_sysimage(; sysimage_path="mainjl.so",  precompile_execution_file="leibniz.jl")'
   RUN --no-cache ./scbench "julia -J mainjl.so leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia.json
 
