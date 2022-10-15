@@ -1,6 +1,13 @@
-# Latest
+---
+layout: default
+title: Latest
+nav_order: 1
+description: "Latest results of the speed comparison between various programming languages."
+permalink: /
+---
 
-## Speed comparison results
+# Latest speed comparison results
+{: .fs-9 }
 
 These are the latest speed comparison results of various programming languages.
 
@@ -11,6 +18,6 @@ These are the latest speed comparison results of various programming languages.
 
 ![plot](./assets/latest/combined_results.png "Speed comparison of programming languages")
 
-### Raw results
+## Raw results
 
-{{ data.latest_table }}
+{{ data.table }}

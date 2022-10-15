@@ -15,27 +15,42 @@ if !(test -e @(ingestDir)):
   # move the folder to the right place
   mv @(ingestDir) @(baseDir)/@(current_date_str)
 
+  # remove json data
+  rm @(baseDir)/@(current_date_str)/*.json
+
   # Creat symlink to the latest folder
   cd @(baseDir)
   rm -rf latest
   ln -sf @(current_date_str) latest
   cd ..
 
-# Render template
 file_loader = FileSystemLoader("templates")
 env = Environment(loader=file_loader)
-template = env.get_template("index.tpl.md")
 
+#------- START: Generate single entry
+template = env.get_template("single_page.tpl.md")
 data = {}
 data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S  %Z')}"
+data['folder_date'] = current_date_str
+data['table'] = MDTable(f"./assets/{current_date_str}/combined_results.csv").get_table()
 
-# generate markdown table from csv
-data['latest_table'] = MDTable(f"./assets/latest/combined_results.csv").get_table()
+# render data to file
+output = template.render(data=data)
+with open(f"./pages/{current_date_str}.md", "w") as f:
+  f.write(output)
+#------- END
+
+#------- START: Generate index
+template = env.get_template("index.tpl.md")
+data = {}
+data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S  %Z')}"
+data['table'] = MDTable(f"./assets/latest/combined_results.csv").get_table()
 
 # render data to file
 output = template.render(data=data)
 with open("./index.md", "w") as f:
   f.write(output)
+#------- END
 
 # Output link to Github page
 print(f"https://niklas-heer.github.io/speed-comparison/")

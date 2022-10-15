@@ -1,8 +1,18 @@
 remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
 title: Speed comparison
-description: Check out the speed comparison results!
+description: A speed comparison of various programming languages.
+url: "https://niklas-heer.github.io" # the base hostname & protocol for your site, e.g. http://example.c
+
 exclude:
-  - "templates"
+  - templates/
+
+# Aux links for the upper right navigation
+aux_links:
+  "Just the Docs on GitHub":
+    - "//github.com/just-the-docs/just-the-docs"
+
+# Makes Aux links open in a new tab. Default is false
+aux_links_new_tab: false
 
 color_scheme: dark
 
