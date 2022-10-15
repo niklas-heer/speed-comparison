@@ -114,12 +114,14 @@ java:
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
-  FROM julia:1.6.7-alpine3.16
+  FROM julia:1.8.2-alpine3.16
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
 
   COPY ./src/leibniz.jl ./
-  RUN --no-cache ./scbench "julia leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
+  RUN julia -e 'using Pkg; Pkg.add("PackageCompiler"); using PackageCompiler; cre
+ate_sysimage(; sysimage_path="mainjl.so",  precompile_execution_file="leibniz.jl")'
+  RUN --no-cache ./scbench "julia -J mainjl.so leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia.json
 
 nodejs:
