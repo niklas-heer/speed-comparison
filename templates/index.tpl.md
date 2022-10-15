@@ -4,10 +4,9 @@
 
 These are the latest speed comparison results of various programming languages.
 
-{: .note-title }
-> Date of test run
->
-> The results were generated: `{{ data.date }}`
+{: .note }
+
+The results were generated: `{{ data.date }}`
 
 ![plot](./assets/latest/combined_results.png "Speed comparison of programming languages")
 
