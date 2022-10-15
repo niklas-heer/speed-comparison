@@ -8,7 +8,8 @@ from mdtable import MDTable
 
 baseDir = "./assets"
 ingestDir = f"{baseDir}/ingest/combined-results"
-current_date_str = f"{datetime.now().strftime('%Y-%m-%dT%H%M%S%z')}"
+current_date = datetime.now()
+current_date_str = f"{current_date.strftime('%Y-%m-%dT%H%M%S%z')}"
 
 if !(test -e @(ingestDir)):
   # move the folder to the right place
@@ -26,7 +27,7 @@ env = Environment(loader=file_loader)
 template = env.get_template("index.tpl.md")
 
 data = {}
-data['date'] = current_date_str
+data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S  %Z')}"
 
 # generate markdown table from csv
 data['latest_table'] = MDTable(f"./assets/latest/combined_results.csv").get_table()

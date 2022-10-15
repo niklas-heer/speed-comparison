@@ -1,5 +1,5 @@
 remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
-title: Speed comparison homepage
+title: Speed comparison
 description: Check out the speed comparison results!
 exclude:
   - "templates"

@@ -1,10 +1,17 @@
-# Results from the different programming languages
+# Latest
+
+## Speed comparison results
+
+These are the latest speed comparison results of various programming languages.
+
+{: .note-title }
+> Date of test run
+>
+> The results were generated: `2022-10-15 16:45:57`
 
 ![plot](./assets/latest/combined_results.png "Speed comparison of programming languages")
 
-The results are from: `2022-10-15T164557`
-
-## Detailed results
+### Raw results
 
 | name                | version | average | accuracy           |
 | ------------------- | ------- | ------- | ------------------ |

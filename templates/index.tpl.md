@@ -1,9 +1,16 @@
-# Results from the different programming languages
+# Latest
+
+## Speed comparison results
+
+These are the latest speed comparison results of various programming languages.
+
+{: .note-title }
+> Date of test run
+>
+> The results were generated: `{{ data.date }}`
 
 ![plot](./assets/latest/combined_results.png "Speed comparison of programming languages")
 
-The results are from: `{{ data.date }}`
-
-## Detailed results
+### Raw results
 
 {{ data.latest_table }}
