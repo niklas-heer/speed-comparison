@@ -33,7 +33,7 @@ jobs:
       - name: Archive test results
         uses: actions/upload-artifact@v3
         with:
-          name: json-results
+          name: combined-results
           path: |
             results/*.json
             results/*.csv
