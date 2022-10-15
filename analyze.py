@@ -132,8 +132,7 @@ def main():
     df = pd.DataFrame(data)
     df.sort_values(by=["average"], inplace=True)
 
-    # yyyy-MM-ddTHHmmssZ
-    file_base = f"{args.out}/{datetime.now().strftime('%Y-%m-%dT%H%M%S%z')}"
+    file_base = f"combined_results"
     png = f"{file_base}.png"
     csv = f"{file_base}.csv"
     df.to_csv(
