@@ -26,8 +26,10 @@ jobs:
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.26/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
       - name: Earthly version
         run: earthly --version
-      - name: Run build
-        run: earthly --ci --config earthly-config.yml +all
+      - name: Collect data
+        run: earthly --config earthly-config.yml +collect-data
+      - name: Analyze data
+        run: earthly --config earthly-config.yml +analysis
       - name: Archive individual test results
         uses: actions/upload-artifact@v3
         with:
