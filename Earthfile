@@ -26,7 +26,8 @@ collect-data:
 
   # Work through programming languages
   BUILD +c
-  BUILD +clojure
+  BUILD +clj
+  BUILD +clj-bb
   BUILD +cpp
   BUILD +crystal
   BUILD +elixir
@@ -57,7 +58,7 @@ c:
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gcc --version" --export json --lang "C (gcc)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/c.json
 
-clojure:
+clj:
   FROM clojure:temurin-19-tools-deps-alpine
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
@@ -67,7 +68,17 @@ clojure:
 
   COPY ./src/leibniz.clj ./
   RUN --no-cache ./scbench "clj leibniz.clj" -i $iterations -l "clj --version" --export json --lang "Clojure"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/clojure.json
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/clj.json
+
+clj-bb:
+  # Uses https://babashka.org/
+  FROM babashka/babashka:alpine
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  COPY ./src/leibniz.clj ./
+  RUN --no-cache ./scbench "bb -f leibniz.clj" -i $iterations -l "bb --version" --export json --lang "Clojure (Babashka)"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/clj-bb.json
 
 cpp:
   FROM +alpine
