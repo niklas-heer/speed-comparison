@@ -32,6 +32,7 @@ collect-data:
   BUILD +go
   BUILD +java
   BUILD +julia
+  BUILD +julia-compiled
   BUILD +nodejs
   BUILD +lua
   BUILD +nim
@@ -119,9 +120,19 @@ julia:
   COPY +build/scbench ./
 
   COPY ./src/leibniz.jl ./
-  RUN julia -e 'using Pkg; Pkg.add("PackageCompiler"); using PackageCompiler; create_sysimage(; sysimage_path="mainjl.so",  precompile_execution_file="leibniz.jl")'
-  RUN --no-cache ./scbench "julia -J mainjl.so leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
+  RUN --no-cache ./scbench "julia leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia.json
+
+julia-compiled:
+  FROM julia:1.8.2-alpine3.16
+  RUN apk add --no-cache gcc build-base
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  COPY ./src/leibniz.jl ./
+  RUN julia -e 'using Pkg; Pkg.add("PackageCompiler"); using PackageCompiler; create_sysimage(; sysimage_path="mainjl.so",  precompile_execution_file="leibniz.jl")'
+  RUN --no-cache ./scbench "julia -J mainjl.so leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia (compiled)"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia-compiled.json
 
 nodejs:
   FROM +alpine
