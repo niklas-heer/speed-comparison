@@ -43,9 +43,8 @@ jobs:
     needs: build
     # if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
-    container: xonsh/action
     continue-on-error: true
-    steps:
+    steps:  
     - name: Checkout
       uses: actions/checkout@v3
       with:
@@ -56,9 +55,15 @@ jobs:
       with:
         path: results/ingest
 
+    # Install all dependencies
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip' # caching pip dependencies
+    - run: pip install -r requirements.txt
+
     - name: Ingest
-      run: ./ci.xsh
-      # >> $GITHUB_STEP_SUMMARY
+      run: ./ci.xsh >> $GITHUB_STEP_SUMMARY
 
     - name: Commit
       uses: stefanzweifel/git-auto-commit-action@v4
