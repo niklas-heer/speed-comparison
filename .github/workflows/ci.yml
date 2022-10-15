@@ -48,12 +48,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        ref: streamlit
+        ref: gh-pages
 
     - name: Download
       uses: actions/download-artifact@v3
       with:
-        path: results/ingest
+        path: assets/ingest
 
     # Install all dependencies
     - uses: actions/setup-python@v4
