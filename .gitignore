@@ -1,3 +1,5 @@
+.clj-kondo
+.lsp
 .vscode
 .idea
 results/*.csv

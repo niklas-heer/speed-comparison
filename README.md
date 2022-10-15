@@ -5,13 +5,11 @@
 # Speed comparison of programming languages
 
 This projects tries to compare the speed of different programming languages.
-In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing.
+In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing. <br />
+It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison. <br />
+Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
 
 You can find the results here: https://niklas-heer.github.io/speed-comparison/
-
-It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison.
-
-Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
 
 ## Disclaimer
 
@@ -22,22 +20,23 @@ You are also welcome to contribute and help me fix my possible horrible code in 
 
 ## Languages used in this comparison
 
-- [C](https://en.wikipedia.org/wiki/C_(programming_language)) - compiled
-- [C++](https://isocpp.org/) - compiled
-- [Crystal](https://crystal-lang.org/) - compiled
-- [Elixir](https://elixir-lang.org/) - compiled
-- [Go](https://golang.org/) - compiled
-- [Java](http://www.oracle.com/technetwork/java/index.html) - compiled, VM
-- [Julia](http://julialang.org/) - JIT
-- [Javascript](https://www.ecma-international.org/publications/standards/Ecma-402.htm) using [Node.js](https://nodejs.org/) - interpreted, JIT
-- [Lua](https://www.lua.org/) - interpreted
-- [Nim](https://nim-lang.org/) - compiled
-- [PHP](https://secure.php.net/) - interpreted
-- [Python](https://www.python.org/) - interpreted (CPython)
-- [R](https://www.r-project.org/) - interpreted
-- [Ruby](https://www.ruby-lang.org/) - interpreted
-- [Rust](https://www.rust-lang.org/)  - compiled
-- [Swift](https://swift.org/) - compiled (in this test interpreted due to Linux Swift limitations)
+- [C](https://en.wikipedia.org/wiki/C_(programming_language))
+- [Clojure](https://en.wikipedia.org/wiki/Clojure)
+- [C++](hhttps://en.wikipedia.org/wiki/C%2B%2B)
+- [Crystal](https://en.wikipedia.org/wiki/Crystal_(programming_language))
+- [Elixir](https://en.wikipedia.org/wiki/Elixir_(programming_language))
+- [Go](https://en.wikipedia.org/wiki/Go_(programming_language))
+- [Java](https://en.wikipedia.org/wiki/Java_(programming_language))
+- [Julia](https://en.wikipedia.org/wiki/Julia_(programming_language))
+- [Javascript](https://en.wikipedia.org/wiki/JavaScript) using [Node.js](https://en.wikipedia.org/wiki/Node.js)
+- [Lua](https://en.wikipedia.org/wiki/Lua_(programming_language))
+- [Nim](https://en.wikipedia.org/wiki/Nim_(programming_language))
+- [PHP](https://en.wikipedia.org/wiki/PHP)
+- [Python](https://en.wikipedia.org/wiki/Python_(programming_language))
+- [R](https://en.wikipedia.org/wiki/R_(programming_language))
+- [Ruby](https://en.wikipedia.org/wiki/Ruby_(programming_language))
+- [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language))
+- [Swift](https://en.wikipedia.org/wiki/Swift_(programming_language))
 
 ## Run it yourself
 
