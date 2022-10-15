@@ -9,7 +9,7 @@ from mdtable import MDTable
 baseDir = "./assets"
 ingestDir = f"{baseDir}/ingest/combined-results"
 current_date = datetime.now()
-current_date_str = f"{current_date.strftime('%Y-%m-%dT%H%M%S%z')}"
+current_date_str = f"{current_date.strftime('%Y-%m-%dT%H%M%S')}"
 
 if !(test -e @(ingestDir)):
   # move the folder to the right place
@@ -30,7 +30,7 @@ env = Environment(loader=file_loader)
 #------- START: Generate single entry
 template = env.get_template("single_page.tpl.md")
 data = {}
-data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S  %Z')}"
+data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S')}"
 data['folder_date'] = current_date_str
 data['table'] = MDTable(f"./assets/{current_date_str}/combined_results.csv").get_table()
 
@@ -43,7 +43,7 @@ with open(f"./pages/{current_date_str}.md", "w") as f:
 #------- START: Generate index
 template = env.get_template("index.tpl.md")
 data = {}
-data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S  %Z')}"
+data['date'] = f"{current_date.strftime('%Y-%m-%d %H:%M:%S')}"
 data['table'] = MDTable(f"./assets/latest/combined_results.csv").get_table()
 
 # render data to file
@@ -51,6 +51,12 @@ output = template.render(data=data)
 with open("./index.md", "w") as f:
   f.write(output)
 #------- END
+
+# TODO: Add removal of old entries
+# Should be only entries in pages/
+# Keep the latest 20 entries
+max_retention_count = 20
+
 
 # Output link to Github page
 print(f"https://niklas-heer.github.io/speed-comparison/")
