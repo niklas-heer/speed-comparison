@@ -8,18 +8,14 @@ fn main() {
     file.read_to_string(&mut contents)
         .expect("something went wrong reading the file");
 
-    let rounds = &contents.trim().parse::<i32>().unwrap();
+    let rounds = &contents.trim().parse::<u32>().unwrap() + 2;
 
     // We need to use f64 instead of f32 because otherwise the precision would be off
-    let mut x: f64 = 1.0;
-    let mut pi: f64 = 1.0;
-
-    for i in 2..(rounds + 2) {
+    let mut x = 1.0;
+    let pi = (2..rounds).fold(1.0f64, |pi, i| {
         x *= -1.0;
-        pi = pi + (x / (2.0 * i as f64 - 1.0));
-    }
+        pi + (x / f64::from(2u32 * i - 1))
+    }) * 4.0;
 
-    pi = pi * 4.0;
-
-    println!("{}", pi);
+    println!("{:.16}", pi);
 }

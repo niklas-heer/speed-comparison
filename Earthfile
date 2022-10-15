@@ -52,7 +52,7 @@ c:
   RUN apk add --no-cache gcc build-base
 
   COPY ./src/leibniz.c ./
-  RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
+  RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gcc --version" --export json --lang "C (gcc)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/c.json
 
@@ -61,7 +61,7 @@ cpp:
   RUN apk add --no-cache gcc build-base
 
   COPY ./src/leibniz.cpp ./
-  RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -march=native -mtune=native -fomit-frame-pointer
+  RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "g++ --version" --export json --lang "C++ (g++)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cpp.json
 
@@ -194,7 +194,7 @@ rust:
   RUN apk add --no-cache rust
 
   COPY ./src/leibniz.rs ./
-  RUN --no-cache export RUST_BACKTRACE=1; rustc -C debuginfo=0 -C opt-level=3 leibniz.rs
+  RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "rustc --version" --export json --lang "Rust"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/rust.json
 
