@@ -26,6 +26,7 @@ collect-data:
 
   # Work through programming languages
   BUILD +c
+  BUILD +clojure
   BUILD +cpp
   BUILD +crystal
   BUILD +elixir
@@ -55,6 +56,18 @@ c:
   RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gcc --version" --export json --lang "C (gcc)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/c.json
+
+clojure:
+  FROM clojure:temurin-19-tools-deps-alpine
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
+
+  # Seems to be a bug
+  RUN apk add --no-cache rlwrap
+
+  COPY ./src/leibniz.clj ./
+  RUN --no-cache ./scbench "clj leibniz.clj" -i $iterations -l "clj --version" --export json --lang "Clojure"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/clojure.json
 
 cpp:
   FROM +alpine
