@@ -167,7 +167,7 @@ nim:
   RUN apk add --no-cache gcc build-base nim
 
   COPY ./src/leibniz.nim ./
-  RUN --no-cache nim c --verbosity:0 leibniz.nim
+  RUN --no-cache nim c --verbosity:0 -d:danger --passC:"-flto"  --passL:"-flto" --gc:arc --out:leibniz leibniz.nim
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "nim --version" --export json --lang "Nim"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nim.json
 
