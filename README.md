@@ -1,4 +1,4 @@
-![plot](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2022-10-02_22:18.png "Speed comparison of programming languages")
+![plot](https://niklas-heer.github.io/speed-comparison/assets/latest/combined_results.png "Speed comparison of programming languages")
 
 ---
 
@@ -6,6 +6,8 @@
 
 This projects tries to compare the speed of different programming languages.
 In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing.
+
+You can find the results here: https://niklas-heer.github.io/speed-comparison/
 
 It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison.
 
@@ -36,15 +38,6 @@ You are also welcome to contribute and help me fix my possible horrible code in 
 - [Ruby](https://www.ruby-lang.org/) - interpreted
 - [Rust](https://www.rust-lang.org/)  - compiled
 - [Swift](https://swift.org/) - compiled (in this test interpreted due to Linux Swift limitations)
-
-## Results
-
-- `2022-10-02_22:18`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2022-10-02_22:18.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2022-10-02_22:18.png)
-- `2018-03-02_01:26`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:26.png)
-- `2018-03-02_01:14`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:14.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_01:14.png)
-- `2018-03-02_00:08`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_00:08.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-03-02_00:08.png)
-- `2018-02-27`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-27.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-27.png)
-- `2018-02-26`: [csv](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-26.csv) | [png](https://raw.github.com/niklas-heer/speed-comparison/master/.github/2018-02-26.png)
 
 ## Run it yourself
 

@@ -1,0 +1,69 @@
+name: Run speed comparison
+
+on:
+  push:
+    branches:
+      - master
+      - next
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Put back the git branch into git (Earthly uses it for tagging)
+        run: |
+          branch=""
+          if [ -n "$GITHUB_HEAD_REF" ]; then
+            branch="$GITHUB_HEAD_REF"
+          else
+            branch="${GITHUB_REF##*/}"
+          fi
+          git checkout -b "$branch" || true
+      - name: Download latest earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.26/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Earthly version
+        run: earthly --version
+      - name: Collect data
+        run: earthly --config earthly-config.yml +collect-data
+      - name: Analyze data
+        run: earthly --config earthly-config.yml +analysis
+      - name: Archive test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined-results
+          path: |
+            results/*.json
+            results/*.csv
+            results/*.png
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: gh-pages
+
+    - name: Download
+      uses: actions/download-artifact@v3
+      with:
+        path: assets/ingest
+
+    # Install all dependencies
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip' # caching pip dependencies
+    - run: pip install -r requirements.txt
+
+    - name: Ingest
+      run: ./ci.xsh >> $GITHUB_STEP_SUMMARY
+
+    - name: Commit
+      uses: stefanzweifel/git-auto-commit-action@v4

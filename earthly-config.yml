@@ -1,3 +1,10 @@
 global:
-  buildkit_max_parallelism: 1
+  # `buildkit_max_parallelism` corresponds with max_parallelism of buildkit.
+  # Default is `20`, to turn it off set it to 0.
+  # See: https://github.com/moby/buildkit/blob/81b6ff2c55565bdcb9f0dbcff52515f7c7bb429c/cmd/buildkitd/main_containerd_worker.go#L263
+  buildkit_max_parallelism: 0
+
+  # Default is `5`, to turn it off set it to 0.
+  # But together with the buildkit setting it won't work so setting it to `1` is the only option.
+  # See: https://github.com/earthly/earthly/blob/8191e6d57cb25747d7780de7ec2db4ab3d891d2d/cmd/earthly/build_cmd.go#L381
   conversion_parallelism: 1
