@@ -30,16 +30,16 @@ jobs:
         run: earthly --ci --config earthly-config.yml +all
       - name: Archive individual test results
         uses: actions/upload-artifact@v3
-          with:
-            name: json-results
-            path: results/*.json
+        with:
+          name: json-results
+          path: results/*.json
       - name: Archive combined test results
         uses: actions/upload-artifact@v3
-          with:
-            name: csv-result
-            path: results/*.csv
+        with:
+          name: csv-result
+          path: results/*.csv
       - name: Archive image of the test results
         uses: actions/upload-artifact@v3
-          with:
-            name: png-result
-            path: results/*.png
+        with:
+          name: png-result
+          path: results/*.png
