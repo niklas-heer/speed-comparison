@@ -21,6 +21,7 @@ You are also welcome to contribute and help me fix my possible horrible code in 
 ## Languages used in this comparison
 
 - [C](https://en.wikipedia.org/wiki/C_(programming_language))
+- [Fortran](https://en.wikipedia.org/wiki/Fortran)
 - [Clojure](https://en.wikipedia.org/wiki/Clojure)
 - [C++](hhttps://en.wikipedia.org/wiki/C%2B%2B)
 - [Crystal](https://en.wikipedia.org/wiki/Crystal_(programming_language))
