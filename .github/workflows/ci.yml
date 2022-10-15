@@ -41,10 +41,10 @@ jobs:
 
   publish:
     needs: build
-    # if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     continue-on-error: true
-    steps:  
+    steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
