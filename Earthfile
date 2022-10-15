@@ -51,7 +51,7 @@ all:
   BUILD +collect-data
   BUILD +analysis
 
-c:
+fortran:
   FROM +alpine
   RUN apk add --no-cache gfortran build-base
 
@@ -60,7 +60,7 @@ c:
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
 
-fortran:
+c:
   FROM +alpine
   RUN apk add --no-cache gcc build-base
 
