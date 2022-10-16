@@ -38,6 +38,7 @@ collect-data:
   BUILD +julia-compiled
   BUILD +nodejs
   BUILD +lua
+  BUILD +luajit
   BUILD +nim
   BUILD +php
   BUILD +cpython
@@ -185,6 +186,14 @@ lua:
   COPY ./src/leibniz.lua ./
   RUN --no-cache ./scbench "lua5.4 leibniz.lua" -i $iterations -l "lua5.4 -v" --export json --lang "Lua"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/lua.json
+
+luajit:
+  FROM +alpine
+  RUN apk add --no-cache luajit
+
+  COPY ./src/leibniz.lua ./
+  RUN --no-cache ./scbench "luajit leibniz.lua" -i $iterations -l "luajit -v" --export json --lang "LuaJIT"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/luajit.json
 
 nim:
   FROM +alpine
