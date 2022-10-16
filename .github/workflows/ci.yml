@@ -7,7 +7,7 @@ on:
       - next
   pull_request_review:
     types: [submitted]
-  issues:
+  pull_request:
     types:
       - labeled
 
