@@ -10,7 +10,7 @@ function mainjl()
         x *= -1
         pi += x / (2 * i - 1)
     end
-
+    free(buf)
     printf(c"%.15f", pi*4)
     return 0
 end
