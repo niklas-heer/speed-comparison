@@ -26,6 +26,7 @@ collect-data:
 
   # Work through programming languages
   BUILD +c
+  BUILD +fortran
   BUILD +clj
   BUILD +clj-bb
   BUILD +cpp
@@ -49,6 +50,15 @@ collect-data:
 all:
   BUILD +collect-data
   BUILD +analysis
+
+fortran:
+  FROM +alpine
+  RUN apk add --no-cache gfortran build-base
+
+  COPY ./src/leibniz.f90 ./
+  RUN --no-cache gfortran -Ofast -flto leibniz.f90 -o leibniz
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
 
 c:
   FROM +alpine
