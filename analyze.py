@@ -25,7 +25,7 @@ def colors_from_values(values, palette_name):
 
 def plot(df, rounds, to_file):
     # Theme
-    sns.set(style="dark", context="notebook")
+    sns.set(style="dark", context="paper")
     sns.set_color_codes("pastel")
     plt.style.use("dark_background")
 
