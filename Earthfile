@@ -159,7 +159,7 @@ julia:
 
 julia-compiled:
   FROM julia:1.8.2-alpine3.16
-  RUN apk add --no-cache gcc build-base
+  RUN apk add --no-cache gcc alpine-sdk
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
 
