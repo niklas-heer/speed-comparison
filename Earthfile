@@ -26,12 +26,12 @@ collect-data:
 
   # Work through programming languages
   BUILD +c
-  BUILD +fortran
   BUILD +clj
   BUILD +clj-bb
   BUILD +cpp
   BUILD +crystal
   BUILD +elixir
+  BUILD +fortran
   BUILD +go
   BUILD +java
   BUILD +julia
@@ -41,6 +41,7 @@ collect-data:
   BUILD +luajit
   BUILD +nim
   BUILD +php
+  BUILD +perl
   BUILD +cpython
   BUILD +pypy
   BUILD +r
@@ -51,15 +52,6 @@ collect-data:
 all:
   BUILD +collect-data
   BUILD +analysis
-
-fortran:
-  FROM +alpine
-  RUN apk add --no-cache gfortran build-base
-
-  COPY ./src/leibniz.f90 ./
-  RUN --no-cache gfortran -Ofast -flto leibniz.f90 -o leibniz
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
 
 c:
   FROM +alpine
@@ -120,6 +112,15 @@ elixir:
   # flag: [...] -L 1 (it starts with 0)
   RUN --no-cache ./scbench "elixir leibniz.ex" -i $iterations -l "elixir --version" --export json --lang "Elixir" -L 1
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/elixir.json
+
+fortran:
+  FROM +alpine
+  RUN apk add --no-cache gfortran build-base
+
+  COPY ./src/leibniz.f90 ./
+  RUN --no-cache gfortran -Ofast -flto leibniz.f90 -o leibniz
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
 
 go:
   # We can reuse the build image of the scbench tool
@@ -211,6 +212,14 @@ php:
   COPY ./src/leibniz.php ./
   RUN --no-cache ./scbench "php81 leibniz.php" -i $iterations -l "php81 --version" --export json --lang "PHP"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/php.json
+
+perl:
+  FROM +alpine
+  RUN apk add --no-cache perl
+
+  COPY ./src/leibniz.pl ./
+  RUN --no-cache ./scbench "perl leibniz.pl" -i $iterations -l "perl -v" --export json --lang "Perl"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/perl.json
 
 cpython:
   FROM +alpine
