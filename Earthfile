@@ -158,14 +158,16 @@ julia:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia.json
 
 julia-compiled:
-  FROM julia:1.8.2-alpine3.16
-  RUN apk add --no-cache gcc build-base
+  # We need the Debian version otherwise the build doesn't work
+  FROM julia:1.8.2
+  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
 
   COPY ./src/leibniz.jl ./
-  RUN julia -e 'using Pkg; Pkg.add("PackageCompiler"); using PackageCompiler; create_sysimage(; sysimage_path="mainjl.so",  precompile_execution_file="leibniz.jl")'
-  RUN --no-cache ./scbench "julia -J mainjl.so leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia (compiled)"
+  COPY ./src/leibniz_compiled.jl ./
+  RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
+  RUN --no-cache ./scbench "./mainjl" -i $iterations -l "julia --version" --export json --lang "Julia (AOT compiled)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia-compiled.json
 
 nodejs:
