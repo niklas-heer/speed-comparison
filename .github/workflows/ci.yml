@@ -7,6 +7,9 @@ on:
       - next
   pull_request_review:
     types: [submitted]
+  issues:
+    types:
+      - labeled
 
 jobs:
   build:
