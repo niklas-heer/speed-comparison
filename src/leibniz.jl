@@ -10,5 +10,7 @@ function f(rounds)
     return pi*4
 end
 
-rounds = parse(Int64, readchomp(joinpath(@__DIR__, "rounds.txt")))
-print(f(rounds))
+@static if abspath(PROGRAM_FILE) == @__FILE__
+    rounds = parse(Int64, readchomp("rounds.txt"))
+    print(f(rounds))
+end
