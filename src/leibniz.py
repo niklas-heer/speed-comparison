@@ -10,11 +10,11 @@ def main():
     x = 1.0
     pi = 1.0
 
-    for i in range(2, rounds + 2):
-        x *= -1
-        pi += x / (2 * i - 1)
+    for i in range(3, 2 * rounds + 2, 2):
+        x *= -1.0
+        pi += x / i
 
-    pi *= 4
+    pi *= 4.0
 
     print("{:.16f}".format(pi))
 
