@@ -1,4 +1,6 @@
 import Foundation
+import Glibc
+setbuf(stdout, nil)
 let text = try! String(contentsOfFile: "rounds.txt")
 let rounds = Int(text)!
 var x = 1.0
