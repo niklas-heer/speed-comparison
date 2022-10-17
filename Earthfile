@@ -30,6 +30,7 @@ collect-data:
   BUILD +clj-bb
   BUILD +cpp
   BUILD +crystal
+  BUILD +cs
   BUILD +elixir
   BUILD +fortran
   BUILD +go
@@ -101,6 +102,24 @@ crystal:
   RUN --no-cache crystal build leibniz.cr --release
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "crystal --version" --export json --lang "Crystal"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/crystal.json
+
+cs:
+  # Use the dedicated image from Microsoft
+  FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine3.16
+  WORKDIR /app
+  
+  # BUILD, first restore than build
+  COPY ./src/cs/*.csproj .
+  RUN dotnet restore
+  COPY ./src/cs/*.cs .
+  RUN --no-cache dotnet publish -c Release -o out --no-restore
+
+  # Execute test run
+  WORKDIR /app/out
+  COPY +build/scbench ./
+  COPY ./src/rounds.txt ./
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "dotnet --version" --export json --lang "C#"
+  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cs.json
 
 elixir:
   FROM +alpine
