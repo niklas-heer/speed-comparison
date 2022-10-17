@@ -1,15 +1,6 @@
 fileName <- "rounds.txt"
-rounds <- as.numeric(readChar(fileName, file.info(fileName)$size))
+rounds <- as.integer(readChar(fileName, file.info(fileName)$size))
+  
+pi <- 4*(1+sum(c(-1,1)/((seq.int(4, 2*rounds+2, 2)-1))))
 
-x = 1.0
-pi = 1.0
-
-for (i in 2:(rounds + 2)){
-  x = x * -1
-  pi = pi + (x / (2 * i - 1))
-}
-
-pi = pi * 4
-
-printf <- function(...) cat(sprintf(...))
-printf("%.16f\n", pi)
+cat(sprintf("%.16f\n", pi))
