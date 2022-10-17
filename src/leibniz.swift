@@ -11,7 +11,3 @@ for i in 2...rounds+2 {
 
 pi *= 4.0
 print(String(format: "%.16f", pi))
-
-// TODO:
-//  * Read rounds from file
-//  * Make pi more precise (16 numbers after .)
