@@ -18,27 +18,9 @@ Also the findings just show how good the languages can handle floating point ope
 
 You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
 
-## Languages used in this comparison
+## Adding new languages
 
-- [C](https://en.wikipedia.org/wiki/C_(programming_language))
-- [Fortran](https://en.wikipedia.org/wiki/Fortran)
-- [Clojure](https://en.wikipedia.org/wiki/Clojure)
-- [C++](https://en.wikipedia.org/wiki/C%2B%2B)
-- [Crystal](https://en.wikipedia.org/wiki/Crystal_(programming_language))
-- [C#](https://de.wikipedia.org/wiki/C-Sharp)
-- [Elixir](https://en.wikipedia.org/wiki/Elixir_(programming_language))
-- [Go](https://en.wikipedia.org/wiki/Go_(programming_language))
-- [Java](https://en.wikipedia.org/wiki/Java_(programming_language))
-- [Julia](https://en.wikipedia.org/wiki/Julia_(programming_language))
-- [Javascript](https://en.wikipedia.org/wiki/JavaScript) using [Node.js](https://en.wikipedia.org/wiki/Node.js)
-- [Lua](https://en.wikipedia.org/wiki/Lua_(programming_language))
-- [Nim](https://en.wikipedia.org/wiki/Nim_(programming_language))
-- [PHP](https://en.wikipedia.org/wiki/PHP)
-- [Python](https://en.wikipedia.org/wiki/Python_(programming_language))
-- [R](https://en.wikipedia.org/wiki/R_(programming_language))
-- [Ruby](https://en.wikipedia.org/wiki/Ruby_(programming_language))
-- [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language))
-- [Swift](https://en.wikipedia.org/wiki/Swift_(programming_language))
+[<img src="../assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ")
 
 ## Run it yourself
 
@@ -214,3 +196,25 @@ The `scbench` tool uses the great application [bench](https://github.com/Shravan
 
 #### Thomas
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
+
+## Languages used in this comparison
+
+- [C](https://en.wikipedia.org/wiki/C_(programming_language))
+- [Fortran](https://en.wikipedia.org/wiki/Fortran)
+- [Clojure](https://en.wikipedia.org/wiki/Clojure)
+- [C++](https://en.wikipedia.org/wiki/C%2B%2B)
+- [Crystal](https://en.wikipedia.org/wiki/Crystal_(programming_language))
+- [Elixir](https://en.wikipedia.org/wiki/Elixir_(programming_language))
+- [C#](https://de.wikipedia.org/wiki/C-Sharp)
+- [Go](https://en.wikipedia.org/wiki/Go_(programming_language))
+- [Java](https://en.wikipedia.org/wiki/Java_(programming_language))
+- [Julia](https://en.wikipedia.org/wiki/Julia_(programming_language))
+- [Javascript](https://en.wikipedia.org/wiki/JavaScript) using [Node.js](https://en.wikipedia.org/wiki/Node.js)
+- [Lua](https://en.wikipedia.org/wiki/Lua_(programming_language))
+- [Nim](https://en.wikipedia.org/wiki/Nim_(programming_language))
+- [PHP](https://en.wikipedia.org/wiki/PHP)
+- [Python](https://en.wikipedia.org/wiki/Python_(programming_language))
+- [R](https://en.wikipedia.org/wiki/R_(programming_language))
+- [Ruby](https://en.wikipedia.org/wiki/Ruby_(programming_language))
+- [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language))
+- [Swift](https://en.wikipedia.org/wiki/Swift_(programming_language))
