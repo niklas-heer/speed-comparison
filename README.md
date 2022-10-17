@@ -111,6 +111,7 @@ Thanks to all the lovely contributors:
 - [PatrickTheDev](PatrickTheDev)
 - [giordano](giordano)
 - [yinheli](yinheli)
+- [jonocarroll](https://github.com/jonocarroll)
 
 _(Please feel free to add yourself to the list.)_
 
