@@ -1,7 +1,5 @@
 import Foundation
-import Glibc
-setbuf(stdout, nil)
-let text = try! String(contentsOfFile: "rounds.txt")
+let text = try! String(contentsOfFile: "rounds.txt").split(separator: "\n")[0]
 let rounds = Int(text)!
 var x = 1.0
 var pi = 1.0
