@@ -98,7 +98,7 @@ crystal:
   RUN apk add --no-cache crystal
 
   COPY ./src/leibniz.cr ./
-  RUN --no-cache crystal build leibniz.cr
+  RUN --no-cache crystal build leibniz.cr --release
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "crystal --version" --export json --lang "Crystal"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/crystal.json
 
