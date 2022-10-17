@@ -273,7 +273,8 @@ swift:
   COPY +build/scbench ./
 
   COPY ./src/leibniz.swift ./
-  RUN --no-cache ./scbench "swift leibniz.swift" -i $iterations -l "swift --version" --export json --lang "Swift"
+  RUN --no-cache swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full
+  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "swift --version" --export json --lang "Swift"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/swift.json
 
 analysis:
