@@ -102,18 +102,10 @@ No they are not included, because when running the program in the real world thi
 - [ ] Add COBOL
 
 ## Thanks
+The list of Contributors is automatically generated.
 
 ### Contributors
-Thanks to all the lovely contributors:
-- [0xB00B](https://github.com/0xB00B)
-- [oscardssmith](https://github.com/oscardssmith)
-- [DirkieDurky](https://github.com/DirkieDurky)
-- [PatrickTheDev](PatrickTheDev)
-- [giordano](giordano)
-- [yinheli](yinheli)
-- [jonocarroll](https://github.com/jonocarroll)
 
-_(Please feel free to add yourself to the list.)_
 
 ### Special thanks
 #### Shravan-1908
