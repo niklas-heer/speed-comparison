@@ -25,6 +25,7 @@ You are also welcome to contribute and help me fix my possible horrible code in 
 - [Clojure](https://en.wikipedia.org/wiki/Clojure)
 - [C++](https://en.wikipedia.org/wiki/C%2B%2B)
 - [Crystal](https://en.wikipedia.org/wiki/Crystal_(programming_language))
+- [C#](https://de.wikipedia.org/wiki/C-Sharp)
 - [Elixir](https://en.wikipedia.org/wiki/Elixir_(programming_language))
 - [Go](https://en.wikipedia.org/wiki/Go_(programming_language))
 - [Java](https://en.wikipedia.org/wiki/Java_(programming_language))
@@ -93,8 +94,8 @@ No they are not included, because when running the program in the real world thi
 - [x] Add R
 - [x] Add Elixir
 - [ ] Add Smalltalk
-- [ ] Add C#
-- [ ] Add Perl
+- [x] Add C#
+- [x] Add Perl
 - [ ] Add Kotlin
 - [ ] Add Haskell
 - [ ] Add Lisp
