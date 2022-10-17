@@ -106,6 +106,106 @@ The list of Contributors is automatically generated.
 
 ### Contributors
 
+<table>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/niklas-heer>
+            <img src=https://avatars.githubusercontent.com/u/1914063?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Niklas Heer/>
+            <br />
+            <sub style="font-size:14px"><b>Niklas Heer</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Moelf>
+            <img src=https://avatars.githubusercontent.com/u/5306213?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jerry Ling/>
+            <br />
+            <sub style="font-size:14px"><b>Jerry Ling</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/0xB00B>
+            <img src=https://avatars.githubusercontent.com/u/68330937?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=0xB00B/>
+            <br />
+            <sub style="font-size:14px"><b>0xB00B</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/francescoalemanno>
+            <img src=https://avatars.githubusercontent.com/u/50984334?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Francesco Alemanno/>
+            <br />
+            <sub style="font-size:14px"><b>Francesco Alemanno</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/gauteh>
+            <img src=https://avatars.githubusercontent.com/u/56827?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gaute Hope/>
+            <br />
+            <sub style="font-size:14px"><b>Gaute Hope</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/jonocarroll>
+            <img src=https://avatars.githubusercontent.com/u/9496865?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jonathan Carroll/>
+            <br />
+            <sub style="font-size:14px"><b>Jonathan Carroll</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/oscardssmith>
+            <img src=https://avatars.githubusercontent.com/u/11729272?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Oscar Smith/>
+            <br />
+            <sub style="font-size:14px"><b>Oscar Smith</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/DirkieDurky>
+            <img src=https://avatars.githubusercontent.com/u/72947540?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=DirkieDurky/>
+            <br />
+            <sub style="font-size:14px"><b>DirkieDurky</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/gbaraldi>
+            <img src=https://avatars.githubusercontent.com/u/28694980?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gabriel Baraldi/>
+            <br />
+            <sub style="font-size:14px"><b>Gabriel Baraldi</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/mcabbott>
+            <img src=https://avatars.githubusercontent.com/u/32575566?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Michael Abbott/>
+            <br />
+            <sub style="font-size:14px"><b>Michael Abbott</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/PatrickTheDev>
+            <img src=https://avatars.githubusercontent.com/u/69093169?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=RDPatrickTheDev/>
+            <br />
+            <sub style="font-size:14px"><b>RDPatrickTheDev</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/tacaswell>
+            <img src=https://avatars.githubusercontent.com/u/199813?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Thomas A Caswell/>
+            <br />
+            <sub style="font-size:14px"><b>Thomas A Caswell</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/yinheli>
+            <img src=https://avatars.githubusercontent.com/u/235094?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=yinheli/>
+            <br />
+            <sub style="font-size:14px"><b>yinheli</b></sub>
+        </a>
+    </td>
+</tr>
+</table>
+
 
 ### Special thanks
 #### Shravan-1908
