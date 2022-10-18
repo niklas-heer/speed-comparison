@@ -1,15 +1,6 @@
 name: Run speed comparison
 
-on:
-  push:
-    branches:
-      - master
-      - next
-  pull_request_review:
-    types: [submitted]
-  pull_request:
-    types:
-      - labeled
+on: [push, pull_request]
 
 jobs:
   build:
