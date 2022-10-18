@@ -133,11 +133,11 @@ elixir:
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/elixir.json
 
 fortran:
-  FROM +alpine
-  RUN apk add --no-cache gfortran build-base
-
+  FROM ubuntu:latest
+  RUN apt-get update
+  RUN apt-get install gfortran
   COPY ./src/leibniz.f90 ./
-  RUN --no-cache gfortran -Ofast -flto leibniz.f90 -o leibniz
+  RUN --no-cache gfortran -Ofast -march=native -mtune=native -flto leibniz.f90 -o leibniz
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
 
