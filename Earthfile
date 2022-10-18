@@ -25,7 +25,6 @@ collect-data:
   BUILD +alpine
 
   # Work through programming languages
-  BUILD +fortran
   BUILD +c
   BUILD +clj
   BUILD +clj-bb
@@ -33,6 +32,7 @@ collect-data:
   BUILD +crystal
   BUILD +cs
   BUILD +elixir
+  BUILD +fortran
   BUILD +go
   BUILD +java
   BUILD +julia
@@ -139,7 +139,7 @@ fortran:
   COPY ./src/rounds.txt ./
   COPY +build/scbench ./
   COPY ./src/leibniz.f90 ./
-  RUN --no-cache gfortran -Ofast -march=native -mtune=native -flto leibniz.f90 -o leibniz
+  RUN --no-cache gfortran -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
 
