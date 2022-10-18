@@ -25,6 +25,7 @@ collect-data:
   BUILD +alpine
 
   # Work through programming languages
+  BUILD +fortran
   BUILD +c
   BUILD +clj
   BUILD +clj-bb
@@ -32,7 +33,6 @@ collect-data:
   BUILD +crystal
   BUILD +cs
   BUILD +elixir
-  BUILD +fortran
   BUILD +go
   BUILD +java
   BUILD +julia
@@ -135,7 +135,9 @@ elixir:
 fortran:
   FROM ubuntu:latest
   RUN apt-get update
-  RUN apt-get install gfortran
+  RUN apt-get install -y gfortran
+  COPY ./src/rounds.txt ./
+  COPY +build/scbench ./
   COPY ./src/leibniz.f90 ./
   RUN --no-cache gfortran -Ofast -march=native -mtune=native -flto leibniz.f90 -o leibniz
   RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
