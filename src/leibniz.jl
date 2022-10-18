@@ -1,9 +1,15 @@
+struct SignVector <: AbstractVector{Float64}
+    len::Int
+end
+Base.size(s::SignVector) = (s.len,)
+Base.getindex(::SignVector, i::Int) = Float64((-1)^iseven(i))
+
 function f(rounds)
-    x = 1.0
+    xs = SignVector(rounds + 2)
     pi = 1.0
 
-    for i in 2:(rounds + 2)
-        x *= -1
+    @simd for i in 2:(rounds + 2)
+        x = xs[i]
         pi += x / (2 * i - 1)
     end
 
