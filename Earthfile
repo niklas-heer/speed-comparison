@@ -263,7 +263,7 @@ r:
   RUN apk add --no-cache R
 
   COPY ./src/leibniz.r ./
-  RUN --no-cache ./scbench "Rscript leibniz.r" -i $iterations -l "R --version" --export json --lang "R"
+  RUN --no-cache ./scbench "Rscript --vanilla --default-packages=base leibniz.r" -i $iterations -l "R --version" --export json --lang "R"
   SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/R.json
 
 ruby:
