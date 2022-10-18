@@ -9,8 +9,8 @@ program Leibniz
     read (file_unit, *, iostat=rc) rounds
     close (file_unit)
     
-    pi0 = 0.0
-    pi1 = 0.0
+    pi0 = 0.0_real64
+    pi1 = 0.0_real64
 
     do i=0, rounds, 4
         pi0 = pi0 + term(i) - term(i+1)
