@@ -120,8 +120,9 @@ crystal:
 cs:
   # Use the dedicated image from Microsoft
   FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine3.16
+  RUN apk add --no-cache hyperfine
   WORKDIR /app
-  
+
   # BUILD, first restore than build
   COPY ./src/cs/*.csproj .
   RUN dotnet restore
@@ -130,10 +131,12 @@ cs:
 
   # Execute test run
   WORKDIR /app/out
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
   COPY ./src/rounds.txt ./
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "dotnet --version" --export json --lang "C#"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/cs.json
+
+  RUN --no-cache hyperfine "./leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="C#" --lang-version="dotnet --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/cs.json
 
 elixir:
   FROM +alpine
