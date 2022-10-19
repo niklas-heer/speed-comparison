@@ -176,8 +176,9 @@ go:
 java:
   # Using a dedicated image due to the packages on alpine being not up to date.
   FROM eclipse-temurin:19_36-jdk-alpine
+  RUN apk add --no-cache hyperfine
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
 
   COPY ./src/leibniz.java ./
   RUN --no-cache javac leibniz.java
@@ -186,8 +187,9 @@ java:
   # openjdk version "19" 2022-09-20
   # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
   # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
-  RUN --no-cache ./scbench "java leibniz" -i $iterations -l "echo 19.36" --export json --lang "Java"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/java.json
+  RUN --no-cache hyperfine "java leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Java" --lang-version="echo 19.36" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/java.json
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
