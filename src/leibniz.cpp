@@ -1,7 +1,6 @@
 #include <cstdio>
 
 unsigned rounds;
-double x = 1.0;
 double pi = 1.0;
 
 int main()
@@ -14,7 +13,7 @@ int main()
     
     for (unsigned i=2u ; i < rounds ; ++i) // use ++i instead of i++
     {
-        x = -x; // some compilers optimize this better than x *= -1
+        double x = -1.0 + 2.0 * (i & 0x1); // allows vectorization
         pi += (x / (2u * i - 1u)); // double / unsigned = double
     }
     
