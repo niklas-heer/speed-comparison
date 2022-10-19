@@ -65,8 +65,9 @@ c:
 
   COPY ./src/leibniz.c ./
   RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gcc --version" --export json --lang "C (gcc)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/c.json
+  RUN --no-cache hyperfine "./leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="C (gcc)" --lang-version="gcc --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/c.json
 
 clj:
   FROM clojure:temurin-19-tools-deps-alpine
