@@ -106,13 +106,16 @@ cpp:
   SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/cpp.json
 
 crystal:
-  FROM +alpine
-  RUN apk add --no-cache crystal
+  FROM crystallang/crystal:1.6-alpine
+  RUN apk add --no-cache hyperfine
+  COPY ./src/rounds.txt ./
+  COPY +build/scmeta ./
 
   COPY ./src/leibniz.cr ./
   RUN --no-cache crystal build leibniz.cr --release
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "crystal --version" --export json --lang "Crystal"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/crystal.json
+  RUN --no-cache hyperfine "./leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Crystal" --lang-version="crystal -v" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/crystal.json
 
 cs:
   # Use the dedicated image from Microsoft
