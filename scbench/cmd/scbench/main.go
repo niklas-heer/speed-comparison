@@ -71,14 +71,16 @@ func hammingDistancePct(base string, other string) (float64, error) {
 		return 0, errors.New("strings do not have the same length")
 	}
 
-	var correct int = 0
+	var correct float64 = 0.0;
+	var weight float64 = 0.0;
 	for i := range rbase {
 		if rother[i] == rbase[i] {
-				correct++
+			correct+=1.0/float64(i+1)
 		}
+		weight+=1.0/float64(i+1)
 	}
 
-	return float64(correct) / float64(len(base)), nil
+	return correct/weight, nil
 }
 
 // Truncate string.
