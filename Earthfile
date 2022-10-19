@@ -261,8 +261,9 @@ php:
   RUN apk add --no-cache php81
 
   COPY ./src/leibniz.php ./
-  RUN --no-cache ./scbench "php81 leibniz.php" -i $iterations -l "php81 --version" --export json --lang "PHP"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/php.json
+  RUN --no-cache hyperfine "php81 leibniz.php" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="PHP" --lang-version="php81 --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/php.json
 
 perl:
   FROM +alpine
