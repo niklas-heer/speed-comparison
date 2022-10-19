@@ -206,15 +206,18 @@ julia:
 julia-compiled:
   # We need the Debian version otherwise the build doesn't work
   FROM julia:1.8.2
-  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
+  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake wget
+  RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
+  RUN dpkg -i hyperfine_1.15.0_amd64.deb
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
 
   COPY ./src/leibniz.jl ./
   COPY ./src/leibniz_compiled.jl ./
   RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
-  RUN --no-cache ./scbench "./mainjl" -i $iterations -l "julia --version" --export json --lang "Julia (AOT compiled)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia-compiled.json
+  RUN --no-cache hyperfine "./mainjl" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Julia (AOT compiled)" --lang-version="julia --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/julia-compiled.json
 
 nodejs:
   FROM +alpine
