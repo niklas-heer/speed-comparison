@@ -241,6 +241,7 @@ luajit:
   FROM +alpine
   RUN apk add --no-cache luajit
 
+  COPY ./src/leibniz.lua ./
   RUN --no-cache hyperfine "luajit leibniz.lua" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
   RUN --no-cache ./scmeta --lang-name="LuaJIT" --lang-version="luajit -v" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
   SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/luajit.json
