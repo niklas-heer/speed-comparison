@@ -18,9 +18,10 @@ Also the findings just show how good the languages can handle floating point ope
 
 You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
 
-## Adding new languages
+<!-- TODO: Create a new video for hyperfine and scmeta -->
+<!-- ## Adding new languages
 
-[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ")
+[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ") -->
 
 ## Run it yourself
 
@@ -198,10 +199,13 @@ The list of Contributors is automatically generated.
 
 
 ### Special thanks
-#### Shravan-1908
-The `scbench` tool uses the great application [bench](https://github.com/Shravan-1908/bench) from [Shravan-1908](https://github.com/Shravan-1908) as a basis. Thank you very much for creating this tool!
+
+#### sharkdp
+
+For creating [hyperfine](https://github.com/sharkdp/hyperfine) which is used for the fundamental benchmarking.
 
 #### Thomas
+
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
 
 ## Languages used in this comparison
