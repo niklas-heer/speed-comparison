@@ -224,8 +224,9 @@ nodejs:
   RUN apk add --no-cache nodejs-current
 
   COPY ./src/leibniz.js ./
-  RUN --no-cache ./scbench "node leibniz.js" -i $iterations -l "node --version" --export json --lang "Javascript (nodejs)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nodejs.json
+  RUN --no-cache hyperfine "node leibniz.js" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Javascript (nodejs)" --lang-version="node --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/nodejs.json
 
 lua:
   FROM +alpine
