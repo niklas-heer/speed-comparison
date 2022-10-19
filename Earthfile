@@ -163,13 +163,15 @@ fortran:
 go:
   # We can reuse the build image of the scbench tool
   FROM golang:1.19.1-alpine
+  RUN apk add --no-cache hyperfine
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
 
   COPY ./src/leibniz.go ./
   RUN --no-cache go build leibniz.go
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "go version" --export json --lang "Go"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/go.json
+  RUN --no-cache hyperfine "./leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Go" --lang-version="go version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/go.json
 
 java:
   # Using a dedicated image due to the packages on alpine being not up to date.
