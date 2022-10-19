@@ -194,12 +194,14 @@ java:
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
   FROM julia:1.8.2-alpine3.16
+  RUN apk add --no-cache hyperfine
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
 
   COPY ./src/leibniz.jl ./
-  RUN --no-cache ./scbench "julia leibniz.jl" -i $iterations -l "julia --version" --export json --lang "Julia"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/julia.json
+  RUN --no-cache hyperfine "julia leibniz.jl" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Julia" --lang-version="julia --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/julia.json
 
 julia-compiled:
   # We need the Debian version otherwise the build doesn't work
@@ -227,8 +229,9 @@ lua:
   RUN apk add --no-cache lua5.4
 
   COPY ./src/leibniz.lua ./
-  RUN --no-cache ./scbench "lua5.4 leibniz.lua" -i $iterations -l "lua5.4 -v" --export json --lang "Lua"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/lua.json
+  RUN --no-cache hyperfine "lua5.4 leibniz.lua" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Lua" --lang-version="lua5.4 -v" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/lua.json
 
 luajit:
   FROM +alpine
