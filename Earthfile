@@ -149,7 +149,7 @@ elixir:
 
 fortran:
   FROM ubuntu:latest
-  RUN apt-get update && install -y gfortran wget
+  RUN apt-get update && apt-get install -y gfortran wget
   DO +HYPERFINE_DEBIAN
   COPY +build/scmeta ./
   
