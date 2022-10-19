@@ -156,8 +156,9 @@ fortran:
 
   COPY ./src/leibniz.f90 ./
   RUN --no-cache gfortran -Ofast -flto leibniz.f90 -o leibniz
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gfortran --version" --export json --lang "Fortran 90 (gfortran)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/fortran.json
+  RUN --no-cache hyperfine "./leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Fortran 90" --lang-version="gfortran --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/fortran.json
 
 go:
   # We can reuse the build image of the scbench tool
