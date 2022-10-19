@@ -18,9 +18,10 @@ Also the findings just show how good the languages can handle floating point ope
 
 You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
 
-## Adding new languages
+<!-- TODO: Create a new video for hyperfine and scmeta -->
+<!-- ## Adding new languages
 
-[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ")
+[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ") -->
 
 ## Run it yourself
 
