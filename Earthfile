@@ -144,10 +144,11 @@ elixir:
 
   COPY ./src/leibniz.ex ./
 
+  RUN --no-cache hyperfine "elixir leibniz.ex" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
   # We need to selected the second version from the version command since first it displays the Erlang/OTP version.
-  # flag: [...] -L 1 (it starts with 0)
-  RUN --no-cache ./scbench "elixir leibniz.ex" -i $iterations -l "elixir --version" --export json --lang "Elixir" -L 1
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/elixir.json
+  # --lang-version-regex-group=1 (it starts with 0)
+  RUN --no-cache ./scmeta --lang-name="Elixir" --lang-version="elixir --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index=1
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/elixir.json
 
 fortran:
   FROM +alpine
