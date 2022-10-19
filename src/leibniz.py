@@ -7,16 +7,9 @@ def main():
     with open("rounds.txt") as file:
         rounds = int(file.read())
 
-    x = 1.0
-    pi = 1.0
-
-    for i in range(3, 2 * rounds + 2, 2):
-        x *= -1.0
-        pi += x / i
-
-    pi *= 4.0
+    n = rounds
+    pi = 4 * sum(1 / i for i in range(1 - 2*n, 2*n + 1, 4))
 
     print("{:.16f}".format(pi))
-
 
 main()
