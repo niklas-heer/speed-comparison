@@ -72,14 +72,15 @@ c:
 clj:
   FROM clojure:temurin-19-tools-deps-alpine
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
 
   # Seems to be a bug
-  RUN apk add --no-cache rlwrap
+  RUN apk add --no-cache rlwrap hyperfine
 
   COPY ./src/leibniz.clj ./
-  RUN --no-cache ./scbench "clj leibniz.clj" -i $iterations -l "clj --version" --export json --lang "Clojure"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/clj.json
+  RUN --no-cache hyperfine "clj leibniz.clj" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Clojure" --lang-version="clj --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/clj.json
 
 clj-bb:
   # Uses https://babashka.org/
