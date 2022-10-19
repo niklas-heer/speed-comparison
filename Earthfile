@@ -290,6 +290,7 @@ rust:
 
 swift:
   FROM swift:5.7-jammy
+  RUN apt-get update && apt-get install -y wget
   DO +HYPERFINE_DEBIAN
   COPY +build/scmeta ./
 
