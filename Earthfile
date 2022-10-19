@@ -195,7 +195,7 @@ julia:
 julia-compiled:
   # We need the Debian version otherwise the build doesn't work
   FROM julia:1.8.2
-  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
+  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake wget
   DO +HYPERFINE_DEBIAN
   COPY +build/scmeta ./
 
