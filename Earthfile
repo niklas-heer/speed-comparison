@@ -86,11 +86,14 @@ clj-bb:
   # Uses https://babashka.org/
   FROM babashka/babashka:alpine
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
+
+  RUN apk add --no-cache hyperfine
 
   COPY ./src/leibniz.clj ./
-  RUN --no-cache ./scbench "bb -f leibniz.clj" -i $iterations -l "bb --version" --export json --lang "Clojure (Babashka)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/clj-bb.json
+  RUN --no-cache hyperfine "bb -f leibniz.clj" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Clojure (Babashka)" --lang-version="bb --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/clj-bb.json
 
 cpp:
   FROM +alpine
