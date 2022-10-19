@@ -252,8 +252,9 @@ nim:
 
   COPY ./src/leibniz.nim ./
   RUN --no-cache nim c --verbosity:0 -d:danger --passC:"-flto"  --passL:"-flto" --gc:arc --out:leibniz leibniz.nim
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "nim --version" --export json --lang "Nim"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/nim.json
+  RUN --no-cache hyperfine "./leibniz" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache ./scmeta --lang-name="Nim" --lang-version="nim --version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json"
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/nim.json
 
 php:
   FROM +alpine
