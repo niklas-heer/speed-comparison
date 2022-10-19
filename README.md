@@ -198,10 +198,13 @@ The list of Contributors is automatically generated.
 
 
 ### Special thanks
-#### Shravan-1908
-The `scbench` tool uses the great application [bench](https://github.com/Shravan-1908/bench) from [Shravan-1908](https://github.com/Shravan-1908) as a basis. Thank you very much for creating this tool!
+
+#### sharkdp
+
+For creating [hyperfine](https://github.com/sharkdp/hyperfine) which is used for the fundamental benchmarking.
 
 #### Thomas
+
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
 
 ## Languages used in this comparison

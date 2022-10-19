@@ -3,21 +3,26 @@ FROM earthly/dind:alpine
 
 # Variables
 ARG iterations=3
-
+ARG warmups=2
+ARG timeas="second"
 
 build:
-  FROM golang:1.19.1-alpine
-  WORKDIR /go-build
-  COPY --dir scbench ./
-  WORKDIR /go-build/scbench
-  RUN go build -v -o build/scbench ./cmd/scbench
-  SAVE ARTIFACT build/scbench /scbench
+  FROM crystallang/crystal:1.6-alpine
+
+  WORKDIR /app
+  COPY --dir scmeta ./
+  WORKDIR /app/scmeta
+  RUN shards install --production -v
+  RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
+  SAVE ARTIFACT bin/scmeta /scmeta
 
 alpine:
   FROM alpine:3.16
+  RUN apk add --no-cache hyperfine
+  WORKDIR /app
 
   COPY ./src/rounds.txt ./
-  COPY +build/scbench ./
+  COPY +build/scmeta ./
 
 collect-data:
   # Preparing
@@ -301,11 +306,11 @@ analysis:
   FROM python:3.10-slim
 
   COPY ./requirements.txt ./
+  RUN pip install -r ./requirements.txt
+
   COPY ./*.py ./
   COPY ./src/rounds.txt ./
   COPY --dir results ./
-
-  RUN pip install -r ./requirements.txt
 
   # Combine all results
   RUN --no-cache python analyze.py --folder ./results/ --out ./ --rounds ./rounds.txt
