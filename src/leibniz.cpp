@@ -6,13 +6,16 @@ double pi = 1.0;
 
 int main()
 {
-    auto infile = std::fopen("rounds.txt", "r");  // open file
+    auto infile = std::fopen("rounds.txt", "r");    // open file
     if (infile == NULL) {
         perror("open file");
         return EXIT_FAILURE;
     }
-    std::fscanf(infile, "%u", &rounds);           // read from file
-    std::fclose(infile);                          // close file
+    if (std::fscanf(infile, "%u", &rounds) != 1) {  // read from file
+        perror("read file");
+        return EXIT_FAILURE;
+    }
+    std::fclose(infile);                            // close file
     
     rounds += 2u; // do this outside the loop
     
