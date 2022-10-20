@@ -52,6 +52,7 @@ collect-data:
   BUILD +ruby
   BUILD +rust
   BUILD +swift
+  BUILD +zig
 
 all:
   BUILD +collect-data
@@ -301,6 +302,17 @@ swift:
   COPY ./src/leibniz.swift ./
   RUN --no-cache swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full
   DO +BENCH --name="swift" --lang="Swift" --version="swift --version" --cmd="./leibniz"
+
+zig:
+  FROM ziglang/static-base:llvm10-x86_64-1
+  RUN apt-get update && apt-get install -y wget
+  DO +HYPERFINE_DEBIAN
+  COPY +build/scmeta ./
+
+  COPY ./src/rounds.txt ./
+  COPY ./src/leibniz.zig ./
+  RUN --no-cache /deps/local/bin/zig build-exe -OReleaseFast leibniz.zig
+  DO +BENCH --name="zig" --lang="Zig" --version="zig version" --cmd="./leibniz"
 
 analysis:
   # alpine doesn't seem to work with the pandas package 🤷‍♂️
