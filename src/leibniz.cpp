@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 
 unsigned rounds;
 double pi = 1.0;
@@ -6,6 +7,10 @@ double pi = 1.0;
 int main()
 {
     auto infile = std::fopen("rounds.txt", "r");  // open file
+    if (infile == NULL) {
+        perror("open file");
+        return EXIT_FAILURE;
+    }
     std::fscanf(infile, "%u", &rounds);           // read from file
     std::fclose(infile);                          // close file
     
@@ -19,4 +24,5 @@ int main()
     
     pi *= 4;
     std::printf("%.16f\n", pi); // print 16 decimal digits of pi
+    return EXIT_SUCCESS;
 }
