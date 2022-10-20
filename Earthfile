@@ -304,9 +304,10 @@ swift:
   DO +BENCH --name="swift" --lang="Swift" --version="swift --version" --cmd="./leibniz"
 
 zig:
-  FROM ziglang/static-base:llvm10-x86_64-1
-  RUN apt-get update && apt-get install -y wget
-  DO +HYPERFINE_DEBIAN
+  # On 3.16 there is no zig package, but on edge there is
+  FROM alpine:edge
+  RUN apk add --no-cache hyperfine zig
+  WORKDIR /app
   COPY +build/scmeta ./
 
   COPY ./src/rounds.txt ./
