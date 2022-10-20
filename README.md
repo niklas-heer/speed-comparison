@@ -144,6 +144,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/mattn>
+            <img src=https://avatars.githubusercontent.com/u/10111?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=mattn/>
+            <br />
+            <sub style="font-size:14px"><b>mattn</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/LazyKernel>
             <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
             <br />
@@ -162,13 +169,6 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/11729272?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Oscar Smith/>
             <br />
             <sub style="font-size:14px"><b>Oscar Smith</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/mattn>
-            <img src=https://avatars.githubusercontent.com/u/10111?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=mattn/>
-            <br />
-            <sub style="font-size:14px"><b>mattn</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
