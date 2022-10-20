@@ -306,13 +306,15 @@ swift:
 zig:
   # On 3.16 there is no zig package, but on edge there is
   FROM alpine:edge
-  RUN apk add --no-cache hyperfine zig
+  # https://pkgs.alpinelinux.org/package/edge/testing/aarch64/zig
+  # https://stackoverflow.com/a/62218241
+  RUN apk add --no-cache hyperfine zig --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
   WORKDIR /app
   COPY +build/scmeta ./
 
   COPY ./src/rounds.txt ./
   COPY ./src/leibniz.zig ./
-  RUN --no-cache /deps/local/bin/zig build-exe -OReleaseFast leibniz.zig
+  RUN --no-cache zig build-exe -OReleaseFast leibniz.zig
   DO +BENCH --name="zig" --lang="Zig" --version="zig version" --cmd="./leibniz"
 
 analysis:

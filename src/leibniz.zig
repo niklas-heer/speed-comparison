@@ -5,7 +5,8 @@ pub fn main() anyerror!void {
     defer file.close();
     var buffer: [1024]u8 = undefined;
     var n = try file.read(buffer[0..buffer.len]);
-    var rounds = try std.fmt.parseInt(i64, std.mem.trim(u8, buffer[0..n], "\n"), 10) + 2;
+    var rounds = try std.fmt.parseInt(i64, std.mem.trim(u8, buffer[0..n], "\n"), 10);
+    rounds += 2;
 
     var i: usize = 2;
     var x: f64 = 1.0;
