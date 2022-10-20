@@ -149,7 +149,7 @@ def main():
                     data["accuracy"].append(round(json_data["Accuracy"], 4))
 
     df = pd.DataFrame(data)
-    df.sort_values(by=["median"], inplace=True)
+    df.sort_values(by=["min"], inplace=True)
 
     file_base = f"combined_results"
     png = f"{file_base}.png"
