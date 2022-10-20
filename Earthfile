@@ -149,14 +149,14 @@ elixir:
 
 fortran:
   FROM ubuntu:latest
-  RUN apt-get update && apt-get install -y gfortran wget
+  RUN apt-get update && apt-get install -y gfortran-12 wget
   DO +HYPERFINE_DEBIAN
   COPY +build/scmeta ./
   
   COPY ./src/rounds.txt ./
   COPY ./src/leibniz.f90 ./
-  RUN --no-cache gfortran -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
-  DO +BENCH --name="fortran" --lang="Fortran 90" --version="gfortran --version" --cmd="./leibniz"
+  RUN --no-cache gfortran-12 -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
+  DO +BENCH --name="fortran" --lang="Fortran 90" --version="gfortran-12 --version" --cmd="./leibniz"
 
 go:
   # We can reuse the build image of the scbench tool
