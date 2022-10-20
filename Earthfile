@@ -148,11 +148,14 @@ elixir:
   DO +BENCH --name="elixir" --lang="Elixir" --version="elixir --version" --cmd="elixir leibniz.ex" --index="1"
 
 fortran:
-  FROM +alpine
-  RUN apk add --no-cache gfortran build-base
-
+  FROM ubuntu:latest
+  RUN apt-get update && apt-get install -y gfortran wget
+  DO +HYPERFINE_DEBIAN
+  COPY +build/scmeta ./
+  
+  COPY ./src/rounds.txt ./
   COPY ./src/leibniz.f90 ./
-  RUN --no-cache gfortran -Ofast -flto leibniz.f90 -o leibniz
+  RUN --no-cache gfortran -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
   DO +BENCH --name="fortran" --lang="Fortran 90" --version="gfortran --version" --cmd="./leibniz"
 
 go:
