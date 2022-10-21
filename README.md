@@ -18,9 +18,10 @@ Also the findings just show how good the languages can handle floating point ope
 
 You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
 
-## Adding new languages
+<!-- TODO: Create a new video for hyperfine and scmeta -->
+<!-- ## Adding new languages
 
-[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ")
+[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ") -->
 
 ## Run it yourself
 
@@ -99,6 +100,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/francescoalemanno>
+            <img src=https://avatars.githubusercontent.com/u/50984334?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Francesco Alemanno/>
+            <br />
+            <sub style="font-size:14px"><b>Francesco Alemanno</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Moelf>
             <img src=https://avatars.githubusercontent.com/u/5306213?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jerry Ling/>
             <br />
@@ -113,10 +121,10 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/francescoalemanno>
-            <img src=https://avatars.githubusercontent.com/u/50984334?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Francesco Alemanno/>
+        <a href=https://github.com/jonocarroll>
+            <img src=https://avatars.githubusercontent.com/u/9496865?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jonathan Carroll/>
             <br />
-            <sub style="font-size:14px"><b>Francesco Alemanno</b></sub>
+            <sub style="font-size:14px"><b>Jonathan Carroll</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -126,6 +134,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Gaute Hope</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/gbaraldi>
             <img src=https://avatars.githubusercontent.com/u/28694980?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gabriel Baraldi/>
@@ -133,13 +143,25 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Gabriel Baraldi</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/jonocarroll>
-            <img src=https://avatars.githubusercontent.com/u/9496865?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jonathan Carroll/>
+        <a href=https://github.com/mattn>
+            <img src=https://avatars.githubusercontent.com/u/10111?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=mattn/>
             <br />
-            <sub style="font-size:14px"><b>Jonathan Carroll</b></sub>
+            <sub style="font-size:14px"><b>mattn</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/LazyKernel>
+            <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
+            <br />
+            <sub style="font-size:14px"><b>LazyKernel</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/mcabbott>
+            <img src=https://avatars.githubusercontent.com/u/32575566?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Michael Abbott/>
+            <br />
+            <sub style="font-size:14px"><b>Michael Abbott</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -156,18 +178,20 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>DirkieDurky</b></sub>
         </a>
     </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/mcabbott>
-            <img src=https://avatars.githubusercontent.com/u/32575566?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Michael Abbott/>
-            <br />
-            <sub style="font-size:14px"><b>Michael Abbott</b></sub>
-        </a>
-    </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/PatrickTheDev>
             <img src=https://avatars.githubusercontent.com/u/69093169?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=RDPatrickTheDev/>
             <br />
             <sub style="font-size:14px"><b>RDPatrickTheDev</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/serioga>
+            <img src=https://avatars.githubusercontent.com/u/527113?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Sergey Trofimov/>
+            <br />
+            <sub style="font-size:14px"><b>Sergey Trofimov</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -177,8 +201,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Thomas A Caswell</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/yinheli>
             <img src=https://avatars.githubusercontent.com/u/235094?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=yinheli/>
@@ -191,10 +213,13 @@ The list of Contributors is automatically generated.
 
 
 ### Special thanks
-#### Shravan-1908
-The `scbench` tool uses the great application [bench](https://github.com/Shravan-1908/bench) from [Shravan-1908](https://github.com/Shravan-1908) as a basis. Thank you very much for creating this tool!
+
+#### sharkdp
+
+For creating [hyperfine](https://github.com/sharkdp/hyperfine) which is used for the fundamental benchmarking.
 
 #### Thomas
+
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
 
 ## Languages used in this comparison

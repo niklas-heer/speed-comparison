@@ -32,7 +32,7 @@ def plot(df, rounds, to_file):
     # Plot
     # TODO: Find a way to display the platte scale to highly accuracy better.
     bar = sns.barplot(
-        x="average",
+        x="min",
         y="name",
         data=df,
         width=1,
@@ -49,8 +49,8 @@ def plot(df, rounds, to_file):
         fontsize=10,
         padding=3,
     )
-    plt.xlabel("Average time (ms) in log scale", fontweight="bold")
-    plt.ylabel("Language", fontweight="bold")
+    plt.xlabel("Minimum time (ms) in log scale", fontweight="bold")
+    plt.ylabel(None)
 
     # Title
     plt.suptitle(
@@ -69,16 +69,16 @@ def plot(df, rounds, to_file):
     # Caption
     url = f"https://github.com/niklas-heer/speed-comparison"
     plt.figtext(
-        0.5, -0.1, url, wrap=True, horizontalalignment="left", fontsize=12
+        0.75, -0.05, url, wrap=True, horizontalalignment="left", fontsize=8
     )
     timestamp = f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
     plt.figtext(
-        0.2,
-        -0.1,
+        0.1,
+        -0.05,
         timestamp,
         wrap=True,
         horizontalalignment="right",
-        fontsize=12,
+        fontsize=8,
     )
 
     sns.despine()
@@ -109,7 +109,9 @@ def main():
     data = {
         "name": [],
         "version": [],
-        "average": [],
+        "median": [],
+        "min": [],
+        "max": [],
         "accuracy": [],
     }
 
@@ -122,15 +124,32 @@ def main():
                     json_data = json.load(reader)
                     data["name"].append(json_data["Language"])
                     data["version"].append(json_data["Version"])
-                    data["average"].append(
+                    data["median"].append(
                         # We want milliseconds (ms) in the end
-                        pd.Timedelta(json_data["Average"]).total_seconds()
-                        * 1000
+                        round(
+                            pd.Timedelta(json_data["Median"]).total_seconds()
+                            * 1000,
+                            2,
+                        )
                     )
-                    data["accuracy"].append(json_data["Accuracy"])
+                    data["max"].append(
+                        round(
+                            pd.Timedelta(json_data["Max"]).total_seconds()
+                            * 1000,
+                            2,
+                        )
+                    )
+                    data["min"].append(
+                        round(
+                            pd.Timedelta(json_data["Min"]).total_seconds()
+                            * 1000,
+                            2,
+                        )
+                    )
+                    data["accuracy"].append(round(json_data["Accuracy"], 4))
 
     df = pd.DataFrame(data)
-    df.sort_values(by=["average"], inplace=True)
+    df.sort_values(by=["min"], inplace=True)
 
     file_base = f"combined_results"
     png = f"{file_base}.png"
@@ -147,7 +166,7 @@ def main():
         rounds = reader.read().strip()
     plot(df, rounds, png)
 
-    print(f"Successfult. Files generated:\n  {csv}\n  {png}")
+    print(f"Successful. Files generated:\n  {csv}\n  {png}")
 
 
 main()

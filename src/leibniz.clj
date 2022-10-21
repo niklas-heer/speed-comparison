@@ -1,9 +1,14 @@
 (ns leibniz)
 
-;; https://codereview.stackexchange.com/a/19942
-(defn calc-pi-leibniz [terms]
-  (* 4 (- (reduce + (map / (range 1.0 terms 4.0)))
-          (reduce + (map / (range 3.0 terms 4.0))))))
+(defn calc-pi-leibniz 
+  "Translation of Java solution to Clojure"
+  [rounds]
+  (let [end (+ 2 rounds)]
+    (loop [i 2 x 1.0 pi 1.0]
+      (if (= i end)
+        (* 4 pi)
+        (let [x (- x)]
+          (recur (inc i) x (+ pi (/ x (dec (* 2 i))))))))))
 
 (defn parse-int [s]
   (Integer/parseInt (re-find #"\A-?\d+" s)))

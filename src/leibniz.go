@@ -1,4 +1,5 @@
 package main
+
 import (
 	"fmt"
 	"io/ioutil"
@@ -17,9 +18,11 @@ func main() {
 	x := 1.0
 	pi := 1.0
 
-	for i := 2; i < rounds + 2; i++ {
+	rounds += 2 // do this outside the loop
+
+	for i := 2; i < rounds; i++ {
 		x *= -1
-		pi += x / float64(2 * i - 1)
+		pi += x / float64(2*i-1)
 	}
 
 	pi *= 4
