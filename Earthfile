@@ -149,8 +149,7 @@ d:
   COPY ./src/leibniz.d ./
   # RUN --no-cache cc=gcc ldc2 -O3 -release -mcpu=native -flto=full -linker=gold -flto-binary=/usr/bin/ld.gold -defaultlib=phobos2-ldc-lto,druntime-ldc-lto -m64 -static leibniz.d
   RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -march=native 
-  RUN --no-cache ./scbench "./leibniz" -i $iterations -l "gdc --version" --export json --lang "D (GDC)"
-  SAVE ARTIFACT ./scbench-summary.json AS LOCAL ./results/d.json
+  DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
 
 elixir:
   FROM +alpine
