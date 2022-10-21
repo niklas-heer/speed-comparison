@@ -1,17 +1,14 @@
-function readAll(file)
-    local f = assert(io.open(file, "rb"))
-    local content = f:read("*all")
-    f:close()
-    return content
-end
+local f = assert(io.open("rounds.txt", "rb"))
+local content = f:read("a")
+f:close()
 
-rounds = tonumber(readAll("rounds.txt"))
+local rounds = tonumber(content)
 
-x = 1.0
-pi = 1.0
+local x = 1
+local pi = 1.0
 
 for i = 2, rounds + 2 do
-    x = x * -1
+    x = -x
     pi = pi + (x / (2 * i - 1))
 end
 
