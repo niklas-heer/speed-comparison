@@ -52,6 +52,7 @@ collect-data:
   BUILD +r
   BUILD +ruby
   BUILD +rust
+  BUILD +sbcl
   BUILD +swift
   BUILD +zig
 
@@ -302,6 +303,14 @@ rust:
   COPY ./src/leibniz.rs ./
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
+
+sbcl:
+  FROM +alpine
+  RUN apk add --no-cache sbcl
+
+  COPY ./src/leibniz.lisp ./
+  RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz.lisp")' --quit
+  DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
 
 swift:
   FROM swift:5.7-jammy
