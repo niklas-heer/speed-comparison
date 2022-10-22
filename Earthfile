@@ -206,7 +206,7 @@ julia-compiled:
   COPY ./src/rounds.txt ./
   COPY ./src/leibniz.jl ./
   COPY ./src/leibniz_compiled.jl ./
-  RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
+  RUN julia -e 'using Pkg; Pkg.add(name="StaticTools", version="0.8"); Pkg.add(name="StaticCompiler", version="0.4"); include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
   DO +BENCH --name="julia-compiled" --lang="Julia (AOT compiled)" --version="julia --version" --cmd="./mainjl"
 
 nodejs:

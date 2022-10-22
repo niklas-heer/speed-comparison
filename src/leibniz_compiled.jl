@@ -1,3 +1,5 @@
+using StaticCompiler, StaticTools
+
 include("leibniz.jl")
 
 function mainjl()
