@@ -144,6 +144,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/cyrusmsk>
+            <img src=https://avatars.githubusercontent.com/u/1385803?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Serg Gini/>
+            <br />
+            <sub style="font-size:14px"><b>Serg Gini</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/mattn>
             <img src=https://avatars.githubusercontent.com/u/10111?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=mattn/>
             <br />
@@ -171,6 +178,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Oscar Smith</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/DirkieDurky>
             <img src=https://avatars.githubusercontent.com/u/72947540?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=DirkieDurky/>
@@ -178,8 +187,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>DirkieDurky</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/PatrickTheDev>
             <img src=https://avatars.githubusercontent.com/u/69093169?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=RDPatrickTheDev/>
@@ -199,6 +206,13 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/199813?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Thomas A Caswell/>
             <br />
             <sub style="font-size:14px"><b>Thomas A Caswell</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/mosmeh>
+            <img src=https://avatars.githubusercontent.com/u/1721932?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yuta Imazu/>
+            <br />
+            <sub style="font-size:14px"><b>Yuta Imazu</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
