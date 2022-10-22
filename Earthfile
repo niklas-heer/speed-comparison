@@ -34,6 +34,7 @@ collect-data:
   BUILD +cpp
   BUILD +crystal
   BUILD +cs
+  BUILD +d
   BUILD +elixir
   BUILD +fortran
   BUILD +go
@@ -139,6 +140,16 @@ cs:
   COPY +build/scmeta ./
   COPY ./src/rounds.txt ./
   DO +BENCH --name="cs" --lang="C#" --version="dotnet --version" --cmd="./leibniz"
+
+d:
+  FROM +alpine
+  # RUN apk add --no-cache ldc gcc ldc-static binutils-gold
+  RUN apk add --no-cache gcc-gdc
+
+  COPY ./src/leibniz.d ./
+  # RUN --no-cache cc=gcc ldc2 -O3 -release -mcpu=native -flto=full -linker=gold -flto-binary=/usr/bin/ld.gold -defaultlib=phobos2-ldc-lto,druntime-ldc-lto -m64 -static leibniz.d
+  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -march=native 
+  DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
 
 elixir:
   FROM +alpine
