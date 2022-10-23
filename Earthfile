@@ -97,6 +97,14 @@ c:
   RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="c" --lang="C (gcc)" --version="gcc --version" --cmd="./leibniz"
 
+c-clang:
+  FROM +alpine
+  RUN apk add --no-cache clang build-base
+
+  COPY ./src/leibniz.c ./
+  RUN --no-cache clang leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +BENCH --name="c" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
+
 clj:
   FROM clojure:temurin-19-tools-deps-alpine
   DO +PREPARE_ALPINE
@@ -123,6 +131,14 @@ cpp-avx2:
   RUN apk add --no-cache gcc build-base
   RUN --no-cache g++ leibniz_avx2.cpp -o leibniz_avx2 -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp-avx2" --lang="C++ (avx2)" --version="g++ --version" --cmd="./leibniz_avx2"
+
+cpp-clang:
+  FROM +alpine
+  RUN apk add --no-cache clang build-base
+
+  COPY ./src/leibniz.cpp ./
+  RUN --no-cache clang leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +BENCH --name="cpp" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
 
 crystal:
   FROM crystallang/crystal:1.6-alpine
