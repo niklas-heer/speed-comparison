@@ -29,10 +29,12 @@ collect-data:
 
   # Work through programming languages
   BUILD +c
+  BUILD +c-clang
   BUILD +clj
   BUILD +clj-bb
   BUILD +cpp
   BUILD +cpp-avx2
+  BUILD +cpp-clang
   BUILD +crystal
   BUILD +cs
   BUILD +d
