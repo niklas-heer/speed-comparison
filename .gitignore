@@ -6,3 +6,4 @@ results/*.csv
 results/*.png
 results/*.json
 leibniz
+src/cs/obj/Debug

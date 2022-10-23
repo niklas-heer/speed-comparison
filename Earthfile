@@ -92,10 +92,10 @@ c:
 
 c-clang:
   FROM +alpine
-  RUN apk add --no-cache clang build-base
+  RUN apk add --no-cache clang lld build-base
 
   COPY ./src/leibniz.c ./
-  RUN --no-cache clang leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  RUN --no-cache clang -fuse-ld=lld leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="c" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
 
 clj:
@@ -136,10 +136,10 @@ cpp-avx2:
 
 cpp-clang:
   FROM +alpine
-  RUN apk add --no-cache clang build-base
+  RUN apk add --no-cache clang lld build-base
 
   COPY ./src/leibniz.cpp ./
-  RUN --no-cache clang leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  RUN --no-cache clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
 
 crystal:
