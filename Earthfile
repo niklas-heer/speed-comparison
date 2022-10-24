@@ -42,7 +42,7 @@ collect-data:
   BUILD +java
   BUILD +julia
   BUILD +julia-compiled
-  BUILD +julia_ux4
+  BUILD +julia-ux4
   BUILD +nodejs
   BUILD +lua
   BUILD +luajit
@@ -239,7 +239,7 @@ julia-ux4:
 
   COPY ./src/rounds.txt ./
   COPY ./src/leibniz_ux4.jl ./
-  DO +BENCH --name="julia" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
+  DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
 
 nodejs:
   FROM +alpine
