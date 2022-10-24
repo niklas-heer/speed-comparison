@@ -96,7 +96,7 @@ c-clang:
 
   COPY ./src/leibniz.c ./
   RUN --no-cache clang -fuse-ld=lld leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
-  DO +BENCH --name="c" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
+  DO +BENCH --name="c-clang" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
 
 clj:
   FROM clojure:temurin-19-tools-deps-alpine
@@ -140,7 +140,7 @@ cpp-clang:
 
   COPY ./src/leibniz.cpp ./
   RUN --no-cache clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
-  DO +BENCH --name="cpp" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
+  DO +BENCH --name="cpp-clang" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
 
 crystal:
   FROM crystallang/crystal:1.6-alpine
