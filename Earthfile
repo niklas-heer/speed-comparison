@@ -122,7 +122,7 @@ cpp-avx2:
 
   COPY ./src/leibniz_avx2.cpp ./
   RUN --no-cache g++ leibniz.cpp -o leibniz_avx2 -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
-  DO +BENCH --name="cpp-avx2" --lang="C++ (g++)" --version="g++ --version" --cmd="./leibniz_avx2"
+  DO +BENCH --name="cpp-avx2" --lang="C++ (avx2)" --version="g++ --version" --cmd="./leibniz_avx2"
 
 crystal:
   FROM crystallang/crystal:1.6-alpine
@@ -239,8 +239,7 @@ julia-ux4:
 
   COPY ./src/rounds.txt ./
   COPY ./src/leibniz_ux4.jl ./
-  DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="julia leibniz_ux4.jl"
-
+  DO +BENCH --name="julia" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
 
 nodejs:
   FROM +alpine
