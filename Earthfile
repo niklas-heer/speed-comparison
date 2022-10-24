@@ -32,6 +32,7 @@ collect-data:
   BUILD +clj
   BUILD +clj-bb
   BUILD +cpp
+  BUILD +cpp-avx2
   BUILD +crystal
   BUILD +cs
   BUILD +d
@@ -41,6 +42,7 @@ collect-data:
   BUILD +java
   BUILD +julia
   BUILD +julia-compiled
+  BUILD +julia-ux4
   BUILD +nodejs
   BUILD +lua
   BUILD +luajit
@@ -113,6 +115,14 @@ cpp:
   COPY ./src/leibniz.cpp ./
   RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp" --lang="C++ (g++)" --version="g++ --version" --cmd="./leibniz"
+
+cpp-avx2:
+  FROM +alpine
+  RUN apk add --no-cache gcc build-base
+
+  COPY ./src/leibniz_avx2.cpp ./
+  RUN --no-cache g++ leibniz_avx2.cpp -o leibniz_avx2 -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +BENCH --name="cpp-avx2" --lang="C++ (avx2)" --version="g++ --version" --cmd="./leibniz_avx2"
 
 crystal:
   FROM crystallang/crystal:1.6-alpine
@@ -220,6 +230,16 @@ julia-compiled:
   COPY ./src/leibniz_compiled.jl ./
   RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
   DO +BENCH --name="julia-compiled" --lang="Julia (AOT compiled)" --version="julia --version" --cmd="./mainjl"
+
+julia-ux4:
+  # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
+  FROM julia:1.8.2-alpine3.16
+  RUN apk add --no-cache hyperfine
+  COPY +build/scmeta ./
+
+  COPY ./src/rounds.txt ./
+  COPY ./src/leibniz_ux4.jl ./
+  DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
 
 nodejs:
   FROM +alpine
