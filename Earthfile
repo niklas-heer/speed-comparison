@@ -377,7 +377,7 @@ zig:
 
 analysis:
   # alpine doesn't seem to work with the pandas package 🤷‍♂️
-  FROM python:3.10-slim
+  FROM python:3.11-slim
 
   COPY ./requirements.txt ./
   RUN pip install -r ./requirements.txt
