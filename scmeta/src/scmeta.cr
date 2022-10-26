@@ -1,12 +1,12 @@
 require "json"
 require "option_parser"
-require "big"
+require "math"
 
 # Third party dependencies. See shard.yml
 require "json_on_steroids"
 
 NAME = "scmeta"
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 upcase = false
 lang_name = nil
@@ -100,17 +100,10 @@ hyperfine = File.open("#{hyperfine_file}") do |file|
   JSON.parse(file).on_steroids!
 end
 
+# https://github.com/niklas-heer/speed-comparison/issues/78#issuecomment-1292708468
 def pi_accuracy(input : String)
-  # https://www.wolframalpha.com/input?i=N%5BPi%2C+32%5D
-  const_pi = BigFloat.new(3.1415926535897932384626433832795)
-  pi = input.to_big_f
-
-  if pi > const_pi
-    accuracy = 1 - ( pi / const_pi)
-  else
-    accuracy = ( pi / const_pi)
-  end
-  accuracy.abs.to_f
+  accuracy = 1 - ( input.to_f / Math::PI)
+  -Math.log(accuracy.abs, 10)
 end
 
 # Calculate pi accuracy
