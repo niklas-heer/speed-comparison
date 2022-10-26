@@ -91,64 +91,51 @@ alpine:
   FROM alpine:3.16
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="$src"
-c:
-  FROM +alpine
-  RUN apk add --no-cache gcc build-base
 
-  COPY ./src/leibniz.c ./
+c:
+  FROM +alpine --src="leibniz.c"
+  RUN apk add --no-cache gcc build-base
   RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="c" --lang="C (gcc)" --version="gcc --version" --cmd="./leibniz"
 
 clj:
   FROM clojure:temurin-19-tools-deps-alpine
+  DO +PREPARE_ALPINE
   # Seems to be a bug
-  RUN apk add --no-cache rlwrap hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.clj ./
+  RUN apk add --no-cache rlwrap
+  DO +ADD_FILES --src="leibniz.clj"
   DO +BENCH --name="clj" --lang="Clojure" --version="clj --version" --cmd="clj leibniz.clj"
 
 clj-bb:
   # Uses https://babashka.org/
   FROM babashka/babashka:alpine
-  RUN apk add --no-cache hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.clj ./
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.clj"
   DO +BENCH --name="clj-bb" --lang="Clojure (Babashka)" --version="bb --version" --cmd="bb -f leibniz.clj"
 
 cpp:
-  FROM +alpine
+  FROM +alpine --src="leibniz.cpp"
   RUN apk add --no-cache gcc build-base
-
-  COPY ./src/leibniz.cpp ./
   RUN --no-cache g++ leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp" --lang="C++ (g++)" --version="g++ --version" --cmd="./leibniz"
 
 cpp-avx2:
-  FROM +alpine
+  FROM +alpine --src="leibniz_avx2.cpp"
   RUN apk add --no-cache gcc build-base
-
-  COPY ./src/leibniz_avx2.cpp ./
   RUN --no-cache g++ leibniz_avx2.cpp -o leibniz_avx2 -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp-avx2" --lang="C++ (avx2)" --version="g++ --version" --cmd="./leibniz_avx2"
 
 crystal:
   FROM crystallang/crystal:1.6-alpine
-  RUN apk add --no-cache hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.cr ./
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.cr"
   RUN --no-cache crystal build leibniz.cr --release
   DO +BENCH --name="crystal" --lang="Crystal" --version="crystal -v" --cmd="./leibniz"
 
 cs:
   # Use the dedicated image from Microsoft
   FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine3.16
-  RUN apk add --no-cache hyperfine
+  DO +PREPARE_ALPINE
   WORKDIR /app
 
   # BUILD, first restore than build
@@ -260,10 +247,9 @@ perl:
   DO +BENCH --name="perl" --lang="Perl" --version="perl -v" --cmd="perl leibniz.pl"
 
 cpython:
-  FROM +alpine
-  RUN apk add --no-cache python3
-
-  COPY ./src/leibniz.py ./
+  FROM python:3.11-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
 
 pypy:
