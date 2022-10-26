@@ -100,10 +100,8 @@ c:
   DO +BENCH --name="c" --lang="C (gcc)" --version="gcc --version" --cmd="./leibniz"
 
 c-clang:
-  FROM +alpine
+  FROM +alpine --src="leibniz.c"
   RUN apk add --no-cache clang lld build-base
-
-  COPY ./src/leibniz.c ./
   RUN --no-cache clang -fuse-ld=lld leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="c-clang" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
 
@@ -135,10 +133,8 @@ cpp-avx2:
   DO +BENCH --name="cpp-avx2" --lang="C++ (avx2)" --version="g++ --version" --cmd="./leibniz_avx2"
 
 cpp-clang:
-  FROM +alpine
+  FROM +alpine --src="leibniz.cpp"
   RUN apk add --no-cache clang lld build-base
-
-  COPY ./src/leibniz.cpp ./
   RUN --no-cache clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp-clang" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
 
