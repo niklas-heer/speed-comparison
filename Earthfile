@@ -15,13 +15,6 @@ build:
   RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
   SAVE ARTIFACT bin/scmeta /scmeta
 
-alpine:
-  FROM alpine:3.16
-  RUN apk add --no-cache hyperfine
-  WORKDIR /app
-  COPY +build/scmeta ./
-  COPY ./src/rounds.txt ./
-
 collect-data:
   # Preparing
   BUILD +build
@@ -75,11 +68,29 @@ BENCH:
   RUN --no-cache ./scmeta --lang-name="$lang" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
   SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/$name.json
 
-HYPERFINE_DEBIAN:
+PREPARE_DEBIAN:
   COMMAND
+  RUN apt-get update && apt-get install -y wget
   RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
   RUN dpkg -i hyperfine_1.15.0_amd64.deb
 
+PREPARE_ALPINE:
+  COMMAND
+  RUN apk add --no-cache hyperfine
+
+ADD_FILES:
+  COMMAND
+  ARG --required src
+  WORKDIR /app
+  COPY +build/scmeta ./
+  COPY ./src/rounds.txt ./
+  COPY ./src/"$src" ./
+
+alpine:
+  ARG --required src
+  FROM alpine:3.16
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="$src"
 c:
   FROM +alpine
   RUN apk add --no-cache gcc build-base
