@@ -29,11 +29,13 @@ def plot(df, rounds, to_file):
     sns.set_color_codes("pastel")
     plt.style.use("dark_background")
 
+    df["name-with-version"] = df["name"].astype(str) + " v" + df["version"]
+
     # Plot
     # TODO: Find a way to display the platte scale to highly accuracy better.
     bar = sns.barplot(
         x="min",
-        y="name",
+        y="name-with-version",
         data=df,
         width=1,
         edgecolor="black",
