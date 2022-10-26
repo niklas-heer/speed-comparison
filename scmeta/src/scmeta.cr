@@ -1,16 +1,12 @@
 require "json"
 require "option_parser"
-require "levenshtein"
+require "big"
 
 # Third party dependencies. See shard.yml
 require "json_on_steroids"
 
 NAME = "scmeta"
-VERSION = "1.0.0"
-
-# https://www.wolframalpha.com/input?i=N%5BPi%2C+64%5D
-# 64 digits of pi
-LONG_PI = "3.141592653589793238462643383279502884197169399375105820974944592"
+VERSION = "1.1.0"
 
 upcase = false
 lang_name = nil
@@ -104,12 +100,24 @@ hyperfine = File.open("#{hyperfine_file}") do |file|
   JSON.parse(file).on_steroids!
 end
 
+def pi_accuracy(input : String)
+  # https://www.wolframalpha.com/input?i=N%5BPi%2C+32%5D
+  const_pi = BigFloat.new(3.1415926535897932384626433832795)
+  pi = input.to_big_f
+
+  if pi > const_pi
+    accuracy = 1 - ( pi / const_pi)
+  else
+    accuracy = ( pi / const_pi)
+  end
+  accuracy.abs.to_f
+end
+
 # Calculate pi accuracy
 computed_pi = File.open("#{pi_file}") do |file|
   file.gets_to_end.delete("\n")
 end
-pi = LONG_PI[0..computed_pi.size-1]
-pi_accuracy = 1 - (Levenshtein.distance(pi, computed_pi) / pi.size)
+accuracy = pi_accuracy(computed_pi)
 
 # Get the version by the provided command
 version_raw = run_cmd(lang_version_cmd.to_s)
@@ -132,7 +140,7 @@ metadata["Language"] = lang_name
 metadata["Version"] = lang_version
 metadata["Command"] = hyperfine.dig("results.0.command")
 metadata["CalculatedPi"] = computed_pi
-metadata["Accuracy"] = pi_accuracy
+metadata["Accuracy"] = accuracy
 metadata["Mean"] = to_timedelta(hyperfine.dig("results.0.mean"))
 metadata["Stddev"] = to_timedelta(hyperfine.dig("results.0.stddev"))
 metadata["UserTime"] = to_timedelta(hyperfine.dig("results.0.user"))
