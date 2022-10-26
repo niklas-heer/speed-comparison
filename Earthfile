@@ -164,53 +164,38 @@ cs:
   DO +BENCH --name="cs" --lang="C#" --version="dotnet --version" --cmd="./leibniz"
 
 d:
-  FROM +alpine
-  # RUN apk add --no-cache ldc gcc ldc-static binutils-gold
+  FROM +alpine --src="leibniz.d"
   RUN apk add --no-cache gcc-gdc
-
-  COPY ./src/leibniz.d ./
-  # RUN --no-cache cc=gcc ldc2 -O3 -release -mcpu=native -flto=full -linker=gold -flto-binary=/usr/bin/ld.gold -defaultlib=phobos2-ldc-lto,druntime-ldc-lto -m64 -static leibniz.d
-  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -march=native 
+  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -march=native
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
 
 elixir:
-  FROM +alpine
+  FROM +alpine --src="leibniz.ex"
   RUN apk add --no-cache elixir
-
-  COPY ./src/leibniz.ex ./
   # The version number is in the second match index -> 1 (instead of 0)
   DO +BENCH --name="elixir" --lang="Elixir" --version="elixir --version" --cmd="elixir leibniz.ex" --index="1"
 
 fortran:
   FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y gfortran-12 wget
-  DO +HYPERFINE_DEBIAN
-  COPY +build/scmeta ./
-  
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.f90 ./
+  DO +ADD_FILES --src="leibniz.f90"
   RUN --no-cache gfortran-12 -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
   DO +BENCH --name="fortran" --lang="Fortran 90" --version="gfortran-12 --version" --cmd="./leibniz"
 
 go:
   # We can reuse the build image of the scbench tool
   FROM golang:1.19.1-alpine
-  RUN apk add --no-cache hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.go ./
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.go"
   RUN --no-cache go build leibniz.go
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 java:
   # Using a dedicated image due to the packages on alpine being not up to date.
   FROM eclipse-temurin:19_36-jdk-alpine
-  RUN apk add --no-cache hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.java ./
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.java"
   RUN --no-cache javac leibniz.java
   # TODO: Change scbench to be able to handle Java version. For now it's static.
   # $ java -version
@@ -222,77 +207,56 @@ java:
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
   FROM julia:1.8.2-alpine3.16
-  RUN apk add --no-cache hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.jl ./
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.jl"
   DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="julia leibniz.jl"
 
 julia-compiled:
   # We need the Debian version otherwise the build doesn't work
   FROM julia:1.8.2
-  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake wget
-  DO +HYPERFINE_DEBIAN
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
+  DO +PREPARE_DEBIAN
+  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
+  DO +ADD_FILES --src="leibniz_compiled.jl"
   COPY ./src/leibniz.jl ./
-  COPY ./src/leibniz_compiled.jl ./
   RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
   DO +BENCH --name="julia-compiled" --lang="Julia (AOT compiled)" --version="julia --version" --cmd="./mainjl"
 
 julia-ux4:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
   FROM julia:1.8.2-alpine3.16
-  RUN apk add --no-cache hyperfine
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz_ux4.jl ./
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz_ux4.jl"
   DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
 
 nodejs:
-  FROM +alpine
+  FROM +alpine --src="leibniz.js"
   RUN apk add --no-cache nodejs-current
-
-  COPY ./src/leibniz.js ./
   DO +BENCH --name="nodejs" --lang="Javascript (nodejs)" --version="node --version" --cmd="node leibniz.js"
 
 lua:
-  FROM +alpine
+  FROM +alpine --src="leibniz.lua"
   RUN apk add --no-cache lua5.4
-
-  COPY ./src/leibniz.lua ./
   DO +BENCH --name="lua" --lang="Lua" --version="lua5.4 -v" --cmd="lua5.4 leibniz.lua"
 
 luajit:
-  FROM +alpine
+  FROM +alpine --src="leibniz.lua"
   RUN apk add --no-cache luajit
-
-  COPY ./src/leibniz.lua ./
   DO +BENCH --name="luajit" --lang="LuaJIT" --version="luajit -v" --cmd="luajit leibniz.lua"
 
 nim:
-  FROM +alpine
+  FROM +alpine --src="leibniz.nim"
   RUN apk add --no-cache gcc build-base nim
-
-  COPY ./src/leibniz.nim ./
   RUN --no-cache nim c --verbosity:0 -d:danger --passC:"-flto"  --passL:"-flto" --gc:arc --out:leibniz leibniz.nim
   DO +BENCH --name="nim" --lang="Nim" --version="nim --version" --cmd="./leibniz"
 
 php:
-  FROM +alpine
+  FROM +alpine --src="leibniz.php"
   RUN apk add --no-cache php81
-
-  COPY ./src/leibniz.php ./
   DO +BENCH --name="php" --lang="PHP" --version="php81 --version" --cmd="php81 leibniz.php"
 
 perl:
-  FROM +alpine
+  FROM +alpine --src="leibniz.pl"
   RUN apk add --no-cache perl
-
-  COPY ./src/leibniz.pl ./
   DO +BENCH --name="perl" --lang="Perl" --version="perl -v" --cmd="perl leibniz.pl"
 
 cpython:
@@ -306,51 +270,36 @@ pypy:
   # There is no pypy package on alpine
   # We use the standard which is Debian
   FROM pypy:3.9
-  DO +HYPERFINE_DEBIAN
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.py ./
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="pypy" --lang="Python (PyPy)" --version="pypy --version" --cmd="pypy leibniz.py"
 
 r:
-  FROM +alpine
+  FROM +alpine --src="leibniz.r"
   RUN apk add --no-cache R
-
-  COPY ./src/leibniz.r ./
   DO +BENCH --name="r" --lang="R" --version="R --version" --cmd="Rscript --vanilla --default-packages=base leibniz.r"
 
 ruby:
-  FROM +alpine
+  FROM +alpine --src="leibniz.rb"
   RUN apk add --no-cache ruby
-
-  COPY ./src/leibniz.rb ./
   DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby leibniz.rb"
 
 rust:
-  FROM +alpine
+  FROM +alpine --src="leibniz.rs"
   RUN apk add --no-cache rust
-
-  COPY ./src/leibniz.rs ./
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
 
 sbcl:
-  FROM +alpine
+  FROM +alpine --src="leibniz.lisp"
   RUN apk add --no-cache sbcl
-
-  COPY ./src/leibniz.lisp ./
   RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz.lisp")' --quit
   DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
 
 swift:
   FROM swift:5.7-jammy
-  RUN apt-get update && apt-get install -y wget
-  DO +HYPERFINE_DEBIAN
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.swift ./
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.swift"
   RUN --no-cache swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full
   DO +BENCH --name="swift" --lang="Swift" --version="swift --version" --cmd="./leibniz"
 
@@ -360,11 +309,7 @@ zig:
   # https://pkgs.alpinelinux.org/package/edge/testing/aarch64/zig
   # https://stackoverflow.com/a/62218241
   RUN apk add --no-cache hyperfine zig --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
-  WORKDIR /app
-  COPY +build/scmeta ./
-
-  COPY ./src/rounds.txt ./
-  COPY ./src/leibniz.zig ./
+  DO +ADD_FILES --src="leibniz.zig"
   RUN --no-cache zig build-exe -OReleaseFast leibniz.zig
   DO +BENCH --name="zig" --lang="Zig" --version="zig version" --cmd="./leibniz"
 
