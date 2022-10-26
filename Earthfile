@@ -55,7 +55,6 @@ alpine:
 collect-data:
   # Preparing
   BUILD +build
-  BUILD +alpine
 
   # Work through programming languages
   BUILD +c
