@@ -128,14 +128,21 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Akaame>
+            <img src=https://avatars.githubusercontent.com/u/11539091?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Sıddık AÇIL/>
+            <br />
+            <sub style="font-size:14px"><b>Sıddık AÇIL</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/gauteh>
             <img src=https://avatars.githubusercontent.com/u/56827?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gaute Hope/>
             <br />
             <sub style="font-size:14px"><b>Gaute Hope</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/gbaraldi>
             <img src=https://avatars.githubusercontent.com/u/28694980?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gabriel Baraldi/>
@@ -171,6 +178,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>LazyKernel</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/mcabbott>
             <img src=https://avatars.githubusercontent.com/u/32575566?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Michael Abbott/>
@@ -178,8 +187,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Michael Abbott</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/oscardssmith>
             <img src=https://avatars.githubusercontent.com/u/11729272?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Oscar Smith/>
@@ -215,6 +222,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Thomas A Caswell</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/mosmeh>
             <img src=https://avatars.githubusercontent.com/u/1721932?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yuta Imazu/>
@@ -222,8 +231,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Yuta Imazu</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/motoshira>
             <img src=https://avatars.githubusercontent.com/u/51407064?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Kohei Hosoki/>

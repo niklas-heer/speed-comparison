@@ -29,10 +29,12 @@ collect-data:
 
   # Work through programming languages
   BUILD +c
+  BUILD +c-clang
   BUILD +clj
   BUILD +clj-bb
   BUILD +cpp
   BUILD +cpp-avx2
+  BUILD +cpp-clang
   BUILD +crystal
   BUILD +cs
   BUILD +d
@@ -88,6 +90,14 @@ c:
   RUN --no-cache gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="c" --lang="C (gcc)" --version="gcc --version" --cmd="./leibniz"
 
+c-clang:
+  FROM +alpine
+  RUN apk add --no-cache clang lld build-base
+
+  COPY ./src/leibniz.c ./
+  RUN --no-cache clang -fuse-ld=lld leibniz.c -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +BENCH --name="c-clang" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
+
 clj:
   FROM clojure:temurin-19-tools-deps-alpine
   # Seems to be a bug
@@ -123,6 +133,14 @@ cpp-avx2:
   COPY ./src/leibniz_avx2.cpp ./
   RUN --no-cache g++ leibniz_avx2.cpp -o leibniz_avx2 -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="cpp-avx2" --lang="C++ (avx2)" --version="g++ --version" --cmd="./leibniz_avx2"
+
+cpp-clang:
+  FROM +alpine
+  RUN apk add --no-cache clang lld build-base
+
+  COPY ./src/leibniz.cpp ./
+  RUN --no-cache clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +BENCH --name="cpp-clang" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
 
 crystal:
   FROM crystallang/crystal:1.6-alpine
