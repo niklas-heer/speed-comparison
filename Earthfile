@@ -67,6 +67,7 @@ collect-data:
   BUILD +crystal
   BUILD +cs
   BUILD +d
+  BUILD +d-ldc
   BUILD +elixir
   BUILD +fortran
   BUILD +go
@@ -168,6 +169,12 @@ d:
   RUN apk add --no-cache gcc-gdc
   RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -march=native
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
+  
+d-ldc:
+  FROM +alpine --src="leibniz.d"
+  RUN apk add --no-cache ldc
+  RUN --no-cache ldc2 leibniz.d -of leibniz -O3 -release
+  DO +BENCH --name="d" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
 elixir:
   FROM +alpine --src="leibniz.ex"
