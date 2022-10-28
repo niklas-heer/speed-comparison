@@ -67,24 +67,6 @@ Because I think this is a more realistic scenario to compare speeds.
 
 No they are not included, because when running the program in the real world this would also be done before.
 
-## TODO
-<!-- TODO: move to github tasks instead -->
-- [x] Add C++
-- [x] Add run pypy for Python
-- [x] Produce graphic with results
-- [x] Add Java
-- [x] Add Swift
-- [x] Add R
-- [x] Add Elixir
-- [ ] Add Smalltalk
-- [x] Add C#
-- [x] Add Perl
-- [ ] Add Kotlin
-- [ ] Add Haskell
-- [ ] Add Lisp
-- [ ] Add Ada
-- [ ] Add COBOL
-
 ## Thanks
 The list of Contributors is automatically generated.
 
@@ -265,25 +247,3 @@ For creating [hyperfine](https://github.com/sharkdp/hyperfine) which is used for
 #### Thomas
 
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
-
-## Languages used in this comparison
-
-- [C](https://en.wikipedia.org/wiki/C_(programming_language))
-- [Fortran](https://en.wikipedia.org/wiki/Fortran)
-- [Clojure](https://en.wikipedia.org/wiki/Clojure)
-- [C++](https://en.wikipedia.org/wiki/C%2B%2B)
-- [Crystal](https://en.wikipedia.org/wiki/Crystal_(programming_language))
-- [Elixir](https://en.wikipedia.org/wiki/Elixir_(programming_language))
-- [C#](https://de.wikipedia.org/wiki/C-Sharp)
-- [Go](https://en.wikipedia.org/wiki/Go_(programming_language))
-- [Java](https://en.wikipedia.org/wiki/Java_(programming_language))
-- [Julia](https://en.wikipedia.org/wiki/Julia_(programming_language))
-- [Javascript](https://en.wikipedia.org/wiki/JavaScript) using [Node.js](https://en.wikipedia.org/wiki/Node.js)
-- [Lua](https://en.wikipedia.org/wiki/Lua_(programming_language))
-- [Nim](https://en.wikipedia.org/wiki/Nim_(programming_language))
-- [PHP](https://en.wikipedia.org/wiki/PHP)
-- [Python](https://en.wikipedia.org/wiki/Python_(programming_language))
-- [R](https://en.wikipedia.org/wiki/R_(programming_language))
-- [Ruby](https://en.wikipedia.org/wiki/Ruby_(programming_language))
-- [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language))
-- [Swift](https://en.wikipedia.org/wiki/Swift_(programming_language))
