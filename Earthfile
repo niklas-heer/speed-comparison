@@ -285,7 +285,8 @@ ruby:
 
 rust:
   FROM +alpine --src="leibniz.rs"
-  RUN apk add --no-cache rust
+  RUN bash -c "curl https://sh.rustup.rs -sSf | sh -s -- -y"
+  RUN rustup toolchain install nightly
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
 
