@@ -52,6 +52,12 @@ alpine:
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="$src"
 
+alpine-rust:
+  ARG --required src
+  FROM rust:1.64-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="$src"
+
 collect-data:
   # Preparing
   BUILD +build
@@ -284,9 +290,7 @@ ruby:
   DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby leibniz.rb"
 
 rust:
-  FROM +alpine --src="leibniz.rs"
-  RUN bash -c "curl https://sh.rustup.rs -sSf | sh -s -- -y"
-  RUN rustup toolchain install nightly
+  FROM +alpine-rust --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
 
