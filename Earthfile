@@ -291,8 +291,8 @@ ruby:
   DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby leibniz.rb"
 
 rust:
-  FROM rust:1.64-alpine
-  DO +PREPARE_ALPINE
+  FROM rustlang/rust:nightly-slim
+  DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
