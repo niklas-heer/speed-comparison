@@ -167,7 +167,7 @@ cs:
 d:
   FROM +alpine --src="leibniz.d"
   RUN apk add --no-cache gcc-gdc
-  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -march=native
+  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -static -flto -ffast-math -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
 
 elixir:
