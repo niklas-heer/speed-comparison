@@ -172,8 +172,8 @@ d:
   
 d-ldc:
   FROM +alpine --src="leibniz.d"
-  RUN apk add --no-cache ldc
-  RUN --no-cache ldc2 leibniz.d -of leibniz -O3 -release
+  RUN apk add --no-cache ldc gcc musl-dev llvm-libunwind-static
+  RUN --no-cache ldc2 leibniz.d -of leibniz -O3 -release -mcpu=native -static
   DO +BENCH --name="d" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
 elixir:
