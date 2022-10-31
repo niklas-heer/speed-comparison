@@ -76,6 +76,7 @@ collect-data:
   BUILD +julia-compiled
   BUILD +julia-ux4
   BUILD +nodejs
+  BUILD +bunjs
   BUILD +lua
   BUILD +luajit
   BUILD +nim
@@ -240,6 +241,12 @@ nodejs:
   RUN apk add --no-cache nodejs-current
   DO +BENCH --name="nodejs" --lang="Javascript (nodejs)" --version="node --version" --cmd="node leibniz.js"
 
+bunjs:
+  FROM jarredsumner/bun:edge
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.js"
+  DO +BENCH --name="bunjs" --lang="Javascript (bun)" --version="bun --version" --cmd="bun run leibniz.js"
+
 lua:
   FROM +alpine --src="leibniz.lua"
   RUN apk add --no-cache lua5.4
@@ -291,8 +298,9 @@ ruby:
   DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby leibniz.rb"
 
 rust:
-  FROM +alpine --src="leibniz.rs"
-  RUN apk add --no-cache rust
+  FROM rust:1.64-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
 

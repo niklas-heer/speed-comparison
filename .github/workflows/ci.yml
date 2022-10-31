@@ -2,9 +2,13 @@ name: Run speed comparison
 
 on:
   push:
+    paths-ignore:
+      - 'assets'
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
     branches:
       - master
-      - next
   pull_request_review:
     types: [submitted]
   pull_request:
