@@ -175,7 +175,7 @@ d-ldc:
   FROM +alpine --src="leibniz.d"
   RUN apk add --no-cache ldc gcc musl-dev llvm-libunwind-static llvm12
   RUN --no-cache ldc2 leibniz.d -of leibniz -O3 -release -mcpu=native -static -flto=thin -ffast-math -Xcc='-march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math'
-  DO +BENCH --name="d" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
+  DO +BENCH --name="d-ldc" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
 elixir:
   FROM +alpine --src="leibniz.ex"
