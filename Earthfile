@@ -67,6 +67,7 @@ collect-data:
   BUILD +crystal
   BUILD +cs
   BUILD +d
+  BUILD +d-ldc
   BUILD +elixir
   BUILD +fortran
   BUILD +go
@@ -169,6 +170,12 @@ d:
   RUN apk add --no-cache gcc-gdc
   RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -static -flto -ffast-math -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
+  
+d-ldc:
+  FROM +alpine --src="leibniz.d"
+  RUN apk add --no-cache ldc gcc musl-dev llvm-libunwind-static llvm12
+  RUN --no-cache ldc2 leibniz.d -of leibniz -O3 -release -mcpu=native -static -flto=thin -ffast-math -Xcc='-march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math'
+  DO +BENCH --name="d" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
 elixir:
   FROM +alpine --src="leibniz.ex"
