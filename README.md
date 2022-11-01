@@ -133,6 +133,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/cyrusmsk>
+            <img src=https://avatars.githubusercontent.com/u/1385803?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Serg Gini/>
+            <br />
+            <sub style="font-size:14px"><b>Serg Gini</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/joelandman>
             <img src=https://avatars.githubusercontent.com/u/2421934?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Joe Landman/>
             <br />
@@ -144,13 +151,6 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/64073903?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Eternal Frustation/>
             <br />
             <sub style="font-size:14px"><b>Eternal Frustation</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/cyrusmsk>
-            <img src=https://avatars.githubusercontent.com/u/1385803?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Serg Gini/>
-            <br />
-            <sub style="font-size:14px"><b>Serg Gini</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
