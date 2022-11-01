@@ -28,7 +28,7 @@ actor Main
           pi = pi + tmp
         end
         pi = pi * 4.0
-        env.out.print(Format.float(pi,FormatDefault,PrefixDefault,17))
+        env.out.print(Format.float[F64](pi,FormatDefault,PrefixDefault,17))
     else
       env.err.print("'rounds.txt' open failed")
     end
