@@ -81,6 +81,7 @@ collect-data:
   BUILD +nim
   BUILD +php
   BUILD +perl
+  BUILD +pony
   BUILD +cpython
   BUILD +pypy
   BUILD +r
@@ -265,6 +266,13 @@ perl:
   FROM +alpine --src="leibniz.pl"
   RUN apk add --no-cache perl
   DO +BENCH --name="perl" --lang="Perl" --version="perl -v" --cmd="perl leibniz.pl"
+
+pony:
+  FROM ponylang/ponyc:alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="pony/*.pony"
+  RUN --no-cache ponyc ./ -o=out --bin-file=leibniz
+  DO +BENCH --name "pony" --lang="Pony" --version="ponyc --version" --cmd="./out/leibniz"
 
 cpython:
   FROM python:3.11-alpine
