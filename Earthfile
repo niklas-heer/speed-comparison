@@ -257,10 +257,14 @@ luajit:
   RUN apk add --no-cache luajit
   DO +BENCH --name="luajit" --lang="LuaJIT" --version="luajit -v" --cmd="luajit leibniz.lua"
 
+# `-fno-signed-zeros -fno-trapping-math -fassociative-math` GCC options allows vectorization
+# `-march=native` allows using AVX instructions if build machine support it
+# `--passL:"-s"` removes all symbol table and relocation information. It makes executable smaller but doesn't affect the speed
+# Add `--passL:"-save-temps -dumpbase asmout/mycode"` option to the Nim command to generate the assembly code in directory asmout
 nim:
   FROM +alpine --src="leibniz.nim"
   RUN apk add --no-cache gcc build-base nim
-  RUN --no-cache nim c --verbosity:0 -d:danger --passC:"-flto"  --passL:"-flto" --gc:arc --out:leibniz leibniz.nim
+  RUN --no-cache nim c --verbosity:0 -d:danger -d:lto --gc:arc --passC:"-march=native -fno-signed-zeros -fno-trapping-math -fassociative-math" --passL:"-s" leibniz.nim
   DO +BENCH --name="nim" --lang="Nim" --version="nim --version" --cmd="./leibniz"
 
 php:
