@@ -87,6 +87,7 @@ collect-data:
   BUILD +r
   BUILD +ruby
   BUILD +rust
+  BUILD +rust-nightly
   BUILD +sbcl
   BUILD +swift
   BUILD +zig
@@ -303,6 +304,13 @@ rust:
   DO +ADD_FILES --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
   DO +BENCH --name="rust" --lang="Rust" --version="rustc --version" --cmd="./leibniz"
+
+rust-nightly:
+  FROM rustlang/rust:nightly-slim
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz_nightly.rs"
+  RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_nightly.rs
+  DO +BENCH --name="rust-nightly" --lang="Rust (nightly)" --version="rustc --version" --cmd="./leibniz_nightly"
 
 sbcl:
   FROM +alpine --src="leibniz.lisp"
