@@ -1,0 +1,2 @@
+{:paths ["bb"]
+ :deps {dev.nubank/docopt {:mvn/version "0.6.1-fix7"}}}
