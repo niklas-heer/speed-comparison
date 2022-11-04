@@ -9,7 +9,7 @@ try {
     Console.WriteLine($"Couldn't read file:\n {err.Message}");
 }
 
-int rounds = int.Parse(data.Replace("\n", "").Replace("\r", ""));
+int rounds = int.Parse(data);
 
 double pi = 1;
 double x = 1;
