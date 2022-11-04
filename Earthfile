@@ -271,7 +271,7 @@ pony:
   FROM ponylang/ponyc:alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.pony"
-  RUN --no-cache ponyc ./ -o=out --bin-file=leibniz
+  RUN --no-cache ponyc ./ -o=out --bin-name=leibniz
   DO +BENCH --name "pony" --lang="Pony" --version="ponyc --version" --cmd="./out/leibniz"
 
 cpython:
