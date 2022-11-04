@@ -24,9 +24,14 @@ BENCH:
   ARG --required version
   ARG index=0
 
-  RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
-  RUN --no-cache ./scmeta --lang-name="$lang" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
-  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/$name.json
+  RUN mkdir results
+  RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./results/hyperfine.json" --output "./results/pi.txt"
+  ENV RESULT_JSON="./results/info.json"
+  RUN echo "{'lang': \"$lang\", 'version': \"$version\"}" > $RESULT_JSON
+  # RUN echo $RESULT_JSON | jq --arg lang $lang '. + {language: $lang}' > $RESULT_JSON
+  # RUN jq '.version = "$version"' ./results/info.json
+  SAVE ARTIFACT results/* AS LOCAL ./results/$name/
+  # BUILD +scmeta --name=$name --lang=$lang --index=$index
 
 PREPARE_DEBIAN:
   COMMAND
@@ -36,15 +41,36 @@ PREPARE_DEBIAN:
 
 PREPARE_ALPINE:
   COMMAND
-  RUN apk add --no-cache hyperfine
+  RUN apk add --no-cache hyperfine jq
+  # RUN apk add --no-cache hyperfine bash curl
+  # RUN curl -s https://raw.githubusercontent.com/babashka/babashka/master/install | bash -s -- --dir /bin
+
+ADD_SCMETA:
+  COMMAND
+  COPY ./scmeta/scmeta.clj ./
+  COPY ./scmeta/bb.edn ./
 
 ADD_FILES:
   COMMAND
   ARG --required src
   WORKDIR /app
-  COPY +build/scmeta ./
+  # COPY +build/scmeta ./
+  # DO +ADD_SCMETA
   COPY ./src/rounds.txt ./
   COPY ./src/"$src" ./
+
+scmeta:
+  ARG --required name
+  ARG --required lang
+  FROM babashka/babashka:alpine
+  WORKDIR /app
+  DO +ADD_SCMETA
+
+  COPY ./results/$name/* ./
+
+  RUN --no-cache  ./scmeta.clj --ln="$lang" --lv="echo 1.0.0" --hf="./hyperfine.json" --pi="./pi.txt" --out="./scmeta.json" --lvi="$index"
+
+  SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/$name.json
 
 alpine:
   ARG --required src
@@ -170,7 +196,7 @@ d:
   RUN apk add --no-cache gcc-gdc
   RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -static -flto -ffast-math -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
-  
+
 d-ldc:
   FROM +alpine --src="leibniz.d"
   RUN apk add --no-cache ldc gcc musl-dev llvm-libunwind-static llvm12
