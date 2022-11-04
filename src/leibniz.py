@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-import os
 
 # https://stackoverflow.com/questions/11241523/why-does-python-code-run-faster-in-a-function
 def main():
