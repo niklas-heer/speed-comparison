@@ -204,10 +204,10 @@ go:
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 haskell:
-  FROM --platform=linux/amd64 haskell:9.4.3-slim
+  FROM haskell:9.4.3-slim
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.hs"
-  RUN --no-cache ghc -O2 leibniz.hs
+  RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
   DO +BENCH --name="haskell" --lang="Haskell (GHC)" --version="ghc --version" --cmd="./leibniz"
 
 java:
