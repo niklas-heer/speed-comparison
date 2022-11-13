@@ -1,4 +1,4 @@
-function f4(rounds)
+function f(rounds)
     pi = -1.0f0
     # x  = -1.0
     r2 = rounds + 2
