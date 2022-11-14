@@ -57,6 +57,7 @@ collect-data:
   BUILD +build
 
   # Work through programming languages
+  BUILD +ada
   BUILD +c
   BUILD +c-clang
   BUILD +clj
@@ -98,6 +99,14 @@ collect-data:
 all:
   BUILD +collect-data
   BUILD +analysis
+
+ada:
+  FROM +alpine --src="leibniz.adb"
+  RUN apk add --no-cache gcc-gnat build-base
+  RUN --no-cache gcc -x ada -c leibniz.adb -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  RUN --no-cache gnatbind leibniz
+  RUN --no-cache gnatlink leibniz
+  DO +BENCH --name="ada" --lang="Ada (gnat-gcc)" --version="gcc --version" --cmd="./leibniz"
 
 c:
   FROM +alpine --src="leibniz.c"
@@ -204,10 +213,10 @@ go:
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 haskell:
-  FROM --platform=linux/amd64 haskell:9.4.3-slim
+  FROM haskell:9.4.3-slim
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.hs"
-  RUN --no-cache ghc -O2 leibniz.hs
+  RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
   DO +BENCH --name="haskell" --lang="Haskell (GHC)" --version="ghc --version" --cmd="./leibniz"
 
 java:
