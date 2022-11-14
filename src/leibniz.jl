@@ -1,18 +1,22 @@
-struct SignVector <: AbstractVector{Float64}
-    len::Int
-end
-Base.size(s::SignVector) = (s.len,)
-Base.getindex(::SignVector, i::Int) = Float64((-1)^iseven(i))
-
 function f(rounds)
-    xs = SignVector(rounds + 2)
     pi = 1.0
-
-    @simd for i in 2:(rounds + 2)
-        x = xs[i]
-        pi += x / (2 * i - 1)
+    x  = -1.0
+    r2 = rounds + 2
+    vend = r2 - r2 % 4
+    @simd for i in 2*2:4*2:(r2*2)
+    # Common denominators method, half as many divisions:
+        pi += Float64(
+              -2.0f0 / fma(i, i, -1.0f0) +
+              # x / (2.0 * i + 1.0) +
+              -2.0f0 / (fma(i, i, 15.0f0) + 8f0i)
+              # x / (2.0 * i + 5.0)
+        )
     end
 
+    for i in vend+1:r2
+        pi += x / (2.0 * (i + 0.0) - 1.0)
+        x = -x
+    end
     return pi*4
 end
 
