@@ -7,3 +7,5 @@ results/*.png
 results/*.json
 leibniz
 src/cs/obj/Debug
+*.o
+*.hi

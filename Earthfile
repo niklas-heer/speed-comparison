@@ -71,6 +71,7 @@ collect-data:
   BUILD +elixir
   BUILD +fortran
   BUILD +go
+  BUILD +haskell
   BUILD +java
   BUILD +julia
   BUILD +julia-compiled
@@ -173,7 +174,7 @@ d:
   RUN apk add --no-cache gcc-gdc
   RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -static -flto -ffast-math -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
-  
+
 d-ldc:
   FROM +alpine --src="leibniz.d"
   RUN apk add --no-cache ldc gcc musl-dev llvm-libunwind-static llvm12
@@ -201,6 +202,13 @@ go:
   DO +ADD_FILES --src="leibniz.go"
   RUN --no-cache go build leibniz.go
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
+
+haskell:
+  FROM haskell:9.4.3-slim
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.hs"
+  RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
+  DO +BENCH --name="haskell" --lang="Haskell (GHC)" --version="ghc --version" --cmd="./leibniz"
 
 java:
   # Using a dedicated image due to the packages on alpine being not up to date.
