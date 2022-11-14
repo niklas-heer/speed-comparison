@@ -2,7 +2,7 @@
 
 (defn calc-pi-leibniz 
   "Translation of Java solution to Clojure"
-  [rounds]
+  [^long rounds]
   (let [end (+ 2 rounds)]
     (loop [i 2 x 1.0 pi 1.0]
       (if (= i end)

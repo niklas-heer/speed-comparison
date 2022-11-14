@@ -89,6 +89,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/viscropst>
+            <img src=https://avatars.githubusercontent.com/u/16207250?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yu Zhu/>
+            <br />
+            <sub style="font-size:14px"><b>Yu Zhu</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Moelf>
             <img src=https://avatars.githubusercontent.com/u/5306213?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jerry Ling/>
             <br />
@@ -107,13 +114,6 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/68330937?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=0xB00B/>
             <br />
             <sub style="font-size:14px"><b>0xB00B</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/viscropst>
-            <img src=https://avatars.githubusercontent.com/u/16207250?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yu Zhu/>
-            <br />
-            <sub style="font-size:14px"><b>Yu Zhu</b></sub>
         </a>
     </td>
 </tr>
@@ -170,6 +170,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Demonstrandum>
+            <img src=https://avatars.githubusercontent.com/u/26842759?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=S Knutsen/>
+            <br />
+            <sub style="font-size:14px"><b>S Knutsen</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/LazyKernel>
             <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
             <br />
@@ -191,6 +198,15 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/PallHaraldsson>
+            <img src=https://avatars.githubusercontent.com/u/8005416?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Páll Haraldsson/>
+            <br />
+            <sub style="font-size:14px"><b>Páll Haraldsson</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/DirkieDurky>
             <img src=https://avatars.githubusercontent.com/u/72947540?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=DirkieDurky/>
             <br />
@@ -204,8 +220,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Gui Zhen Wei</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/PatrickTheDev>
             <img src=https://avatars.githubusercontent.com/u/69093169?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=RDPatrickTheDev/>
@@ -234,11 +248,20 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Thomas A Caswell</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/demotomohiro>
             <img src=https://avatars.githubusercontent.com/u/1882512?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Tomohiro/>
             <br />
             <sub style="font-size:14px"><b>Tomohiro</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/genmeblog>
+            <img src=https://avatars.githubusercontent.com/u/38646601?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=genmeblog/>
+            <br />
+            <sub style="font-size:14px"><b>genmeblog</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -248,8 +271,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Yuta Imazu</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/motoshira>
             <img src=https://avatars.githubusercontent.com/u/51407064?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Kohei Hosoki/>

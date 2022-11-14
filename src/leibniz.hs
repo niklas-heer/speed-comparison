@@ -1,12 +1,14 @@
+{-# LANGUAGE BangPatterns #-}
+
 {- | A more direct port of the C version. -}
 module Main where
 
 -- | Computes partial alternating series converging
 --   to π/4=arctan(1) up n terms.
 leibniz :: Int -> Double
-leibniz n = partial 2 1.0 where
+leibniz !n = partial 2 1.0 where
   partial :: Int -> Double -> Double
-  partial i qpi
+  partial !i !qpi
     | i == n + 2 = qpi
     | otherwise  = partial (i + 1) $ qpi - powNeg1 i * inv (2*i - 1)
   inv = recip . fromIntegral
