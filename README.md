@@ -133,6 +133,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Demonstrandum>
+            <img src=https://avatars.githubusercontent.com/u/26842759?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=S Knutsen/>
+            <br />
+            <sub style="font-size:14px"><b>S Knutsen</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/gbaraldi>
             <img src=https://avatars.githubusercontent.com/u/28694980?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gabriel Baraldi/>
             <br />
@@ -153,6 +160,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Joe Landman</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/eternalfrustation>
             <img src=https://avatars.githubusercontent.com/u/64073903?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Eternal Frustation/>
@@ -160,20 +169,11 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Eternal Frustation</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/mattn>
             <img src=https://avatars.githubusercontent.com/u/10111?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=mattn/>
             <br />
             <sub style="font-size:14px"><b>mattn</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/Demonstrandum>
-            <img src=https://avatars.githubusercontent.com/u/26842759?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=S Knutsen/>
-            <br />
-            <sub style="font-size:14px"><b>S Knutsen</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
