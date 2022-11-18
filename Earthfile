@@ -57,6 +57,7 @@ collect-data:
   BUILD +build
 
   # Work through programming languages
+  BUILD +ada
   BUILD +c
   BUILD +c-clang
   BUILD +clj
@@ -98,6 +99,14 @@ collect-data:
 all:
   BUILD +collect-data
   BUILD +analysis
+
+ada:
+  FROM +alpine --src="leibniz.adb"
+  RUN apk add --no-cache gcc-gnat build-base
+  RUN --no-cache gcc -x ada -c leibniz.adb -O3 -s -static -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  RUN --no-cache gnatbind leibniz
+  RUN --no-cache gnatlink leibniz
+  DO +BENCH --name="ada" --lang="Ada (gnat-gcc)" --version="gcc --version" --cmd="./leibniz"
 
 c:
   FROM +alpine --src="leibniz.c"
