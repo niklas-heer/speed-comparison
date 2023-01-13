@@ -74,6 +74,7 @@ collect-data:
   BUILD +go
   BUILD +haskell
   BUILD +java
+  BUILD +java-vecops
   BUILD +julia
   BUILD +julia-compiled
   BUILD +julia-ux4
@@ -231,6 +232,20 @@ java:
   # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
   # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
   DO +BENCH --name="java" --lang="Java" --version="echo 19.36" --cmd="java leibniz"
+
+
+java-vecops:
+  # Using a dedicated image due to the packages on alpine being not up to date.
+  FROM eclipse-temurin:19_36-jdk-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibnizVecOps.java"
+  RUN --no-cache javac --add-modules jdk.incubator.vector leibnizVecOps.java
+  # TODO: Change scbench to be able to handle Java version. For now it's static.
+  # $ java -version
+  # openjdk version "19" 2022-09-20
+  # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
+  # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
+  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="echo 19.36" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
