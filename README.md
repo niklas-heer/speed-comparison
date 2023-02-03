@@ -221,6 +221,13 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/lolgab>
+            <img src=https://avatars.githubusercontent.com/u/5793054?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Lorenzo Gabriele/>
+            <br />
+            <sub style="font-size:14px"><b>Lorenzo Gabriele</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/PatrickTheDev>
             <img src=https://avatars.githubusercontent.com/u/69093169?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=RDPatrickTheDev/>
             <br />
@@ -241,6 +248,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Sergey Trofimov</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/tacaswell>
             <img src=https://avatars.githubusercontent.com/u/199813?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Thomas A Caswell/>
@@ -248,8 +257,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Thomas A Caswell</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/demotomohiro>
             <img src=https://avatars.githubusercontent.com/u/1882512?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Tomohiro/>
