@@ -1,6 +1,8 @@
 (ns leibniz)
 
-(defn calc-pi-leibniz 
+(set! *unchecked-math* :warn-on-boxed)
+
+(defn calc-pi-leibniz
   "Translation of Java solution to Clojure"
   [^long rounds]
   (let [end (+ 2 rounds)]
