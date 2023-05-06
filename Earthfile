@@ -371,15 +371,25 @@ sbcl:
   RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz.lisp")' --quit
   DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
 
-scala:
+scala-native:
   FROM +alpine --src="leibniz.scala"
   RUN apk add --no-cache clang musl-dev g++
-  RUN wget -q https://github.com/VirtusLab/scala-cli/releases/download/v0.1.19/scala-cli-x86_64-pc-linux-static.gz && \
+  RUN wget -q https://github.com/VirtusLab/scala-cli/releases/download/v0.2.1/scala-cli-x86_64-pc-linux-static.gz && \
       gunzip scala-cli-x86_64-pc-linux-static.gz && \
       chmod +x scala-cli-x86_64-pc-linux-static && \
       mv scala-cli-x86_64-pc-linux-static /usr/local/bin/scala-cli
-  RUN scala-cli package leibniz.scala -o leibniz --scala 3.2.1 --native-version 0.4.9 --native --native-mode release-full
-  DO +BENCH --name="scala" --lang="Scala" --version="echo 3.2.1" --cmd="./leibniz"
+  RUN scala-cli package leibniz.scala -o leibniz --scala 3.2.2 --native-version 0.4.12 --native --native-mode release-full
+  DO +BENCH --name="scala" --lang="Scala Native" --version="echo 3.2.2" --cmd="./leibniz"
+
+scala-graalvm:
+  FROM +alpine --src="leibniz.scala"
+  RUN apk add --no-cache clang musl-dev g++
+  RUN wget -q https://github.com/VirtusLab/scala-cli/releases/download/v0.2.1/scala-cli-x86_64-pc-linux-static.gz && \
+      gunzip scala-cli-x86_64-pc-linux-static.gz && \
+      chmod +x scala-cli-x86_64-pc-linux-static && \
+      mv scala-cli-x86_64-pc-linux-static /usr/local/bin/scala-cli
+  RUN scala-cli package leibniz.scala -o leibniz --scala 3.2.2 --native-image
+  DO +BENCH --name="scala" --lang="Scala (GraalVM)" --version="echo 3.2.2" --cmd="./leibniz"
 
 swift:
   FROM swift:5.7-jammy
