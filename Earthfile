@@ -306,7 +306,7 @@ nim:
 
 ocaml:
   FROM +alpine --src="leibniz.ml"
-  DO apk add --no-cache ocaml
+  RUN apk add --no-cache ocaml
   RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
   DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
 
