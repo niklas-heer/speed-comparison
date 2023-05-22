@@ -333,6 +333,14 @@ cpython:
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
 
+cpython-numpy:
+  FROM python:3.11-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base
+  RUN python3 -m pip install numpy
+  DO +ADD_FILES --src="leibniz_np.py"
+  DO +BENCH --name="cpython-numpy" --lang="Python (CPython w/ NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
+
 pypy:
   # There is no pypy package on alpine
   # We use the standard which is Debian
