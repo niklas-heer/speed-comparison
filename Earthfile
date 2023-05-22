@@ -24,7 +24,7 @@ BENCH:
   ARG --required version
   ARG index=0
 
-  RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+  RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt" 
   RUN --no-cache ./scmeta --lang-name="$lang" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
   SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/$name.json
 
@@ -340,6 +340,15 @@ cpython-numpy:
   RUN python3 -m pip install numpy
   DO +ADD_FILES --src="leibniz_np.py"
   DO +BENCH --name="cpython-numpy" --lang="Python (CPython w/ NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
+
+mypyc:
+  FROM python:3.11-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base
+  RUN python3 -m pip install mypy
+  DO +ADD_FILES --src="leibniz_mypyc.py"
+  RUN mypyc leibniz_mypyc.py
+  DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="python3 --version" --cmd="python3 -c 'import leibniz_mypyc'"
 
 pypy:
   # There is no pypy package on alpine
