@@ -229,7 +229,7 @@ julia-compiled:
   RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
   DO +ADD_FILES --src="leibniz_compiled.jl"
   COPY ./src/leibniz.jl ./
-  RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
+  RUN julia -e 'using Pkg; Pkg.add(name="StaticTools", version="0.8"); Pkg.add(name="StaticCompiler", version="0.5"); include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
   DO +BENCH --name="julia-compiled" --lang="Julia (AOT compiled)" --version="julia --version" --cmd="./mainjl"
 
 julia-ux4:
