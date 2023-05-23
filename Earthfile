@@ -24,7 +24,7 @@ BENCH:
   ARG --required version
   ARG index=0
 
-  RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt" 
+  RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
   RUN --no-cache ./scmeta --lang-name="$lang" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
   SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/$name.json
 
@@ -95,6 +95,9 @@ collect-data:
   BUILD +pony
   BUILD +pony-nightly
   BUILD +cpython
+  BUILD +cinder
+  BUILD +mypyc
+  BUILD +cpython-numpy
   BUILD +pypy
   BUILD +r
   BUILD +ruby
