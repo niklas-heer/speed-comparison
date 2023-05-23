@@ -38,6 +38,13 @@ PREPARE_ALPINE:
   COMMAND
   RUN apk add --no-cache hyperfine
 
+PREPARE_FEDORA:
+  COMMAND
+  RUN yum install -y wget
+  RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine-v1.15.0-x86_64-unknown-linux-gnu.tar.gz
+  RUN tar -xzf hyperfine-v1.15.0-x86_64-unknown-linux-gnu.tar.gz
+  RUN cp hyperfine-v1.15.0-x86_64-unknown-linux-gnu/hyperfine /usr/local/bin/
+
 ADD_FILES:
   COMMAND
   ARG --required src
@@ -326,6 +333,12 @@ pony-nightly:
   DO +ADD_FILES --src="leibniz.pony"
   RUN --no-cache ponyc ./ -o=out --bin-name=leibniz
   DO +BENCH --name "pony-nightly" --lang="Pony(nightly)" --version="ponyc --version" --cmd="./out/leibniz"
+
+cinder:
+  FROM ghcr.io/facebookincubator/cinder-runtime:cinder-3.8
+  DO +PREPARE_FEDORA
+  DO +ADD_FILES --src="leibniz_mypyc.py"
+  DO +BENCH --name="cinder" --lang="Python (Cinder)" --version="python3 --version" --cmd="python3 -X jit leibniz_mypyc.py"
 
 cpython:
   FROM python:3.11-alpine
