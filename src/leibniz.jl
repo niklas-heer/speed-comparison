@@ -5,7 +5,7 @@ function f(rounds)
     vend = Int64(r2 - r2) % 8
     @simd for i in 2*2:8*2:(r2*2)
     # Common-denominators method, half as many divisions:
-        pi += Float64(
+        pi +=
                -2.0f0 / fma(i, i, -1.0f0) +
                # x / (2.0 * i + 1.0) +
                -2.0f0 / (fma(i, i, 15.0f0) + 8f0i) +
@@ -14,7 +14,6 @@ function f(rounds)
                # x / (2.0 * i + 9.0) +
                -2.0f0 / (fma(i, i, 143f0) + 24f0i)
                # x / (2.0 * i + 13.0)
-        )
     end
 
     for i in vend+1:r2
@@ -26,6 +25,6 @@ function f(rounds)
 end
 
 @static if abspath(PROGRAM_FILE) == @__FILE__
-    rounds = parse(Int64, readchomp("rounds.txt"))
+    rounds = parse(Float32, readchomp("rounds.txt"))
     print(f(rounds))
 end
