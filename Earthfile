@@ -84,6 +84,7 @@ collect-data:
   BUILD +luajit
   BUILD +nim
   BUILD +php
+  BUILD +php-jit
   BUILD +perl
   BUILD +pony
   BUILD +pony-nightly
@@ -307,6 +308,13 @@ php:
   FROM +alpine --src="leibniz.php"
   RUN apk add --no-cache php81
   DO +BENCH --name="php" --lang="PHP" --version="php81 --version" --cmd="php81 leibniz.php"
+
+php-jit:
+  FROM +alpine --src="leibniz.php"
+  RUN apk add --no-cache php81 php81-opcache
+  RUN echo "opcache.enable_cli=1" >> /etc/php81/php.ini
+  RUN echo "opcache.jit_buffer_size=64M" >> /etc/php81/php.ini
+  DO +BENCH --name="php-jit" --lang="PHP" --version="php81 --version" --cmd="php81 leibniz.php"
 
 perl:
   FROM +alpine --src="leibniz.pl"
