@@ -382,7 +382,7 @@ scala:
   DO +BENCH --name="scala" --lang="Scala" --version="echo 3.2.1" --cmd="./leibniz"
 
 swift:
-  FROM swift:5.7-jammy
+  FROM swift:5.8.1-jammy
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.swift"
   RUN --no-cache swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full
