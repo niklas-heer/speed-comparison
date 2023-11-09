@@ -75,6 +75,7 @@ collect-data:
   BUILD +haskell
   BUILD +java
   BUILD +java-vecops
+  BUILD +java-graalvm
   BUILD +julia
   BUILD +julia-compiled
   BUILD +julia-ux4
