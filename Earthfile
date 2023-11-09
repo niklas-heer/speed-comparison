@@ -95,6 +95,7 @@ collect-data:
   BUILD +rust-nightly
   BUILD +sbcl
   BUILD +scala
+  BUILD +scala-native
   BUILD +swift
   BUILD +zig
 
