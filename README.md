@@ -110,10 +110,10 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/0xB00B>
-            <img src=https://avatars.githubusercontent.com/u/68330937?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=0xB00B/>
+        <a href=https://github.com/frak0d>
+            <img src=https://avatars.githubusercontent.com/u/68330937?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=frakod/>
             <br />
-            <sub style="font-size:14px"><b>0xB00B</b></sub>
+            <sub style="font-size:14px"><b>frakod</b></sub>
         </a>
     </td>
 </tr>
@@ -164,9 +164,9 @@ The list of Contributors is automatically generated.
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/eternalfrustation>
-            <img src=https://avatars.githubusercontent.com/u/64073903?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Eternal Frustation/>
+            <img src=https://avatars.githubusercontent.com/u/64073903?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Sandeep Kumar/>
             <br />
-            <sub style="font-size:14px"><b>Eternal Frustation</b></sub>
+            <sub style="font-size:14px"><b>Sandeep Kumar</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
