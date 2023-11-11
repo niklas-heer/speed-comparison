@@ -67,6 +67,7 @@ collect-data:
   BUILD +cpp-clang
   BUILD +crystal
   BUILD +cs
+  BUILD +fs
   BUILD +d
   BUILD +d-ldc
   BUILD +elixir
