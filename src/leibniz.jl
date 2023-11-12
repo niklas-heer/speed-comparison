@@ -1,22 +1,30 @@
-struct SignVector <: AbstractVector{Float64}
-    len::Int
-end
-Base.size(s::SignVector) = (s.len,)
-Base.getindex(::SignVector, i::Int) = Float64((-1)^iseven(i))
-
 function f(rounds)
-    xs = SignVector(rounds + 2)
     pi = 1.0
+    x  = -1.0
+    r2 = rounds + 2
+    vend = Int64(r2 - r2) % 8
+    @simd for i in 2*2:8*2:(r2*2)
+    # Common-denominators method, half as many divisions:
+        pi +=
+               -2.0f0 / fma(i, i, -1.0f0) +
+               # x / (2.0 * i + 1.0) +
+               -2.0f0 / (fma(i, i, 15.0f0) + 8f0i) +
+               # x / (2.0 * i + 5.0) +
+               -2.0f0 / (fma(i, i, 63f0) + 16f0i) +
+               # x / (2.0 * i + 9.0) +
+               -2.0f0 / (fma(i, i, 143f0) + 24f0i)
+               # x / (2.0 * i + 13.0)
+    end
 
-    @simd for i in 2:(rounds + 2)
-        x = xs[i]
-        pi += x / (2 * i - 1)
+    for i in vend+1:r2
+        pi += x / (2.0f0 * i - 1.0f0)
+        x = -x
     end
 
     return pi*4
 end
 
 @static if abspath(PROGRAM_FILE) == @__FILE__
-    rounds = parse(Int64, readchomp("rounds.txt"))
+    rounds = parse(Float32, readchomp("rounds.txt"))
     print(f(rounds))
 end
