@@ -38,6 +38,13 @@ PREPARE_ALPINE:
   COMMAND
   RUN apk add --no-cache hyperfine
 
+PREPARE_FEDORA:
+  COMMAND
+  RUN yum install -y wget
+  RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine-v1.15.0-x86_64-unknown-linux-gnu.tar.gz
+  RUN tar -xzf hyperfine-v1.15.0-x86_64-unknown-linux-gnu.tar.gz
+  RUN cp hyperfine-v1.15.0-x86_64-unknown-linux-gnu/hyperfine /usr/local/bin/
+
 ADD_FILES:
   COMMAND
   ARG --required src
@@ -88,6 +95,9 @@ collect-data:
   BUILD +pony
   BUILD +pony-nightly
   BUILD +cpython
+  BUILD +cinder
+  BUILD +mypyc
+  BUILD +cpython-numpy
   BUILD +pypy
   BUILD +r
   BUILD +ruby
@@ -328,11 +338,34 @@ pony-nightly:
   RUN --no-cache ponyc ./ -o=out --bin-name=leibniz
   DO +BENCH --name "pony-nightly" --lang="Pony(nightly)" --version="ponyc --version" --cmd="./out/leibniz"
 
+cinder:
+  FROM ghcr.io/facebookincubator/cinder-runtime:cinder-3.8
+  DO +PREPARE_FEDORA
+  DO +ADD_FILES --src="leibniz_mypyc.py"
+  DO +BENCH --name="cinder" --lang="Python (Cinder)" --version="python3 --version" --cmd="python3 -X jit leibniz_mypyc.py"
+
 cpython:
   FROM python:3.11-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
+
+cpython-numpy:
+  FROM python:3.11-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base
+  RUN python3 -m pip install numpy
+  DO +ADD_FILES --src="leibniz_np.py"
+  DO +BENCH --name="cpython-numpy" --lang="Python (CPython w/ NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
+
+mypyc:
+  FROM python:3.11-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base
+  RUN python3 -m pip install mypy
+  DO +ADD_FILES --src="leibniz_mypyc.py"
+  RUN mypyc leibniz_mypyc.py
+  DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="python3 --version" --cmd="python3 -c 'import leibniz_mypyc'"
 
 pypy:
   # There is no pypy package on alpine
