@@ -198,14 +198,21 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/lolgab>
+            <img src=https://avatars.githubusercontent.com/u/5793054?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Lorenzo Gabriele/>
+            <br />
+            <sub style="font-size:14px"><b>Lorenzo Gabriele</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/LazyKernel>
             <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
             <br />
             <sub style="font-size:14px"><b>LazyKernel</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/cnuernber>
             <img src=https://avatars.githubusercontent.com/u/40426?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Chris Nuernberger/>
@@ -225,13 +232,6 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/12146658?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gui Zhen Wei/>
             <br />
             <sub style="font-size:14px"><b>Gui Zhen Wei</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/lolgab>
-            <img src=https://avatars.githubusercontent.com/u/5793054?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Lorenzo Gabriele/>
-            <br />
-            <sub style="font-size:14px"><b>Lorenzo Gabriele</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
