@@ -111,9 +111,9 @@ The list of Contributors is automatically generated.
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/frak0d>
-            <img src=https://avatars.githubusercontent.com/u/68330937?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=frakod/>
+            <img src=https://avatars.githubusercontent.com/u/68330937?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=frak0d/>
             <br />
-            <sub style="font-size:14px"><b>frakod</b></sub>
+            <sub style="font-size:14px"><b>frak0d</b></sub>
         </a>
     </td>
 </tr>
@@ -133,10 +133,10 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/Demonstrandum>
-            <img src=https://avatars.githubusercontent.com/u/26842759?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=S Knutsen/>
+        <a href=https://github.com/cyrusmsk>
+            <img src=https://avatars.githubusercontent.com/u/1385803?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Serg Gini/>
             <br />
-            <sub style="font-size:14px"><b>S Knutsen</b></sub>
+            <sub style="font-size:14px"><b>Serg Gini</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -147,10 +147,10 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/cyrusmsk>
-            <img src=https://avatars.githubusercontent.com/u/1385803?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Serg Gini/>
+        <a href=https://github.com/Demonstrandum>
+            <img src=https://avatars.githubusercontent.com/u/26842759?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Samuel/>
             <br />
-            <sub style="font-size:14px"><b>Serg Gini</b></sub>
+            <sub style="font-size:14px"><b>Samuel</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -177,17 +177,17 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/cnuernber>
-            <img src=https://avatars.githubusercontent.com/u/40426?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Chris Nuernberger/>
+        <a href=https://github.com/PallHaraldsson>
+            <img src=https://avatars.githubusercontent.com/u/8005416?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Páll Haraldsson/>
             <br />
-            <sub style="font-size:14px"><b>Chris Nuernberger</b></sub>
+            <sub style="font-size:14px"><b>Páll Haraldsson</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/LazyKernel>
-            <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
+        <a href=https://github.com/oscardssmith>
+            <img src=https://avatars.githubusercontent.com/u/11729272?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Oscar Smith/>
             <br />
-            <sub style="font-size:14px"><b>LazyKernel</b></sub>
+            <sub style="font-size:14px"><b>Oscar Smith</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -198,19 +198,19 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/oscardssmith>
-            <img src=https://avatars.githubusercontent.com/u/11729272?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Oscar Smith/>
+        <a href=https://github.com/LazyKernel>
+            <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
             <br />
-            <sub style="font-size:14px"><b>Oscar Smith</b></sub>
+            <sub style="font-size:14px"><b>LazyKernel</b></sub>
         </a>
     </td>
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/PallHaraldsson>
-            <img src=https://avatars.githubusercontent.com/u/8005416?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Páll Haraldsson/>
+        <a href=https://github.com/cnuernber>
+            <img src=https://avatars.githubusercontent.com/u/40426?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Chris Nuernberger/>
             <br />
-            <sub style="font-size:14px"><b>Páll Haraldsson</b></sub>
+            <sub style="font-size:14px"><b>Chris Nuernberger</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
