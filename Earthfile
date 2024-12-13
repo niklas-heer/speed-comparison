@@ -165,7 +165,7 @@ crystal:
 
 cs:
   # Use the dedicated image from Microsoft
-  FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine3.16
+  FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine3.20
   DO +PREPARE_ALPINE
   WORKDIR /app
 
