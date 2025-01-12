@@ -92,8 +92,7 @@ collect-data:
   BUILD +r
   BUILD +ruby
   BUILD +rust
-  # TODO: Rust nightly is currently broken
-  # BUILD +rust-nightly
+  BUILD +rust-nightly
   BUILD +sbcl
   BUILD +scala
   BUILD +swift
