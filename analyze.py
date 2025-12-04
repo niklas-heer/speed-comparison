@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.cm import ScalarMappable
-from matplotlib.colors import Normalize
+from matplotlib.colors import LinearSegmentedColormap, Normalize
 
 
 def load_results(folder: str) -> pd.DataFrame:
@@ -48,10 +48,22 @@ def load_results(folder: str) -> pd.DataFrame:
     return df
 
 
-def create_color_mapping(values: np.ndarray, cmap_name: str = "YlGn"):
-    """Create a color mapping based on values using a colormap."""
+def create_neon_cmap():
+    """Create a neon colormap (Tokyo Night style) - pink to blue (inverted for variety)."""
+    colors = [
+        "#f7768e",  # Tokyo Night red/pink (low accuracy)
+        "#ff007c",  # Hot pink/magenta
+        "#bb9af7",  # Tokyo Night purple
+        "#7aa2f7",  # Tokyo Night blue
+        "#7dcfff",  # Tokyo Night cyan (high accuracy)
+    ]
+    return LinearSegmentedColormap.from_list("neon", colors, N=256)
+
+
+def create_color_mapping(values: np.ndarray):
+    """Create a color mapping based on values using neon colormap."""
     norm = Normalize(vmin=values.min(), vmax=values.max())
-    cmap = plt.get_cmap(cmap_name)
+    cmap = create_neon_cmap()
     return [cmap(norm(v)) for v in values], norm, cmap
 
 
@@ -66,16 +78,16 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     """Generate the benchmark comparison chart."""
     # Calculate dynamic figure size based on number of languages
     num_languages = len(df)
-    bar_height = 0.35  # Height per bar in inches (compact)
-    fig_height = max(6, num_languages * bar_height + 1.5)  # Minimal padding
+    bar_height = 0.32  # Height per bar in inches (compact)
+    fig_height = max(6, num_languages * bar_height + 0.8)  # Minimal padding
     fig_width = 14
 
     # Setup the figure
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
-    # Dark theme - GitHub dark colors for better contrast
+    # Dark theme - Tokyo Night inspired colors
     plt.style.use("dark_background")
-    bg_color = "#0d1117"
+    bg_color = "#1a1b26"
     fig.patch.set_facecolor(bg_color)
     ax.set_facecolor(bg_color)
 
@@ -83,8 +95,8 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     df = df.copy()
     df["display_name"] = df["name"] + "  v" + df["version"].astype(str)
 
-    # Create color mapping based on accuracy (higher = greener)
-    colors, norm, cmap = create_color_mapping(df["accuracy"].values, "YlGn")
+    # Create color mapping based on accuracy (higher = more purple)
+    colors, norm, cmap = create_color_mapping(df["accuracy"].values)
 
     # Create horizontal bar chart
     y_pos = np.arange(len(df))
@@ -92,7 +104,7 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
         y_pos,
         df["min"],
         color=colors,
-        edgecolor="#30363d",
+        edgecolor="#1e1e2e",
         linewidth=0.5,
         height=0.75,
     )
@@ -100,16 +112,17 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     # Use log scale for x-axis
     ax.set_xscale("log")
 
-    # Set y-axis labels with better font size and color
+    # Set y-axis labels - bold and bright white for readability
     ax.set_yticks(y_pos)
     ax.set_yticklabels(
         df["display_name"],
         fontsize=9,
         fontfamily="monospace",
-        color="#e6edf3",
+        fontweight="bold",
+        color="#ffffff",
     )
 
-    # Add value labels outside bars for better readability
+    # Add value labels outside bars - bold and bright white
     for bar, val in zip(bars, df["min"]):
         ax.text(
             bar.get_width() * 1.08,
@@ -118,7 +131,8 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
             va="center",
             ha="left",
             fontsize=8,
-            color="#e6edf3",
+            fontweight="bold",
+            color="#ffffff",
             fontfamily="monospace",
         )
 
@@ -131,13 +145,13 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     )
     ax.set_ylabel("")
 
-    # Compact title - single line with subtitle
+    # Compact title - single line with subtitle, minimal padding
     ax.set_title(
         f"Speed Comparison  —  Leibniz π, {int(rounds):,} iterations",
         fontsize=12,
         fontweight="bold",
-        color="#e6edf3",
-        pad=4,
+        color="#ffffff",
+        pad=2,
         loc="left",
     )
 
@@ -152,17 +166,17 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
         labelpad=8,
     )
     cbar.ax.yaxis.set_tick_params(color="#e6edf3", labelsize=8)
-    cbar.outline.set_edgecolor("#30363d")
+    cbar.outline.set_edgecolor("#1e1e2e")
     plt.setp(plt.getp(cbar.ax.axes, "yticklabels"), color="#e6edf3")
 
     # Grid for readability (only vertical lines)
-    ax.xaxis.grid(True, linestyle="-", alpha=0.15, color="#8b949e")
+    ax.xaxis.grid(True, linestyle="-", alpha=0.12, color="#4a5568")
     ax.yaxis.grid(False)
     ax.set_axisbelow(True)
 
     # Style spines
     for spine in ax.spines.values():
-        spine.set_color("#30363d")
+        spine.set_color("#1e1e2e")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
@@ -177,15 +191,30 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     x_max = df["min"].max()
     ax.set_xlim(right=x_max * 2.2)
 
+    # Add watermark with repo URL
+    fig.text(
+        0.99,
+        0.01,
+        "github.com/niklas-heer/speed-comparison",
+        ha="right",
+        va="bottom",
+        fontsize=8,
+        color="#4a5568",
+        alpha=0.7,
+        fontfamily="monospace",
+        transform=fig.transFigure,
+    )
+
     # Save with proper layout - minimal margins for compact look
     plt.tight_layout()
+    plt.subplots_adjust(top=0.97, bottom=0.05)  # Reduce top/bottom margins
     plt.savefig(
         output_path,
         dpi=150,
         bbox_inches="tight",
         facecolor=fig.get_facecolor(),
         edgecolor="none",
-        pad_inches=0.15,
+        pad_inches=0.1,
     )
     plt.close()
 
