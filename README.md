@@ -177,6 +177,20 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/npeters>
+            <img src=https://avatars.githubusercontent.com/u/935249?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Nicolas Peters/>
+            <br />
+            <sub style="font-size:14px"><b>Nicolas Peters</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/yawaramin>
+            <img src=https://avatars.githubusercontent.com/u/6997?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yawar Amin/>
+            <br />
+            <sub style="font-size:14px"><b>Yawar Amin</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/PallHaraldsson>
             <img src=https://avatars.githubusercontent.com/u/8005416?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Páll Haraldsson/>
             <br />
@@ -190,6 +204,8 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Oscar Smith</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/mcabbott>
             <img src=https://avatars.githubusercontent.com/u/32575566?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Michael Abbott/>
@@ -204,8 +220,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Lorenzo Gabriele</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/LazyKernel>
             <img src=https://avatars.githubusercontent.com/u/10184101?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=LazyKernel/>
@@ -221,12 +235,21 @@ The list of Contributors is automatically generated.
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/bkaestner>
+            <img src=https://avatars.githubusercontent.com/u/6301773?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Benjamin Kästner/>
+            <br />
+            <sub style="font-size:14px"><b>Benjamin Kästner</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/yinheli>
             <img src=https://avatars.githubusercontent.com/u/235094?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=yinheli/>
             <br />
             <sub style="font-size:14px"><b>yinheli</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/notcancername>
             <img src=https://avatars.githubusercontent.com/u/119271574?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=cancername/>
@@ -248,8 +271,6 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Yuta Imazu</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/pestatije>
             <img src=https://avatars.githubusercontent.com/u/16606369?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=pestatije/>
@@ -269,6 +290,15 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/1882512?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Tomohiro/>
             <br />
             <sub style="font-size:14px"><b>Tomohiro</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/aetelani>
+            <img src=https://avatars.githubusercontent.com/u/4200661?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=aetelani/>
+            <br />
+            <sub style="font-size:14px"><b>aetelani</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -292,13 +322,27 @@ The list of Contributors is automatically generated.
             <sub style="font-size:14px"><b>Proudust</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/PatrickTheDev>
             <img src=https://avatars.githubusercontent.com/u/69093169?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=RDPatrickTheDev/>
             <br />
             <sub style="font-size:14px"><b>RDPatrickTheDev</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/manuel-sommer>
+            <img src=https://avatars.githubusercontent.com/u/47991713?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=manuelsommer/>
+            <br />
+            <sub style="font-size:14px"><b>manuelsommer</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/MacAndor>
+            <img src=https://avatars.githubusercontent.com/u/10120551?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=MacAndor/>
+            <br />
+            <sub style="font-size:14px"><b>MacAndor</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -313,6 +357,13 @@ The list of Contributors is automatically generated.
             <img src=https://avatars.githubusercontent.com/u/72947540?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Dirk Freijters/>
             <br />
             <sub style="font-size:14px"><b>Dirk Freijters</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/dennisblokland>
+            <img src=https://avatars.githubusercontent.com/u/16186605?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Dennis Blokland/>
+            <br />
+            <sub style="font-size:14px"><b>Dennis Blokland</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
