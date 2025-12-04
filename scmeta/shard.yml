@@ -1,18 +1,18 @@
 name: scmeta
-version: 1.0.0
+version: 1.1.1
 
 authors:
   - Niklas Heer <niklas.heer@gmail.com>
 
 dependencies:
-   json_on_steroids:
+  json_on_steroids:
     github: anykeyh/json_on_steroids
-    branch: master
+    commit: 9c43ff02a7c315290ba00a9257a88db0018124d7
 
 targets:
   scmeta:
     main: src/scmeta.cr
 
-crystal: 1.6.0
+crystal: ">= 1.6.0"
 
 license: MIT

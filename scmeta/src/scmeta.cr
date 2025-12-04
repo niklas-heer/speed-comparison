@@ -5,56 +5,54 @@ require "math"
 # Third party dependencies. See shard.yml
 require "json_on_steroids"
 
-NAME = "scmeta"
+NAME    = "scmeta"
 VERSION = "1.1.1"
 
-upcase = false
-lang_name = nil
-lang_version = nil
-lang_version_match_index = 0
-lang_version_cmd = nil
-
-# Files
-hyperfine_file = nil
-pi_file = nil
-output_file = nil
-
-OptionParser.parse do |parser|
-  parser.banner = "Usage: #{NAME} [arguments]"
-
-  parser.on("--lang-name=LANGUAGE", "Specifies the name of the programming language") { |lang| lang_name = lang }
-
-  parser.on("--lang-version=COMMAND", "Specifies the command to get the version of the programming language") { |cmd| lang_version_cmd = cmd }
-
-  parser.on("--lang-version-match-index=NUMBER", "Specifies the match index to select from the command to get the version of the programming language. Default 0") { |num| lang_version_match_index = num }
-
-  parser.on("--hyperfine=FILE", "Specifies the path to the JSON result of hyperfine") { |file| hyperfine_file = file }
-
-  parser.on("--pi=FILE", "Specifies the path to txt file output of hyperfine") { |file| pi_file = file }
-
-  parser.on("--output=FILE", "Specifies the path where to output all metadata as JSON") { |file| output_file = file }
-
-  parser.on("-v", "--version", "Show verison") do
-    puts "#{NAME} #{VERSION}"
-    exit
+# Calculates how accurate the computed pi value is compared to Math::PI
+# Returns the number of correct decimal places (higher is better)
+# https://github.com/niklas-heer/speed-comparison/issues/78#issuecomment-1292708468
+def pi_accuracy(input : String) : Float64
+  value = input.to_f?
+  if value.nil?
+    raise ArgumentError.new("Invalid pi value: '#{input}' is not a valid number")
   end
 
-  parser.on("-h", "--help", "Show this help") do
-    puts parser
-    exit
+  if value == 0.0
+    raise ArgumentError.new("Invalid pi value: cannot be zero")
   end
 
-  parser.invalid_option do |flag|
-    STDERR.puts "ERROR: #{flag} is not a valid option."
-    STDERR.puts parser
-    exit(1)
+  accuracy = 1 - (value / Math::PI)
+  if accuracy.abs == 0.0
+    # Perfect match (unlikely but handle it)
+    return Float64::INFINITY
   end
+  -Math.log(accuracy.abs, 10)
 end
 
-def run_cmd(command : String)
+# Extracts version number from text using regex
+# match_index allows selecting which match to use when multiple versions are present
+def get_version(text : String, match_index : Int32 = 0) : String
+  matches = text.scan(/\d+(\.\d+)+/)
+
+  if matches.empty?
+    raise ArgumentError.new("No version number found in: '#{text}'")
+  end
+
+  if match_index < 0 || match_index >= matches.size
+    available = matches.map_with_index { |m, i| "  #{i}: #{m[0]}" }.join("\n")
+    raise ArgumentError.new(
+      "Invalid match index #{match_index}. Available versions:\n#{available}"
+    )
+  end
+
+  matches[match_index][0]
+end
+
+# Runs a shell command and returns exit code and output
+def run_cmd(command : String) : Tuple(Int32, String)
   cmd_array = command.split(" ", 2)
   cmd = cmd_array[0]
-  args = cmd_array[1].split
+  args = cmd_array.size > 1 ? cmd_array[1].split : [] of String
 
   stdout = IO::Memory.new
   stderr = IO::Memory.new
@@ -66,90 +64,134 @@ def run_cmd(command : String)
   end
 end
 
-def set?(variable, msg)
-  if !variable
-    puts "#{msg}"
+# Returns a given number as seconds string
+def to_timedelta(number) : String
+  "#{number}s"
+end
+
+# Validates that a required option is set
+def require_option(variable, name : String)
+  if variable.nil?
+    STDERR.puts "ERROR: #{name} is required!"
     exit(1)
   end
 end
 
-def get_version(text, match_index)
-  matches = text.scan(/\d+(\.\d+)+/)
-  begin
-    matches[match_index].try &.[0]
-  rescue ex
-    puts ex.message
-    puts "These are the caputed versions.\n"
+# Main entry point - only runs when executed directly (not when required for tests)
+def main
+  lang_name : String? = nil
+  lang_version : String? = nil
+  lang_version_match_index = 0
+  lang_version_cmd : String? = nil
 
-    matches.each_with_index do |match, i|
-      puts "#{i}: #{match.try &.[0]}"
+  # Files
+  hyperfine_file : String? = nil
+  pi_file : String? = nil
+  output_file : String? = nil
+
+  OptionParser.parse do |parser|
+    parser.banner = "Usage: #{NAME} [arguments]"
+
+    parser.on("--lang-name=LANGUAGE", "Specifies the name of the programming language") { |lang| lang_name = lang }
+
+    parser.on("--lang-version=COMMAND", "Specifies the command to get the version of the programming language") { |cmd| lang_version_cmd = cmd }
+
+    parser.on("--lang-version-match-index=NUMBER", "Specifies the match index to select from the command to get the version of the programming language. Default 0") { |num| lang_version_match_index = num.to_i }
+
+    parser.on("--hyperfine=FILE", "Specifies the path to the JSON result of hyperfine") { |file| hyperfine_file = file }
+
+    parser.on("--pi=FILE", "Specifies the path to txt file output of hyperfine") { |file| pi_file = file }
+
+    parser.on("--output=FILE", "Specifies the path where to output all metadata as JSON") { |file| output_file = file }
+
+    parser.on("-v", "--version", "Show version") do
+      puts "#{NAME} #{VERSION}"
+      exit
     end
+
+    parser.on("-h", "--help", "Show this help") do
+      puts parser
+      exit
+    end
+
+    parser.invalid_option do |flag|
+      STDERR.puts "ERROR: #{flag} is not a valid option."
+      STDERR.puts parser
+      exit(1)
+    end
+  end
+
+  # Check if we got all required options
+  require_option(lang_name, "--lang-name")
+  require_option(hyperfine_file, "--hyperfine")
+  require_option(pi_file, "--pi")
+  require_option(output_file, "--output")
+  require_option(lang_version_cmd, "--lang-version")
+
+  # Read JSON results from hyperfine
+  hyperfine = File.open(hyperfine_file.not_nil!) do |file|
+    JSON.parse(file).on_steroids!
+  end
+
+  # Calculate pi accuracy
+  computed_pi = File.read(pi_file.not_nil!).strip
+  if computed_pi.empty?
+    STDERR.puts "ERROR: Pi file is empty!"
     exit(1)
   end
+
+  begin
+    accuracy = pi_accuracy(computed_pi)
+  rescue ex : ArgumentError
+    STDERR.puts "ERROR: #{ex.message}"
+    exit(1)
+  end
+
+  # Get the version by the provided command
+  version_raw = run_cmd(lang_version_cmd.not_nil!)
+  if version_raw[0] == 0
+    begin
+      lang_version = get_version(version_raw[1], lang_version_match_index)
+    rescue ex : ArgumentError
+      STDERR.puts "ERROR: #{ex.message}"
+      exit(1)
+    end
+  else
+    STDERR.puts "ERROR: Getting language version failed!"
+    STDERR.puts version_raw[1]
+    exit(1)
+  end
+
+  # Build new JSON
+  metadata = JSON::OnSteroids.new
+  metadata["Language"] = lang_name
+  metadata["Version"] = lang_version
+  metadata["Command"] = hyperfine.dig("results.0.command")
+  metadata["CalculatedPi"] = computed_pi
+  metadata["Accuracy"] = accuracy
+  metadata["Mean"] = to_timedelta(hyperfine.dig("results.0.mean"))
+  metadata["Stddev"] = to_timedelta(hyperfine.dig("results.0.stddev"))
+  metadata["UserTime"] = to_timedelta(hyperfine.dig("results.0.user"))
+  metadata["SystemTime"] = to_timedelta(hyperfine.dig("results.0.system"))
+  metadata["Median"] = to_timedelta(hyperfine.dig("results.0.median"))
+  metadata["Min"] = to_timedelta(hyperfine.dig("results.0.min"))
+  metadata["Max"] = to_timedelta(hyperfine.dig("results.0.max"))
+  metadata["TimesPerRun"] = hyperfine.dig("results.0.times")
+  metadata["ExitCodesPerRun"] = hyperfine.dig("results.0.exit_codes")
+
+  # Write results to output_file as pretty JSON
+  File.open(output_file.not_nil!, "w") do |file|
+    json = JSON.parse(metadata.to_json)
+    file.print json.to_pretty_json
+  end
+
+  puts "Successfully created metadata"
+  puts "Language: #{lang_name} (#{lang_version})"
+  puts "Output: #{output_file}"
 end
 
-# Check if we got all variables set
-set?(lang_name, "Please provide the language name!")
-set?(hyperfine_file, "Please provide the hyperfine JSON file!")
-set?(pi_file, "Please provide the pi txt file!")
-set?(output_file, "Please provide the output JSON file!")
-set?(lang_version_cmd, "Please provide the language version command!")
-
-# Read JSON results from hyperfine
-hyperfine = File.open("#{hyperfine_file}") do |file|
-  JSON.parse(file).on_steroids!
+# Run main when executed directly (not when required for tests)
+# The SCMETA_TESTING env var is set by the spec_helper to prevent main from running
+unless ENV["SCMETA_TESTING"]?
+  main
 end
-
-# https://github.com/niklas-heer/speed-comparison/issues/78#issuecomment-1292708468
-def pi_accuracy(input : String)
-  accuracy = 1 - ( input.to_f / Math::PI)
-  -Math.log(accuracy.abs, 10)
-end
-
-# Calculate pi accuracy
-computed_pi = File.open("#{pi_file}") do |file|
-  file.gets_to_end.delete("\n")
-end
-accuracy = pi_accuracy(computed_pi)
-
-# Get the version by the provided command
-version_raw = run_cmd(lang_version_cmd.to_s)
-if version_raw[0] == 0
-  lang_version = get_version(version_raw[1].to_s, lang_version_match_index.to_i)
-else
-  puts "Getting language version failed!"
-  puts version_raw[1]
-  exit(1)
-end
-
-# Returns a given number as seconds
-def to_timedelta(number)
-  "#{number.to_s}s"
-end
-
-# Build new JSON
-metadata = JSON::OnSteroids.new
-metadata["Language"] = lang_name
-metadata["Version"] = lang_version
-metadata["Command"] = hyperfine.dig("results.0.command")
-metadata["CalculatedPi"] = computed_pi
-metadata["Accuracy"] = accuracy
-metadata["Mean"] = to_timedelta(hyperfine.dig("results.0.mean"))
-metadata["Stddev"] = to_timedelta(hyperfine.dig("results.0.stddev"))
-metadata["UserTime"] = to_timedelta(hyperfine.dig("results.0.user"))
-metadata["SystemTime"] = to_timedelta(hyperfine.dig("results.0.system"))
-metadata["Median"] = to_timedelta(hyperfine.dig("results.0.median"))
-metadata["Min"] = to_timedelta(hyperfine.dig("results.0.min"))
-metadata["Max"] = to_timedelta(hyperfine.dig("results.0.max"))
-metadata["TimesPerRun"] = hyperfine.dig("results.0.times")
-metadata["ExitCodesPerRun"] = hyperfine.dig("results.0.exit_codes")
-
-# Write results to output_file as pretty JSON
-File.open("#{output_file}", "w") do |file|
-  json = JSON.parse(metadata.to_json)
-  file.print json.to_pretty_json
-end
-
-puts "Successfully created metadata\n"
-puts "Language: #{lang_name} (#{lang_version})"
-puts "Output: #{output_file}"
