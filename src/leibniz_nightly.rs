@@ -1,7 +1,7 @@
 #![feature(portable_simd)]
 use std::fs::File;
 use std::io::prelude::*;
-use std::simd::{SimdFloat, f64x8, u32x8};
+use std::simd::prelude::*;
 
 fn main() {
     let mut file = File::open("./rounds.txt").expect("file not found");
