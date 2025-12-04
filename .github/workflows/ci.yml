@@ -249,14 +249,10 @@ jobs:
           echo "Discovered languages: $LANGUAGES"
           echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
 
-  # Matrix build - run each language in parallel
-  benchmark:
+  # Build scmeta tool once and share across all benchmark jobs
+  build-scmeta:
     needs: discover
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ${{ fromJson(needs.discover.outputs.languages) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -265,8 +261,43 @@ jobs:
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
+      - name: Build and export scmeta
+        run: earthly --ci +export-scmeta
+
+      - name: Upload scmeta artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scmeta-binary
+          path: scmeta-bin/scmeta
+          retention-days: 1
+
+  # Matrix build - run each language in parallel
+  benchmark:
+    needs: [discover, build-scmeta]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJson(needs.discover.outputs.languages) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download scmeta
+        uses: actions/download-artifact@v4
+        with:
+          name: scmeta-binary
+          path: scmeta-bin
+
+      - name: Setup scmeta
+        run: chmod +x scmeta-bin/scmeta
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: v${{ env.EARTHLY_VERSION }}
+
       - name: Run benchmark for ${{ matrix.language }}
-        run: earthly --ci +${{ matrix.language }}
+        run: earthly --ci --build-arg USE_PREBUILT_SCMETA=true +${{ matrix.language }}
 
       - name: Upload result
         uses: actions/upload-artifact@v4

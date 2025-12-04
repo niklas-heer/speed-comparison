@@ -10,6 +10,9 @@ ARG timeas="second"
 ARG fast_iterations=2
 ARG fast_warmups=1
 
+# CI matrix build optimization: use pre-built scmeta binary
+ARG --global USE_PREBUILT_SCMETA=false
+
 build:
   FROM crystallang/crystal:1.6-alpine
   WORKDIR /app
@@ -18,6 +21,13 @@ build:
   RUN shards install --production -v
   RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
   SAVE ARTIFACT bin/scmeta /scmeta
+  SAVE ARTIFACT bin/scmeta AS LOCAL ./scmeta-bin/scmeta
+
+# Target to export scmeta binary for CI artifact sharing
+export-scmeta:
+  FROM crystallang/crystal:1.6-alpine
+  COPY +build/scmeta ./scmeta
+  SAVE ARTIFACT ./scmeta AS LOCAL ./scmeta-bin/scmeta
 
 # Run scmeta tests
 test-scmeta:
@@ -55,7 +65,12 @@ ADD_FILES:
   FUNCTION
   ARG --required src
   WORKDIR /app
-  COPY +build/scmeta ./
+  # Use pre-built scmeta if available (for CI matrix builds), otherwise build it
+  IF [ "$USE_PREBUILT_SCMETA" = "true" ]
+    COPY ./scmeta-bin/scmeta ./
+  ELSE
+    COPY +build/scmeta ./
+  END
   COPY ./src/rounds.txt ./
   COPY ./src/"$src" ./
 
