@@ -7,6 +7,7 @@ on:
       - "README.md"
       - "LICENSE"
       - ".gitignore"
+      - "docs/**"
     branches:
       - master
   pull_request:
@@ -19,8 +20,13 @@ on:
     inputs:
       build:
         description: 'Name of the earth build to run (e.g., "rust" or "rust go c")'
-        required: true
+        required: false
         type: string
+      full:
+        description: "Run full benchmark suite"
+        required: false
+        type: boolean
+        default: false
 
 env:
   EARTHLY_VERSION: "0.8.15"
@@ -52,7 +58,6 @@ jobs:
         if: steps.check-permission.outputs.authorized == 'true'
         run: |
           COMMENT="${{ github.event.comment.body }}"
-          # Extract languages after /bench (supports: /bench rust go c)
           LANGUAGES=$(echo "$COMMENT" | sed -n 's/^\/bench[[:space:]]*//p' | tr -s ' ' | xargs)
 
           if [ -z "$LANGUAGES" ]; then
@@ -105,15 +110,10 @@ jobs:
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
-      - name: Earthly version
-        run: earthly --version
-
       - name: Run benchmarks for specified languages
         run: |
           LANGUAGES="${{ needs.parse-comment.outputs.languages }}"
           echo "Running benchmarks for: $LANGUAGES"
-
-          # Build each language
           for lang in $LANGUAGES; do
             echo "::group::Building +$lang"
             earthly --ci +$lang || echo "Warning: +$lang failed"
@@ -139,27 +139,23 @@ jobs:
             const fs = require('fs');
             let comment = '## Benchmark Results\n\n';
             comment += `Languages tested: \`${{ needs.parse-comment.outputs.languages }}\`\n\n`;
-
-            // Try to read and display results
             try {
               const csv = fs.readFileSync('results/combined_results.csv', 'utf8');
               const lines = csv.trim().split('\n');
               if (lines.length > 1) {
-                comment += '| Language | Min (s) | Median (s) | Max (s) |\n';
+                comment += '| Language | Min (ms) | Median (ms) | Max (ms) |\n';
                 comment += '|----------|---------|------------|--------|\n';
                 for (let i = 1; i < lines.length; i++) {
                   const cols = lines[i].split(',');
                   if (cols.length >= 4) {
-                    comment += `| ${cols[0]} | ${parseFloat(cols[1]).toFixed(3)} | ${parseFloat(cols[2]).toFixed(3)} | ${parseFloat(cols[3]).toFixed(3)} |\n`;
+                    comment += `| ${cols[0]} | ${parseFloat(cols[1]).toFixed(1)} | ${parseFloat(cols[2]).toFixed(1)} | ${parseFloat(cols[3]).toFixed(1)} |\n`;
                   }
                 }
               }
             } catch (e) {
               comment += '_Could not parse results CSV_\n';
             }
-
             comment += `\n[View full artifacts](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
-
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -170,7 +166,7 @@ jobs:
   # Manual workflow dispatch - run specific languages
   check:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.build != ''
     steps:
       - uses: actions/checkout@v4
 
@@ -178,9 +174,6 @@ jobs:
         uses: earthly/actions-setup@v1
         with:
           version: v${{ env.EARTHLY_VERSION }}
-
-      - name: Earthly version
-        run: earthly --version
 
       - name: Run benchmarks
         run: |
@@ -218,9 +211,6 @@ jobs:
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
-      - name: Earthly version
-        run: earthly --version
-
       - name: Run fast benchmark subset
         run: |
           echo "Running fast benchmark subset (c, go, rust, cpython)"
@@ -238,13 +228,35 @@ jobs:
             results/*.csv
             results/*.png
 
-  # Full build - runs all languages
-  build:
+  # Discover languages from Earthfile for matrix build
+  discover:
     runs-on: ubuntu-latest
     if: |
-      github.ref == 'refs/heads/master' ||
+      (github.ref == 'refs/heads/master' && github.event_name == 'push') ||
       github.event.review.state == 'approved' ||
-      github.event.label.name == 'enable-ci'
+      github.event.label.name == 'enable-ci' ||
+      (github.event_name == 'workflow_dispatch' && inputs.full == true)
+    outputs:
+      languages: ${{ steps.discover.outputs.languages }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discover language targets
+        id: discover
+        run: |
+          chmod +x ./scripts/discover-languages.sh
+          LANGUAGES=$(./scripts/discover-languages.sh)
+          echo "Discovered languages: $LANGUAGES"
+          echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
+
+  # Matrix build - run each language in parallel
+  benchmark:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJson(needs.discover.outputs.languages) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -253,16 +265,46 @@ jobs:
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
-      - name: Earthly version
-        run: earthly --version
+      - name: Run benchmark for ${{ matrix.language }}
+        run: earthly --ci +${{ matrix.language }}
 
-      - name: Collect data (all languages)
-        run: earthly --ci +collect-data
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.language }}
+          path: results/*.json
+          retention-days: 1
 
-      - name: Analyze data
+  # Collect all results and run analysis
+  analyze:
+    needs: [discover, benchmark]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: result-*
+          path: results-raw
+          merge-multiple: false
+
+      - name: Collect results
+        run: |
+          mkdir -p results
+          find results-raw -name "*.json" -exec cp {} results/ \;
+          echo "Collected results:"
+          ls -la results/
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: v${{ env.EARTHLY_VERSION }}
+
+      - name: Run analysis
         run: earthly --ci +analysis
 
-      - name: Archive test results
+      - name: Archive combined results
         uses: actions/upload-artifact@v4
         with:
           name: combined-results
@@ -271,8 +313,9 @@ jobs:
             results/*.csv
             results/*.png
 
+  # Publish results to GitHub Pages
   publish:
-    needs: build
+    needs: analyze
     if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
