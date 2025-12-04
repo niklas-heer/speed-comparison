@@ -454,7 +454,7 @@ swift-simd:
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz-simd.swift"
   RUN --no-cache swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full
-  DO +BENCH --name="swift" --lang="Swift" --version="swift --version" --cmd="./leibniz"
+  DO +BENCH --name="swift-simd" --lang="Swift (SIMD)" --version="swift --version" --cmd="./leibniz"
 
 zig:
   # On 3.16 there is no zig package, but on edge there is
