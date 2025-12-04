@@ -1,4 +1,6 @@
-![plot](https://niklas-heer.github.io/speed-comparison/assets/latest/combined_results.png "Speed comparison of programming languages")
+[![CI](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml/badge.svg)](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml)
+
+![plot](https://niklas-heer.github.io/speed-comparison/history/2023-02-05T185235/combined_results.png "Speed comparison of programming languages")
 
 ---
 
@@ -36,26 +38,61 @@ To measure the execution time a [python package](https://pypi.python.org/pypi/la
 ### Run everything
 Earthly allows to run everything with a single command:
 ```bash
-earthly --config earthly-config.yml +all
+earthly +all
 ```
 This will run all tasks to collect all measurements and then run the analysis.
 
 ### Collect data
 To collect data for all languages run:
 ```bash
-earthly --config earthly-config.yml +collect-data
+earthly +collect-data
 ```
 
-To collect data for a single languages run:
+To collect data for a single language run:
 ```bash
-earthly --config earthly-config.yml +<replace me with language name>
+earthly +rust    # or any other language target
+```
+
+### Available language targets
+Language targets are auto-discovered from the Earthfile. You can list them with:
+```bash
+./scripts/discover-languages.sh
 ```
 
 ### Analyse results
-To generate the combined CSV out of all results use this command:
+To generate the combined CSV and chart from all results:
 ```bash
-earthly --config earthly-config.yml +analysis
+earthly +analysis
 ```
+
+### Fast check (subset)
+For quick testing, run only a subset of fast languages:
+```bash
+earthly +fast-check   # runs: c, go, rust, cpython
+```
+
+## CI/CD
+
+The project uses GitHub Actions with a **parallel matrix build**:
+
+1. **Auto-discovery**: Language targets are automatically detected from the Earthfile
+2. **Parallel execution**: All 43+ languages run simultaneously in separate jobs
+3. **Isolation**: Each language gets a fresh runner environment
+4. **Results collection**: All results are merged and analyzed together
+5. **Auto-publish**: Results are published to [GitHub Pages](https://niklas-heer.github.io/speed-comparison/)
+
+### PR Commands
+
+Repository maintainers can trigger benchmarks on PRs using comments:
+
+```
+/bench rust go c     # Run specific languages
+```
+
+### Labels
+
+- `enable-ci`: Trigger full benchmark suite on a PR
+- `skip-ci`: Skip the fast-check on a PR
 
 ## FAQ
 
