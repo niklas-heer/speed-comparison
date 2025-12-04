@@ -30,7 +30,7 @@ test-scmeta:
 
 # Benchmark function which invokes `hyperfine` and `scmeta`
 BENCH:
-  COMMAND
+  FUNCTION
   ARG --required name
   ARG --required cmd
   ARG --required lang
@@ -42,17 +42,17 @@ BENCH:
   SAVE ARTIFACT ./scmeta.json AS LOCAL ./results/$name.json
 
 PREPARE_DEBIAN:
-  COMMAND
+  FUNCTION
   RUN apt-get update && apt-get install -y wget
   RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
   RUN dpkg -i hyperfine_1.15.0_amd64.deb
 
 PREPARE_ALPINE:
-  COMMAND
+  FUNCTION
   RUN apk add --no-cache hyperfine
 
 ADD_FILES:
-  COMMAND
+  FUNCTION
   ARG --required src
   WORKDIR /app
   COPY +build/scmeta ./
