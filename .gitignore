@@ -9,3 +9,4 @@ leibniz
 src/cs/obj/Debug
 *.o
 *.hi
+.tmp-earthly-out
