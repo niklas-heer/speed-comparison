@@ -1,113 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""This script analyzes the JSON results in a given directory."""
+"""Analyzes benchmark JSON results and generates visualizations."""
 
-import os
-import re
 import json
+from argparse import ArgumentParser
+from datetime import datetime
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from datetime import datetime
-from argparse import ArgumentParser
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
 
 
-def colors_from_values(values, palette_name):
-    # normalize the values to range [0, 1]
-    normalized = (values - min(values)) / (max(values) - min(values))
-    # convert to indices
-    indices = np.round(normalized * (len(values) - 1)).astype(np.int32)
-    # use the indices to get the colors
-    palette = sns.color_palette(palette_name, len(values))
-    return np.array(palette).take(indices, axis=0)
-
-
-def plot(df, rounds, to_file):
-    # Theme
-    sns.set(style="dark", context="paper")
-    sns.set_color_codes("pastel")
-    plt.style.use("dark_background")
-
-    df["name-with-version"] = df["name"].astype(str) + " v" + df["version"]
-
-    # Plot
-    # TODO: Find a way to display the platte scale to highly accuracy better.
-    bar = sns.barplot(
-        x="min",
-        y="name-with-version",
-        data=df,
-        width=1,
-        edgecolor="black",
-        linewidth=2,
-        errwidth=0,
-        log=True,
-        # TODO: Improve color palette.
-        # https://seaborn.pydata.org/tutorial/color_palettes.html
-        palette=colors_from_values(df["accuracy"], "light:seagreen"),
-    )
-    bar.bar_label(
-        bar.containers[0],
-        fontsize=10,
-        padding=3,
-    )
-    plt.xlabel("Minimum time (ms) in log scale", fontweight="bold")
-    plt.ylabel(None)
-
-    # Title
-    plt.suptitle(
-        "Speed comparison of various programming languages\n",
-        fontweight="bold",
-        fontsize=20,
-        y=1.02,
-    )
-    plt.title(
-        f"Method: calculating π through the Leibniz formula {rounds} times",
-        style="italic",
-        fontsize=16,
-        y=1.02,
-    )
-
-    # Caption
-    url = f"https://github.com/niklas-heer/speed-comparison"
-    plt.figtext(
-        0.75, -0.05, url, wrap=True, horizontalalignment="left", fontsize=8
-    )
-    timestamp = f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
-    plt.figtext(
-        0.1,
-        -0.05,
-        timestamp,
-        wrap=True,
-        horizontalalignment="right",
-        fontsize=8,
-    )
-
-    sns.despine()
-    plt.autoscale()
-    plt.savefig(to_file, pad_inches=0.2, bbox_inches="tight", dpi=200)
-
-
-def main():
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--folder",
-        dest="folder",
-        help="Path to folder which contains JSON files.",
-    )
-    parser.add_argument(
-        "--out",
-        dest="out",
-        help="Path to generate output file to.",
-    )
-    parser.add_argument(
-        "--rounds",
-        dest="rounds",
-        help="Path to the rounds.txt file.",
-    )
-
-    args = parser.parse_args()
-
+def load_results(folder: str) -> pd.DataFrame:
+    """Load all JSON result files from a folder into a DataFrame."""
     data = {
         "name": [],
         "version": [],
@@ -117,58 +25,237 @@ def main():
         "accuracy": [],
     }
 
-    # r=root, d=directories, f = files
-    for r, d, f in os.walk(args.folder):
-        for file in f:
-            if file.endswith(".json"):
-                with open(os.path.join(r, file), "r") as reader:
-                    # TODO: Add check if the file is formatted correctly
-                    json_data = json.load(reader)
-                    data["name"].append(json_data["Language"])
-                    data["version"].append(json_data["Version"])
-                    data["median"].append(
-                        # We want milliseconds (ms) in the end
-                        round(
-                            pd.Timedelta(json_data["Median"]).total_seconds()
-                            * 1000,
-                            2,
-                        )
-                    )
-                    data["max"].append(
-                        round(
-                            pd.Timedelta(json_data["Max"]).total_seconds()
-                            * 1000,
-                            2,
-                        )
-                    )
-                    data["min"].append(
-                        round(
-                            pd.Timedelta(json_data["Min"]).total_seconds()
-                            * 1000,
-                            2,
-                        )
-                    )
-                    data["accuracy"].append(round(json_data["Accuracy"], 4))
+    folder_path = Path(folder)
+    for file_path in folder_path.glob("*.json"):
+        with open(file_path, "r") as f:
+            result = json.load(f)
+            data["name"].append(result["Language"])
+            data["version"].append(result["Version"])
+            # Convert to milliseconds
+            data["median"].append(
+                round(pd.Timedelta(result["Median"]).total_seconds() * 1000, 2)
+            )
+            data["max"].append(
+                round(pd.Timedelta(result["Max"]).total_seconds() * 1000, 2)
+            )
+            data["min"].append(
+                round(pd.Timedelta(result["Min"]).total_seconds() * 1000, 2)
+            )
+            data["accuracy"].append(round(result["Accuracy"], 4))
 
     df = pd.DataFrame(data)
-    df.sort_values(by=["min"], inplace=True)
+    df.sort_values(by=["min"], inplace=True, ascending=True)
+    return df
 
-    file_base = f"combined_results"
-    png = f"{file_base}.png"
-    csv = f"{file_base}.csv"
-    df.to_csv(
-        csv,
-        index=False,
-        encoding="utf-8",
+
+def create_color_mapping(values: np.ndarray, cmap_name: str = "YlGn"):
+    """Create a color mapping based on values using a colormap."""
+    norm = Normalize(vmin=values.min(), vmax=values.max())
+    cmap = plt.get_cmap(cmap_name)
+    return [cmap(norm(v)) for v in values], norm, cmap
+
+
+def format_time(ms: float) -> str:
+    """Format milliseconds into a readable string."""
+    if ms >= 1000:
+        return f"{ms / 1000:.2f}s"
+    return f"{ms:.1f}ms"
+
+
+def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
+    """Generate the benchmark comparison chart."""
+    # Calculate dynamic figure size based on number of languages
+    num_languages = len(df)
+    bar_height = 0.55  # Height per bar in inches
+    fig_height = max(8, num_languages * bar_height + 2)  # +2 for compact title/footer
+    fig_width = 16
+
+    # Setup the figure
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+
+    # Dark theme - GitHub dark colors for better contrast
+    plt.style.use("dark_background")
+    bg_color = "#0d1117"
+    fig.patch.set_facecolor(bg_color)
+    ax.set_facecolor(bg_color)
+
+    # Create display name with version
+    df = df.copy()
+    df["display_name"] = df["name"] + "  v" + df["version"].astype(str)
+
+    # Create color mapping based on accuracy (higher = greener)
+    colors, norm, cmap = create_color_mapping(df["accuracy"].values, "YlGn")
+
+    # Create horizontal bar chart
+    y_pos = np.arange(len(df))
+    bars = ax.barh(
+        y_pos,
+        df["min"],
+        color=colors,
+        edgecolor="#30363d",
+        linewidth=1,
+        height=0.7,
     )
 
-    # Visualize
-    rounds = 0
-    with open(args.rounds, "r") as reader:
-        rounds = reader.read().strip()
-    plot(df, rounds, png)
+    # Use log scale for x-axis
+    ax.set_xscale("log")
 
-    print(f"Successful. Files generated:\n  {csv}\n  {png}")
+    # Set y-axis labels with better font size and color
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(
+        df["display_name"],
+        fontsize=11,
+        fontfamily="monospace",
+        color="#e6edf3",
+    )
+
+    # Add value labels outside bars for better readability
+    for bar, val in zip(bars, df["min"]):
+        ax.text(
+            bar.get_width() * 1.08,
+            bar.get_y() + bar.get_height() / 2,
+            format_time(val),
+            va="center",
+            ha="left",
+            fontsize=10,
+            color="#e6edf3",
+            fontfamily="monospace",
+        )
+
+    # X-axis label
+    ax.set_xlabel(
+        "Minimum execution time (log scale)",
+        fontsize=11,
+        color="#8b949e",
+        labelpad=8,
+    )
+    ax.set_ylabel("")
+
+    # Compact title - single line with subtitle
+    ax.set_title(
+        f"Speed Comparison of Programming Languages  —  Leibniz π formula, {int(rounds):,} iterations",
+        fontsize=14,
+        fontweight="bold",
+        color="#e6edf3",
+        pad=12,
+        loc="left",
+    )
+
+    # Add colorbar for accuracy legend
+    sm = ScalarMappable(norm=norm, cmap=cmap)
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax, pad=0.01, aspect=40, shrink=0.8)
+    cbar.set_label(
+        "π Accuracy (correct decimal places)",
+        fontsize=11,
+        color="#e6edf3",
+        labelpad=10,
+    )
+    cbar.ax.yaxis.set_tick_params(color="#e6edf3", labelsize=10)
+    cbar.outline.set_edgecolor("#30363d")
+    plt.setp(plt.getp(cbar.ax.axes, "yticklabels"), color="#e6edf3")
+
+    # Grid for readability (only vertical lines)
+    ax.xaxis.grid(True, linestyle="-", alpha=0.15, color="#8b949e")
+    ax.yaxis.grid(False)
+    ax.set_axisbelow(True)
+
+    # Style spines
+    for spine in ax.spines.values():
+        spine.set_color("#30363d")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # Tick styling
+    ax.tick_params(axis="x", colors="#8b949e", labelsize=10)
+    ax.tick_params(axis="y", colors="#e6edf3", length=0)
+
+    # Footer with URL and timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    fig.text(
+        0.98,
+        0.01,
+        "github.com/niklas-heer/speed-comparison",
+        ha="right",
+        fontsize=10,
+        color="#8b949e",
+        transform=fig.transFigure,
+    )
+    fig.text(
+        0.02,
+        0.01,
+        f"Generated: {timestamp}",
+        ha="left",
+        fontsize=10,
+        color="#8b949e",
+        transform=fig.transFigure,
+    )
+
+    # Invert y-axis so fastest is at top
+    ax.invert_yaxis()
+
+    # Extend x-axis to make room for time labels
+    x_max = df["min"].max()
+    ax.set_xlim(right=x_max * 2.5)
+
+    # Save with proper layout - minimal margins for compact look
+    plt.tight_layout(rect=[0, 0.02, 1, 0.98])
+    plt.savefig(
+        output_path,
+        dpi=150,
+        bbox_inches="tight",
+        facecolor=fig.get_facecolor(),
+        edgecolor="none",
+        pad_inches=0.3,
+    )
+    plt.close()
 
 
-main()
+def main():
+    parser = ArgumentParser(
+        description="Analyze benchmark results and generate visualizations"
+    )
+    parser.add_argument(
+        "--folder",
+        required=True,
+        help="Path to folder containing JSON result files",
+    )
+    parser.add_argument(
+        "--out",
+        required=True,
+        help="Output directory for generated files",
+    )
+    parser.add_argument(
+        "--rounds",
+        required=True,
+        help="Path to rounds.txt file",
+    )
+    args = parser.parse_args()
+
+    # Load data
+    df = load_results(args.folder)
+
+    if df.empty:
+        print("No JSON result files found!")
+        return 1
+
+    # Save CSV
+    csv_path = Path(args.out) / "combined_results.csv"
+    df.to_csv(csv_path, index=False, encoding="utf-8")
+
+    # Read rounds
+    rounds = Path(args.rounds).read_text().strip()
+
+    # Generate visualization
+    png_path = Path(args.out) / "combined_results.png"
+    plot_results(df, rounds, str(png_path))
+
+    print(f"Generated {len(df)} language results:")
+    print(f"  CSV: {csv_path}")
+    print(f"  PNG: {png_path}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())

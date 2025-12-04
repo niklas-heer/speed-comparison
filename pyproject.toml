@@ -1,0 +1,23 @@
+[project]
+name = "speed-comparison"
+version = "1.0.0"
+description = "Benchmark comparison of programming languages using the Leibniz formula for π"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Niklas Heer", email = "niklas.heer@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "numpy>=1.26.0",
+]
+
+[project.scripts]
+analyze = "analyze:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.3.0",
+]
