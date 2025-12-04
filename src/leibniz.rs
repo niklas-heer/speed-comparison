@@ -10,10 +10,11 @@ fn main() {
 
     let rounds = contents.trim().parse::<u32>().unwrap() + 2;
 
-    let pi = (2..rounds).fold(1.0, |pi, i| {
+    let mut pi: f64 = 1.0;
+    (2..rounds).foreach(|i| {
         let x = -1.0f64 + (2.0 * (i & 0x1) as f64);
-        pi + x / (2 * i - 1) as f64
-    }) * 4.0;
+        pi += x / (2 * i - 1) as f64;
+    });
 
-    println!("{:.16}", pi);
+    println!("{:.16}", pi * 4.0);
 }
