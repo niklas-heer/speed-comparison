@@ -83,6 +83,7 @@ collect-data:
   BUILD +lua
   BUILD +luajit
   BUILD +nim
+  BUILD +ocaml
   BUILD +php
   BUILD +perl
   BUILD +pony
@@ -303,6 +304,12 @@ nim:
   RUN apk add --no-cache gcc build-base nim
   RUN --no-cache nim c --verbosity:0 -d:danger -d:lto --gc:arc --passC:"-march=native -fno-signed-zeros -fno-trapping-math -fassociative-math" --passL:"-s" leibniz.nim
   DO +BENCH --name="nim" --lang="Nim" --version="nim --version" --cmd="./leibniz"
+
+ocaml:
+  FROM +alpine --src="leibniz.ml"
+  RUN apk add --no-cache ocaml
+  RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
+  DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
 
 php:
   FROM +alpine --src="leibniz.php"
