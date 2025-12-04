@@ -275,28 +275,30 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    continue-on-error: true
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: gh-pages
 
-      - name: Download
+      - name: Download results
         uses: actions/download-artifact@v4
         with:
           name: combined-results
-          path: assets/ingest
+          path: results
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
-      - run: pip install -r requirements.txt
+      - name: Publish to docs
+        run: |
+          python publish.py --results ./results --docs ./docs
+          echo "Published results to docs folder" >> $GITHUB_STEP_SUMMARY
 
-      - name: Ingest
-        run: ./ci.xsh >> $GITHUB_STEP_SUMMARY
-
-      - name: Commit
+      - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update benchmark results"
+          file_pattern: "docs/history/**"
