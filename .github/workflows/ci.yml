@@ -3,49 +3,199 @@ name: Run speed comparison
 on:
   push:
     paths-ignore:
-      - 'assets'
-      - 'README.md'
-      - 'LICENSE'
-      - '.gitignore'
+      - "assets"
+      - "README.md"
+      - "LICENSE"
+      - ".gitignore"
     branches:
       - master
+  pull_request:
+    types: [opened, synchronize, labeled]
   pull_request_review:
     types: [submitted]
-  pull_request:
-    types:
-      - labeled
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       build:
-        description: 'Name of the earth build to run'
+        description: 'Name of the earth build to run (e.g., "rust" or "rust go c")'
         required: true
         type: string
 
+env:
+  EARTHLY_VERSION: "0.8.15"
+
 jobs:
-  check:
+  # Parse /bench commands from PR comments
+  parse-comment:
     runs-on: ubuntu-latest
-    if: ${{ inputs.build }} 
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/bench')
+    outputs:
+      languages: ${{ steps.parse.outputs.languages }}
+      should_run: ${{ steps.parse.outputs.should_run }}
+      pr_ref: ${{ steps.get-pr.outputs.ref }}
+      pr_sha: ${{ steps.get-pr.outputs.sha }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Put back the git branch into git (Earthly uses it for tagging)
+      - name: Check if comment author is repository owner
+        id: check-permission
         run: |
-          branch=""
-          if [ -n "$GITHUB_HEAD_REF" ]; then
-            branch="$GITHUB_HEAD_REF"
+          if [ "${{ github.event.comment.user.login }}" != "niklas-heer" ]; then
+            echo "Comment author is not niklas-heer, skipping..."
+            echo "authorized=false" >> $GITHUB_OUTPUT
           else
-            branch="${GITHUB_REF##*/}"
+            echo "Comment author is niklas-heer, proceeding..."
+            echo "authorized=true" >> $GITHUB_OUTPUT
           fi
-          git checkout -b "$branch" || true
-      - name: Download latest earthly
-        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.26/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+      - name: Parse /bench command
+        id: parse
+        if: steps.check-permission.outputs.authorized == 'true'
+        run: |
+          COMMENT="${{ github.event.comment.body }}"
+          # Extract languages after /bench (supports: /bench rust go c)
+          LANGUAGES=$(echo "$COMMENT" | sed -n 's/^\/bench[[:space:]]*//p' | tr -s ' ' | xargs)
+
+          if [ -z "$LANGUAGES" ]; then
+            echo "No languages specified in /bench command"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "Languages to benchmark: $LANGUAGES"
+            echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get PR ref
+        id: get-pr
+        if: steps.parse.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            core.setOutput('ref', pr.data.head.ref);
+            core.setOutput('sha', pr.data.head.sha);
+
+      - name: Add reaction to comment
+        if: steps.parse.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
+
+  # Run specific languages from /bench command
+  bench-comment:
+    needs: parse-comment
+    if: needs.parse-comment.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-comment.outputs.pr_ref }}
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: v${{ env.EARTHLY_VERSION }}
+
       - name: Earthly version
         run: earthly --version
-      - name: Collect data
-        run: earthly --config earthly-config.yml +${{ inputs.build }}
+
+      - name: Run benchmarks for specified languages
+        run: |
+          LANGUAGES="${{ needs.parse-comment.outputs.languages }}"
+          echo "Running benchmarks for: $LANGUAGES"
+
+          # Build each language
+          for lang in $LANGUAGES; do
+            echo "::group::Building +$lang"
+            earthly --ci +$lang || echo "Warning: +$lang failed"
+            echo "::endgroup::"
+          done
+
       - name: Analyze data
-        run: earthly --config earthly-config.yml +analysis
+        run: earthly --ci +analysis
+
       - name: Archive test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ github.event.issue.number }}
+          path: |
+            results/*.json
+            results/*.csv
+            results/*.png
+
+      - name: Comment results on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = '## Benchmark Results\n\n';
+            comment += `Languages tested: \`${{ needs.parse-comment.outputs.languages }}\`\n\n`;
+
+            // Try to read and display results
+            try {
+              const csv = fs.readFileSync('results/combined_results.csv', 'utf8');
+              const lines = csv.trim().split('\n');
+              if (lines.length > 1) {
+                comment += '| Language | Min (s) | Median (s) | Max (s) |\n';
+                comment += '|----------|---------|------------|--------|\n';
+                for (let i = 1; i < lines.length; i++) {
+                  const cols = lines[i].split(',');
+                  if (cols.length >= 4) {
+                    comment += `| ${cols[0]} | ${parseFloat(cols[1]).toFixed(3)} | ${parseFloat(cols[2]).toFixed(3)} | ${parseFloat(cols[3]).toFixed(3)} |\n`;
+                  }
+                }
+              }
+            } catch (e) {
+              comment += '_Could not parse results CSV_\n';
+            }
+
+            comment += `\n[View full artifacts](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+  # Manual workflow dispatch - run specific languages
+  check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: v${{ env.EARTHLY_VERSION }}
+
+      - name: Earthly version
+        run: earthly --version
+
+      - name: Run benchmarks
+        run: |
+          BUILDS="${{ inputs.build }}"
+          for build in $BUILDS; do
+            echo "::group::Building +$build"
+            earthly --ci +$build
+            echo "::endgroup::"
+          done
+
+      - name: Analyze data
+        run: earthly --ci +analysis
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v4
         with:
           name: combined-results
           path: |
@@ -53,30 +203,67 @@ jobs:
             results/*.csv
             results/*.png
 
-  build:
+  # Fast check for PRs - runs a small subset of languages
+  fast-check:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || github.event.review.state == 'approved' || github.event.label.name == 'enable-ci'
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action != 'labeled' &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-ci')
     steps:
-      - uses: actions/checkout@v3
-      - name: Put back the git branch into git (Earthly uses it for tagging)
-        run: |
-          branch=""
-          if [ -n "$GITHUB_HEAD_REF" ]; then
-            branch="$GITHUB_HEAD_REF"
-          else
-            branch="${GITHUB_REF##*/}"
-          fi
-          git checkout -b "$branch" || true
-      - name: Download latest earthly
-        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.26/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - uses: actions/checkout@v4
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: v${{ env.EARTHLY_VERSION }}
+
       - name: Earthly version
         run: earthly --version
-      - name: Collect data
-        run: earthly --config earthly-config.yml +collect-data
+
+      - name: Run fast benchmark subset
+        run: |
+          echo "Running fast benchmark subset (c, go, rust, cpython)"
+          earthly --ci +fast-check
+
       - name: Analyze data
-        run: earthly --config earthly-config.yml +analysis
+        run: earthly --ci +analysis
+
       - name: Archive test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+        with:
+          name: fast-check-results
+          path: |
+            results/*.json
+            results/*.csv
+            results/*.png
+
+  # Full build - runs all languages
+  build:
+    runs-on: ubuntu-latest
+    if: |
+      github.ref == 'refs/heads/master' ||
+      github.event.review.state == 'approved' ||
+      github.event.label.name == 'enable-ci'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: v${{ env.EARTHLY_VERSION }}
+
+      - name: Earthly version
+        run: earthly --version
+
+      - name: Collect data (all languages)
+        run: earthly --ci +collect-data
+
+      - name: Analyze data
+        run: earthly --ci +analysis
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v4
         with:
           name: combined-results
           path: |
@@ -90,25 +277,26 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        ref: gh-pages
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
 
-    - name: Download
-      uses: actions/download-artifact@v4.1.7
-      with:
-        path: assets/ingest
+      - name: Download
+        uses: actions/download-artifact@v4
+        with:
+          name: combined-results
+          path: assets/ingest
 
-    # Install all dependencies
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        cache: 'pip' # caching pip dependencies
-    - run: pip install -r requirements.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
 
-    - name: Ingest
-      run: ./ci.xsh >> $GITHUB_STEP_SUMMARY
+      - run: pip install -r requirements.txt
 
-    - name: Commit
-      uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Ingest
+        run: ./ci.xsh >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
