@@ -384,13 +384,18 @@ jobs:
           echo "Collected results:"
           ls -la results/
 
-      - name: Setup Earthly
-        uses: earthly/actions-setup@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          version: v${{ env.EARTHLY_VERSION }}
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e .
 
       - name: Run analysis
-        run: earthly --ci +analysis
+        run: python analyze.py --folder ./results/ --out ./results/ --rounds ./src/rounds.txt
 
       - name: Archive combined results
         uses: actions/upload-artifact@v4
