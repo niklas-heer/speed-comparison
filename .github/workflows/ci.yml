@@ -250,18 +250,35 @@ jobs:
           echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
 
   # Build scmeta tool once and share across all benchmark jobs
+  # Uses cache to skip building if scmeta source hasn't changed
   build-scmeta:
     needs: discover
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get scmeta source hash
+        id: scmeta-hash
+        run: |
+          HASH=$(find scmeta -type f \( -name "*.cr" -o -name "shard.yml" -o -name "shard.lock" \) -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "scmeta source hash: $HASH"
+
+      - name: Cache scmeta binary
+        id: cache-scmeta
+        uses: actions/cache@v4
+        with:
+          path: scmeta-bin/scmeta
+          key: scmeta-linux-x64-${{ steps.scmeta-hash.outputs.hash }}
+
       - name: Setup Earthly
+        if: steps.cache-scmeta.outputs.cache-hit != 'true'
         uses: earthly/actions-setup@v1
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
       - name: Build and export scmeta
+        if: steps.cache-scmeta.outputs.cache-hit != 'true'
         run: earthly --ci --output +export-scmeta
 
       - name: Upload scmeta artifact
