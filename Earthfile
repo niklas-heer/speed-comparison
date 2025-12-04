@@ -1,10 +1,14 @@
-VERSION 0.6
+VERSION 0.8
 FROM earthly/dind:alpine
 
 # Variables
 ARG iterations=3
 ARG warmups=2
 ARG timeas="second"
+
+# Fast check iterations (fewer runs for quick PR feedback)
+ARG fast_iterations=2
+ARG fast_warmups=1
 
 build:
   FROM crystallang/crystal:1.6-alpine
@@ -14,6 +18,15 @@ build:
   RUN shards install --production -v
   RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
   SAVE ARTIFACT bin/scmeta /scmeta
+
+# Run scmeta tests
+test-scmeta:
+  FROM crystallang/crystal:1.6-alpine
+  WORKDIR /app
+  COPY --dir scmeta ./
+  WORKDIR /app/scmeta
+  RUN shards install -v
+  RUN crystal spec --verbose
 
 # Benchmark function which invokes `hyperfine` and `scmeta`
 BENCH:
@@ -104,6 +117,15 @@ collect-data:
 all:
   BUILD +collect-data
   BUILD +analysis
+
+# Fast check target for PR validation - runs a small subset of fast languages
+# This provides quick feedback without running the full 46-language suite
+fast-check:
+  BUILD +build
+  BUILD +c
+  BUILD +go
+  BUILD +rust
+  BUILD +cpython
 
 ada:
   FROM +alpine --src="leibniz.adb"
@@ -430,15 +452,19 @@ zig:
   DO +BENCH --name="zig" --lang="Zig" --version="zig version" --cmd="./leibniz"
 
 analysis:
-  # alpine doesn't seem to work with the pandas package 🤷‍♂️
   FROM python:3.11-slim
 
-  COPY ./requirements.txt ./
-  RUN pip install -r ./requirements.txt
+  # Install uv
+  RUN pip install uv
 
+  # Copy project files
+  COPY ./pyproject.toml ./
   COPY ./*.py ./
   COPY ./src/rounds.txt ./
   COPY --dir results ./
+
+  # Install dependencies with uv
+  RUN uv pip install --system -e .
 
   # Combine all results
   RUN --no-cache python analyze.py --folder ./results/ --out ./ --rounds ./rounds.txt
