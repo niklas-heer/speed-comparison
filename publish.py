@@ -83,6 +83,12 @@ def main():
     shutil.copy(csv_file, run_dir / "combined_results.csv")
     shutil.copy(png_file, run_dir / "combined_results.png")
 
+    # Also copy to 'latest' folder for stable URL reference
+    latest_dir = history_dir / "latest"
+    latest_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(csv_file, latest_dir / "combined_results.csv")
+    shutil.copy(png_file, latest_dir / "combined_results.png")
+
     # Update manifest
     lang_count = count_languages(csv_file)
     update_manifest(history_dir, run_id, lang_count)
@@ -91,6 +97,7 @@ def main():
     print(f"  Run ID: {run_id}")
     print(f"  Languages: {lang_count}")
     print(f"  Location: {run_dir}")
+    print(f"  Latest: {latest_dir}")
     print(f"  URL: https://niklas-heer.github.io/speed-comparison/")
 
     return 0

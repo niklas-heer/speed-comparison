@@ -66,9 +66,9 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     """Generate the benchmark comparison chart."""
     # Calculate dynamic figure size based on number of languages
     num_languages = len(df)
-    bar_height = 0.55  # Height per bar in inches
-    fig_height = max(8, num_languages * bar_height + 2)  # +2 for compact title/footer
-    fig_width = 16
+    bar_height = 0.35  # Height per bar in inches (compact)
+    fig_height = max(6, num_languages * bar_height + 1.5)  # Minimal padding
+    fig_width = 14
 
     # Setup the figure
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
@@ -93,8 +93,8 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
         df["min"],
         color=colors,
         edgecolor="#30363d",
-        linewidth=1,
-        height=0.7,
+        linewidth=0.5,
+        height=0.75,
     )
 
     # Use log scale for x-axis
@@ -104,7 +104,7 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     ax.set_yticks(y_pos)
     ax.set_yticklabels(
         df["display_name"],
-        fontsize=11,
+        fontsize=9,
         fontfamily="monospace",
         color="#e6edf3",
     )
@@ -117,7 +117,7 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
             format_time(val),
             va="center",
             ha="left",
-            fontsize=10,
+            fontsize=8,
             color="#e6edf3",
             fontfamily="monospace",
         )
@@ -125,33 +125,33 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     # X-axis label
     ax.set_xlabel(
         "Minimum execution time (log scale)",
-        fontsize=11,
+        fontsize=9,
         color="#8b949e",
-        labelpad=8,
+        labelpad=5,
     )
     ax.set_ylabel("")
 
     # Compact title - single line with subtitle
     ax.set_title(
-        f"Speed Comparison of Programming Languages  —  Leibniz π formula, {int(rounds):,} iterations",
-        fontsize=14,
+        f"Speed Comparison  —  Leibniz π, {int(rounds):,} iterations",
+        fontsize=12,
         fontweight="bold",
         color="#e6edf3",
-        pad=12,
+        pad=4,
         loc="left",
     )
 
     # Add colorbar for accuracy legend
     sm = ScalarMappable(norm=norm, cmap=cmap)
     sm.set_array([])
-    cbar = fig.colorbar(sm, ax=ax, pad=0.01, aspect=40, shrink=0.8)
+    cbar = fig.colorbar(sm, ax=ax, pad=0.01, aspect=30, shrink=0.6)
     cbar.set_label(
-        "π Accuracy (correct decimal places)",
-        fontsize=11,
+        "π Accuracy",
+        fontsize=9,
         color="#e6edf3",
-        labelpad=10,
+        labelpad=8,
     )
-    cbar.ax.yaxis.set_tick_params(color="#e6edf3", labelsize=10)
+    cbar.ax.yaxis.set_tick_params(color="#e6edf3", labelsize=8)
     cbar.outline.set_edgecolor("#30363d")
     plt.setp(plt.getp(cbar.ax.axes, "yticklabels"), color="#e6edf3")
 
@@ -167,46 +167,25 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     ax.spines["right"].set_visible(False)
 
     # Tick styling
-    ax.tick_params(axis="x", colors="#8b949e", labelsize=10)
-    ax.tick_params(axis="y", colors="#e6edf3", length=0)
-
-    # Footer with URL and timestamp
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-    fig.text(
-        0.98,
-        0.01,
-        "github.com/niklas-heer/speed-comparison",
-        ha="right",
-        fontsize=10,
-        color="#8b949e",
-        transform=fig.transFigure,
-    )
-    fig.text(
-        0.02,
-        0.01,
-        f"Generated: {timestamp}",
-        ha="left",
-        fontsize=10,
-        color="#8b949e",
-        transform=fig.transFigure,
-    )
+    ax.tick_params(axis="x", colors="#8b949e", labelsize=8)
+    ax.tick_params(axis="y", colors="#e6edf3", length=0, pad=2)
 
     # Invert y-axis so fastest is at top
     ax.invert_yaxis()
 
     # Extend x-axis to make room for time labels
     x_max = df["min"].max()
-    ax.set_xlim(right=x_max * 2.5)
+    ax.set_xlim(right=x_max * 2.2)
 
     # Save with proper layout - minimal margins for compact look
-    plt.tight_layout(rect=[0, 0.02, 1, 0.98])
+    plt.tight_layout()
     plt.savefig(
         output_path,
         dpi=150,
         bbox_inches="tight",
         facecolor=fig.get_facecolor(),
         edgecolor="none",
-        pad_inches=0.3,
+        pad_inches=0.15,
     )
     plt.close()
 
