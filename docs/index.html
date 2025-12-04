@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Speed Comparison - Programming Languages</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg-primary: #0d1117;
+                --bg-secondary: #161b22;
+                --bg-tertiary: #21262d;
+                --border-color: #30363d;
+                --text-primary: #e6edf3;
+                --text-secondary: #8b949e;
+                --accent-color: #58a6ff;
+                --accent-hover: #79b8ff;
+                --success-color: #3fb950;
+                --warning-color: #d29922;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    sans-serif;
+                background-color: var(--bg-primary);
+                color: var(--text-primary);
+                line-height: 1.6;
+                min-height: 100vh;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+
+            /* Header */
+            header {
+                text-align: center;
+                margin-bottom: 3rem;
+                padding-bottom: 2rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                background: linear-gradient(
+                    135deg,
+                    var(--text-primary) 0%,
+                    var(--accent-color) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .subtitle {
+                color: var(--text-secondary);
+                font-size: 1.1rem;
+            }
+
+            /* Controls */
+            .controls {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .run-selector {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .run-selector label {
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+            }
+
+            select {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.9rem;
+                padding: 0.6rem 1rem;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                cursor: pointer;
+                min-width: 220px;
+            }
+
+            select:hover {
+                border-color: var(--accent-color);
+            }
+
+            select:focus {
+                outline: none;
+                border-color: var(--accent-color);
+                box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+            }
+
+            .stats {
+                display: flex;
+                gap: 1.5rem;
+            }
+
+            .stat {
+                text-align: center;
+                padding: 0.75rem 1.25rem;
+                background-color: var(--bg-secondary);
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+            }
+
+            .stat-value {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--accent-color);
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Chart Section */
+            .chart-section {
+                background-color: var(--bg-secondary);
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .chart-container {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .chart-container img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+            }
+
+            .chart-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 400px;
+                color: var(--text-secondary);
+            }
+
+            /* Table Section */
+            .table-section {
+                background-color: var(--bg-secondary);
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                overflow: hidden;
+            }
+
+            .table-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .table-header h2 {
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+
+            .search-box {
+                position: relative;
+            }
+
+            .search-box input {
+                font-family: "Inter", sans-serif;
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem 0.5rem 2.5rem;
+                background-color: var(--bg-tertiary);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                width: 250px;
+            }
+
+            .search-box input:focus {
+                outline: none;
+                border-color: var(--accent-color);
+            }
+
+            .search-box::before {
+                content: "\1F50D";
+                position: absolute;
+                left: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 0.85rem;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.9rem;
+            }
+
+            th,
+            td {
+                padding: 0.875rem 1.25rem;
+                text-align: left;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            th {
+                background-color: var(--bg-tertiary);
+                font-weight: 600;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                letter-spacing: 0.5px;
+                cursor: pointer;
+                user-select: none;
+                white-space: nowrap;
+            }
+
+            th:hover {
+                color: var(--text-primary);
+            }
+
+            th.sorted-asc::after {
+                content: " \2191";
+            }
+
+            th.sorted-desc::after {
+                content: " \2193";
+            }
+
+            tr:hover {
+                background-color: var(--bg-tertiary);
+            }
+
+            .rank {
+                font-family: "JetBrains Mono", monospace;
+                font-weight: 600;
+                color: var(--text-secondary);
+            }
+
+            .rank-medal {
+                font-size: 1.2rem;
+            }
+
+            .lang-name {
+                font-weight: 500;
+            }
+
+            .lang-version {
+                font-family: "JetBrains Mono", monospace;
+                color: var(--text-secondary);
+                font-size: 0.85rem;
+            }
+
+            .time-value {
+                font-family: "JetBrains Mono", monospace;
+            }
+
+            .time-fast {
+                color: var(--success-color);
+            }
+
+            .time-medium {
+                color: var(--warning-color);
+            }
+
+            .time-slow {
+                color: var(--text-secondary);
+            }
+
+            .accuracy {
+                font-family: "JetBrains Mono", monospace;
+            }
+
+            /* Footer */
+            footer {
+                margin-top: 3rem;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border-color);
+                text-align: center;
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+            }
+
+            footer a {
+                color: var(--accent-color);
+                text-decoration: none;
+            }
+
+            footer a:hover {
+                text-decoration: underline;
+            }
+
+            .github-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            /* Loading State */
+            .loading {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
+                padding: 3rem;
+                color: var(--text-secondary);
+            }
+
+            .spinner {
+                width: 24px;
+                height: 24px;
+                border: 3px solid var(--border-color);
+                border-top-color: var(--accent-color);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 1rem;
+                }
+
+                h1 {
+                    font-size: 1.75rem;
+                }
+
+                .controls {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                .stats {
+                    justify-content: center;
+                }
+
+                select {
+                    width: 100%;
+                }
+
+                .search-box input {
+                    width: 100%;
+                }
+
+                .table-header {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Speed Comparison</h1>
+                <p class="subtitle">
+                    Benchmarking programming languages using the Leibniz formula
+                    for calculating π
+                </p>
+            </header>
+
+            <div class="controls">
+                <div class="run-selector">
+                    <label for="run-select">Benchmark run:</label>
+                    <select id="run-select">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="lang-count">-</div>
+                        <div class="stat-label">Languages</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="iterations">-</div>
+                        <div class="stat-label">Iterations</div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="chart-section">
+                <div class="chart-container" id="chart-container">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span>Loading chart...</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-section">
+                <div class="table-header">
+                    <h2>Results</h2>
+                    <div class="search-box">
+                        <input
+                            type="text"
+                            id="search"
+                            placeholder="Filter languages..."
+                        />
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="rank">#</th>
+                                <th data-sort="name">Language</th>
+                                <th data-sort="version">Version</th>
+                                <th data-sort="min">Min</th>
+                                <th data-sort="median">Median</th>
+                                <th data-sort="max">Max</th>
+                                <th data-sort="accuracy">Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    <div class="spinner"></div>
+                                    <span>Loading results...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer>
+                <p>
+                    Benchmarks run on GitHub Actions. Results may vary based on
+                    runner hardware.
+                </p>
+                <a
+                    href="https://github.com/niklas-heer/speed-comparison"
+                    class="github-link"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                    >
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                        />
+                    </svg>
+                    View on GitHub
+                </a>
+            </footer>
+        </div>
+
+        <script>
+            const MANIFEST_URL = "./history/manifest.json";
+            const ITERATIONS = "100,000,000";
+
+            let currentData = [];
+            let sortColumn = "min";
+            let sortDirection = "asc";
+
+            // Initialize
+            document.addEventListener("DOMContentLoaded", init);
+
+            async function init() {
+                document.getElementById("iterations").textContent = ITERATIONS;
+
+                try {
+                    const manifest = await fetchJSON(MANIFEST_URL);
+                    populateRunSelector(manifest.runs);
+
+                    // Load latest run
+                    if (manifest.runs.length > 0) {
+                        await loadRun(manifest.runs[0]);
+                    }
+                } catch (error) {
+                    console.error("Failed to load manifest:", error);
+                    showError("Failed to load benchmark data");
+                }
+
+                // Event listeners
+                document
+                    .getElementById("run-select")
+                    .addEventListener("change", handleRunChange);
+                document
+                    .getElementById("search")
+                    .addEventListener("input", handleSearch);
+                document.querySelectorAll("th[data-sort]").forEach((th) => {
+                    th.addEventListener("click", () =>
+                        handleSort(th.dataset.sort),
+                    );
+                });
+            }
+
+            async function fetchJSON(url) {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            }
+
+            async function fetchCSV(url) {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const text = await response.text();
+                return parseCSV(text);
+            }
+
+            function parseCSV(text) {
+                const lines = text.trim().split("\n");
+                const headers = lines[0].split(",");
+                return lines.slice(1).map((line) => {
+                    const values = line.split(",");
+                    const obj = {};
+                    headers.forEach((h, i) => (obj[h] = values[i]));
+
+                    // Handle old CSV format (has 'average' instead of 'min/median/max')
+                    if (obj.average && !obj.min) {
+                        obj.min = obj.average;
+                        obj.median = obj.average;
+                        obj.max = obj.average;
+                    }
+
+                    return obj;
+                });
+            }
+
+            function populateRunSelector(runs) {
+                const select = document.getElementById("run-select");
+                select.innerHTML = runs
+                    .map((run, i) => {
+                        const label =
+                            i === 0 ? `${run.date} (latest)` : run.date;
+                        return `<option value="${run.id}">${label}</option>`;
+                    })
+                    .join("");
+            }
+
+            async function loadRun(run) {
+                const basePath = `./history/${run.id}`;
+
+                // Load chart
+                const chartContainer =
+                    document.getElementById("chart-container");
+                chartContainer.innerHTML = `<img src="${basePath}/combined_results.png" alt="Speed comparison chart" loading="lazy">`;
+
+                // Load data
+                try {
+                    currentData = await fetchCSV(
+                        `${basePath}/combined_results.csv`,
+                    );
+                    currentData.forEach((row, i) => (row.rank = i + 1));
+                    document.getElementById("lang-count").textContent =
+                        currentData.length;
+                    renderTable(currentData);
+                } catch (error) {
+                    console.error("Failed to load CSV:", error);
+                }
+            }
+
+            async function handleRunChange(e) {
+                const runId = e.target.value;
+                const manifest = await fetchJSON(MANIFEST_URL);
+                const run = manifest.runs.find((r) => r.id === runId);
+                if (run) await loadRun(run);
+            }
+
+            function handleSearch(e) {
+                const query = e.target.value.toLowerCase();
+                const filtered = currentData.filter((row) =>
+                    row.name.toLowerCase().includes(query),
+                );
+                renderTable(filtered);
+            }
+
+            function handleSort(column) {
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+                } else {
+                    sortColumn = column;
+                    sortDirection = column === "name" ? "asc" : "asc";
+                }
+
+                // Update header styles
+                document.querySelectorAll("th[data-sort]").forEach((th) => {
+                    th.classList.remove("sorted-asc", "sorted-desc");
+                    if (th.dataset.sort === sortColumn) {
+                        th.classList.add(
+                            sortDirection === "asc"
+                                ? "sorted-asc"
+                                : "sorted-desc",
+                        );
+                    }
+                });
+
+                const sorted = [...currentData].sort((a, b) => {
+                    let aVal = a[column];
+                    let bVal = b[column];
+
+                    // Numeric columns
+                    if (
+                        ["rank", "min", "median", "max", "accuracy"].includes(
+                            column,
+                        )
+                    ) {
+                        aVal = parseFloat(aVal);
+                        bVal = parseFloat(bVal);
+                    }
+
+                    if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+                    if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+                    return 0;
+                });
+
+                renderTable(sorted);
+            }
+
+            function renderTable(data) {
+                const tbody = document.getElementById("results-body");
+
+                if (data.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary)">No results found</td></tr>';
+                    return;
+                }
+
+                const minTime = Math.min(
+                    ...currentData.map((r) => parseFloat(r.min)),
+                );
+                const maxTime = Math.max(
+                    ...currentData.map((r) => parseFloat(r.min)),
+                );
+                const midTime = (minTime + maxTime) / 2;
+
+                tbody.innerHTML = data
+                    .map((row) => {
+                        const time = parseFloat(row.min);
+                        let timeClass = "time-slow";
+                        if (time <= minTime * 2) timeClass = "time-fast";
+                        else if (time <= midTime) timeClass = "time-medium";
+
+                        const rankDisplay =
+                            row.rank === 1
+                                ? '<span class="rank-medal">🥇</span>'
+                                : row.rank === 2
+                                  ? '<span class="rank-medal">🥈</span>'
+                                  : row.rank === 3
+                                    ? '<span class="rank-medal">🥉</span>'
+                                    : row.rank;
+
+                        return `
+                    <tr>
+                        <td class="rank">${rankDisplay}</td>
+                        <td class="lang-name">${escapeHtml(row.name)}</td>
+                        <td class="lang-version">${escapeHtml(row.version)}</td>
+                        <td class="time-value ${timeClass}">${formatTime(row.min)}</td>
+                        <td class="time-value">${formatTime(row.median)}</td>
+                        <td class="time-value">${formatTime(row.max)}</td>
+                        <td class="accuracy">${parseFloat(row.accuracy).toFixed(2)}</td>
+                    </tr>
+                `;
+                    })
+                    .join("");
+            }
+
+            function formatTime(ms) {
+                const val = parseFloat(ms);
+                if (val >= 1000) {
+                    return (val / 1000).toFixed(2) + "s";
+                }
+                return val.toFixed(1) + "ms";
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function showError(message) {
+                document.getElementById("chart-container").innerHTML = `
+                <div class="chart-placeholder" style="color: #f85149;">
+                    Error: ${message}
+                </div>
+            `;
+            }
+        </script>
+    </body>
+</html>
