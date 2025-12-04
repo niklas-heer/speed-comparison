@@ -289,6 +289,7 @@ jobs:
           retention-days: 1
 
   # Matrix build - run each language in parallel
+  # Uses cache to skip benchmarks if source hasn't changed
   benchmark:
     needs: [discover, build-scmeta]
     runs-on: ubuntu-latest
@@ -299,28 +300,67 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get source file for ${{ matrix.language }}
+        id: get-source
+        run: |
+          chmod +x ./scripts/get-source-file.sh
+          SOURCE_PATH=$(./scripts/get-source-file.sh "${{ matrix.language }}")
+          echo "source_path=$SOURCE_PATH" >> $GITHUB_OUTPUT
+          echo "Source path for ${{ matrix.language }}: $SOURCE_PATH"
+
+      - name: Compute cache key
+        id: cache-key
+        run: |
+          # Hash the source file(s), Earthfile target section, and rounds.txt
+          SOURCE_HASH=$(find ${{ steps.get-source.outputs.source_path }} -type f -exec sha256sum {} \; 2>/dev/null | sort | sha256sum | cut -d' ' -f1)
+          EARTHFILE_HASH=$(awk '/^${{ matrix.language }}:$/,/^[a-zA-Z][a-zA-Z0-9_-]*:$/' Earthfile | sha256sum | cut -d' ' -f1)
+          ROUNDS_HASH=$(sha256sum src/rounds.txt | cut -d' ' -f1)
+          COMBINED="${SOURCE_HASH}-${EARTHFILE_HASH}-${ROUNDS_HASH}"
+          CACHE_KEY=$(echo "$COMBINED" | sha256sum | cut -d' ' -f1 | head -c 16)
+          echo "key=$CACHE_KEY" >> $GITHUB_OUTPUT
+          echo "Cache key for ${{ matrix.language }}: $CACHE_KEY"
+
+      - name: Cache benchmark result
+        id: cache-benchmark
+        uses: actions/cache@v4
+        with:
+          path: results/${{ matrix.language }}.json
+          key: benchmark-${{ matrix.language }}-${{ steps.cache-key.outputs.key }}
+
       - name: Download scmeta
+        if: steps.cache-benchmark.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
           name: scmeta-binary
           path: scmeta-bin
 
       - name: Setup scmeta
+        if: steps.cache-benchmark.outputs.cache-hit != 'true'
         run: chmod +x scmeta-bin/scmeta
 
       - name: Setup Earthly
+        if: steps.cache-benchmark.outputs.cache-hit != 'true'
         uses: earthly/actions-setup@v1
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
       - name: Run benchmark for ${{ matrix.language }}
-        run: earthly --ci --build-arg USE_PREBUILT_SCMETA=true +${{ matrix.language }}
+        if: steps.cache-benchmark.outputs.cache-hit != 'true'
+        run: earthly --ci --output --build-arg USE_PREBUILT_SCMETA=true +${{ matrix.language }}
+
+      - name: Show cache status
+        run: |
+          if [ "${{ steps.cache-benchmark.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Using cached result for ${{ matrix.language }}"
+          else
+            echo "🔨 Ran fresh benchmark for ${{ matrix.language }}"
+          fi
 
       - name: Upload result
         uses: actions/upload-artifact@v4
         with:
           name: result-${{ matrix.language }}
-          path: results/*.json
+          path: results/${{ matrix.language }}.json
           retention-days: 1
 
   # Collect all results and run analysis
