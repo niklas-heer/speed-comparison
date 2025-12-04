@@ -75,6 +75,7 @@ collect-data:
   BUILD +haskell
   BUILD +java
   BUILD +java-vecops
+  BUILD +java-graalvm
   BUILD +julia
   BUILD +julia-compiled
   BUILD +julia-ux4
@@ -237,6 +238,21 @@ java:
   # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
   DO +BENCH --name="java" --lang="Java" --version="echo 19.36" --cmd="java leibniz"
 
+java-graalvm:
+  FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
+  #https://stackoverflow.com/questions/53656537/install-sdkman-in-docker-image
+  RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+  RUN apt install -y unzip zip curl build-essential libz-dev zlib1g-dev
+  RUN curl -s "https://get.sdkman.io" | bash; \
+      source "/root/.sdkman/bin/sdkman-init.sh" ; \
+      sdk install java 22.3.r19-grl
+  ENV PATH=/root/.sdkman/candidates/java/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  RUN gu install native-image
+  DO +ADD_FILES --src="leibniz.java"
+  RUN javac leibniz.java
+  RUN native-image -H:+ReportExceptionStackTraces leibniz
+  DO +BENCH --name="java-graalvm" --lang="Java graalvm" --version="echo 19.36" --cmd="./leibniz"
 
 java-vecops:
   # Using a dedicated image due to the packages on alpine being not up to date.
