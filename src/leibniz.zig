@@ -14,8 +14,8 @@ pub fn main() !void {
     var i: usize = 2;
     var pi: f64 = 1.0;
     while (i < rounds) : (i += 1) {
-        const x: f64 = -1.0 + 2.0 * @intToFloat(f64, i & 1);
-        pi += (x / @intToFloat(f64, 2 * i - 1));
+        const x: f64 = -1.0 + 2.0 * @as(f64, @floatFromInt(i & 1));
+        pi += (x / @as(f64, @floatFromInt(2 * i - 1)));
     }
     pi *= 4;
     try std.io.getStdOut().writer().print("{d:.16}", .{pi});

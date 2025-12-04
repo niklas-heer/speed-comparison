@@ -255,7 +255,7 @@ go:
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 haskell:
-  FROM haskell:9.4.3-slim
+  FROM haskell:9.8-slim
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.hs"
   RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
@@ -360,7 +360,7 @@ nim:
 
 ocaml:
   FROM +alpine --src="leibniz.ml"
-  RUN apk add --no-cache ocaml
+  RUN apk add --no-cache ocaml musl-dev
   RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
   DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
 

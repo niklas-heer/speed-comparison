@@ -11,7 +11,7 @@ fn main() {
     let rounds = contents.trim().parse::<u32>().unwrap() + 2;
 
     let mut pi: f64 = 1.0;
-    (2..rounds).foreach(|i| {
+    (2..rounds).for_each(|i| {
         let x = -1.0f64 + (2.0 * (i & 0x1) as f64);
         pi += x / (2 * i - 1) as f64;
     });
