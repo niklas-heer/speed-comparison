@@ -1,10 +1,10 @@
 VERSION 0.8
 FROM earthly/dind:alpine
 
-# Variables
-ARG iterations=3
-ARG warmups=2
-ARG timeas="second"
+# Variables (global so they propagate to all targets)
+ARG --global iterations=3
+ARG --global warmups=2
+ARG --global timeas="second"
 
 # Fast check iterations (fewer runs for quick PR feedback)
 ARG fast_iterations=2
