@@ -45,6 +45,15 @@ For each language:
 
 ### Step 4: Special Considerations
 
+- **scmeta version format**: The scmeta tool's version parser uses regex `/\d+(\.\d+)+/` which requires at least one decimal point. Versions like `21` won't work - use `21.0.0` instead:
+  ```earthfile
+  # WRONG - will fail with "No version number found"
+  DO +BENCH ... --version="echo 21" ...
+  
+  # CORRECT
+  DO +BENCH ... --version="echo 21.0.0" ...
+  ```
+
 - **PHP**: Must include opcache and JIT for fair benchmarking:
   ```earthfile
   RUN apk add --no-cache php84 php84-opcache
@@ -89,6 +98,7 @@ Check for open issues about language versions (like #136) and:
 3. **ARM64 compatibility**: GCC 15+ has issues with `-march=native` on ARM64 (SME/SVE2 detection)
 4. **Stale Docker images**: Some projects (Pony) don't publish Docker images promptly
 5. **Breaking API changes**: Check release notes for languages with major version bumps (Zig, Swift 6, etc.)
+6. **Verify Docker image tags exist**: Always verify the exact Docker image tag exists before using it. Some images don't have all tag variants (e.g., `haskell:9.10-slim` doesn't exist, but `haskell:9.10-slim-bullseye` does). Check Docker Hub or use `docker pull` to verify.
 
 ## Version Research Tips
 

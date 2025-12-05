@@ -276,7 +276,7 @@ go:
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 haskell:
-  FROM haskell:9.10-slim
+  FROM haskell:9.10-slim-bullseye
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.hs"
   RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
@@ -289,7 +289,7 @@ java:
   DO +ADD_FILES --src="leibniz.java"
   RUN --no-cache javac leibniz.java
   # TODO: Change scbench to be able to handle Java version. For now it's static.
-  DO +BENCH --name="java" --lang="Java" --version="echo 21" --cmd="java leibniz"
+  DO +BENCH --name="java" --lang="Java" --version="echo 21.0.0" --cmd="java leibniz"
 
 kotlin:
   FROM eclipse-temurin:21-jdk-alpine
@@ -327,7 +327,7 @@ java-vecops:
   DO +ADD_FILES --src="leibnizVecOps.java"
   RUN --no-cache javac --add-modules jdk.incubator.vector leibnizVecOps.java
   # TODO: Change scbench to be able to handle Java version. For now it's static.
-  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="echo 21" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
+  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="echo 21.0.0" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
