@@ -4,78 +4,95 @@ Update all programming language versions in the benchmark suite to their latest 
 
 ## Instructions
 
-You are a coordinator agent that will update all programming languages in parallel. Follow these steps:
+Update all programming languages directly (do NOT use sub-agents as they don't persist changes reliably).
 
 ### Step 1: Discover Languages
 
 Read the Earthfile and extract all language targets from the `collect-data` section. Each `BUILD +<language>` line represents a language to update.
 
-### Step 2: Spawn Parallel Sub-Agents
+### Step 2: Categorize Languages
 
-For each language (or batch of 5-10 languages), spawn a sub-agent using the Task tool with this prompt:
+Languages fall into these categories:
 
-```
-Update the "$LANGUAGE" benchmark to its latest stable version.
+1. **Alpine-based** (use `+alpine` or `FROM alpine`): These get updated automatically when the Alpine base version is bumped. Just update `alpine:X.XX` in the `alpine:` target.
+   - Examples: c, cpp, d, elixir, lua, nim, perl, php, r, ruby, sbcl
 
-## Steps:
+2. **Official Docker images**: Update the image tag directly.
+   - Examples: golang, rust, swift, haskell, python, julia, node, crystal, clojure
 
-1. **Find current version**: Read the Earthfile target for "$LANGUAGE" and identify:
-   - Current Docker image and tag
-   - Current version being reported
+3. **Downloaded compilers**: Update download URLs and hardcoded version strings.
+   - Examples: kotlin (GitHub releases), scala (scala-cli)
 
-2. **Research latest version**: 
-   - Search the web for the latest stable release of $LANGUAGE
-   - Check Docker Hub for available image tags
-   - Note: Prefer official images, Alpine variants when available
+4. **Special cases**:
+   - java/java-vecops: Use eclipse-temurin, update hardcoded `echo` version
+   - java-graalvm: Uses SDKMAN, update the version identifier
+   - php: Needs php-opcache package and JIT flags for fair benchmarking
+   - ocaml: May need alpine:edge for latest version
+   - pony: Docker Hub images are often stale (check before updating)
 
-3. **Compare versions**: If already up-to-date, report "SKIPPED: $LANGUAGE already at latest version X.Y.Z"
+### Step 3: Update Each Language
 
-4. **Update if needed**:
-   - Update the Docker image tag in Earthfile
-   - Update version command if needed
-   - Check if the language has had breaking API changes that would affect src/leibniz.* file
-   - If API changes needed, update the source file
+For each language:
 
-5. **Test locally**: Run `earthly +$LANGUAGE` to verify it builds and runs correctly
+1. **Research latest version**: Search the web for latest stable release
+2. **Update Earthfile**: Change Docker image tags or download URLs
+3. **Update version strings**: Fix any hardcoded `echo "X.Y.Z"` commands
+4. **Check for ARM64 issues**: If using `-march=native` with GCC 15+, use the `SET_ARCH_FLAGS` function:
+   ```earthfile
+   DO +SET_ARCH_FLAGS
+   RUN gcc ... $MARCH_FLAG ...
+   ```
 
-6. **Report result**: 
-   - SUCCESS: "$LANGUAGE updated from X.Y.Z to A.B.C"
-   - SKIPPED: "$LANGUAGE already at latest X.Y.Z"  
-   - FAILED: "$LANGUAGE update failed: <reason>"
+### Step 4: Special Considerations
 
-Do NOT commit changes. Just make the updates and report back.
-```
+- **PHP**: Must include opcache and JIT for fair benchmarking:
+  ```earthfile
+  RUN apk add --no-cache php84 php84-opcache
+  DO +BENCH ... --cmd="php84 -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php"
+  ```
 
-### Step 3: Collect Results
+- **Bun.js**: Use official `oven/bun` image, not legacy `jarredsumner/bun`
 
-Wait for all sub-agents to complete. Compile a summary:
+- **Node.js**: Prefer official `node:XX-alpine` over Alpine's `nodejs-current`
 
-```
-## Language Update Summary
+- **GraalVM**: Native Image is bundled in v21+, no need for `gu install native-image`
 
-### Updated (X languages)
-- Language1: v1.0.0 → v2.0.0
-- Language2: v3.1.0 → v3.2.0
+- **LDC (D)**: Newer Alpine versions don't need `llvm-libunwind-static llvm12`
 
-### Skipped (Y languages - already current)
-- Language3: v1.5.0
-- Language4: v2.0.0
+### Step 5: Commit Changes
 
-### Failed (Z languages)
-- Language5: <error reason>
-```
+After all updates:
 
-### Step 4: Final Steps
+1. Show a summary table of all changes
+2. Ask if user wants to commit
+3. Create commits like:
+   ```
+   chore: update language versions to latest stable releases
+   
+   - Alpine base: 3.16 → 3.23
+   - Go: 1.19.1 → 1.23
+   - Rust: 1.64 → 1.83
+   ... etc
+   ```
 
-After all updates are complete:
-1. Show the summary to the user
-2. Ask if they want to commit and push the changes
-3. If yes, create a single commit: "chore: update language versions" with details in the body
+### Step 6: Update Related Issues
 
-## Notes
+Check for open issues about language versions (like #136) and:
+1. Update issue checklists with completed items
+2. Comment on the issue with summary of changes
+3. Close the issue if all languages are updated
 
-- Prioritize official Docker images over community images
-- Prefer Alpine-based images for consistency
-- Some languages (Java, Kotlin) use hardcoded version strings - update those too
-- If a language requires significant code changes due to API breaks, flag it for manual review
-- Run updates in parallel batches to speed up the process
+## Common Pitfalls
+
+1. **Sub-agents don't persist**: Don't spawn sub-agents for updates - their file changes don't persist
+2. **Cache invalidation**: CI caches based on Earthfile target content - changes should invalidate caches
+3. **ARM64 compatibility**: GCC 15+ has issues with `-march=native` on ARM64 (SME/SVE2 detection)
+4. **Stale Docker images**: Some projects (Pony) don't publish Docker images promptly
+5. **Breaking API changes**: Check release notes for languages with major version bumps (Zig, Swift 6, etc.)
+
+## Version Research Tips
+
+- Use web search for "[language] latest stable version 2025"
+- Check Docker Hub for available tags
+- Verify Alpine package versions: `docker run --rm alpine:X.XX apk info [package]`
+- For GitHub-released compilers, check the releases page
