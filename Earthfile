@@ -262,10 +262,10 @@ elixir:
 fortran:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
-  RUN apt-get update && apt-get install -y gfortran-12 wget
+  RUN apt-get update && apt-get install -y gfortran-14 wget
   DO +ADD_FILES --src="leibniz.f90"
-  RUN --no-cache gfortran-12 -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
-  DO +BENCH --name="fortran" --lang="Fortran 90" --version="gfortran-12 --version" --cmd="./leibniz"
+  RUN --no-cache gfortran-14 -Ofast -march=native -mtune=native -flto -ffast-math leibniz.f90 -o leibniz
+  DO +BENCH --name="fortran" --lang="Fortran 90" --version="gfortran-14 --version" --cmd="./leibniz"
 
 go:
   # We can reuse the build image of the scbench tool
@@ -296,13 +296,13 @@ kotlin:
   DO +PREPARE_ALPINE
   RUN apk add --no-cache bash
   # Install Kotlin compiler
-  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.0.21/kotlin-compiler-2.0.21.zip && \
-      unzip -q kotlin-compiler-2.0.21.zip && \
-      rm kotlin-compiler-2.0.21.zip
+  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.1.21/kotlin-compiler-2.1.21.zip && \
+      unzip -q kotlin-compiler-2.1.21.zip && \
+      rm kotlin-compiler-2.1.21.zip
   ENV PATH="/kotlinc/bin:${PATH}"
   DO +ADD_FILES --src="leibniz.kt"
   RUN --no-cache kotlinc leibniz.kt -include-runtime -d leibniz.jar
-  DO +BENCH --name="kotlin" --lang="Kotlin" --version="echo 2.0.21" --cmd="java -jar leibniz.jar"
+  DO +BENCH --name="kotlin" --lang="Kotlin" --version="echo 2.1.21" --cmd="java -jar leibniz.jar"
 
 java-graalvm:
   FROM ubuntu:latest
@@ -354,12 +354,13 @@ julia-ux4:
   DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
 
 nodejs:
-  FROM +alpine --src="leibniz.js"
-  RUN apk add --no-cache nodejs-current
+  FROM node:22-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.js"
   DO +BENCH --name="nodejs" --lang="Javascript (nodejs)" --version="node --version" --cmd="node leibniz.js"
 
 bunjs:
-  FROM jarredsumner/bun:edge
+  FROM oven/bun:1.2-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.js"
   DO +BENCH --name="bunjs" --lang="Javascript (bun)" --version="bun --version" --cmd="bun run leibniz.js"
@@ -393,8 +394,9 @@ ocaml:
 
 php:
   FROM +alpine --src="leibniz.php"
-  RUN apk add --no-cache php81
-  DO +BENCH --name="php" --lang="PHP" --version="php81 --version" --cmd="php81 leibniz.php"
+  RUN apk add --no-cache php84 php84-opcache
+  # Enable OPCACHE and JIT for production-like performance
+  DO +BENCH --name="php" --lang="PHP" --version="php84 --version" --cmd="php84 -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php"
 
 pascal:
   FROM alpine:edge
