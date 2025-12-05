@@ -191,11 +191,12 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     x_max = df["min"].max()
     ax.set_xlim(right=x_max * 2.2)
 
-    # Add watermark with repo URL
+    # Add watermark with repo URL and generation date
+    generation_date = datetime.now().strftime("%Y-%m-%d")
     fig.text(
         0.99,
         0.01,
-        "github.com/niklas-heer/speed-comparison",
+        f"Generated: {generation_date}  |  github.com/niklas-heer/speed-comparison",
         ha="right",
         va="bottom",
         fontsize=8,
