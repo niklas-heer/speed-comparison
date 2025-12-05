@@ -14,7 +14,7 @@ ARG fast_warmups=1
 ARG --global USE_PREBUILT_SCMETA=false
 
 build:
-  FROM crystallang/crystal:1.6-alpine
+  FROM crystallang/crystal:1.15-alpine
   WORKDIR /app
   COPY --dir scmeta ./
   WORKDIR /app/scmeta
@@ -25,13 +25,13 @@ build:
 
 # Target to export scmeta binary for CI artifact sharing
 export-scmeta:
-  FROM crystallang/crystal:1.6-alpine
+  FROM crystallang/crystal:1.15-alpine
   COPY +build/scmeta ./scmeta
   SAVE ARTIFACT ./scmeta AS LOCAL ./scmeta-bin/scmeta
 
 # Run scmeta tests
 test-scmeta:
-  FROM crystallang/crystal:1.6-alpine
+  FROM crystallang/crystal:1.15-alpine
   WORKDIR /app
   COPY --dir scmeta ./
   WORKDIR /app/scmeta
@@ -74,9 +74,21 @@ ADD_FILES:
   COPY ./src/rounds.txt ./
   COPY ./src/"$src" ./
 
+# Sets MARCH_FLAG environment variable based on CPU architecture.
+# On ARM64, -march=native can fail with GCC 15+ due to SME/SVE2 detection issues.
+# Usage: DO +SET_ARCH_FLAGS, then use $MARCH_FLAG in compile commands.
+SET_ARCH_FLAGS:
+  FUNCTION
+  ENV MARCH_FLAG=""
+  IF [ "$(uname -m)" = "aarch64" ]
+    ENV MARCH_FLAG="-march=armv8-a"
+  ELSE
+    ENV MARCH_FLAG="-march=native"
+  END
+
 alpine:
   ARG --required src
-  FROM alpine:3.16
+  FROM alpine:3.23
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="$src"
 
@@ -165,7 +177,7 @@ c-clang:
   DO +BENCH --name="c-clang" --lang="C (clang)" --version="clang --version" --cmd="./leibniz"
 
 clj:
-  FROM clojure:temurin-19-tools-deps-alpine
+  FROM clojure:temurin-21-tools-deps-alpine
   DO +PREPARE_ALPINE
   # Seems to be a bug
   RUN apk add --no-cache rlwrap
@@ -198,7 +210,7 @@ cpp-clang:
   DO +BENCH --name="cpp-clang" --lang="C++ (clang++)" --version="clang++ --version" --cmd="./leibniz"
 
 crystal:
-  FROM crystallang/crystal:1.6-alpine
+  FROM crystallang/crystal:1.15-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.cr"
   RUN --no-cache crystal build leibniz.cr --release
@@ -225,13 +237,20 @@ cs:
 d:
   FROM +alpine --src="leibniz.d"
   RUN apk add --no-cache gcc-gdc
-  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -static -flto -ffast-math -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +SET_ARCH_FLAGS
+  RUN --no-cache gdc leibniz.d -o leibniz -O3 -frelease -static -flto -ffast-math $MARCH_FLAG -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="d" --lang="D (GDC)" --version="gdc --version" --cmd="./leibniz"
 
 d-ldc:
   FROM +alpine --src="leibniz.d"
-  RUN apk add --no-cache ldc gcc musl-dev llvm-libunwind-static llvm12
-  RUN --no-cache ldc2 leibniz.d -of leibniz -O3 -release -mcpu=native -static -flto=thin -ffast-math -Xcc='-march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math'
+  RUN apk add --no-cache ldc gcc musl-dev
+  DO +SET_ARCH_FLAGS
+  # LDC needs -mcpu flag on x86, but it causes issues on ARM64
+  RUN --no-cache if [ "$(uname -m)" = "aarch64" ]; then \
+        ldc2 leibniz.d -of leibniz -O3 -release -static -flto=thin -ffast-math -Xcc="$MARCH_FLAG -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math"; \
+      else \
+        ldc2 leibniz.d -of leibniz -O3 -release -mcpu=native -static -flto=thin -ffast-math -Xcc="$MARCH_FLAG -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math"; \
+      fi
   DO +BENCH --name="d-ldc" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
 elixir:
@@ -250,14 +269,14 @@ fortran:
 
 go:
   # We can reuse the build image of the scbench tool
-  FROM golang:1.19.1-alpine
+  FROM golang:1.23-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.go"
   RUN --no-cache go build leibniz.go
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 haskell:
-  FROM haskell:9.8-slim
+  FROM haskell:9.10-slim
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.hs"
   RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
@@ -265,16 +284,12 @@ haskell:
 
 java:
   # Using a dedicated image due to the packages on alpine being not up to date.
-  FROM eclipse-temurin:19_36-jdk-alpine
+  FROM eclipse-temurin:21-jdk-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.java"
   RUN --no-cache javac leibniz.java
   # TODO: Change scbench to be able to handle Java version. For now it's static.
-  # $ java -version
-  # openjdk version "19" 2022-09-20
-  # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
-  # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
-  DO +BENCH --name="java" --lang="Java" --version="echo 19.36" --cmd="java leibniz"
+  DO +BENCH --name="java" --lang="Java" --version="echo 21" --cmd="java leibniz"
 
 kotlin:
   FROM eclipse-temurin:21-jdk-alpine
@@ -297,37 +312,33 @@ java-graalvm:
   RUN apt install -y unzip zip curl build-essential libz-dev zlib1g-dev
   RUN curl -s "https://get.sdkman.io" | bash; \
       source "/root/.sdkman/bin/sdkman-init.sh" ; \
-      sdk install java 22.3.r19-grl
+      sdk install java 25.0.1-graal
   ENV PATH=/root/.sdkman/candidates/java/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-  RUN gu install native-image
+  # Native Image is included by default in GraalVM 25+, no need for 'gu install'
   DO +ADD_FILES --src="leibniz.java"
   RUN javac leibniz.java
   RUN native-image -H:+ReportExceptionStackTraces leibniz
-  DO +BENCH --name="java-graalvm" --lang="Java graalvm" --version="echo 19.36" --cmd="./leibniz"
+  DO +BENCH --name="java-graalvm" --lang="Java graalvm" --version="echo 25.0.1" --cmd="./leibniz"
 
 java-vecops:
   # Using a dedicated image due to the packages on alpine being not up to date.
-  FROM eclipse-temurin:19_36-jdk-alpine
+  FROM eclipse-temurin:21-jdk-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibnizVecOps.java"
   RUN --no-cache javac --add-modules jdk.incubator.vector leibnizVecOps.java
   # TODO: Change scbench to be able to handle Java version. For now it's static.
-  # $ java -version
-  # openjdk version "19" 2022-09-20
-  # OpenJDK Runtime Environment Temurin-19+36 (build 19+36)
-  # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
-  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="echo 19.36" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
+  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="echo 21" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
-  FROM julia:1.8.2-alpine3.16
+  FROM julia:1.11-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.jl"
   DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="julia leibniz.jl"
 
 julia-compiled:
   # We need the Debian version otherwise the build doesn't work
-  FROM julia:1.8.2
+  FROM julia:1.11
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
   DO +ADD_FILES --src="leibniz_compiled.jl"
@@ -337,7 +348,7 @@ julia-compiled:
 
 julia-ux4:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
-  FROM julia:1.8.2-alpine3.16
+  FROM julia:1.11-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz_ux4.jl"
   DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
@@ -374,8 +385,9 @@ nim:
   DO +BENCH --name="nim" --lang="Nim" --version="nim --version" --cmd="./leibniz"
 
 ocaml:
-  FROM +alpine --src="leibniz.ml"
-  RUN apk add --no-cache ocaml musl-dev
+  FROM alpine:edge
+  RUN apk add --no-cache hyperfine ocaml5 musl-dev --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
+  DO +ADD_FILES --src="leibniz.ml"
   RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
   DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
 
@@ -411,7 +423,7 @@ pony-nightly:
   DO +BENCH --name "pony-nightly" --lang="Pony(nightly)" --version="ponyc --version" --cmd="./out/leibniz"
 
 cpython:
-  FROM python:3.11-alpine
+  FROM python:3.13-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
@@ -419,7 +431,7 @@ cpython:
 pypy:
   # There is no pypy package on alpine
   # We use the standard which is Debian
-  FROM pypy:3.9
+  FROM pypy:3.10
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="pypy" --lang="Python (PyPy)" --version="pypy --version" --cmd="pypy leibniz.py"
@@ -435,7 +447,7 @@ ruby:
   DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby leibniz.rb"
 
 rust:
-  FROM rust:1.64-alpine
+  FROM rust:1.83-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
@@ -457,22 +469,22 @@ sbcl:
 scala:
   FROM +alpine --src="leibniz.scala"
   RUN apk add --no-cache clang musl-dev g++
-  RUN wget -q https://github.com/VirtusLab/scala-cli/releases/download/v1.5.1/scala-cli-x86_64-pc-linux-static.gz && \
+  RUN wget -q https://github.com/VirtusLab/scala-cli/releases/download/v1.10.1/scala-cli-x86_64-pc-linux-static.gz && \
       gunzip scala-cli-x86_64-pc-linux-static.gz && \
       chmod +x scala-cli-x86_64-pc-linux-static && \
       mv scala-cli-x86_64-pc-linux-static /usr/local/bin/scala-cli
-  RUN scala-cli package leibniz.scala -o leibniz --scala 3.5.1 --native-version 0.5.5 --native --native-mode release-full --power
-  DO +BENCH --name="scala" --lang="Scala" --version="echo 3.5.1" --cmd="./leibniz"
+  RUN scala-cli package leibniz.scala -o leibniz --scala 3.7.4 --native-version 0.5.9 --native --native-mode release-full --power
+  DO +BENCH --name="scala" --lang="Scala" --version="echo 3.7.4" --cmd="./leibniz"
 
 swift:
-  FROM swift:5.8.1-jammy
+  FROM swift:6.0-jammy
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.swift"
   RUN --no-cache swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full
   DO +BENCH --name="swift" --lang="Swift" --version="swift --version" --cmd="./leibniz"
 
 swift-simd:
-  FROM swift:5.7-jammy
+  FROM swift:6.0-jammy
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz-simd.swift"
   RUN --no-cache swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full
