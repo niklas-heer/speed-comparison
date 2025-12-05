@@ -314,7 +314,8 @@ jobs:
         run: |
           # Hash the source file(s), Earthfile target section, and rounds.txt
           SOURCE_HASH=$(find ${{ steps.get-source.outputs.source_path }} -type f -exec sha256sum {} \; 2>/dev/null | sort | sha256sum | cut -d' ' -f1)
-          EARTHFILE_HASH=$(awk '/^${{ matrix.language }}:$/,/^[a-zA-Z][a-zA-Z0-9_-]*:$/' Earthfile | sha256sum | cut -d' ' -f1)
+          # Extract the full target section (from "target:" until the next target or EOF)
+          EARTHFILE_HASH=$(awk '/^${{ matrix.language }}:$/{found=1} found{print; if(/^[a-zA-Z][a-zA-Z0-9_-]*:$/ && !/^${{ matrix.language }}:$/) exit}' Earthfile | sha256sum | cut -d' ' -f1)
           ROUNDS_HASH=$(sha256sum src/rounds.txt | cut -d' ' -f1)
           COMBINED="${SOURCE_HASH}-${EARTHFILE_HASH}-${ROUNDS_HASH}"
           CACHE_KEY=$(echo "$COMBINED" | sha256sum | cut -d' ' -f1 | head -c 16)
