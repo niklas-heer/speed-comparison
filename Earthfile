@@ -104,6 +104,7 @@ collect-data:
   BUILD +java
   BUILD +java-vecops
   BUILD +java-graalvm
+  BUILD +kotlin
   BUILD +julia
   BUILD +julia-compiled
   BUILD +julia-ux4
@@ -113,6 +114,7 @@ collect-data:
   BUILD +luajit
   BUILD +nim
   BUILD +ocaml
+  BUILD +pascal
   BUILD +php
   BUILD +perl
   BUILD +pony
@@ -274,6 +276,19 @@ java:
   # OpenJDK 64-Bit Server VM Temurin-19+36 (build 19+36, mixed mode, sharing)
   DO +BENCH --name="java" --lang="Java" --version="echo 19.36" --cmd="java leibniz"
 
+kotlin:
+  FROM eclipse-temurin:21-jdk-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache bash
+  # Install Kotlin compiler
+  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.0.21/kotlin-compiler-2.0.21.zip && \
+      unzip -q kotlin-compiler-2.0.21.zip && \
+      rm kotlin-compiler-2.0.21.zip
+  ENV PATH="/kotlinc/bin:${PATH}"
+  DO +ADD_FILES --src="leibniz.kt"
+  RUN --no-cache kotlinc leibniz.kt -include-runtime -d leibniz.jar
+  DO +BENCH --name="kotlin" --lang="Kotlin" --version="echo 2.0.21" --cmd="java -jar leibniz.jar"
+
 java-graalvm:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
@@ -368,6 +383,13 @@ php:
   FROM +alpine --src="leibniz.php"
   RUN apk add --no-cache php81
   DO +BENCH --name="php" --lang="PHP" --version="php81 --version" --cmd="php81 leibniz.php"
+
+pascal:
+  FROM alpine:edge
+  RUN apk add --no-cache hyperfine binutils fpc --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
+  DO +ADD_FILES --src="leibniz.pas"
+  RUN --no-cache fpc -O3 -Xs leibniz.pas -oleibniz
+  DO +BENCH --name="pascal" --lang="Pascal (FPC)" --version="fpc -iV" --cmd="./leibniz"
 
 perl:
   FROM +alpine --src="leibniz.pl"
