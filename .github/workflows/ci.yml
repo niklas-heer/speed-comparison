@@ -3,10 +3,11 @@ name: Run speed comparison
 on:
   push:
     paths-ignore:
-      - "assets"
-      - "README.md"
+      - "**.md"
+      - "assets/**"
       - "LICENSE"
       - ".gitignore"
+      - ".gitattributes"
       - "docs/**"
     branches:
       - master
