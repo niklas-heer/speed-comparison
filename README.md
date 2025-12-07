@@ -20,6 +20,20 @@ Also the findings just show how good the languages can handle floating point ope
 
 You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
 
+## Rules
+
+The benchmark measures **single-threaded computational performance**. To keep comparisons fair:
+
+1. **No concurrency/parallelism**: Implementations must be single-threaded. No multi-threading, async, or parallel processing.
+
+2. **SIMD is allowed but separate**: SIMD optimizations (using wider registers) are permitted but should be separate targets (e.g., `swift-simd`, `cpp-avx2`) rather than replacing the standard implementation.
+
+3. **Standard language features**: Use idiomatic code for the language. Compiler optimizations flags are fine.
+
+4. **Same algorithm**: All implementations must use the Leibniz formula as shown in the existing implementations.
+
+**Why no concurrency?** Concurrency results depend heavily on core count (4-core vs 64-core gives vastly different results), making comparisons meaningless. SIMD stays single-threaded - it just processes more data per instruction.
+
 <!-- TODO: Create a new video for hyperfine and scmeta -->
 <!-- ## Adding new languages
 
