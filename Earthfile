@@ -58,8 +58,9 @@ BENCH:
 PREPARE_DEBIAN:
   FUNCTION
   RUN apt-get update && apt-get install -y wget
-  RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
-  RUN dpkg -i hyperfine_1.15.0_amd64.deb
+  RUN ARCH=$(dpkg --print-architecture) && \
+      wget -q https://github.com/sharkdp/hyperfine/releases/download/v1.18.0/hyperfine_1.18.0_${ARCH}.deb && \
+      dpkg -i hyperfine_1.18.0_${ARCH}.deb
 
 PREPARE_ALPINE:
   FUNCTION
@@ -117,8 +118,13 @@ collect-data:
   BUILD +fs
   BUILD +d
   BUILD +d-ldc
+  BUILD +dart
+  BUILD +dart-aot
+  BUILD +deno
   BUILD +elixir
+  BUILD +erlang
   BUILD +fortran
+  BUILD +gleam
   BUILD +go
   BUILD +haskell
   BUILD +janet
@@ -136,11 +142,13 @@ collect-data:
   BUILD +luajit
   BUILD +nim
   BUILD +ocaml
+  BUILD +odin
   BUILD +pascal
   BUILD +php
   BUILD +perl
   BUILD +pony
   BUILD +pony-nightly
+  BUILD +racket
   BUILD +cpython
   BUILD +cpython-numpy
   BUILD +mypyc
@@ -153,6 +161,8 @@ collect-data:
   BUILD +scala
   BUILD +swift
   BUILD +swift-simd
+  BUILD +v
+  BUILD +wasm
   BUILD +zig
 
 all:
@@ -280,11 +290,38 @@ d-ldc:
       fi
   DO +BENCH --name="d-ldc" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
+dart:
+  FROM dart:stable
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.dart"
+  DO +BENCH --name="dart" --lang="Dart (JIT)" --version="dart --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="dart run leibniz.dart"
+
+dart-aot:
+  FROM dart:stable
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.dart"
+  RUN --no-cache dart compile exe leibniz.dart -o leibniz
+  DO +BENCH --name="dart-aot" --lang="Dart (AOT)" --version="dart --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="./leibniz"
+
+deno:
+  FROM denoland/deno:debian
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.ts"
+  DO +BENCH --name="deno" --lang="Deno (TypeScript)" --version="deno --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="deno run --allow-read leibniz.ts"
+
 elixir:
   FROM +alpine --src="leibniz.ex"
   RUN apk add --no-cache elixir
   # The version number is in the second match index -> 1 (instead of 0)
   DO +BENCH --name="elixir" --lang="Elixir" --version="elixir --version" --cmd="elixir leibniz.ex" --index="1"
+
+erlang:
+  FROM alpine:edge
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache erlang28
+  DO +ADD_FILES --src="leibniz.erl"
+  RUN --no-cache erlc leibniz.erl
+  DO +BENCH --name="erlang" --lang="Erlang" --version="cat /usr/lib/erlang/releases/*/OTP_VERSION" --cmd="erl -noshell -s leibniz main -s init stop"
 
 fortran:
   FROM ubuntu:latest
@@ -301,6 +338,25 @@ go:
   DO +ADD_FILES --src="leibniz.go"
   RUN --no-cache go build leibniz.go
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
+
+gleam:
+  FROM ghcr.io/gleam-lang/gleam:v1.13.0-erlang-alpine
+  DO +PREPARE_ALPINE
+  WORKDIR /app
+  # Initialize gleam project and add simplifile as regular dependency
+  RUN gleam new leibniz_app && cd leibniz_app && \
+      sed -i 's/\[dependencies\]/[dependencies]\nsimplifile = "~> 2.0"/' gleam.toml
+  # Copy source and build
+  COPY +build/scmeta ./leibniz_app/
+  COPY ./src/rounds.txt ./leibniz_app/
+  IF [ -n "$QUICK_TEST_ROUNDS" ]
+    RUN echo "$QUICK_TEST_ROUNDS" > ./leibniz_app/rounds.txt
+  END
+  COPY ./src/leibniz.gleam ./leibniz_app/src/leibniz_app.gleam
+  RUN cd leibniz_app && gleam deps download && gleam build
+  WORKDIR /app/leibniz_app
+  RUN apk add --no-cache hyperfine
+  DO +BENCH --name="gleam" --lang="Gleam" --version="gleam --version" --cmd="gleam run"
 
 haskell:
   FROM haskell:9.10-slim-bullseye
@@ -439,6 +495,18 @@ ocaml:
   RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
   DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
 
+odin:
+  FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
+  RUN apt-get update && apt-get install -y git clang llvm make
+  # Build Odin from source (supports all architectures)
+  RUN git clone --depth=1 https://github.com/odin-lang/Odin.git /opt/odin && \
+      cd /opt/odin && ./build_odin.sh release
+  ENV PATH="/opt/odin:${PATH}"
+  DO +ADD_FILES --src="leibniz.odin"
+  RUN --no-cache odin build . -file -o:speed -out:leibniz
+  DO +BENCH --name="odin" --lang="Odin" --version="odin version 2>&1 | grep -oE '[0-9]+-[0-9]+' | head -1" --cmd="./leibniz"
+
 php:
   FROM +alpine --src="leibniz.php"
   RUN apk add --no-cache php84 php84-opcache
@@ -502,6 +570,13 @@ pypy:
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="pypy" --lang="Python (PyPy)" --version="pypy --version" --cmd="pypy leibniz.py"
 
+racket:
+  FROM alpine:edge
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache racket
+  DO +ADD_FILES --src="leibniz.rkt"
+  DO +BENCH --name="racket" --lang="Racket" --version="racket --version" --cmd="racket leibniz.rkt"
+
 r:
   FROM +alpine --src="leibniz.r"
   RUN apk add --no-cache R
@@ -535,10 +610,12 @@ sbcl:
 scala:
   FROM +alpine --src="leibniz.scala"
   RUN apk add --no-cache clang musl-dev g++
-  RUN wget -q https://github.com/VirtusLab/scala-cli/releases/download/v1.10.1/scala-cli-x86_64-pc-linux-static.gz && \
-      gunzip scala-cli-x86_64-pc-linux-static.gz && \
-      chmod +x scala-cli-x86_64-pc-linux-static && \
-      mv scala-cli-x86_64-pc-linux-static /usr/local/bin/scala-cli
+  # Download scala-cli (architecture-aware)
+  RUN ARCH=$(uname -m) && \
+      wget -q https://github.com/VirtusLab/scala-cli/releases/download/v1.10.1/scala-cli-${ARCH}-pc-linux-static.gz && \
+      gunzip scala-cli-${ARCH}-pc-linux-static.gz && \
+      chmod +x scala-cli-${ARCH}-pc-linux-static && \
+      mv scala-cli-${ARCH}-pc-linux-static /usr/local/bin/scala-cli
   RUN scala-cli package leibniz.scala -o leibniz --scala 3.7.4 --native-version 0.5.9 --native --native-mode release-full --power
   DO +BENCH --name="scala" --lang="Scala" --version="scala-cli version --scala 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="./leibniz"
 
@@ -555,6 +632,37 @@ swift-simd:
   DO +ADD_FILES --src="leibniz-simd.swift"
   RUN --no-cache swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full
   DO +BENCH --name="swift-simd" --lang="Swift (SIMD)" --version="swift --version" --cmd="./leibniz"
+
+v:
+  FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
+  RUN apt-get update && apt-get install -y git gcc make
+  # Build V from source (supports all architectures)
+  RUN git clone --depth=1 https://github.com/vlang/v /opt/vlang && \
+      cd /opt/vlang && make && ./v symlink
+  DO +ADD_FILES --src="leibniz.v"
+  RUN --no-cache v -prod -o leibniz leibniz.v
+  DO +BENCH --name="v" --lang="V" --version="v version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="./leibniz"
+
+wasm:
+  FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
+  RUN apt-get update && apt-get install -y wget xz-utils
+  # Install wasmtime (architecture-aware)
+  RUN ARCH=$(uname -m) && \
+      wget -q https://github.com/bytecodealliance/wasmtime/releases/download/v29.0.1/wasmtime-v29.0.1-${ARCH}-linux.tar.xz && \
+      tar -xf wasmtime-v29.0.1-${ARCH}-linux.tar.xz && \
+      mv wasmtime-v29.0.1-${ARCH}-linux/wasmtime /usr/local/bin/ && \
+      rm -rf wasmtime-v29.0.1-${ARCH}-linux*
+  # Install wasi-sdk for compiling C to WASM (architecture-aware)
+  RUN ARCH=$(uname -m | sed 's/x86_64/x86_64/;s/aarch64/arm64/') && \
+      wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-${ARCH}-linux.tar.gz && \
+      tar -xf wasi-sdk-25.0-${ARCH}-linux.tar.gz && \
+      mv wasi-sdk-25.0-${ARCH}-linux /opt/wasi-sdk && \
+      rm wasi-sdk-25.0-${ARCH}-linux.tar.gz
+  DO +ADD_FILES --src="leibniz.c"
+  RUN --no-cache /opt/wasi-sdk/bin/clang -O3 -o leibniz.wasm leibniz.c
+  DO +BENCH --name="wasm" --lang="WASM (C via Wasmtime)" --version="wasmtime --version" --cmd="wasmtime --dir=. leibniz.wasm"
 
 zig:
   # On 3.16 there is no zig package, but on edge there is

@@ -32,7 +32,7 @@ end
 # Extracts version number from text using regex
 # match_index allows selecting which match to use when multiple versions are present
 def get_version(text : String, match_index : Int32 = 0) : String
-  matches = text.scan(/\d+(\.\d+)+/)
+  matches = text.scan(/\d+(\.\d+)*/)
 
   if matches.empty?
     raise ArgumentError.new("No version number found in: '#{text}'")
