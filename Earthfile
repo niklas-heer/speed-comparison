@@ -126,7 +126,9 @@ collect-data:
   BUILD +fortran
   BUILD +gleam
   BUILD +go
+  BUILD +groovy
   BUILD +haskell
+  BUILD +haxe
   BUILD +janet
   BUILD +janet-compiled
   BUILD +java
@@ -141,6 +143,7 @@ collect-data:
   BUILD +lua
   BUILD +luajit
   BUILD +nim
+  BUILD +objc
   BUILD +ocaml
   BUILD +odin
   BUILD +pascal
@@ -149,6 +152,7 @@ collect-data:
   BUILD +pony
   BUILD +pony-nightly
   BUILD +racket
+  BUILD +raku
   BUILD +cpython
   BUILD +cpython-numpy
   BUILD +mypyc
@@ -339,6 +343,12 @@ go:
   RUN --no-cache go build leibniz.go
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
+groovy:
+  FROM groovy:4-jdk21-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.groovy"
+  DO +BENCH --name="groovy" --lang="Groovy" --version="groovy --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="groovy leibniz.groovy"
+
 gleam:
   FROM ghcr.io/gleam-lang/gleam:v1.13.0-erlang-alpine
   DO +PREPARE_ALPINE
@@ -364,6 +374,16 @@ haskell:
   DO +ADD_FILES --src="leibniz.hs"
   RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
   DO +BENCH --name="haskell" --lang="Haskell (GHC)" --version="ghc --version" --cmd="./leibniz"
+
+haxe:
+  FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
+  RUN apt-get update && apt-get install -y software-properties-common
+  RUN add-apt-repository ppa:haxe/releases -y && apt-get update && apt-get install -y haxe neko
+  RUN mkdir -p /usr/lib/haxe/lib && haxelib setup /usr/lib/haxe/lib
+  DO +ADD_FILES --src="Leibniz.hx"
+  RUN --no-cache haxe -main Leibniz -cpp out
+  DO +BENCH --name="haxe" --lang="Haxe (C++)" --version="haxe --version" --cmd="./out/Leibniz"
 
 janet:
   FROM alpine:edge
@@ -488,6 +508,15 @@ nim:
   RUN --no-cache nim c --verbosity:0 -d:danger -d:lto --gc:arc --passC:"-march=native -fno-signed-zeros -fno-trapping-math -fassociative-math" --passL:"-s" leibniz.nim
   DO +BENCH --name="nim" --lang="Nim" --version="nim --version" --cmd="./leibniz"
 
+objc:
+  FROM ubuntu:latest
+  DO +PREPARE_DEBIAN
+  RUN apt-get update && apt-get install -y gnustep-devel clang
+  DO +ADD_FILES --src="leibniz.m"
+  RUN --no-cache clang -O3 -framework Foundation leibniz.m -o leibniz \
+      $(gnustep-config --objc-flags) $(gnustep-config --objc-libs) -lgnustep-base
+  DO +BENCH --name="objc" --lang="Objective-C" --version="clang --version" --cmd="./leibniz"
+
 ocaml:
   FROM alpine:edge
   RUN apk add --no-cache hyperfine ocaml5 musl-dev --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
@@ -576,6 +605,12 @@ racket:
   RUN apk add --no-cache racket
   DO +ADD_FILES --src="leibniz.rkt"
   DO +BENCH --name="racket" --lang="Racket" --version="racket --version" --cmd="racket leibniz.rkt"
+
+raku:
+  FROM rakudo-star:latest
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.raku"
+  DO +BENCH --name="raku" --lang="Raku" --version="raku --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1" --cmd="raku leibniz.raku"
 
 r:
   FROM +alpine --src="leibniz.r"
