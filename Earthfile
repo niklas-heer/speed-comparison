@@ -121,6 +121,8 @@ collect-data:
   BUILD +fortran
   BUILD +go
   BUILD +haskell
+  BUILD +janet
+  BUILD +janet-compiled
   BUILD +java
   BUILD +java-vecops
   BUILD +java-graalvm
@@ -306,6 +308,28 @@ haskell:
   DO +ADD_FILES --src="leibniz.hs"
   RUN --no-cache ghc -funfolding-use-threshold=16 -O2 -optc-O3 leibniz.hs
   DO +BENCH --name="haskell" --lang="Haskell (GHC)" --version="ghc --version" --cmd="./leibniz"
+
+janet:
+  FROM alpine:edge
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache janet
+  DO +ADD_FILES --src="leibniz.janet"
+  DO +BENCH --name="janet" --lang="Janet" --version="janet --version" --cmd="janet leibniz.janet"
+
+janet-compiled:
+  FROM alpine:edge
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache janet janet-dev janet-static build-base git
+  # Install jpm (Janet Package Manager) for native compilation
+  RUN cd /tmp && git clone --depth=1 https://github.com/janet-lang/jpm.git && \
+      cd jpm && janet bootstrap.janet && \
+      sed -i '1s|.*|#!/usr/bin/janet|' /usr/local/bin/jpm && \
+      sed -i '2d' /usr/local/bin/jpm && \
+      ln -s /usr/lib/libjanet.a /usr/local/lib/libjanet.a && \
+      rm -rf /tmp/jpm
+  DO +ADD_FILES --src="leibniz_compiled.janet"
+  RUN --no-cache /usr/local/bin/jpm quickbin leibniz_compiled.janet leibniz
+  DO +BENCH --name="janet-compiled" --lang="Janet (compiled)" --version="janet --version" --cmd="./leibniz"
 
 java:
   # Using a dedicated image due to the packages on alpine being not up to date.
