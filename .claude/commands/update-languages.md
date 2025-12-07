@@ -2,6 +2,15 @@
 
 Update all programming language versions in the benchmark suite to their latest stable releases.
 
+## Benchmark Rules
+
+Before making any changes, remember these rules for implementations:
+
+1. **No concurrency/parallelism** - Implementations must be single-threaded. No multi-threading, async, or parallel processing.
+2. **SIMD is allowed but separate** - SIMD optimizations should be separate targets (e.g., `swift-simd`, `cpp-avx2`, `java-vecops`), not replacing standard implementations.
+3. **Standard language features** - Use idiomatic code. Compiler optimization flags are fine. Auto-vectorization hints like `@simd` in Julia are OK.
+4. **Same algorithm** - All implementations must use the Leibniz formula.
+
 ## Instructions
 
 Update all programming languages directly (do NOT use sub-agents as they don't persist changes reliably).
