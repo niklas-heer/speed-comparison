@@ -237,7 +237,7 @@ crystal:
 
 cs:
   # Use the dedicated image from Microsoft
-  FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine3.20
+  FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
   DO +PREPARE_ALPINE
   WORKDIR /app
 
@@ -245,7 +245,7 @@ cs:
   COPY ./src/cs/*.csproj .
   RUN dotnet restore
   COPY ./src/cs/*.cs .
-  RUN --no-cache dotnet publish -c Release -o out --no-restore
+  RUN --no-cache dotnet publish -c Release -o out --no-restore -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
 
   # Execute test run
   WORKDIR /app/out
@@ -255,7 +255,7 @@ cs:
 
 fs:
   # Use the dedicated image from Microsoft (same as C#)
-  FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine3.20
+  FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
   DO +PREPARE_ALPINE
   WORKDIR /app
 
@@ -263,7 +263,7 @@ fs:
   COPY ./src/fs/*.fsproj .
   RUN dotnet restore
   COPY ./src/fs/*.fs .
-  RUN --no-cache dotnet publish -c Release -o out --no-restore
+  RUN --no-cache dotnet publish -c Release -o out --no-restore -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
 
   # Execute test run
   WORKDIR /app/out
