@@ -394,38 +394,6 @@ Run \`earthly ls\` locally or check the Earthfile for all targets.`;
             results/*.csv
             results/*.png
 
-  # Fast check for PRs - runs a small subset of languages
-  fast-check:
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'pull_request' &&
-      github.event.action != 'labeled' &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-ci')
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Earthly
-        uses: earthly/actions-setup@v1
-        with:
-          version: v${{ env.EARTHLY_VERSION }}
-
-      - name: Run fast benchmark subset
-        run: |
-          echo "Running fast benchmark subset (c, go, rust, cpython)"
-          earthly --ci +fast-check
-
-      - name: Analyze data
-        run: earthly --ci +analysis
-
-      - name: Archive test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: fast-check-results
-          path: |
-            results/*.json
-            results/*.csv
-            results/*.png
-
   # Discover languages from Earthfile for matrix build
   discover:
     runs-on: ubuntu-latest
