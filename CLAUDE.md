@@ -46,13 +46,26 @@ earthly +analysis
 3. Add `BUILD +mylang` to the `collect-data` target
 4. Test locally before committing
 
+## Benchmark Rules
+
+The benchmark measures **single-threaded computational performance**:
+
+1. **No concurrency/parallelism** - Implementations must be single-threaded. No multi-threading, async, or parallel processing.
+2. **SIMD is allowed but separate** - SIMD optimizations should be separate targets (e.g., `swift-simd`, `cpp-avx2`, `java-vecops`), not replacing standard implementations.
+3. **Standard language features** - Use idiomatic code. Compiler optimization flags are fine. Auto-vectorization hints like `@simd` in Julia are OK (similar to `-march=native`).
+4. **Same algorithm** - All implementations must use the Leibniz formula.
+
+**Why no concurrency?** Results depend on core count, making comparisons meaningless across different hardware.
+
 ## Conventions
 
 - **Prefer Alpine** over Debian/Fedora for smaller images and consistency
 - **Avoid Fedora** - not currently supported (hyperfine download is arch-specific)
 - **Version commands** that output to stderr may need `echo X.Y.Z` workaround
+- **Version format for scmeta** - The version parser regex requires at least one decimal point. Use `echo 21.0.0` not `echo 21`
 - **Don't break vectorization** - C/C++ code is optimized; variable declarations inside loops enable auto-vectorization
 - **SIMD variants** should be separate targets (e.g., `swift-simd`, `cpp-avx2`)
+- **Verify Docker image tags** - Always verify exact tags exist (e.g., `haskell:9.10-slim` doesn't exist, use `haskell:9.10-slim-bullseye`)
 
 ## CI/CD
 
