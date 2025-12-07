@@ -332,6 +332,7 @@ clj:
 
 groovy:
   FROM groovy:4-jdk21
+  USER root
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.groovy"
   DO +BENCH --name="groovy" --lang="Groovy" --version="groovy --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="groovy leibniz.groovy"
@@ -668,12 +669,9 @@ julia-ux4:
   DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
 
 objc:
-  FROM ubuntu:latest
-  DO +PREPARE_DEBIAN
-  RUN apt-get update && apt-get install -y gnustep-devel clang gobjc
-  DO +ADD_FILES --src="leibniz.m"
-  RUN --no-cache clang -O3 leibniz.m -o leibniz \
-      $(gnustep-config --objc-flags) $(gnustep-config --objc-libs)
+  FROM +alpine --src="leibniz.m"
+  RUN apk add --no-cache clang
+  RUN --no-cache clang -O3 leibniz.m -o leibniz
   DO +BENCH --name="objc" --lang="Objective-C" --version="clang --version" --cmd="./leibniz"
 
 pascal:
