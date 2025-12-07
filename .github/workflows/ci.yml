@@ -285,19 +285,12 @@ jobs:
             echo "failed=$FAILED" >> $GITHUB_OUTPUT
           fi
 
-      - name: Analyze data
-        if: steps.langs.outputs.skip != 'true'
-        run: earthly --ci +analysis
-
       - name: Archive test results
         if: steps.langs.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: bench-results-${{ needs.parse-comment.outputs.pr_number }}
-          path: |
-            results/*.json
-            results/*.csv
-            results/*.png
+          path: results/*.json
 
       - name: Comment results on PR
         if: steps.langs.outputs.skip != 'true'
@@ -305,6 +298,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             const languages = '${{ steps.langs.outputs.languages }}';
             const failed = '${{ steps.bench.outputs.failed }}'.trim();
 
@@ -316,26 +310,33 @@ jobs:
               comment += `> **Warning:** Some benchmarks failed: \`${failed}\`\n\n`;
             }
 
+            // Read results directly from JSON files
+            const results = [];
+            const resultsDir = 'results';
             try {
-              const csv = fs.readFileSync('results/combined_results.csv', 'utf8');
-              const lines = csv.trim().split('\n');
-              if (lines.length > 1) {
+              const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+              for (const file of files) {
+                const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+                results.push({
+                  language: data.Language,
+                  min: parseFloat(data.Min) * 1000,
+                  median: parseFloat(data.Median) * 1000,
+                  max: parseFloat(data.Max) * 1000,
+                  accuracy: data.Accuracy ? data.Accuracy.toFixed(2) : 'N/A'
+                });
+              }
+
+              if (results.length > 0) {
+                results.sort((a, b) => a.median - b.median);
                 comment += '| Language | Min | Median | Max | Accuracy |\n';
                 comment += '|:---------|----:|-------:|----:|:--------:|\n';
-                for (let i = 1; i < lines.length; i++) {
-                  const cols = lines[i].split(',');
-                  if (cols.length >= 5) {
-                    const min = parseFloat(cols[1]).toFixed(1);
-                    const median = parseFloat(cols[2]).toFixed(1);
-                    const max = parseFloat(cols[3]).toFixed(1);
-                    const accuracy = cols[4] ? cols[4].trim() : 'N/A';
-                    comment += `| ${cols[0]} | ${min} ms | ${median} ms | ${max} ms | ${accuracy} |\n`;
-                  }
+                for (const r of results) {
+                  comment += `| ${r.language} | ${r.min.toFixed(1)} ms | ${r.median.toFixed(1)} ms | ${r.max.toFixed(1)} ms | ${r.accuracy} |\n`;
                 }
                 comment += '\n';
               }
             } catch (e) {
-              comment += '_Could not parse results CSV_\n\n';
+              comment += `_Could not parse results: ${e.message}_\n\n`;
             }
 
             comment += `<details>\n<summary>View artifacts and logs</summary>\n\n`;
@@ -355,20 +356,27 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             const failed = '${{ steps.bench.outputs.failed }}'.trim();
             const conclusion = failed ? 'failure' : 'success';
 
             let summary = '';
             try {
-              const csv = fs.readFileSync('results/combined_results.csv', 'utf8');
-              const lines = csv.trim().split('\n');
-              if (lines.length > 1) {
+              const resultsDir = 'results';
+              const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+              const results = [];
+              for (const file of files) {
+                const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+                results.push({
+                  language: data.Language,
+                  median: parseFloat(data.Median) * 1000
+                });
+              }
+              if (results.length > 0) {
+                results.sort((a, b) => a.median - b.median);
                 summary = '| Language | Median |\n|:---------|-------:|\n';
-                for (let i = 1; i < lines.length; i++) {
-                  const cols = lines[i].split(',');
-                  if (cols.length >= 3) {
-                    summary += `| ${cols[0]} | ${parseFloat(cols[2]).toFixed(1)} ms |\n`;
-                  }
+                for (const r of results) {
+                  summary += `| ${r.language} | ${r.median.toFixed(1)} ms |\n`;
                 }
               }
             } catch (e) {
