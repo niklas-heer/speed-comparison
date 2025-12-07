@@ -1,30 +1,20 @@
-import java.nio.charset.Charset;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class leibniz {
-    public static void main(String[] args) {
-        String data = "";
+    public static void main(String[] args) throws FileNotFoundException {
+        Scanner s = new Scanner(new File("rounds.txt"));
+        long rounds = s.nextLong();
+        s.close();
 
-        try {
-            data = Files.readString(Paths.get("rounds.txt"));
-        } catch (IOException err) {
-            System.out.println("Couldn't read file:\n" + err.getMessage());
+        double sum = 0.0;
+        double flip = -1.0;
+        for (long i = 1; i <= rounds; i++) {
+            flip *= -1.0;
+            sum += flip / (2 * i - 1);
         }
 
-        int rounds = Integer.parseInt(data.replace("\n", "").replace("\r", ""));
-
-        double pi = 1;
-        double x = 1;
-
-        for (int i = 2; i < rounds + 2; i++) {
-            x *= -1;
-            pi += (x / (2 * i - 1));
-        }
-
-        pi *= 4;
-        System.out.println(pi);
+        System.out.println(sum * 4.0);
     }
 }
