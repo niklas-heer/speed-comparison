@@ -393,29 +393,15 @@ scala:
 # ============================================================================
 
 cs:
-  FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
-  DO +PREPARE_ALPINE
-  WORKDIR /app
-  COPY ./src/cs/*.csproj .
-  RUN dotnet restore
-  COPY ./src/cs/*.cs .
-  RUN --no-cache dotnet publish -c Release -o out --no-restore -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
-  WORKDIR /app/out
-  COPY +build/scmeta ./
-  COPY ./src/rounds.txt ./
+  FROM +alpine --src="cs/"
+  RUN apk add --no-cache clang build-base zlib-dev dotnet10-sdk
+  RUN --no-cache dotnet publish -o . -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
   DO +BENCH --name="cs" --lang="C#" --version="dotnet --version" --cmd="./leibniz"
 
 fs:
-  FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
-  DO +PREPARE_ALPINE
-  WORKDIR /app
-  COPY ./src/fs/*.fsproj .
-  RUN dotnet restore
-  COPY ./src/fs/*.fs .
-  RUN --no-cache dotnet publish -c Release -o out --no-restore -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
-  WORKDIR /app/out
-  COPY +build/scmeta ./
-  COPY ./src/rounds.txt ./
+  FROM +alpine --src="fs/"
+  RUN apk add --no-cache  clang build-base zlib-dev dotnet10-sdk
+  RUN --no-cache dotnet publish -o . -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
   IF [ -n "$QUICK_TEST_ROUNDS" ]
     RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
   END
