@@ -344,8 +344,8 @@ go:
   DO +BENCH --name="go" --lang="Go" --version="go version" --cmd="./leibniz"
 
 groovy:
-  FROM groovy:4-jdk21-alpine
-  DO +PREPARE_ALPINE
+  FROM groovy:4-jdk21
+  DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.groovy"
   DO +BENCH --name="groovy" --lang="Groovy" --version="groovy --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="groovy leibniz.groovy"
 
@@ -379,8 +379,10 @@ haxe:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y software-properties-common
-  RUN add-apt-repository ppa:haxe/releases -y && apt-get update && apt-get install -y haxe neko
+  RUN add-apt-repository ppa:haxe/releases -y && apt-get update && apt-get install -y haxe neko g++
   RUN mkdir -p /usr/lib/haxe/lib && haxelib setup /usr/lib/haxe/lib
+  # Install hxcpp library needed for C++ target
+  RUN haxelib install hxcpp
   DO +ADD_FILES --src="Leibniz.hx"
   RUN --no-cache haxe -main Leibniz -cpp out
   DO +BENCH --name="haxe" --lang="Haxe (C++)" --version="haxe --version" --cmd="./out/Leibniz"
@@ -511,10 +513,11 @@ nim:
 objc:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
-  RUN apt-get update && apt-get install -y gnustep-devel clang
+  RUN apt-get update && apt-get install -y gnustep-devel clang gobjc
   DO +ADD_FILES --src="leibniz.m"
-  RUN --no-cache clang -O3 -framework Foundation leibniz.m -o leibniz \
-      $(gnustep-config --objc-flags) $(gnustep-config --objc-libs) -lgnustep-base
+  # Use GNUstep flags for Linux (no -framework on Linux)
+  RUN --no-cache clang -O3 leibniz.m -o leibniz \
+      $(gnustep-config --objc-flags) $(gnustep-config --objc-libs)
   DO +BENCH --name="objc" --lang="Objective-C" --version="clang --version" --cmd="./leibniz"
 
 ocaml:
