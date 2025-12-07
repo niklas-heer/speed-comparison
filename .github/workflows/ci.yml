@@ -40,8 +40,12 @@ jobs:
     outputs:
       languages: ${{ steps.parse.outputs.languages }}
       should_run: ${{ steps.parse.outputs.should_run }}
+      show_help: ${{ steps.parse.outputs.show_help }}
       pr_ref: ${{ steps.get-pr.outputs.ref }}
       pr_sha: ${{ steps.get-pr.outputs.sha }}
+      pr_repo: ${{ steps.get-pr.outputs.repo }}
+      pr_number: ${{ steps.get-pr.outputs.pr_number }}
+      changed_languages: ${{ steps.detect-changed.outputs.languages }}
     steps:
       - name: Check if comment author is repository owner
         id: check-permission
@@ -62,17 +66,27 @@ jobs:
           LANGUAGES=$(echo "$COMMENT" | sed -n 's/^\/bench[[:space:]]*//p' | tr -s ' ' | xargs)
 
           if [ -z "$LANGUAGES" ]; then
-            echo "No languages specified in /bench command"
+            echo "No languages specified, will show help"
             echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "show_help=true" >> $GITHUB_OUTPUT
+          elif [ "$LANGUAGES" = "help" ]; then
+            echo "Help requested"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "show_help=true" >> $GITHUB_OUTPUT
+          elif [ "$LANGUAGES" = "changed" ]; then
+            echo "Will benchmark changed languages"
+            echo "should_run=changed" >> $GITHUB_OUTPUT
+            echo "show_help=false" >> $GITHUB_OUTPUT
           else
             echo "Languages to benchmark: $LANGUAGES"
             echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
             echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "show_help=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Get PR ref
+      - name: Get PR info
         id: get-pr
-        if: steps.parse.outputs.should_run == 'true'
+        if: steps.check-permission.outputs.authorized == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -83,9 +97,68 @@ jobs:
             });
             core.setOutput('ref', pr.data.head.ref);
             core.setOutput('sha', pr.data.head.sha);
+            core.setOutput('repo', pr.data.head.repo.full_name);
+            core.setOutput('pr_number', context.issue.number);
+
+      - name: Detect changed languages
+        id: detect-changed
+        if: steps.parse.outputs.should_run == 'changed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const langPattern = /^src\/leibniz\.(\w+)$/;
+            const earthfilePattern = /^Earthfile$/;
+            const languages = new Set();
+
+            for (const file of files.data) {
+              // Check for leibniz.* source files
+              const match = file.filename.match(langPattern);
+              if (match) {
+                // Map file extension to Earthfile target name
+                const ext = match[1];
+                languages.add(ext);
+              }
+            }
+
+            const langList = Array.from(languages).join(' ');
+            console.log(`Changed languages: ${langList}`);
+            core.setOutput('languages', langList);
+
+      - name: Show help
+        if: steps.parse.outputs.show_help == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const helpText = `## /bench Command Help
+
+**Usage:**
+- \`/bench <language> [language2] ...\` - Benchmark specific languages
+- \`/bench changed\` - Benchmark languages modified in this PR
+- \`/bench help\` - Show this help message
+
+**Examples:**
+- \`/bench rust go c\` - Benchmark Rust, Go, and C
+- \`/bench csharp fsharp\` - Benchmark C# and F#
+- \`/bench changed\` - Auto-detect and benchmark changed languages
+
+**Available languages:**
+Run \`earthly ls\` locally or check the Earthfile for all targets.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: helpText
+            });
 
       - name: Add reaction to comment
-        if: steps.parse.outputs.should_run == 'true'
+        if: steps.parse.outputs.should_run == 'true' || steps.parse.outputs.should_run == 'changed'
         uses: actions/github-script@v7
         with:
           script: |
@@ -99,69 +172,193 @@ jobs:
   # Run specific languages from /bench command
   bench-comment:
     needs: parse-comment
-    if: needs.parse-comment.outputs.should_run == 'true'
+    if: needs.parse-comment.outputs.should_run == 'true' || needs.parse-comment.outputs.should_run == 'changed'
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Determine languages to benchmark
+        id: langs
+        run: |
+          if [ "${{ needs.parse-comment.outputs.should_run }}" = "changed" ]; then
+            LANGUAGES="${{ needs.parse-comment.outputs.changed_languages }}"
+            if [ -z "$LANGUAGES" ]; then
+              echo "No language files changed in this PR"
+              echo "languages=" >> $GITHUB_OUTPUT
+              echo "skip=true" >> $GITHUB_OUTPUT
+            else
+              echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "languages=${{ needs.parse-comment.outputs.languages }}" >> $GITHUB_OUTPUT
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create check run
+        id: check
+        if: steps.langs.outputs.skip != 'true'
+        uses: actions/github-script@v7
         with:
-          ref: ${{ needs.parse-comment.outputs.pr_ref }}
+          script: |
+            const check = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Benchmark: ${{ steps.langs.outputs.languages }}',
+              head_sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              status: 'in_progress',
+              output: {
+                title: 'Running benchmarks',
+                summary: 'Benchmarking: `${{ steps.langs.outputs.languages }}`'
+              }
+            });
+            core.setOutput('check_id', check.data.id);
+
+      - name: Comment no changes
+        if: steps.langs.outputs.skip == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ needs.parse-comment.outputs.pr_number }},
+              body: '**No language source files changed in this PR.**\n\nUse `/bench <language>` to benchmark specific languages, or `/bench help` for more options.'
+            });
+
+      - uses: actions/checkout@v4
+        if: steps.langs.outputs.skip != 'true'
+        with:
+          repository: ${{ needs.parse-comment.outputs.pr_repo }}
+          ref: ${{ needs.parse-comment.outputs.pr_sha }}
 
       - name: Setup Earthly
+        if: steps.langs.outputs.skip != 'true'
         uses: earthly/actions-setup@v1
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
       - name: Run benchmarks for specified languages
+        if: steps.langs.outputs.skip != 'true'
+        id: bench
         run: |
-          LANGUAGES="${{ needs.parse-comment.outputs.languages }}"
+          LANGUAGES="${{ steps.langs.outputs.languages }}"
           echo "Running benchmarks for: $LANGUAGES"
+          FAILED=""
           for lang in $LANGUAGES; do
             echo "::group::Building +$lang"
-            earthly --ci +$lang || echo "Warning: +$lang failed"
+            if ! earthly --ci +$lang; then
+              FAILED="$FAILED $lang"
+              echo "::error::Benchmark for $lang failed"
+            fi
             echo "::endgroup::"
           done
+          if [ -n "$FAILED" ]; then
+            echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          fi
 
       - name: Analyze data
+        if: steps.langs.outputs.skip != 'true'
         run: earthly --ci +analysis
 
       - name: Archive test results
+        if: steps.langs.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: bench-results-${{ github.event.issue.number }}
+          name: bench-results-${{ needs.parse-comment.outputs.pr_number }}
           path: |
             results/*.json
             results/*.csv
             results/*.png
 
       - name: Comment results on PR
+        if: steps.langs.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            const languages = '${{ steps.langs.outputs.languages }}';
+            const failed = '${{ steps.bench.outputs.failed }}'.trim();
+
             let comment = '## Benchmark Results\n\n';
-            comment += `Languages tested: \`${{ needs.parse-comment.outputs.languages }}\`\n\n`;
+            comment += `**Languages tested:** \`${languages}\`\n`;
+            comment += `**Commit:** \`${{ needs.parse-comment.outputs.pr_sha }}\`\n\n`;
+
+            if (failed) {
+              comment += `> **Warning:** Some benchmarks failed: \`${failed}\`\n\n`;
+            }
+
             try {
               const csv = fs.readFileSync('results/combined_results.csv', 'utf8');
               const lines = csv.trim().split('\n');
               if (lines.length > 1) {
-                comment += '| Language | Min (ms) | Median (ms) | Max (ms) |\n';
-                comment += '|----------|---------|------------|--------|\n';
+                comment += '| Language | Min | Median | Max | Accuracy |\n';
+                comment += '|:---------|----:|-------:|----:|:--------:|\n';
                 for (let i = 1; i < lines.length; i++) {
                   const cols = lines[i].split(',');
-                  if (cols.length >= 4) {
-                    comment += `| ${cols[0]} | ${parseFloat(cols[1]).toFixed(1)} | ${parseFloat(cols[2]).toFixed(1)} | ${parseFloat(cols[3]).toFixed(1)} |\n`;
+                  if (cols.length >= 5) {
+                    const min = parseFloat(cols[1]).toFixed(1);
+                    const median = parseFloat(cols[2]).toFixed(1);
+                    const max = parseFloat(cols[3]).toFixed(1);
+                    const accuracy = cols[4] ? cols[4].trim() : 'N/A';
+                    comment += `| ${cols[0]} | ${min} ms | ${median} ms | ${max} ms | ${accuracy} |\n`;
+                  }
+                }
+                comment += '\n';
+              }
+            } catch (e) {
+              comment += '_Could not parse results CSV_\n\n';
+            }
+
+            comment += `<details>\n<summary>View artifacts and logs</summary>\n\n`;
+            comment += `[View workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})\n`;
+            comment += `</details>`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ needs.parse-comment.outputs.pr_number }},
+              body: comment
+            });
+
+      - name: Update check run
+        if: always() && steps.check.outputs.check_id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const failed = '${{ steps.bench.outputs.failed }}'.trim();
+            const conclusion = failed ? 'failure' : 'success';
+
+            let summary = '';
+            try {
+              const csv = fs.readFileSync('results/combined_results.csv', 'utf8');
+              const lines = csv.trim().split('\n');
+              if (lines.length > 1) {
+                summary = '| Language | Median |\n|:---------|-------:|\n';
+                for (let i = 1; i < lines.length; i++) {
+                  const cols = lines[i].split(',');
+                  if (cols.length >= 3) {
+                    summary += `| ${cols[0]} | ${parseFloat(cols[2]).toFixed(1)} ms |\n`;
                   }
                 }
               }
             } catch (e) {
-              comment += '_Could not parse results CSV_\n';
+              summary = 'Results not available';
             }
-            comment += `\n[View full artifacts](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
-            await github.rest.issues.createComment({
+
+            await github.rest.checks.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: comment
+              check_run_id: ${{ steps.check.outputs.check_id }},
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: failed ? `Benchmarks completed with failures: ${failed}` : 'Benchmarks completed',
+                summary: summary
+              }
             });
 
   # Manual workflow dispatch - run specific languages
