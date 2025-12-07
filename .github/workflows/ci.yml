@@ -135,20 +135,22 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const helpText = `## /bench Command Help
-
-**Usage:**
-- \`/bench <language> [language2] ...\` - Benchmark specific languages
-- \`/bench changed\` - Benchmark languages modified in this PR
-- \`/bench help\` - Show this help message
-
-**Examples:**
-- \`/bench rust go c\` - Benchmark Rust, Go, and C
-- \`/bench csharp fsharp\` - Benchmark C# and F#
-- \`/bench changed\` - Auto-detect and benchmark changed languages
-
-**Available languages:**
-Run \`earthly ls\` locally or check the Earthfile for all targets.`;
+            const helpText = [
+              '## /bench Command Help',
+              '',
+              '**Usage:**',
+              '- `/bench <language> [language2] ...` - Benchmark specific languages',
+              '- `/bench changed` - Benchmark languages modified in this PR',
+              '- `/bench help` - Show this help message',
+              '',
+              '**Examples:**',
+              '- `/bench rust go c` - Benchmark Rust, Go, and C',
+              '- `/bench csharp fsharp` - Benchmark C# and F#',
+              '- `/bench changed` - Auto-detect and benchmark changed languages',
+              '',
+              '**Available languages:**',
+              'Run `earthly ls` locally or check the Earthfile for all targets.'
+            ].join('\n');
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
