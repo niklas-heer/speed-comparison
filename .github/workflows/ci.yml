@@ -257,6 +257,15 @@ jobs:
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
+      - name: Cache Earthly
+        if: steps.langs.outputs.skip != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.earthly/cache
+          key: earthly-bench-${{ runner.os }}-${{ hashFiles('Earthfile') }}
+          restore-keys: |
+            earthly-bench-${{ runner.os }}-
+
       - name: Run benchmarks for specified languages
         if: steps.langs.outputs.skip != 'true'
         id: bench
