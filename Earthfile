@@ -109,7 +109,6 @@ collect-data:
   BUILD +c
   BUILD +c-clang
   BUILD +clj
-  BUILD +clj-bb
   BUILD +cpp
   BUILD +cpp-avx2
   BUILD +cpp-clang
@@ -194,13 +193,6 @@ clj:
   RUN apk add --no-cache rlwrap
   DO +ADD_FILES --src="leibniz.clj"
   DO +BENCH --name="clj" --lang="Clojure" --version="clj --version" --cmd="clj leibniz.clj"
-
-clj-bb:
-  # Uses https://babashka.org/
-  FROM babashka/babashka:alpine
-  DO +PREPARE_ALPINE
-  DO +ADD_FILES --src="leibniz.clj"
-  DO +BENCH --name="clj-bb" --lang="Clojure (Babashka)" --version="bb --version" --cmd="bb -f leibniz.clj"
 
 cpp:
   FROM +alpine --src="leibniz.cpp"
