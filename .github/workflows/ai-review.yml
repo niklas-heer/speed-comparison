@@ -3,14 +3,18 @@ name: AI PR Review
 on:
   pull_request:
     types: [opened, synchronize]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
+  # Auto-review on PR open/update
   review:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
 
@@ -19,8 +23,87 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           open_router_key: ${{ secrets.OPEN_ROUTER_KEY }}
-          model_id: 'anthropic/claude-sonnet-4.5'
-          max_tokens: '4096'
+          model_id: "anthropic/claude-sonnet-4.5"
+          max_tokens: "4096"
+          custom_prompt: |
+            You are reviewing a PR for a benchmark project that compares 40+ programming languages using the Leibniz formula for calculating Pi.
+
+            **Project Rules (from CLAUDE.md):**
+            1. NO concurrency/parallelism - implementations must be single-threaded
+            2. SIMD is allowed but should be separate targets (e.g., swift-simd, cpp-avx2)
+            3. Use idiomatic code with standard language features
+            4. All implementations must use the Leibniz formula
+
+            **Review Focus:**
+            - Does the implementation correctly use the Leibniz formula?
+            - Is there any parallelism/concurrency that violates the rules?
+            - Is the code idiomatic for the language?
+            - For Earthfile changes: Does the target follow project conventions?
+            - Are there any potential issues (Alpine compatibility, version parsing)?
+
+            Provide a clear, concise review with:
+            1. Summary of what the PR does
+            2. Any rule violations or concerns
+            3. Code quality observations
+            4. Recommendation (approve, request changes, or needs discussion)
+
+  # Manual review via /review command
+  review-comment:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      github.event.comment.body == '/review'
+    steps:
+      - name: Check if comment author is repository owner
+        id: check-permission
+        run: |
+          if [ "${{ github.event.comment.user.login }}" != "niklas-heer" ]; then
+            echo "authorized=false" >> $GITHUB_OUTPUT
+          else
+            echo "authorized=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add reaction
+        if: steps.check-permission.outputs.authorized == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'eyes'
+            });
+
+      - name: Get PR info
+        if: steps.check-permission.outputs.authorized == 'true'
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            core.setOutput('repo', pr.data.head.repo.full_name);
+            core.setOutput('ref', pr.data.head.sha);
+
+      - uses: actions/checkout@v4
+        if: steps.check-permission.outputs.authorized == 'true'
+        with:
+          repository: ${{ steps.pr.outputs.repo }}
+          ref: ${{ steps.pr.outputs.ref }}
+
+      - name: AI PR Review
+        if: steps.check-permission.outputs.authorized == 'true'
+        uses: jonit-dev/openrouter-github-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          open_router_key: ${{ secrets.OPEN_ROUTER_KEY }}
+          model_id: "anthropic/claude-sonnet-4.5"
+          max_tokens: "4096"
           custom_prompt: |
             You are reviewing a PR for a benchmark project that compares 40+ programming languages using the Leibniz formula for calculating Pi.
 
