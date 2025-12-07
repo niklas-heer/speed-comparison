@@ -112,17 +112,32 @@ jobs:
               pull_number: context.issue.number
             });
 
-            const langPattern = /^src\/leibniz\.(\w+)$/;
-            const earthfilePattern = /^Earthfile$/;
             const languages = new Set();
 
             for (const file of files.data) {
-              // Check for leibniz.* source files
-              const match = file.filename.match(langPattern);
-              if (match) {
-                // Map file extension to Earthfile target name
-                const ext = match[1];
-                languages.add(ext);
+              // Pattern 1: src/leibniz.* files (most languages)
+              const leibnizMatch = file.filename.match(/^src\/leibniz\.(\w+)$/);
+              if (leibnizMatch) {
+                languages.add(leibnizMatch[1]);
+                continue;
+              }
+
+              // Pattern 2: src/<lang>/ directories (cs, fs, etc.)
+              const dirMatch = file.filename.match(/^src\/(\w+)\//);
+              if (dirMatch) {
+                languages.add(dirMatch[1]);
+                continue;
+              }
+
+              // Pattern 3: Special cases like leibniz-simd.swift, leibniz_avx2.cpp
+              const specialMatch = file.filename.match(/^src\/leibniz[-_](\w+)\.(\w+)$/);
+              if (specialMatch) {
+                // Use the variant name, e.g., "swift-simd" or "cpp-avx2"
+                const variant = specialMatch[1];
+                const ext = specialMatch[2];
+                if (ext === 'swift') languages.add('swift-simd');
+                else if (ext === 'cpp') languages.add('cpp-avx2');
+                else languages.add(`${ext}-${variant}`);
               }
             }
 
