@@ -12,10 +12,151 @@ import numpy as np
 import pandas as pd
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+from PIL import Image, ImageFilter, ImageOps
+
+# Map benchmark language names to icon file names
+ICON_MAP = {
+    "C (gcc)": "c",
+    "C (clang)": "c",
+    "C++": "cplusplus",
+    "C++ (g++)": "cplusplus",
+    "C++ (clang++)": "cplusplus",
+    "C++ (avx2)": "cplusplus",
+    "C#": "csharp",
+    "Objective-C": "objectivec",
+    "Rust": "rust",
+    "Rust (nightly)": "rust",
+    "Go": "go",
+    "Zig": "zig",
+    "Nim": "nim",
+    "D (GDC)": "d",
+    "D (LDC)": "d",
+    "Odin": "odin",
+    "V": "v",
+    "Java": "java",
+    "Java graalvm": "java",
+    "Java (Vec Ops)": "java",
+    "Kotlin": "kotlin",
+    "Scala": "scala",
+    "Clojure": "clojure",
+    "Groovy": "groovy",
+    "F#": "fsharp",
+    "Python (CPython)": "python",
+    "Python (PyPy)": "python",
+    "Python (NumPy)": "python",
+    "Python (MyPyC)": "python",
+    "Ruby": "ruby",
+    "Perl": "perl",
+    "Raku": "raku",
+    "PHP": "php",
+    "Lua": "lua",
+    "LuaJIT": "lua",
+    "Javascript (nodejs)": "nodejs",
+    "Javascript (bun)": "bun",
+    "Deno (TypeScript)": "denojs",
+    "Haskell (GHC)": "haskell",
+    "OCaml": "ocaml",
+    "Elixir": "elixir",
+    "Erlang": "erlang",
+    "Gleam": "gleam",
+    "Racket": "racket",
+    "Common Lisp (SBCL)": "lisp",
+    "Swift": "swift",
+    "Swift (SIMD)": "swift",
+    "Crystal": "crystal",
+    "Julia": "julia",
+    "Julia (AOT compiled)": "julia",
+    "Julia (ux4)": "julia",
+    "Fortran 90": "fortran",
+    "Ada (gnat-gcc)": "ada",
+    "Pascal (FPC)": "pascal",
+    "Pony": "pony",
+    "Pony(nightly)": "pony",
+    "R": "r",
+    "Dart (JIT)": "dart",
+    "Dart (AOT)": "dart",
+    "Haxe (C++)": "haxe",
+    "Janet": "janet",
+    "Janet (compiled)": "janet",
+    "WASM (C via Wasmtime)": "wasm",
+}
+
+
+def add_drop_shadow(
+    image: Image.Image,
+    offset: tuple = (2, 2),
+    shadow_color: tuple = (0, 0, 0, 180),
+    blur_radius: int = 3,
+) -> Image.Image:
+    """Add a drop shadow to an image."""
+    # Ensure image has alpha channel
+    if image.mode != "RGBA":
+        image = image.convert("RGBA")
+
+    # Create a larger canvas to accommodate the shadow
+    padding = blur_radius * 2 + max(abs(offset[0]), abs(offset[1]))
+    new_size = (image.width + padding * 2, image.height + padding * 2)
+
+    # Create shadow layer
+    shadow = Image.new("RGBA", new_size, (0, 0, 0, 0))
+
+    # Create shadow from alpha channel
+    alpha = image.split()[3]
+    shadow_img = Image.new("RGBA", image.size, shadow_color)
+    shadow_img.putalpha(alpha)
+
+    # Paste shadow with offset
+    shadow.paste(shadow_img, (padding + offset[0], padding + offset[1]))
+
+    # Blur the shadow
+    shadow = shadow.filter(ImageFilter.GaussianBlur(blur_radius))
+
+    # Paste original image on top
+    shadow.paste(image, (padding, padding), image)
+
+    return shadow
+
+
+def load_icon(icon_name: str) -> Image.Image | None:
+    """Load a PNG icon from the icons directory with drop shadow."""
+    icon_path = Path(__file__).parent / "icons" / f"{icon_name}.png"
+    if not icon_path.exists():
+        return None
+
+    try:
+        img = Image.open(icon_path)
+        # Add black drop shadow for visibility on bars
+        img = add_drop_shadow(
+            img, offset=(1, 1), shadow_color=(0, 0, 0, 200), blur_radius=2
+        )
+        return img
+    except Exception:
+        return None
+
+
+def parse_time_value(value: str) -> float:
+    """Parse time value like '1.74705559758s' to seconds."""
+    if isinstance(value, (int, float)):
+        return float(value)
+    value = str(value).strip()
+    if value.endswith("s"):
+        return float(value[:-1])
+    return float(value)
 
 
 def load_results(folder: str) -> pd.DataFrame:
     """Load all JSON result files from a folder into a DataFrame."""
+    folder_path = Path(folder)
+
+    # Check if there's a CSV file (pre-processed results)
+    csv_files = list(folder_path.glob("*.csv"))
+    if csv_files:
+        df = pd.read_csv(csv_files[0])
+        df.sort_values(by=["min"], inplace=True, ascending=True)
+        return df
+
+    # Otherwise load from JSON files
     data = {
         "name": [],
         "version": [],
@@ -25,22 +166,15 @@ def load_results(folder: str) -> pd.DataFrame:
         "accuracy": [],
     }
 
-    folder_path = Path(folder)
     for file_path in folder_path.glob("*.json"):
         with open(file_path, "r") as f:
             result = json.load(f)
             data["name"].append(result["Language"])
             data["version"].append(result["Version"])
             # Convert to milliseconds
-            data["median"].append(
-                round(pd.Timedelta(result["Median"]).total_seconds() * 1000, 2)
-            )
-            data["max"].append(
-                round(pd.Timedelta(result["Max"]).total_seconds() * 1000, 2)
-            )
-            data["min"].append(
-                round(pd.Timedelta(result["Min"]).total_seconds() * 1000, 2)
-            )
+            data["median"].append(round(parse_time_value(result["Median"]) * 1000, 2))
+            data["max"].append(round(parse_time_value(result["Max"]) * 1000, 2))
+            data["min"].append(round(parse_time_value(result["Min"]) * 1000, 2))
             data["accuracy"].append(round(result["Accuracy"], 4))
 
     df = pd.DataFrame(data)
@@ -78,8 +212,8 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     """Generate the benchmark comparison chart."""
     # Calculate dynamic figure size based on number of languages
     num_languages = len(df)
-    bar_height = 0.32  # Height per bar in inches (compact)
-    fig_height = max(6, num_languages * bar_height + 0.8)  # Minimal padding
+    bar_height = 0.30  # Height per bar in inches (compact)
+    fig_height = max(6, num_languages * bar_height + 1.2)  # Space for header
     fig_width = 14
 
     # Setup the figure
@@ -111,6 +245,34 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
 
     # Use log scale for x-axis
     ax.set_xscale("log")
+
+    # Add language icons at the start of each bar
+    icon_cache = {}  # Cache loaded icons
+    for idx, (_, row) in enumerate(df.iterrows()):
+        lang_name = row["name"]
+        icon_name = ICON_MAP.get(lang_name, "default")  # Use default icon if not found
+
+        if icon_name not in icon_cache:
+            icon_cache[icon_name] = load_icon(icon_name)
+
+        icon_img = icon_cache.get(icon_name)
+        if icon_img:
+            # Position icon at the left edge of the bar
+            imagebox = OffsetImage(icon_img, zoom=0.4)
+            imagebox.image.axes = ax
+
+            # Place icon relative to y-axis (axes fraction 0 = left edge of plot)
+            # This stays consistent regardless of data values or label lengths
+            ab = AnnotationBbox(
+                imagebox,
+                (0, y_pos[idx]),
+                xybox=(10, 0),  # Offset in points from left edge of plot area
+                xycoords=("axes fraction", "data"),
+                boxcoords="offset points",
+                frameon=False,
+                pad=0,
+            )
+            ax.add_artist(ab)
 
     # Set y-axis labels - bold and bright white for readability
     ax.set_yticks(y_pos)
@@ -145,14 +307,28 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     )
     ax.set_ylabel("")
 
-    # Compact title - single line with subtitle, minimal padding
+    # Centered title
     ax.set_title(
         f"Speed Comparison  —  Leibniz π, {int(rounds):,} iterations",
-        fontsize=12,
+        fontsize=13,
         fontweight="bold",
         color="#ffffff",
-        pad=2,
-        loc="left",
+        pad=8,
+        loc="center",
+    )
+
+    # Language count at top right
+    fig.text(
+        0.99,
+        0.99,
+        f"{num_languages} Languages",
+        ha="right",
+        va="top",
+        fontsize=10,
+        fontweight="bold",
+        color="#7aa2f7",
+        fontfamily="monospace",
+        transform=fig.transFigure,
     )
 
     # Add colorbar for accuracy legend
@@ -191,12 +367,12 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     x_max = df["min"].max()
     ax.set_xlim(right=x_max * 2.2)
 
-    # Add watermark with generation date (left) and repo URL (right)
-    generation_date = datetime.now().strftime("%Y-%m-%d")
+    # Add watermark with generation date+time (left) and repo URL (right)
+    generation_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
     fig.text(
         0.01,
-        0.01,
-        f"Generated: {generation_date}",
+        0.005,
+        f"Generated: {generation_datetime}",
         ha="left",
         va="bottom",
         fontsize=8,
@@ -207,7 +383,7 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     )
     fig.text(
         0.99,
-        0.01,
+        0.005,
         "github.com/niklas-heer/speed-comparison",
         ha="right",
         va="bottom",
@@ -218,9 +394,9 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
         transform=fig.transFigure,
     )
 
-    # Save with proper layout - minimal margins for compact look
+    # Save with proper layout - tight margins
     plt.tight_layout()
-    plt.subplots_adjust(top=0.97, bottom=0.05)  # Reduce top/bottom margins
+    plt.subplots_adjust(top=0.98, bottom=0.02, left=0.15, right=0.92)
     plt.savefig(
         output_path,
         dpi=150,

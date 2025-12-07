@@ -11,3 +11,5 @@ src/cs/obj/Debug
 *.hi
 .tmp-earthly-out
 scmeta-bin/
+test_output/
+.venv/
