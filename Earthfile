@@ -313,8 +313,7 @@ java:
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.java"
   RUN --no-cache javac leibniz.java
-  # TODO: Change scbench to be able to handle Java version. For now it's static.
-  DO +BENCH --name="java" --lang="Java" --version="echo 21.0.0" --cmd="java leibniz"
+  DO +BENCH --name="java" --lang="Java" --version="java -version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="java leibniz"
 
 kotlin:
   FROM eclipse-temurin:21-jdk-alpine
@@ -327,7 +326,7 @@ kotlin:
   ENV PATH="/kotlinc/bin:${PATH}"
   DO +ADD_FILES --src="leibniz.kt"
   RUN --no-cache kotlinc leibniz.kt -include-runtime -d leibniz.jar
-  DO +BENCH --name="kotlin" --lang="Kotlin" --version="echo 2.1.21" --cmd="java -jar leibniz.jar"
+  DO +BENCH --name="kotlin" --lang="Kotlin" --version="kotlinc -version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="java -jar leibniz.jar"
 
 java-graalvm:
   FROM ubuntu:latest
@@ -343,7 +342,7 @@ java-graalvm:
   DO +ADD_FILES --src="leibniz.java"
   RUN javac leibniz.java
   RUN native-image -H:+ReportExceptionStackTraces leibniz
-  DO +BENCH --name="java-graalvm" --lang="Java graalvm" --version="echo 25.0.1" --cmd="./leibniz"
+  DO +BENCH --name="java-graalvm" --lang="Java graalvm" --version="native-image --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="./leibniz"
 
 java-vecops:
   # Using a dedicated image due to the packages on alpine being not up to date.
@@ -351,8 +350,7 @@ java-vecops:
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibnizVecOps.java"
   RUN --no-cache javac --add-modules jdk.incubator.vector leibnizVecOps.java
-  # TODO: Change scbench to be able to handle Java version. For now it's static.
-  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="echo 21.0.0" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
+  DO +BENCH --name="java-vecops" --lang="Java (Vec Ops)" --version="java -version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="java --add-modules jdk.incubator.vector leibnizVecOps"
 
 julia:
   # We have to use a special image since there is no Julia package on alpine 🤷‍♂️
@@ -518,7 +516,7 @@ scala:
       chmod +x scala-cli-x86_64-pc-linux-static && \
       mv scala-cli-x86_64-pc-linux-static /usr/local/bin/scala-cli
   RUN scala-cli package leibniz.scala -o leibniz --scala 3.7.4 --native-version 0.5.9 --native --native-mode release-full --power
-  DO +BENCH --name="scala" --lang="Scala" --version="echo 3.7.4" --cmd="./leibniz"
+  DO +BENCH --name="scala" --lang="Scala" --version="scala-cli version --scala 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="./leibniz"
 
 swift:
   FROM swift:6.0-jammy

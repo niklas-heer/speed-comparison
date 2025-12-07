@@ -49,14 +49,11 @@ def get_version(text : String, match_index : Int32 = 0) : String
 end
 
 # Runs a shell command and returns exit code and output
+# Uses sh -c to handle pipes and complex shell commands
 def run_cmd(command : String) : Tuple(Int32, String)
-  cmd_array = command.split(" ", 2)
-  cmd = cmd_array[0]
-  args = cmd_array.size > 1 ? cmd_array[1].split : [] of String
-
   stdout = IO::Memory.new
   stderr = IO::Memory.new
-  status = Process.run(cmd, args: args, output: stdout, error: stderr)
+  status = Process.run("sh", args: ["-c", command], output: stdout, error: stderr)
   if status.success?
     {status.exit_code, stdout.to_s}
   else
