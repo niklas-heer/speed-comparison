@@ -13,3 +13,4 @@ src/cs/obj/Debug
 scmeta-bin/
 test_output/
 .venv/
+.env
