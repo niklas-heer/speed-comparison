@@ -478,7 +478,7 @@ mypyc:
   RUN pip install mypy setuptools
   DO +ADD_FILES --src="leibniz_mypyc.py"
   RUN mypyc leibniz_mypyc.py
-  DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="python3 --version" --cmd="python3 -c 'import leibniz_mypyc'"
+  DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="mypy --version" --cmd="python3 -c 'import leibniz_mypyc'"
 
 pypy:
   # There is no pypy package on alpine
