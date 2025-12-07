@@ -46,7 +46,8 @@ For each language:
 1. **Research latest version**: Search the web for latest stable release
 2. **Update Earthfile**: Change Docker image tags or download URLs
 3. **Update version strings**: Fix any hardcoded `echo "X.Y.Z"` commands
-4. **Check for ARM64 issues**: If using `-march=native` with GCC 15+, use the `SET_ARCH_FLAGS` function:
+4. **Test locally with quick rounds**: Use `earthly --build-arg QUICK_TEST_ROUNDS=10000 +<language>` for fast iteration
+5. **Check for ARM64 issues**: If using `-march=native` with GCC 15+, use the `SET_ARCH_FLAGS` function:
    ```earthfile
    DO +SET_ARCH_FLAGS
    RUN gcc ... $MARCH_FLAG ...

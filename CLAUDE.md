@@ -24,6 +24,9 @@ Uses [Earthly](https://earthly.dev/) with Docker. Each language has a target in 
 # Test a single language
 earthly +<language>      # e.g., earthly +rust, earthly +python
 
+# Quick local testing with fewer rounds (much faster)
+earthly --build-arg QUICK_TEST_ROUNDS=10000 +<language>
+
 # Run all benchmarks
 earthly +collect-data
 

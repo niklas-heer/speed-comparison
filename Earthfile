@@ -10,6 +10,10 @@ ARG --global timeas="second"
 ARG fast_iterations=2
 ARG fast_warmups=1
 
+# Quick local testing: override rounds for faster iteration
+# Usage: earthly --build-arg QUICK_TEST_ROUNDS=1000000 +java
+ARG --global QUICK_TEST_ROUNDS=""
+
 # CI matrix build optimization: use pre-built scmeta binary
 ARG --global USE_PREBUILT_SCMETA=false
 
@@ -72,6 +76,10 @@ ADD_FILES:
     COPY +build/scmeta ./
   END
   COPY ./src/rounds.txt ./
+  # Override rounds for quick local testing if specified
+  IF [ -n "$QUICK_TEST_ROUNDS" ]
+    RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
+  END
   COPY ./src/"$src" ./
 
 # Sets MARCH_FLAG environment variable based on CPU architecture.
@@ -107,6 +115,7 @@ collect-data:
   BUILD +cpp-clang
   BUILD +crystal
   BUILD +cs
+  BUILD +fs
   BUILD +d
   BUILD +d-ldc
   BUILD +elixir
@@ -132,6 +141,8 @@ collect-data:
   BUILD +pony
   BUILD +pony-nightly
   BUILD +cpython
+  BUILD +cpython-numpy
+  BUILD +mypyc
   BUILD +pypy
   BUILD +r
   BUILD +ruby
@@ -233,6 +244,28 @@ cs:
   COPY +build/scmeta ./
   COPY ./src/rounds.txt ./
   DO +BENCH --name="cs" --lang="C#" --version="dotnet --version" --cmd="./leibniz"
+
+fs:
+  # Use the dedicated image from Microsoft (same as C#)
+  FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine3.20
+  DO +PREPARE_ALPINE
+  WORKDIR /app
+
+  # BUILD, first restore than build
+  COPY ./src/fs/*.fsproj .
+  RUN dotnet restore
+  COPY ./src/fs/*.fs .
+  RUN --no-cache dotnet publish -c Release -o out --no-restore
+
+  # Execute test run
+  WORKDIR /app/out
+  COPY +build/scmeta ./
+  COPY ./src/rounds.txt ./
+  # Override rounds for quick local testing if specified
+  IF [ -n "$QUICK_TEST_ROUNDS" ]
+    RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
+  END
+  DO +BENCH --name="fs" --lang="F#" --version="dotnet --version" --cmd="./leibniz"
 
 d:
   FROM +alpine --src="leibniz.d"
@@ -429,6 +462,23 @@ cpython:
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
+
+cpython-numpy:
+  FROM python:3.13-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base
+  RUN pip install numpy
+  DO +ADD_FILES --src="leibniz_np.py"
+  DO +BENCH --name="cpython-numpy" --lang="Python (NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
+
+mypyc:
+  FROM python:3.13-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base
+  RUN pip install mypy setuptools
+  DO +ADD_FILES --src="leibniz_mypyc.py"
+  RUN mypyc leibniz_mypyc.py
+  DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="python3 --version" --cmd="python3 -c 'import leibniz_mypyc'"
 
 pypy:
   # There is no pypy package on alpine
