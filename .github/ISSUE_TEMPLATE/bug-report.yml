@@ -1,0 +1,61 @@
+name: Bug Report
+description: Report a bug with CI, tooling, or an implementation
+title: "Bug: [SHORT DESCRIPTION]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please provide as much detail as possible.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: What part of the project is affected?
+      options:
+        - CI/GitHub Actions
+        - Earthfile/Build system
+        - Language implementation
+        - Analysis/Charts
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: Language (if applicable)
+      description: Which language is affected?
+      placeholder: e.g., Rust, Go, Python
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What's happening?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen instead?
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs/Error Messages
+      description: Paste any relevant logs or error messages
+      render: text
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Run `earthly +rust`
+        2. See error...

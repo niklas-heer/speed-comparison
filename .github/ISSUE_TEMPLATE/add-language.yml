@@ -1,0 +1,54 @@
+name: Add New Language
+description: Request or propose adding a new programming language to the benchmark
+title: "Add [LANGUAGE NAME]"
+labels: ["enhancement", "new-language"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new language! Please fill out the information below.
+
+  - type: input
+    id: language
+    attributes:
+      label: Language Name
+      description: The name of the programming language
+      placeholder: e.g., Zig, Nim, Crystal
+    validations:
+      required: true
+
+  - type: input
+    id: docker-image
+    attributes:
+      label: Docker Image
+      description: Official or recommended Docker image (if known)
+      placeholder: e.g., rust:1.83-alpine, python:3.13-alpine
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Sample Implementation
+      description: If you have a working implementation, paste it here
+      render: text
+      placeholder: |
+        // Your Leibniz formula implementation
+        // Read rounds from rounds.txt
+        // Print pi with 16 decimal places
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why add this language?
+      description: Why would this language be interesting to include?
+      placeholder: e.g., Popular language, interesting performance characteristics, fills a gap in the benchmark
+
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Implementation Rules
+      description: Please confirm your implementation follows the benchmark rules
+      options:
+        - label: Single-threaded (no concurrency/parallelism)
+        - label: Uses the Leibniz formula for calculating pi
+        - label: Reads rounds from `rounds.txt`
+        - label: Outputs pi with 16 decimal places

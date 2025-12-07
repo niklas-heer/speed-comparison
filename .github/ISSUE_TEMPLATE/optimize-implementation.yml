@@ -1,0 +1,68 @@
+name: Optimize Implementation
+description: Propose a performance improvement for an existing language implementation
+title: "Optimize [LANGUAGE NAME]"
+labels: ["enhancement", "optimization"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an optimization! Performance improvements are always welcome.
+
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: Which language implementation do you want to optimize?
+      placeholder: e.g., Clojure, R, Python
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-code
+    attributes:
+      label: Current Implementation
+      description: The current code (or a link to it)
+      render: text
+
+  - type: textarea
+    id: proposed-code
+    attributes:
+      label: Proposed Implementation
+      description: Your optimized version
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: explanation
+    attributes:
+      label: Explanation
+      description: Why is this faster? What technique does it use?
+      placeholder: e.g., Avoids type coercion, uses chunked processing, better memory allocation
+    validations:
+      required: true
+
+  - type: input
+    id: speedup
+    attributes:
+      label: Expected Speedup
+      description: Estimated performance improvement (if known)
+      placeholder: e.g., ~2x faster, ~30% improvement
+
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: Benchmark Results
+      description: If you've run benchmarks, paste the results here
+      render: text
+
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Optimization Rules
+      description: Please confirm your optimization follows the benchmark rules
+      options:
+        - label: Still single-threaded (no concurrency/parallelism)
+        - label: Still uses the Leibniz formula
+        - label: Produces the same (or more accurate) result
+        - label: Uses standard language features (no inline assembly unless it's a SIMD variant)
