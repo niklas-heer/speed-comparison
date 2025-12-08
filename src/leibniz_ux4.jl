@@ -18,8 +18,7 @@ function f(rounds)
 end
 
 function (@main)(ARGS)
-    rounds_str::String = readchomp("rounds.txt")
-    rounds = parse(Int64, rounds_str)
+    rounds = parse(Int64, convert(String, readchomp("rounds.txt")))
     print(Core.stdout, f(rounds))
     0
 end
