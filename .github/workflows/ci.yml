@@ -45,7 +45,6 @@ jobs:
       pr_sha: ${{ steps.get-pr.outputs.sha }}
       pr_repo: ${{ steps.get-pr.outputs.repo }}
       pr_number: ${{ steps.get-pr.outputs.pr_number }}
-      changed_languages: ${{ steps.detect-changed.outputs.languages }}
     steps:
       - name: Check if comment author is trusted
         id: check-permission
@@ -78,10 +77,6 @@ jobs:
             echo "Help requested"
             echo "should_run=false" >> $GITHUB_OUTPUT
             echo "show_help=true" >> $GITHUB_OUTPUT
-          elif [ "$LANGUAGES" = "changed" ]; then
-            echo "Will benchmark changed languages"
-            echo "should_run=changed" >> $GITHUB_OUTPUT
-            echo "show_help=false" >> $GITHUB_OUTPUT
           else
             echo "Languages to benchmark: $LANGUAGES"
             echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
@@ -105,75 +100,6 @@ jobs:
             core.setOutput('repo', pr.data.head.repo.full_name);
             core.setOutput('pr_number', context.issue.number);
 
-      - name: Detect changed languages
-        id: detect-changed
-        if: steps.parse.outputs.should_run == 'changed'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            // Map file extensions to Earthfile target names
-            const extToTarget = {
-              'rkt': 'racket',
-              'rb': 'ruby',
-              'py': 'cpython',
-              'rs': 'rust',
-              'hs': 'haskell',
-              'ml': 'ocaml',
-              'lisp': 'sbcl',
-              'ex': 'elixir',
-              'erl': 'erlang',
-              'cr': 'crystal',
-              'js': 'nodejs',
-              'ts': 'deno',
-              'jl': 'julia',
-              'f90': 'fortran',
-              'pas': 'pascal',
-              'm': 'objc',
-              'adb': 'ada',
-              'hi': 'haxe'
-            };
-
-            const files = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number
-            });
-
-            const languages = new Set();
-
-            for (const file of files.data) {
-              // Pattern 1: src/leibniz.* files (most languages)
-              const leibnizMatch = file.filename.match(/^src\/leibniz\.(\w+)$/);
-              if (leibnizMatch) {
-                const ext = leibnizMatch[1];
-                // Use mapping if exists, otherwise use extension as-is
-                languages.add(extToTarget[ext] || ext);
-                continue;
-              }
-
-              // Pattern 2: src/<lang>/ directories (cs, fs, etc.)
-              const dirMatch = file.filename.match(/^src\/(\w+)\//);
-              if (dirMatch) {
-                languages.add(dirMatch[1]);
-                continue;
-              }
-
-              // Pattern 3: Special cases like leibniz-simd.swift, leibniz_avx2.cpp, leibniz_ux4.jl
-              const specialMatch = file.filename.match(/^src\/leibniz[-_](\w+)\.(\w+)$/);
-              if (specialMatch) {
-                // Use the variant name, e.g., "swift-simd" or "cpp-avx2"
-                const variant = specialMatch[1];
-                const ext = specialMatch[2];
-                // Map extension to target base name, then add variant
-                const baseLang = extToTarget[ext] || ext;
-                languages.add(`${baseLang}-${variant}`);
-              }
-            }
-
-            const langList = Array.from(languages).join(' ');
-            console.log(`Changed languages: ${langList}`);
-            core.setOutput('languages', langList);
-
       - name: Show help
         if: steps.parse.outputs.show_help == 'true'
         uses: actions/github-script@v7
@@ -184,16 +110,16 @@ jobs:
               '',
               '**Usage:**',
               '- `/bench <language> [language2] ...` - Benchmark specific languages',
-              '- `/bench changed` - Benchmark languages modified in this PR',
               '- `/bench help` - Show this help message',
               '',
               '**Examples:**',
               '- `/bench rust go c` - Benchmark Rust, Go, and C',
-              '- `/bench csharp fsharp` - Benchmark C# and F#',
-              '- `/bench changed` - Auto-detect and benchmark changed languages',
+              '- `/bench julia julia-ux4` - Benchmark Julia variants',
+              '',
+              '**Note:** Use Earthfile target names (e.g., `rust`, `cpython`, `nodejs`), not file extensions.',
               '',
               '**Available languages:**',
-              'Run `earthly ls` locally or check the Earthfile for all targets.'
+              'Check the Earthfile for all available targets.'
             ].join('\n');
 
             await github.rest.issues.createComment({
@@ -204,7 +130,7 @@ jobs:
             });
 
       - name: Add reaction to comment
-        if: steps.parse.outputs.should_run == 'true' || steps.parse.outputs.should_run == 'changed'
+        if: steps.parse.outputs.should_run == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -218,7 +144,7 @@ jobs:
   # Run specific languages from /bench command
   bench-comment:
     needs: parse-comment
-    if: needs.parse-comment.outputs.should_run == 'true' || needs.parse-comment.outputs.should_run == 'changed'
+    if: needs.parse-comment.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -228,24 +154,10 @@ jobs:
       - name: Determine languages to benchmark
         id: langs
         run: |
-          if [ "${{ needs.parse-comment.outputs.should_run }}" = "changed" ]; then
-            LANGUAGES="${{ needs.parse-comment.outputs.changed_languages }}"
-            if [ -z "$LANGUAGES" ]; then
-              echo "No language files changed in this PR"
-              echo "languages=" >> $GITHUB_OUTPUT
-              echo "skip=true" >> $GITHUB_OUTPUT
-            else
-              echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
-              echo "skip=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "languages=${{ needs.parse-comment.outputs.languages }}" >> $GITHUB_OUTPUT
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
+          echo "languages=${{ needs.parse-comment.outputs.languages }}" >> $GITHUB_OUTPUT
 
       - name: Create check run
         id: check
-        if: steps.langs.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -262,32 +174,17 @@ jobs:
             });
             core.setOutput('check_id', check.data.id);
 
-      - name: Comment no changes
-        if: steps.langs.outputs.skip == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: ${{ needs.parse-comment.outputs.pr_number }},
-              body: '**No language source files changed in this PR.**\n\nUse `/bench <language>` to benchmark specific languages, or `/bench help` for more options.'
-            });
-
       - uses: actions/checkout@v4
-        if: steps.langs.outputs.skip != 'true'
         with:
           repository: ${{ needs.parse-comment.outputs.pr_repo }}
           ref: ${{ needs.parse-comment.outputs.pr_sha }}
 
       - name: Setup Earthly
-        if: steps.langs.outputs.skip != 'true'
         uses: earthly/actions-setup@v1
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
       - name: Cache Earthly
-        if: steps.langs.outputs.skip != 'true'
         uses: actions/cache@v4
         with:
           path: ~/.earthly/cache
@@ -296,7 +193,6 @@ jobs:
             earthly-bench-${{ runner.os }}-
 
       - name: Run benchmarks for specified languages
-        if: steps.langs.outputs.skip != 'true'
         id: bench
         run: |
           LANGUAGES="${{ steps.langs.outputs.languages }}"
@@ -315,14 +211,12 @@ jobs:
           fi
 
       - name: Archive test results
-        if: steps.langs.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: bench-results-${{ needs.parse-comment.outputs.pr_number }}
           path: results/*.json
 
       - name: Comment results on PR
-        if: steps.langs.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |

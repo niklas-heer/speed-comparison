@@ -78,18 +78,9 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 - Results are cached based on source file + Earthfile target + rounds.txt hash
 - Caches invalidate when any of these change
 
-### Extension-to-Target Mapping
+### PR Benchmark Command
 
-The `/bench changed` command auto-detects languages from file extensions. If the file extension doesn't match the Earthfile target name, you must add a mapping to `extToTarget` in `.github/workflows/ci.yml`.
-
-Current mappings (extension → target):
-- `rkt` → `racket`, `rb` → `ruby`, `py` → `cpython`, `rs` → `rust`
-- `hs` → `haskell`, `ml` → `ocaml`, `lisp` → `sbcl`, `ex` → `elixir`
-- `erl` → `erlang`, `cr` → `crystal`, `js` → `nodejs`, `ts` → `deno`
-- `jl` → `julia`, `f90` → `fortran`, `pas` → `pascal`, `m` → `objc`
-- `adb` → `ada`, `hi` → `haxe`
-
-**When adding a new language:** If the file extension differs from the Earthfile target name, add the mapping to `extToTarget` in `ci.yml`.
+Trusted contributors (those who have had PRs merged) can trigger benchmarks on PRs using `/bench <target> [target2] ...`. Use Earthfile target names (e.g., `rust`, `cpython`, `nodejs`), not file extensions.
 
 ## Common Issues
 
