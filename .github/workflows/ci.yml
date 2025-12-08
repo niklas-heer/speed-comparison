@@ -47,16 +47,21 @@ jobs:
       pr_number: ${{ steps.get-pr.outputs.pr_number }}
       changed_languages: ${{ steps.detect-changed.outputs.languages }}
     steps:
-      - name: Check if comment author is repository owner
+      - name: Check if comment author is trusted
         id: check-permission
-        run: |
-          if [ "${{ github.event.comment.user.login }}" != "niklas-heer" ]; then
-            echo "Comment author is not niklas-heer, skipping..."
-            echo "authorized=false" >> $GITHUB_OUTPUT
-          else
-            echo "Comment author is niklas-heer, proceeding..."
-            echo "authorized=true" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Allow trusted contributors: OWNER, MEMBER, COLLABORATOR, or CONTRIBUTOR (has merged PRs)
+            const association = context.payload.comment.author_association;
+            const trustedAssociations = ['OWNER', 'MEMBER', 'COLLABORATOR', 'CONTRIBUTOR'];
+            const authorized = trustedAssociations.includes(association);
+
+            console.log(`Comment author: ${context.payload.comment.user.login}`);
+            console.log(`Author association: ${association}`);
+            console.log(`Authorized: ${authorized}`);
+
+            core.setOutput('authorized', authorized ? 'true' : 'false');
 
       - name: Parse /bench command
         id: parse
