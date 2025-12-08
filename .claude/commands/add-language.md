@@ -29,7 +29,12 @@ Key conventions:
 - Make downloads architecture-aware for ARM64/x86_64 compatibility
 - Add `BUILD +<language>` to the `collect-data` target
 
-### 3. Add Language Icon
+### 3. Update Extension-to-Target Mapping (if needed)
+If the file extension differs from the Earthfile target name (e.g., `leibniz.rkt` but target is `racket`), add a mapping to the `extToTarget` object in `.github/workflows/ci.yml`.
+
+This is required for the `/bench changed` command to correctly detect and run your language.
+
+### 4. Add Language Icon
 1. Check if icon exists in devicon: https://devicon.dev/
 2. If yes: Add to `download_icons.py` ICON_MAP and run:
    ```
@@ -38,7 +43,7 @@ Key conventions:
 3. If no: Create custom SVG in `icons/<name>.svg` and convert to PNG
 4. Add mapping to `ICON_MAP` in `analyze.py`
 
-### 4. Test Locally
+### 5. Test Locally
 ```bash
 # Test the build
 earthly +<language>
@@ -47,7 +52,7 @@ earthly +<language>
 earthly --build-arg QUICK_TEST_ROUNDS=1000000 +<language>
 ```
 
-### 5. Commit
+### 6. Commit
 ```bash
 git add src/leibniz.<ext> Earthfile icons/<name>.png analyze.py download_icons.py
 git commit -m "feat: add <Language> implementation"
@@ -57,6 +62,7 @@ git commit -m "feat: add <Language> implementation"
 - [ ] Source file created in `src/`
 - [ ] Earthfile target added
 - [ ] Target added to `collect-data`
+- [ ] Extension-to-target mapping added in `ci.yml` (if extension ≠ target name)
 - [ ] Icon added (devicon or custom)
 - [ ] ICON_MAP updated in `analyze.py`
 - [ ] ICON_MAP updated in `download_icons.py`
