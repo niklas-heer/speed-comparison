@@ -153,15 +153,15 @@ jobs:
                 continue;
               }
 
-              // Pattern 3: Special cases like leibniz-simd.swift, leibniz_avx2.cpp
+              // Pattern 3: Special cases like leibniz-simd.swift, leibniz_avx2.cpp, leibniz_ux4.jl
               const specialMatch = file.filename.match(/^src\/leibniz[-_](\w+)\.(\w+)$/);
               if (specialMatch) {
                 // Use the variant name, e.g., "swift-simd" or "cpp-avx2"
                 const variant = specialMatch[1];
                 const ext = specialMatch[2];
-                if (ext === 'swift') languages.add('swift-simd');
-                else if (ext === 'cpp') languages.add('cpp-avx2');
-                else languages.add(`${ext}-${variant}`);
+                // Map extension to target base name, then add variant
+                const baseLang = extToTarget[ext] || ext;
+                languages.add(`${baseLang}-${variant}`);
               }
             }
 
