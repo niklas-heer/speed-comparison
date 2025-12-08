@@ -1,22 +1,14 @@
 using System;
 using System.IO;
 
-var data = String.Empty;
+var rounds = int.Parse(File.ReadAllText("rounds.txt"));
 
-try {
-    data = File.ReadAllText("rounds.txt", System.Text.Encoding.UTF8);
-} catch (IOException err) {
-    Console.WriteLine($"Couldn't read file:\n {err.Message}");
-}
+var pi = 1.0D;
+var x = 1.0D;
 
-int rounds = int.Parse(data);
-
-double pi = 1;
-double x = 1;
-
-for (int i = 2; i < rounds + 2; i++) {
-    x *= -1;
-    pi += (x / (2 * i - 1));
+for (var i = 2; i < rounds + 2; i++) {
+    x = -x;
+    pi += x / (2 * i - 1);
 }
 
 pi *= 4;
