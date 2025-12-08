@@ -17,5 +17,8 @@ function f(rounds)
     return pi*4
 end
 
-rounds = parse(Int64, readchomp("rounds.txt"))
-print(f(rounds))
+function (@main)(ARGS)
+    rounds = parse(Int64, convert(String, readchomp("rounds.txt")))
+    print(Core.stdout, f(rounds))
+    0
+end
