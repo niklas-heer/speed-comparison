@@ -660,7 +660,7 @@ julia-ux4:
         --bundle bun \
         --project . \
         leibniz_ux4.jl
-  DO +BENCH --name="julia-ux4" --lang="Julia ux4" --version="julia --version" --cmd="bun/bin/leibniz"
+  DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="bun/bin/leibniz"
 
 objc:
   FROM +alpine --src="leibniz.m"
