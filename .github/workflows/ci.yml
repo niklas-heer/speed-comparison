@@ -106,6 +106,28 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // Map file extensions to Earthfile target names
+            const extToTarget = {
+              'rkt': 'racket',
+              'rb': 'ruby',
+              'py': 'cpython',
+              'rs': 'rust',
+              'hs': 'haskell',
+              'ml': 'ocaml',
+              'lisp': 'sbcl',
+              'ex': 'elixir',
+              'erl': 'erlang',
+              'cr': 'crystal',
+              'js': 'nodejs',
+              'ts': 'deno',
+              'jl': 'julia',
+              'f90': 'fortran',
+              'pas': 'pascal',
+              'm': 'objc',
+              'adb': 'ada',
+              'hi': 'haxe'
+            };
+
             const files = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -118,7 +140,9 @@ jobs:
               // Pattern 1: src/leibniz.* files (most languages)
               const leibnizMatch = file.filename.match(/^src\/leibniz\.(\w+)$/);
               if (leibnizMatch) {
-                languages.add(leibnizMatch[1]);
+                const ext = leibnizMatch[1];
+                // Use mapping if exists, otherwise use extension as-is
+                languages.add(extToTarget[ext] || ext);
                 continue;
               }
 
