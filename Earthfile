@@ -183,7 +183,6 @@ collect-data:
   BUILD +janet
   BUILD +janet-compiled
   BUILD +julia
-  BUILD +julia-compiled
   BUILD +julia-ux4
   BUILD +objc
   BUILD +pascal
@@ -648,25 +647,34 @@ janet-compiled:
   DO +BENCH --name="janet-compiled" --lang="Janet (compiled)" --version="janet --version" --cmd="./leibniz"
 
 julia:
-  FROM julia:1.11-alpine
-  DO +PREPARE_ALPINE
-  DO +ADD_FILES --src="leibniz.jl"
-  DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="julia leibniz.jl"
-
-julia-compiled:
-  FROM julia:1.11
+  FROM julia:1.12
   DO +PREPARE_DEBIAN
-  RUN apt-get update && apt-get install -y gcc g++ build-essential cmake
-  DO +ADD_FILES --src="leibniz_compiled.jl"
-  COPY ./src/leibniz.jl ./
-  RUN julia -e 'using Pkg; Pkg.add(["StaticCompiler", "StaticTools"]); using StaticCompiler, StaticTools; include("./leibniz_compiled.jl"); compile_executable(mainjl, (), "./")'
-  DO +BENCH --name="julia-compiled" --lang="Julia (AOT compiled)" --version="julia --version" --cmd="./mainjl"
+  DO +ADD_FILES --src="leibniz.jl"
+  RUN apt-get update && apt-get install -y gcc
+  RUN julia -e 'print(VERSION); using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
+  RUN ~/.julia/bin/juliac \
+        --output-exe leibniz \
+        --trim \
+        --experimental \
+        --bundle bun \
+        --project . \
+        leibniz.jl
+  DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="bun/bin/leibniz"
 
 julia-ux4:
-  FROM julia:1.11-alpine
-  DO +PREPARE_ALPINE
+  FROM julia:1.12
+  DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz_ux4.jl"
-  DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="julia leibniz_ux4.jl"
+  RUN apt-get update && apt-get install -y gcc
+  RUN julia -e 'print(VERSION); using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
+  RUN ~/.julia/bin/juliac \
+        --output-exe leibniz \
+        --trim \
+        --experimental \
+        --bundle bun \
+        --project . \
+        leibniz_ux4.jl
+  DO +BENCH --name="julia-compiled" --lang="Julia ux4" --version="julia --version" --cmd="bun/bin/leibniz"
 
 objc:
   FROM +alpine --src="leibniz.m"

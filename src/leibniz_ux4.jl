@@ -17,5 +17,9 @@ function f(rounds)
     return pi*4
 end
 
-rounds = parse(Int64, readchomp("rounds.txt"))
-print(f(rounds))
+function (@main)(ARGS)
+    rounds_str::String = readchomp("rounds.txt")
+    rounds = parse(Int64, rounds_str)
+    print(Core.stdout, f(rounds))
+    0
+end
