@@ -633,34 +633,40 @@ janet-compiled:
   DO +BENCH --name="janet-compiled" --lang="Janet (compiled)" --version="janet --version" --cmd="./leibniz"
 
 julia:
-  FROM julia:1.12
+  FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.jl"
-  RUN apt-get update && apt-get install -y gcc
-  RUN julia -e 'print(VERSION); using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
+  RUN apt-get update && apt-get install -y clang curl
+  RUN curl -fsSL https://install.julialang.org | sh -s -- -y
+  ENV PATH="$HOME/.juliaup/bin/:$HOME/.julia/bin/:${PATH}"
+  RUN juliaup add 1.12
+  RUN julia -e 'using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
   RUN ~/.julia/bin/juliac \
         --output-exe leibniz \
         --trim \
         --experimental \
-        --bundle bun \
+        --bundle leibnizjl \
         --project . \
         leibniz.jl
-  DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="bun/bin/leibniz"
+  DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="leibnizjl/bin/leibniz"
 
 julia-ux4:
-  FROM julia:1.12
+  FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz_ux4.jl"
-  RUN apt-get update && apt-get install -y gcc
-  RUN julia -e 'print(VERSION); using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
+  RUN apt-get update && apt-get install -y clang curl
+  RUN curl -fsSL https://install.julialang.org | sh -s -- -y
+  ENV PATH="$HOME/.juliaup/bin/:$HOME/.julia/bin/:${PATH}"
+  RUN juliaup add 1.12
+  RUN julia -e 'using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
   RUN ~/.julia/bin/juliac \
         --output-exe leibniz \
         --trim \
         --experimental \
-        --bundle bun \
+        --bundle leibnizjl-ux4 \
         --project . \
         leibniz_ux4.jl
-  DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="bun/bin/leibniz"
+  DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="leibnizjl-ux4/bin/leibniz"
 
 objc:
   FROM +alpine --src="leibniz.m"

@@ -1,7 +1,7 @@
 function f(rounds)
     pi = 1.0
     @fastmath @simd for i in 2:(rounds + 2)
-        pi += (iseven(i) ? -1 : 1) / (2*i - 1)
+        pi += (iseven(i) ? -1.0 : 1.0) / (2*i - 1)
     end
     return pi*4
 end
