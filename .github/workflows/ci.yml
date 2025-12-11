@@ -415,7 +415,7 @@ jobs:
   # Uses cache to skip benchmarks if source hasn't changed
   benchmark:
     needs: [discover, build-scmeta]
-    runs-on: ubicloud-standard-2
+    runs-on: ubicloud-standard-4
     strategy:
       fail-fast: false
       matrix:
