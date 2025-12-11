@@ -1,14 +1,15 @@
 rounds = File.read("rounds.txt").to_i
+stop = (rounds + 2).to_f64
 
-x = 1.0
-pi = 1.0
+x = 1.0_f64
+pi = 1.0_f64
+i = 2.0_f64
 
-# There are no for loops in Crystal.
-# https://github.com/crystal-lang/crystal/issues/830
-2.step(to: rounds + 2) do |i|
-  x *= -1
-  pi += x / (2 * i - 1)
+while i <= stop
+  x = -x
+  pi += x / (2.0_f64 * i - 1.0_f64)
+  i += 1.0_f64
 end
 
-pi *= 4
+pi *= 4.0_f64
 puts "#{pi}"

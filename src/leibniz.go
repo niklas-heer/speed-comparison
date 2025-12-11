@@ -2,29 +2,24 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
 
 func main() {
-	file, err := ioutil.ReadFile("rounds.txt")
-	if err != nil {
-		fmt.Print(err)
-	}
-
+	file, _ := os.ReadFile("rounds.txt")
 	rounds, _ := strconv.Atoi(strings.TrimSpace(string(file)))
 
 	x := 1.0
 	pi := 1.0
+	stop := float64(rounds + 2)
 
-	rounds += 2 // do this outside the loop
-
-	for i := 2; i < rounds; i++ {
-		x *= -1
-		pi += x / float64(2*i-1)
+	for i := 2.0; i <= stop; i++ {
+		x = -x
+		pi += x / (2.0*i - 1.0)
 	}
 
-	pi *= 4
+	pi *= 4.0
 	fmt.Println(pi)
 }

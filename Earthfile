@@ -608,7 +608,7 @@ haxe:
   RUN mkdir -p /usr/lib/haxe/lib && haxelib setup /usr/lib/haxe/lib
   RUN haxelib install hxcpp
   DO +ADD_FILES --src="Leibniz.hx"
-  RUN --no-cache haxe -main Leibniz -cpp out
+  RUN --no-cache haxe -main Leibniz -cpp out -D HXCPP_CHECK_POINTER=0
   DO +BENCH --name="haxe" --lang="Haxe (C++)" --version="haxe --version" --cmd="./out/Leibniz"
 
 janet:
