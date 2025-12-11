@@ -180,7 +180,6 @@ collect-data:
   BUILD +dart-aot
   BUILD +fortran
   BUILD +haxe
-  BUILD +janet
   BUILD +janet-compiled
   BUILD +julia
   BUILD +julia-ux4
