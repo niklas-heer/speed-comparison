@@ -145,7 +145,7 @@ jobs:
   bench-comment:
     needs: parse-comment
     if: needs.parse-comment.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     permissions:
       checks: write
       pull-requests: write
@@ -415,7 +415,7 @@ jobs:
   # Uses cache to skip benchmarks if source hasn't changed
   benchmark:
     needs: [discover, build-scmeta]
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     strategy:
       fail-fast: false
       matrix:
