@@ -1,13 +1,20 @@
-def rounds = new File("rounds.txt").text.trim().toInteger()
+import groovy.transform.CompileStatic
 
-double x = 1.0
-double pi = 1.0
+@CompileStatic
+class Leibniz {
+    static void main(String[] args) {
+        int rounds = new File("rounds.txt").text.trim().toInteger()
 
-for (int i = 2; i <= rounds + 2; i++) {
-    x *= -1.0
-    pi += x / (2 * i - 1)
+        double x = 1.0d
+        double pi = 1.0d
+
+        for (int i = 2; i <= rounds + 2; i++) {
+            x = -x
+            pi += x / (2 * i - 1)
+        }
+
+        pi *= 4.0d
+
+        print pi
+    }
 }
-
-pi *= 4.0
-
-print pi
