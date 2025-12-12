@@ -200,9 +200,21 @@ jobs:
           FAILED=""
           for lang in $LANGUAGES; do
             echo "::group::Building +$lang"
-            if ! earthly --ci +$lang; then
+            SUCCESS=false
+            for attempt in 1 2 3; do
+              echo "Attempt $attempt of 3 for $lang"
+              if earthly --ci +$lang; then
+                SUCCESS=true
+                break
+              fi
+              if [ $attempt -lt 3 ]; then
+                echo "Retrying in 10 seconds..."
+                sleep 10
+              fi
+            done
+            if [ "$SUCCESS" = false ]; then
               FAILED="$FAILED $lang"
-              echo "::error::Benchmark for $lang failed"
+              echo "::error::Benchmark for $lang failed after 3 attempts"
             fi
             echo "::endgroup::"
           done
@@ -470,7 +482,18 @@ jobs:
 
       - name: Run benchmark for ${{ matrix.language }}
         if: steps.cache-benchmark.outputs.cache-hit != 'true'
-        run: earthly --ci --output --build-arg USE_PREBUILT_SCMETA=true +${{ matrix.language }}
+        run: |
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt of 3"
+            if earthly --ci --output --build-arg USE_PREBUILT_SCMETA=true +${{ matrix.language }}; then
+              exit 0
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          exit 1
 
       - name: Show cache status
         run: |
