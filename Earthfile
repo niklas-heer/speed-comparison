@@ -533,7 +533,7 @@ raku:
 ruby:
   FROM +alpine --src="leibniz.rb"
   RUN apk add --no-cache ruby
-  DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby leibniz.rb"
+  DO +BENCH --name="ruby" --lang="Ruby" --version="ruby --version" --cmd="ruby --yjit leibniz.rb"
 
 # ============================================================================
 # JAVASCRIPT RUNTIMES (Node.js, Bun, Deno)
