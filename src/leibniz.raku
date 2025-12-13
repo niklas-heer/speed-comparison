@@ -7,7 +7,7 @@ my num $pi = 1e0;
 
 loop (my int $i = 2; $i <= $rounds; $i++) {
     $x = -$x;
-    $pi = $pi + $x / (2 * $i - 1);
+    $pi = $pi + $x / (2 * $i - 1).Num;
 }
 
 $pi = $pi * 4e0;
