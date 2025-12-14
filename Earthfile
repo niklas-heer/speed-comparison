@@ -357,7 +357,7 @@ java-graalvm:
   DO +BENCH --name="java-graalvm" --lang="Java graalvm" --version="native-image --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="./leibniz"
 
 java-vecops:
-  FROM eclipse-temurin:21-jdk-alpine
+  FROM eclipse-temurin:25-jdk-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibnizVecOps.java"
   RUN --no-cache javac --add-modules jdk.incubator.vector leibnizVecOps.java
