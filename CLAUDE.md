@@ -47,7 +47,19 @@ earthly +analysis
      DO +BENCH --name="mylang" --lang="MyLang" --version="<version-cmd>" --cmd="<run-cmd>"
    ```
 3. Add `BUILD +mylang` to the `collect-data` target
-4. Test locally before committing
+4. Add version source to `scripts/version-sources.json`:
+   ```json
+   "mylang": {
+     "source": "docker",           // or "github", "alpine", "apt"
+     "image": "mylang",            // Docker image name (for docker source)
+     "repo": "org/repo",           // GitHub repo (for github source)
+     "package": "mylang",          // Package name (for alpine/apt source)
+     "earthfile_pattern": "mylang:(\\d+\\.\\d+)-alpine",  // Regex to extract current version
+     "tag_filter": "^\\d+\\.\\d+-alpine$",                // Filter for Docker tags
+     "source_file": "leibniz.<ext>"
+   }
+   ```
+5. Test locally before committing
 
 ## Benchmark Rules
 
@@ -81,6 +93,23 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 ### PR Benchmark Command
 
 Trusted contributors (those who have had PRs merged) can trigger benchmarks on PRs using `/bench <target> [target2] ...`. Use Earthfile target names (e.g., `rust`, `cpython`, `nodejs`), not file extensions.
+
+### Automated Version Updates
+
+The `.github/workflows/version-check.yml` workflow runs daily at 6 AM UTC to detect and update language versions:
+
+- **Version sources**: Configured in `scripts/version-sources.json`
+- **Version checker**: `scripts/check-versions.py` queries Docker Hub, GitHub Releases, and Alpine package APIs
+- **AI-powered updates**: Uses Claude Code via OpenRouter to update Earthfile and fix breaking changes
+- **Models**: Haiku 4.5 for simple version bumps, Opus 4.5 for fixing breaking changes (up to 3 attempts)
+- **Prompts**: Located in `.github/prompts/` directory
+
+To manually trigger a version check:
+```bash
+gh workflow run version-check.yml
+gh workflow run version-check.yml -f language=rust  # Check specific language
+gh workflow run version-check.yml -f dry_run=true   # Check without creating PRs
+```
 
 ## Common Issues
 
