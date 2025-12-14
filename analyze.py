@@ -63,6 +63,7 @@ ICON_MAP = {
     "Racket": "racket",
     "Common Lisp (SBCL)": "lisp",
     "Swift": "swift",
+    "Swift (relaxed)": "swift",
     "Swift (SIMD)": "swift",
     "Crystal": "crystal",
     "Julia": "julia",

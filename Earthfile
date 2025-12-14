@@ -188,6 +188,7 @@ collect-data:
   BUILD +pony
   BUILD +pony-nightly
   BUILD +swift
+  BUILD +swift-relaxed
   BUILD +swift-simd
   BUILD +wasm
 
@@ -690,6 +691,14 @@ swift-simd:
   DO +ADD_FILES --src="leibniz-simd.swift"
   RUN --no-cache swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full
   DO +BENCH --name="swift-simd" --lang="Swift (SIMD)" --version="swift --version" --cmd="./leibniz"
+
+swift-relaxed:
+  FROM swift:6.2-jammy
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz-relaxed.swift"
+  COPY ./src/relaxed.h ./
+  RUN --no-cache swiftc leibniz-relaxed.swift -O -o leibniz -clang-target native -lto=llvm-full -import-objc-header relaxed.h
+  DO +BENCH --name="swift-relaxed" --lang="Swift (relaxed)" --version="swift --version" --cmd="./leibniz"
 
 wasm:
   FROM ubuntu:latest

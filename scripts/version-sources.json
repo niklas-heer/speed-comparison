@@ -406,6 +406,14 @@
     "tag_filter": "^\\d+\\.\\d+-jammy$",
     "source_file": "leibniz.swift"
   },
+  "swift-relaxed": {
+    "source": "docker",
+    "image": "swift",
+    "earthfile_pattern": "swift:(\\d+\\.\\d+)-jammy",
+    "tag_filter": "^\\d+\\.\\d+-jammy$",
+    "source_file": "leibniz-relaxed.swift",
+    "notes": "Uses relaxed FP math via C header for auto-vectorization"
+  },
   "swift-simd": {
     "source": "docker",
     "image": "swift",
