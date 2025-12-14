@@ -495,7 +495,7 @@ luajit:
   DO +BENCH --name="luajit" --lang="LuaJIT" --version="luajit -v" --cmd="luajit leibniz.lua"
 
 mypyc:
-  FROM python:3.13-alpine
+  FROM python:3.14-alpine
   DO +PREPARE_ALPINE
   RUN apk add --no-cache gcc build-base
   RUN pip install mypy setuptools
