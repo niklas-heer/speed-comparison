@@ -1,5 +1,4 @@
 {
-  "$schema": "./version-sources.schema.json",
   "_comment": "Configuration for automated version checking. Each language maps to its version source.",
 
   "c": {
