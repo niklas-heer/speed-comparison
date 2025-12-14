@@ -331,6 +331,10 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
           exit 1
 
+      - name: Clean up temporary files
+        if: success()
+        run: rm -f build-output.txt
+
       - name: Create or update PR
         if: success()
         uses: peter-evans/create-pull-request@v6
