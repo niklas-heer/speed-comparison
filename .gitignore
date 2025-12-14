@@ -14,3 +14,5 @@ scmeta-bin/
 test_output/
 .venv/
 .env
+build-output.txt
+version-info/
