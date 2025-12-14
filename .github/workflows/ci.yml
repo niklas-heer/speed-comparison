@@ -119,7 +119,7 @@ jobs:
               '',
               '**Examples:**',
               '- `/bench rust go c` - Benchmark Rust, Go, and C',
-              '- `/bench julia julia-ux4` - Benchmark Julia variants',
+              '- `/bench julia` - Benchmark Julia',
               '',
               '**Note:** Use Earthfile target names (e.g., `rust`, `cpython`, `nodejs`), not file extensions.',
               '',

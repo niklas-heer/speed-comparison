@@ -183,7 +183,6 @@ collect-data:
   BUILD +haxe
   BUILD +janet-compiled
   BUILD +julia
-  BUILD +julia-ux4
   BUILD +objc
   BUILD +pascal
   BUILD +pony
@@ -650,21 +649,6 @@ julia:
         --project . \
         leibniz.jl
   DO +BENCH --name="julia" --lang="Julia" --version="julia --version" --cmd="bun/bin/leibniz"
-
-julia-ux4:
-  FROM julia:1.12
-  DO +PREPARE_DEBIAN
-  DO +ADD_FILES --src="leibniz_ux4.jl"
-  RUN apt-get update && apt-get install -y gcc
-  RUN julia -e 'print(VERSION); using Pkg; Pkg.activate("."); Pkg.update(); Pkg.Apps.add(["JuliaC"])'
-  RUN ~/.julia/bin/juliac \
-        --output-exe leibniz \
-        --trim \
-        --experimental \
-        --bundle bun \
-        --project . \
-        leibniz_ux4.jl
-  DO +BENCH --name="julia-ux4" --lang="Julia (ux4)" --version="julia --version" --cmd="bun/bin/leibniz"
 
 objc:
   FROM +alpine --src="leibniz.m"

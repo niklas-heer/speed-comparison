@@ -67,7 +67,6 @@ ICON_MAP = {
     "Crystal": "crystal",
     "Julia": "julia",
     "Julia (AOT compiled)": "julia",
-    "Julia (ux4)": "julia",
     "Fortran 90": "fortran",
     "Ada (gnat-gcc)": "ada",
     "Pascal (FPC)": "pascal",

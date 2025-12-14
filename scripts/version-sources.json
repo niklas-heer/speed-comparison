@@ -370,13 +370,7 @@
     "tag_filter": "^\\d+\\.\\d+$",
     "source_file": "leibniz.jl"
   },
-  "julia-ux4": {
-    "source": "docker",
-    "image": "julia",
-    "earthfile_pattern": "julia:(\\d+\\.\\d+)",
-    "tag_filter": "^\\d+\\.\\d+$",
-    "source_file": "leibniz_ux4.jl"
-  },
+
   "objc": {
     "source": "alpine",
     "package": "clang",
