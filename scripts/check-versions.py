@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import csv
 import json
 import os
 import re
@@ -28,6 +29,7 @@ SCRIPT_DIR = Path(__file__).parent
 ROOT_DIR = SCRIPT_DIR.parent
 VERSION_SOURCES_FILE = SCRIPT_DIR / "version-sources.json"
 EARTHFILE_PATH = ROOT_DIR / "Earthfile"
+RESULTS_CSV_PATH = ROOT_DIR / "docs" / "history" / "latest" / "combined_results.csv"
 
 
 def load_version_sources() -> dict:
@@ -40,39 +42,37 @@ def load_version_sources() -> dict:
     }
 
 
-def get_current_version_from_earthfile(language: str, config: dict) -> Optional[str]:
-    """Extract current version from Earthfile using the pattern in config."""
-    pattern = config.get("earthfile_pattern", "")
-    if not pattern:
-        return None
+def load_current_versions_from_csv() -> dict:
+    """Load current versions from the benchmark results CSV.
 
-    with open(EARTHFILE_PATH) as f:
-        content = f.read()
+    Returns a dict mapping target name to version string.
+    """
+    versions = {}
 
-    # Find the target section
-    target_pattern = rf"^{re.escape(language)}:\s*$"
-    target_match = re.search(target_pattern, content, re.MULTILINE)
-    if not target_match:
-        return None
+    if not RESULTS_CSV_PATH.exists():
+        print(
+            f"  Warning: Results CSV not found at {RESULTS_CSV_PATH}", file=sys.stderr
+        )
+        return versions
 
-    # Get content until next target (starts with word followed by colon at start of line)
-    start = target_match.end()
-    next_target = re.search(r"^\w+:\s*$", content[start:], re.MULTILINE)
-    end = start + next_target.start() if next_target else len(content)
-    target_content = content[start:end]
+    try:
+        with open(RESULTS_CSV_PATH) as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Use 'target' column if available, otherwise skip
+                target = row.get("target", "")
+                version = row.get("version", "")
+                if target and version:
+                    versions[target] = version
+    except Exception as e:
+        print(f"  Warning: Failed to read CSV: {e}", file=sys.stderr)
 
-    # Try to extract version from the pattern
-    # Handle regex patterns (with capturing groups)
-    if "(" in pattern:
-        match = re.search(pattern, target_content)
-        if match and match.groups():
-            return match.group(1)
+    return versions
 
-    # Handle literal patterns (e.g., "alpine:edge", "ubuntu:latest")
-    if pattern in target_content:
-        return pattern.split(":")[-1] if ":" in pattern else pattern
 
-    return None
+def get_current_version_from_csv(language: str, csv_versions: dict) -> Optional[str]:
+    """Get current version for a language from the CSV data."""
+    return csv_versions.get(language)
 
 
 def fetch_json(url: str, headers: Optional[dict] = None) -> dict:
@@ -209,7 +209,7 @@ def get_endoflife_latest_version(product: str) -> Optional[str]:
     return None
 
 
-def check_language_version(language: str, config: dict) -> dict:
+def check_language_version(language: str, config: dict, csv_versions: dict) -> dict:
     """Check version for a single language."""
     result = {
         "language": language,
@@ -220,8 +220,8 @@ def check_language_version(language: str, config: dict) -> dict:
         "error": None,
     }
 
-    # Get current version from Earthfile
-    result["current_version"] = get_current_version_from_earthfile(language, config)
+    # Get current version from CSV results
+    result["current_version"] = get_current_version_from_csv(language, csv_versions)
 
     source = config.get("source")
 
@@ -284,6 +284,14 @@ def main():
 
     sources = load_version_sources()
 
+    # Load current versions from CSV (requires 'target' column from scmeta v1.2.0+)
+    csv_versions = load_current_versions_from_csv()
+    if not csv_versions:
+        print(
+            "Note: No current versions found in CSV. Run benchmarks first to populate.",
+            file=sys.stderr,
+        )
+
     if args.all:
         languages = list(sources.keys())
     else:
@@ -304,7 +312,7 @@ def main():
         if not args.json:
             print(f"Checking {lang}...", file=sys.stderr)
 
-        result = check_language_version(lang, config)
+        result = check_language_version(lang, config, csv_versions)
         results.append(result)
 
         if result["has_update"]:

@@ -6,7 +6,7 @@ require "math"
 require "json_on_steroids"
 
 NAME    = "scmeta"
-VERSION = "1.1.1"
+VERSION = "1.2.0"
 
 # Calculates how accurate the computed pi value is compared to Math::PI
 # Returns the number of correct decimal places (higher is better)
@@ -77,6 +77,7 @@ end
 # Main entry point - only runs when executed directly (not when required for tests)
 def main
   lang_name : String? = nil
+  target_name : String? = nil
   lang_version : String? = nil
   lang_version_match_index = 0
   lang_version_cmd : String? = nil
@@ -90,6 +91,8 @@ def main
     parser.banner = "Usage: #{NAME} [arguments]"
 
     parser.on("--lang-name=LANGUAGE", "Specifies the name of the programming language") { |lang| lang_name = lang }
+
+    parser.on("--target-name=TARGET", "Specifies the Earthfile target name (e.g., rust, cpython)") { |target| target_name = target }
 
     parser.on("--lang-version=COMMAND", "Specifies the command to get the version of the programming language") { |cmd| lang_version_cmd = cmd }
 
@@ -120,6 +123,7 @@ def main
 
   # Check if we got all required options
   require_option(lang_name, "--lang-name")
+  require_option(target_name, "--target-name")
   require_option(hyperfine_file, "--hyperfine")
   require_option(pi_file, "--pi")
   require_option(output_file, "--output")
@@ -162,6 +166,7 @@ def main
   # Build new JSON
   metadata = JSON::OnSteroids.new
   metadata["Language"] = lang_name
+  metadata["Target"] = target_name
   metadata["Version"] = lang_version
   metadata["Command"] = hyperfine.dig("results.0.command")
   metadata["CalculatedPi"] = computed_pi

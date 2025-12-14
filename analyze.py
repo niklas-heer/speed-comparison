@@ -159,6 +159,7 @@ def load_results(folder: str) -> pd.DataFrame:
     # Otherwise load from JSON files
     data = {
         "name": [],
+        "target": [],
         "version": [],
         "median": [],
         "min": [],
@@ -170,6 +171,7 @@ def load_results(folder: str) -> pd.DataFrame:
         with open(file_path, "r") as f:
             result = json.load(f)
             data["name"].append(result["Language"])
+            data["target"].append(result.get("Target", ""))
             data["version"].append(result["Version"])
             # Convert to milliseconds
             data["median"].append(round(parse_time_value(result["Median"]) * 1000, 2))
