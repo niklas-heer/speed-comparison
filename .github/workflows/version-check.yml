@@ -200,6 +200,28 @@ jobs:
           npm install -g @anthropic-ai/claude-code
           npm install -g @musistudio/claude-code-router
 
+      - name: Configure Claude Code Router
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          mkdir -p ~/.claude-code-router
+          cat > ~/.claude-code-router/config.json << EOF
+          {
+            "Providers": [
+              {
+                "name": "openrouter",
+                "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
+                "api_key": "$OPENROUTER_API_KEY",
+                "models": ["anthropic/claude-haiku-4.5", "anthropic/claude-opus-4.5"],
+                "transformer": { "use": ["openrouter"] }
+              }
+            ],
+            "Router": {
+              "default": "openrouter,anthropic/claude-haiku-4.5"
+            }
+          }
+          EOF
+
       - name: Setup Earthly
         uses: earthly/actions-setup@v1
         with:
@@ -218,20 +240,11 @@ jobs:
           echo "$PROMPT" > /tmp/update-prompt.md
 
       - name: Update Earthfile with Claude Code (Haiku)
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          echo "Starting Claude Code Router..."
-          claude-code-router --provider openrouter --model anthropic/claude-haiku-4.5 &
-          ROUTER_PID=$!
-          sleep 3
-
-          echo "Running Claude Code to update Earthfile..."
-          claude -p "$(cat /tmp/update-prompt.md)" \
+          echo "Running Claude Code via router to update Earthfile..."
+          ccr code -p "$(cat /tmp/update-prompt.md)" \
             --allowedTools "Read,Edit,Bash" \
             --dangerously-skip-permissions
-
-          kill $ROUTER_PID 2>/dev/null || true
 
       - name: Validate build
         id: validate
@@ -261,16 +274,28 @@ jobs:
             PROMPT=$(echo "$PROMPT" | sed "s|{{ERROR_OUTPUT}}|See error below|g")
             echo -e "$PROMPT\n\nError output:\n\`\`\`\n$ERROR_OUTPUT\n\`\`\`" > /tmp/fix-prompt.md
 
-            echo "Starting Claude Code Router with Opus..."
-            claude-code-router --provider openrouter --model anthropic/claude-opus-4.5 &
-            ROUTER_PID=$!
-            sleep 3
+            # Update router config to use Opus for this attempt
+            cat > ~/.claude-code-router/config.json << EOF
+            {
+              "Providers": [
+                {
+                  "name": "openrouter",
+                  "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
+                  "api_key": "$OPENROUTER_API_KEY",
+                  "models": ["anthropic/claude-opus-4.5"],
+                  "transformer": { "use": ["openrouter"] }
+                }
+              ],
+              "Router": {
+                "default": "openrouter,anthropic/claude-opus-4.5"
+              }
+            }
+          EOF
 
-            claude -p "$(cat /tmp/fix-prompt.md)" \
+            echo "Running Claude Code via router (Opus) to fix issues..."
+            ccr code -p "$(cat /tmp/fix-prompt.md)" \
               --allowedTools "Read,Edit,Bash,WebSearch" \
               --dangerously-skip-permissions
-
-            kill $ROUTER_PID 2>/dev/null || true
 
             echo "::endgroup::"
 
@@ -318,7 +343,7 @@ jobs:
           commit-message: "chore(${{ matrix.language }}): update to ${{ steps.version.outputs.new }}"
 
       - name: Create issue on failure
-        if: failure()
+        if: failure() && steps.validate.outcome != ''
         uses: actions/github-script@v7
         with:
           script: |
