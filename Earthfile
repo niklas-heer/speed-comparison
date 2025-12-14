@@ -514,7 +514,7 @@ php:
   DO +BENCH --name="php" --lang="PHP" --version="php84 --version" --cmd="php84 -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php"
 
 pypy:
-  FROM pypy:3.10
+  FROM pypy:3.11
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="pypy" --lang="Python (PyPy)" --version="pypy --version" --cmd="pypy leibniz.py"
