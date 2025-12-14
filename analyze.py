@@ -171,7 +171,9 @@ def load_results(folder: str) -> pd.DataFrame:
         with open(file_path, "r") as f:
             result = json.load(f)
             data["name"].append(result["Language"])
-            data["target"].append(result.get("Target", ""))
+            # Use Target from JSON if available, otherwise infer from filename
+            target = result.get("Target") or file_path.stem
+            data["target"].append(target)
             data["version"].append(result["Version"])
             # Convert to milliseconds
             data["median"].append(round(parse_time_value(result["Median"]) * 1000, 2))
