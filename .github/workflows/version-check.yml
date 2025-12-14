@@ -133,8 +133,8 @@ jobs:
             echo "Updates found for: ${UPDATES[*]}"
             echo "has_updates=true" >> $GITHUB_OUTPUT
 
-            # Convert to JSON array
-            JSON_ARRAY=$(printf '%s\n' "${UPDATES[@]}" | jq -R . | jq -s .)
+            # Convert to JSON array (compact, single line for GitHub Actions)
+            JSON_ARRAY=$(printf '%s\n' "${UPDATES[@]}" | jq -R . | jq -sc .)
             echo "languages_to_update=$JSON_ARRAY" >> $GITHUB_OUTPUT
           fi
 
