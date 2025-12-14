@@ -1,33 +1,18 @@
 # Task: Update Language Version
 
-**CRITICAL: Change the version from `{{CURRENT_VERSION}}` to exactly `{{NEW_VERSION}}` - do not use "latest" or any other version.**
+Update the **{{LANGUAGE}}** target in the Earthfile to version `{{NEW_VERSION}}`.
 
-Update the **{{LANGUAGE}}** target in the Earthfile.
-
-## Required Change
+## Version Info
 - Target: `{{LANGUAGE}}`  
-- FROM version: `{{CURRENT_VERSION}}` → `{{NEW_VERSION}}`
+- Current: `{{CURRENT_VERSION}}`
+- New: `{{NEW_VERSION}}`
 
-For example, if current is `oven/bun:1.2-alpine` and new version is `1.3-alpine`, change to `oven/bun:1.3-alpine`.
+## Steps
 
-## Instructions
-
-1. **Read the Earthfile** and locate the `{{LANGUAGE}}:` target section
-
-2. **Identify what needs updating**:
-   - If it's a Docker image (e.g., `FROM rust:1.83-alpine`), update the tag
-   - If it's a downloaded binary/tool, update the version in the URL
-   - If it's a package install, the package version comes from the base image
-
-3. **Make the version update**:
-   - Update the `FROM` line if it contains a version tag
-   - Update any `wget`/`curl` URLs that contain version numbers
-   - Update any version-specific installation commands
-
-4. **Verify the change is correct**:
-   - The change should be minimal - only update version numbers
-   - Do NOT change optimization flags, build commands, or other logic
-   - Do NOT add new dependencies or features
+1. Read the Earthfile
+2. Find the `{{LANGUAGE}}:` target 
+3. Edit the version number from `{{CURRENT_VERSION}}` to `{{NEW_VERSION}}`
+4. Optionally verify the new version/tag exists (e.g., check Docker Hub or GitHub releases)
 
 ## Examples
 
@@ -49,11 +34,8 @@ For example, if current is `oven/bun:1.2-alpine` and new version is `1.3-alpine`
 +RUN wget -q kotlin-compiler-2.1.21.zip && unzip -q kotlin-compiler-2.1.21.zip
 ```
 
-## Important Notes
+## Important
 
-- Do NOT run any tests or builds - just make the version update
-- Keep changes minimal and focused on the version number only
-- If the version appears in multiple places (URL and unzip command), update ALL occurrences
-- Preserve exact whitespace and formatting of the Earthfile
-- Use the EXACT version specified above ({{NEW_VERSION}}), do NOT use "latest" or other generic tags
-- Do NOT run shell commands to verify - the build system will validate the changes
+- Use EXACTLY `{{NEW_VERSION}}` - never use "latest" as a tag
+- Update ALL occurrences if the version appears multiple times
+- Preserve exact whitespace and formatting

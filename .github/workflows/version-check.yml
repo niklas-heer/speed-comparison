@@ -221,7 +221,7 @@ jobs:
                 "name": "openrouter",
                 "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
                 "api_key": "$OPENROUTER_API_KEY",
-                "models": ["anthropic/claude-haiku-4.5", "anthropic/claude-opus-4.5"],
+                "models": ["anthropic/claude-opus-4.5"],
                 "transformer": { "use": ["openrouter"] }
               }
             ],
@@ -248,11 +248,18 @@ jobs:
           # Save to file for Claude Code
           echo "$PROMPT" > /tmp/update-prompt.md
 
-      - name: Update Earthfile with Claude Code (Haiku)
+      - name: Install useful tools
+        run: |
+          # Install tools that Claude may want to use for verification
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq curl wget jq > /dev/null
+
+      - name: Update Earthfile with Claude Code (Opus)
         run: |
           echo "Running Claude Code via router to update Earthfile..."
-          ccr code -p "$(cat /tmp/update-prompt.md)" \
-            --allowedTools "Read,Edit" \
+          # Pipe prompt via stdin to avoid shell expansion issues
+          cat /tmp/update-prompt.md | ccr code -p \
+            --allowedTools "Read,Edit,Bash" \
             --dangerously-skip-permissions
 
       - name: Validate build
@@ -302,7 +309,8 @@ jobs:
           EOF
 
             echo "Running Claude Code via router (Opus) to fix issues..."
-            ccr code -p "$(cat /tmp/fix-prompt.md)" \
+            # Pipe prompt via stdin to avoid shell expansion issues
+            cat /tmp/fix-prompt.md | ccr code -p \
               --allowedTools "Read,Edit,Bash,WebSearch" \
               --dangerously-skip-permissions
 
