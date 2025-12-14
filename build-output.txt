@@ -1,0 +1,121 @@
+::group:: Init 🚀
+ Init 🚀
+————————————————————————————————————————————————————————————————————————————————
+
+           buildkitd | Starting buildkit daemon as a docker container (earthly-buildkitd)...
+           buildkitd | ...Done
+::endgroup:: Init 🚀
+
+::group:: Build 🔧
+ Build 🔧
+————————————————————————————————————————————————————————————————————————————————
+
+              logbus | Setting organization "" and project ""
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> FROM +base
+ earthly/dind:alpine | --> Load metadata earthly/dind:alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+c/crystal:1.15-alpine | --> Load metadata crystallang/crystal:1.15-alpine linux/amd64
+               +base | QUICK_TEST_ROUNDS=10000
+               +base | --> FROM earthly/dind:alpine
+               +base | [----------] 100% FROM earthly/dind:alpine[K
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> FROM crystallang/crystal:1.15-alpine
+            +crystal | [----------] 100% FROM crystallang/crystal:1.15-alpine[K
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> RUN apk add --no-cache hyperfine
+            +crystal | fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
+            +crystal | fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
+            +crystal | (1/1) Installing hyperfine (1.18.0-r0)
+            +crystal | Executing busybox-1.36.1-r29.trigger
+            +crystal | OK: 268 MiB in 90 packages
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> WORKDIR /app
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> mkdir /run
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> IF [ "$USE_PREBUILT_SCMETA" = "true" ]
+              +build | src=leibniz.cr
+              +build | --> FROM +base
+              +build | src=leibniz.cr
+              +build | --> WORKDIR /app
+              +build | src=leibniz.cr
+              +build | --> COPY --dir scmeta ./
+              +build | src=leibniz.cr
+              +build | --> WORKDIR /app/scmeta
+              +build | src=leibniz.cr
+              +build | --> RUN shards install --production -v
+              +build | I: Resolving dependencies
+              +build | I: Fetching https://github.com/anykeyh/json_on_steroids.git
+              +build | D: git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- https://github.com/anykeyh/json_on_steroids.git /root/.cache/shards/github.com/anykeyh/json_on_steroids.git
+              +build | D: git ls-remote --get-url origin
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git log -n 1 --pretty=%H 9c43ff02a7c315290ba00a9257a88db0018124d7
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | I: Installing json_on_steroids (0.1.0 at 9c43ff0)
+              +build | D: rm -rf /app/scmeta/lib/json_on_steroids
+              +build | D: git --work-tree=/app/scmeta/lib/json_on_steroids checkout 9c43ff02a7c315290ba00a9257a88db0018124d7 -- .
+              +build | D: Link /app/scmeta/lib to /app/scmeta/lib/json_on_steroids/lib
+              +build | src=leibniz.cr
+              +build | --> RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
+              +build | src=leibniz.cr
+              +build | --> SAVE ARTIFACT bin/scmeta +build/scmeta
+              +build | [----------] 100% SAVE ARTIFACT bin/scmeta +build/scmeta[K
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> COPY +build/scmeta ./
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> COPY ./src/rounds.txt ./
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> mkdir /run
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> IF [ -n "$QUICK_TEST_ROUNDS" ]
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> COPY ./src/leibniz.cr ./
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> RUN --no-cache crystal build leibniz.cr --release
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+            +crystal | Benchmark 1: ./leibniz
+            +crystal |  
+            +crystal |   Warning: Command took less than 5 ms to complete. Note that the results might be inaccurate because hyperfine can not calibrate the shell startup time much more precise than this limit. You can try to use the `-N`/`--shell=none` option to disable the shell completely.
+            +crystal |   Time (mean ± σ):      0.001 s ±  0.000 s    [User: 0.000 s, System: 0.000 s]
+            +crystal |   Range (min … max):    0.001 s …  0.001 s    3 runs
+            +crystal |  
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> RUN --no-cache ./scmeta --lang-name="$lang" --target-name="$name" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
+            +crystal | Successfully created metadata
+            +crystal | Language: Crystal (1.15.1)
+            +crystal | Output: ./scmeta.json
+            +crystal | QUICK_TEST_ROUNDS=10000
+            +crystal | --> SAVE ARTIFACT ./scmeta.json +crystal/scmeta.json AS LOCAL ./results/crystal.json
+              output | --> exporting outputs
+              output | sent 1 file stat
+              output | [----------] 100% exporting outputs[K
+              output | --> exporting outputs
+::endgroup:: Build 🔧
+
+::group:: Push Summary ⏫ (disabled)
+ Push Summary ⏫ (disabled)
+————————————————————————————————————————————————————————————————————————————————
+
+To enable pushing use earthly --push
+::endgroup:: Push Summary ⏫
+
+::group:: Local Output Summary 🎁
+ Local Output Summary 🎁
+————————————————————————————————————————————————————————————————————————————————
+
+Artifact github.com/niklas-heer/speed-comparison:master+crystal/scmeta.json output as ./results/crystal.json
+::endgroup:: Local Output Summary 🎁
+
+
+========================== 🌍 Earthly Build  ✅ SUCCESS ==========================
+
+🛰️ Reuse cache between CI runs with Earthly Satellites! 2-20X faster than without cache. Generous free tier https://cloud.earthly.dev
