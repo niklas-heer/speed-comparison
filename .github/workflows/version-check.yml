@@ -243,7 +243,7 @@ jobs:
         run: |
           echo "Running Claude Code via router to update Earthfile..."
           ccr code -p "$(cat /tmp/update-prompt.md)" \
-            --allowedTools "Read,Edit,Bash" \
+            --allowedTools "Read,Edit" \
             --dangerously-skip-permissions
 
       - name: Validate build

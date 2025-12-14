@@ -52,3 +52,5 @@ Update the **{{LANGUAGE}}** target in the Earthfile to use version **{{NEW_VERSI
 - Keep changes minimal and focused on the version number only
 - If the version appears in multiple places (URL and unzip command), update ALL occurrences
 - Preserve exact whitespace and formatting of the Earthfile
+- Use the EXACT version specified above ({{NEW_VERSION}}), do NOT use "latest" or other generic tags
+- Do NOT run shell commands to verify - the build system will validate the changes
