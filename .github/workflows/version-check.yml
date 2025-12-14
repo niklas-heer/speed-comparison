@@ -222,7 +222,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_KEY }}
         run: |
           echo "Starting Claude Code Router..."
-          claude-code-router --provider openrouter --model anthropic/claude-3-5-haiku &
+          claude-code-router --provider openrouter --model anthropic/claude-haiku-4.5 &
           ROUTER_PID=$!
           sleep 3
 
@@ -262,7 +262,7 @@ jobs:
             echo -e "$PROMPT\n\nError output:\n\`\`\`\n$ERROR_OUTPUT\n\`\`\`" > /tmp/fix-prompt.md
 
             echo "Starting Claude Code Router with Opus..."
-            claude-code-router --provider openrouter --model anthropic/claude-opus-4 &
+            claude-code-router --provider openrouter --model anthropic/claude-opus-4.5 &
             ROUTER_PID=$!
             sleep 3
 
