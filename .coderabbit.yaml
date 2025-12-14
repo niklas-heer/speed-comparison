@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - master
+
+  path_instructions:
+    - path: "src/leibniz.*"
+      instructions: |
+        This is a benchmark implementation using the Leibniz formula to calculate π.
+        Review for:
+        - Single-threaded execution only (no concurrency/parallelism)
+        - Correct Leibniz formula implementation
+        - Potential performance optimizations that don't involve parallelism
+        - SIMD is allowed but should be in separate files (e.g., leibniz_simd.*)
+
+    - path: "Earthfile"
+      instructions: |
+        This is an Earthly build file defining benchmark targets.
+        Review for:
+        - Prefer Alpine over Debian for smaller images
+        - Avoid Fedora (hyperfine download is arch-specific)
+        - Version commands that output to stderr may need workarounds
+        - Version format requires at least one decimal point
+        - Docker image tags should be verified to exist
+        - New language targets should follow existing patterns
+
+    - path: "*.py"
+      instructions: |
+        Python scripts for analysis and publishing.
+        Review for:
+        - Consistent chart styling (Tokyo Night theme)
+        - Correct data handling from benchmark JSON files
+
+    - path: ".github/workflows/**"
+      instructions: |
+        GitHub Actions workflows for CI/CD.
+        Review for:
+        - Correct Earthly version usage
+        - Proper caching strategies
+        - Matrix build configuration
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  jira:
+    project_keys: []
+  linear:
+    team_keys: []
+  pull_requests:
+    scope: auto
