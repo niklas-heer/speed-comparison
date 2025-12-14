@@ -471,7 +471,7 @@ sbcl:
 # ============================================================================
 
 cpython:
-  FROM python:3.13-alpine
+  FROM python:3.14-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.py"
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
