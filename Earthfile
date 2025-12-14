@@ -329,7 +329,7 @@ clj:
   DO +BENCH --name="clj" --lang="Clojure" --version="clj --version" --cmd="clj leibniz.clj"
 
 groovy:
-  FROM groovy:4-jdk21
+  FROM groovy:5-jdk21
   USER root
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.groovy"
