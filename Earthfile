@@ -336,7 +336,7 @@ groovy:
   DO +BENCH --name="groovy" --lang="Groovy" --version="groovy --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="groovy leibniz.groovy"
 
 java:
-  FROM eclipse-temurin:21-jdk-alpine
+  FROM eclipse-temurin:25-jdk-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.java"
   RUN --no-cache javac leibniz.java
