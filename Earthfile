@@ -504,8 +504,9 @@ mypyc:
   DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="mypy --version" --cmd="python3 -c 'import leibniz_mypyc'"
 
 perl:
-  FROM +alpine --src="leibniz.pl"
-  RUN apk add --no-cache perl
+  FROM perl:5.42.0-slim
+  DO +PREPARE_DEBIAN
+  DO +ADD_FILES --src="leibniz.pl"
   DO +BENCH --name="perl" --lang="Perl" --version="perl -v" --cmd="perl leibniz.pl"
 
 php:
