@@ -1,0 +1,23 @@
+::group:: Init 🚀
+ Init 🚀
+————————————————————————————————————————————————————————————————————————————————
+
+           buildkitd | Starting buildkit daemon as a docker container (earthly-buildkitd)...
+           buildkitd | ...Done
+::endgroup:: Init 🚀
+
+::group:: Build 🔧
+ Build 🔧
+————————————————————————————————————————————————————————————————————————————————
+
+              logbus | Setting organization "" and project ""
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> FROM +base
+ earthly/dind:alpine | --> Load metadata earthly/dind:alpine linux/amd64
+                +clj | apply build +base: earthfile2llb for +base: Earthfile:2:0 apply FROM earthly/dind:alpine: resolve image config for earthly/dind:alpine: failed to do request: Head "https://registry-1.docker.io/v2/earthly/dind/manifests/alpine": dial tcp: lookup registry-1.docker.io on 172.30.26.66:53: read udp 172.30.0.1:48857->172.30.26.66:53: i/o timeout
+                +clj | in		github.com/niklas-heer/speed-comparison:master+base
+Error: Earthfile:324:0 apply FROM: apply build +base: earthfile2llb for +base: Earthfile:2:0 apply FROM earthly/dind:alpine: resolve image config for earthly/dind:alpine: failed to do request: Head "https://registry-1.docker.io/v2/earthly/dind/manifests/alpine": dial tcp: lookup registry-1.docker.io on 172.30.26.66:53: read udp 172.30.0.1:48857->172.30.26.66:53: i/o timeout
+in		github.com/niklas-heer/speed-comparison:master+base
+in		github.com/niklas-heer/speed-comparison:master+clj
+::error title=Error::in github.com/niklas-heer/speed-comparison:master+base in github.com/niklas-heer/speed-comparison:master+clj
+🛰️ Reuse cache between CI runs with Earthly Satellites! 2-20X faster than without cache. Generous free tier https://cloud.earthly.dev
