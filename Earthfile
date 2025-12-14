@@ -148,6 +148,7 @@ collect-data:
   BUILD +scala
   # .NET languages
   BUILD +cs
+  BUILD +cs-simd
   BUILD +fs
   # Functional languages
   BUILD +elixir

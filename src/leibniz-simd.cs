@@ -12,7 +12,7 @@ var ivec  = Vector512.Create(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
 var pivec = Vector512<double>.Zero;
 
 rounds += 2;
-var vend = rounds - (rounds % unroll);
+var vend = rounds - ((rounds - 2) % unroll);
 
 for (var i = 2u; i < vend; i += unroll) {
     den   = (two * ivec) + mone;
