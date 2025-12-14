@@ -367,9 +367,9 @@ kotlin:
   FROM eclipse-temurin:21-jdk-alpine
   DO +PREPARE_ALPINE
   RUN apk add --no-cache bash
-  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.1.21/kotlin-compiler-2.1.21.zip && \
-      unzip -q kotlin-compiler-2.1.21.zip && \
-      rm kotlin-compiler-2.1.21.zip
+  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.2.21/kotlin-compiler-2.2.21.zip && \
+      unzip -q kotlin-compiler-2.2.21.zip && \
+      rm kotlin-compiler-2.2.21.zip
   ENV PATH="/kotlinc/bin:${PATH}"
   DO +ADD_FILES --src="leibniz.kt"
   RUN --no-cache kotlinc leibniz.kt -include-runtime -d leibniz.jar
