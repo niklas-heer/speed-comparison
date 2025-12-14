@@ -572,7 +572,7 @@ ada:
   DO +BENCH --name="ada" --lang="Ada (gnat-gcc)" --version="gcc --version" --cmd="./leibniz"
 
 crystal:
-  FROM crystallang/crystal:1.15-alpine
+  FROM crystallang/crystal:1.18-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.cr"
   RUN --no-cache crystal build leibniz.cr --release
