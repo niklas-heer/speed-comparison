@@ -151,8 +151,15 @@
     "source": "alpine",
     "package": "dotnet10-sdk",
     "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
-    "source_file": "cs/",
+    "source_file": "leibniz.cs",
     "notes": ".NET 10 SDK"
+  },
+  "cs-simd": {
+    "source": "alpine",
+    "package": "dotnet10-sdk",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz-simd.cs",
+    "notes": ".NET 10 SDK SIMD variant"
   },
   "fs": {
     "source": "alpine",
