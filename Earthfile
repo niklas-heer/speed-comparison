@@ -391,18 +391,21 @@ scala:
 # ============================================================================
 
 cs:
-  FROM +alpine --src="cs/"
+  FROM +alpine --src="leibniz.cs"
   RUN apk add --no-cache clang build-base zlib-dev dotnet10-sdk
-  RUN --no-cache dotnet publish -o . -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
+  RUN --no-cache dotnet publish leibniz.cs -o . -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
   DO +BENCH --name="cs" --lang="C#" --version="dotnet --version" --cmd="./leibniz"
+
+cs-simd:
+  FROM +alpine --src="leibniz-simd.cs"
+  RUN apk add --no-cache clang build-base zlib-dev dotnet10-sdk
+  RUN --no-cache dotnet publish leibniz-simd.cs -o . -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
+  DO +BENCH --name="cs-simd" --lang="C# (SIMD)" --version="dotnet --version" --cmd="./leibniz-simd"
 
 fs:
   FROM +alpine --src="fs/"
   RUN apk add --no-cache clang build-base zlib-dev dotnet10-sdk
   RUN --no-cache dotnet publish -o . -p:PublishAot=true -p:OptimizationPreference=Speed -p:IlcInstructionSet=native
-  IF [ -n "$QUICK_TEST_ROUNDS" ]
-    RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
-  END
   DO +BENCH --name="fs" --lang="F#" --version="dotnet --version" --cmd="./leibniz"
 
 # ============================================================================
