@@ -20,9 +20,10 @@ Update the specified language benchmark to its latest stable version.
 
 ### Step 2: Research Latest Version
 
-1. **Web Search**: Search for "latest stable <language> version 2025" or "<language> latest release"
-2. **Docker Hub**: Check for available tags on the official Docker image
-3. **Prefer**:
+1. **Check version-sources.json**: Run `python scripts/check-versions.py <language>` to see current vs latest version
+2. **Web Search**: Search for "latest stable <language> version 2025" or "<language> latest release"
+3. **Docker Hub**: Check for available tags on the official Docker image
+4. **Prefer**:
    - Official images over community images
    - Alpine variants over Debian (smaller, faster)
    - Stable releases over nightly/beta
@@ -46,6 +47,8 @@ If the version jump is significant (e.g., major version bump):
    - Any new dependencies
 
 2. Update source file if needed (src/leibniz.*)
+
+3. Update `scripts/version-sources.json` if the earthfile_pattern changed
 
 ### Step 5: Test Locally
 

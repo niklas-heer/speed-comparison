@@ -29,7 +29,27 @@ Key conventions:
 - Make downloads architecture-aware for ARM64/x86_64 compatibility
 - Add `BUILD +<language>` to the `collect-data` target
 
-### 3. Add Language Icon
+### 3. Add Version Source Configuration
+Add entry to `scripts/version-sources.json` for automated version tracking:
+```json
+"<language>": {
+  "source": "docker",           // or "github", "alpine", "apt"
+  "image": "<image-name>",      // Docker image (for docker source)
+  "repo": "org/repo",           // GitHub repo (for github source)
+  "package": "<pkg-name>",      // Package name (for alpine/apt source)
+  "earthfile_pattern": "<image>:(\\d+\\.\\d+)-alpine",  // Regex to extract current version
+  "tag_filter": "^\\d+\\.\\d+-alpine$",                 // Filter for Docker tags
+  "source_file": "leibniz.<ext>"
+}
+```
+
+Source types:
+- `docker`: Official Docker Hub images (rust, golang, python, node, etc.)
+- `github`: GitHub Releases API (zig, nim, gleam, etc.)
+- `alpine`: Alpine package index (gcc, clang, sbcl, etc.)
+- `apt`: Ubuntu/Debian packages (less common)
+
+### 4. Add Language Icon
 1. Check if icon exists in devicon: https://devicon.dev/
 2. If yes: Add to `download_icons.py` ICON_MAP and run:
    ```
@@ -38,7 +58,7 @@ Key conventions:
 3. If no: Create custom SVG in `icons/<name>.svg` and convert to PNG
 4. Add mapping to `ICON_MAP` in `analyze.py`
 
-### 4. Test Locally
+### 5. Test Locally
 ```bash
 # Test the build
 earthly +<language>
@@ -47,9 +67,9 @@ earthly +<language>
 earthly --build-arg QUICK_TEST_ROUNDS=1000000 +<language>
 ```
 
-### 5. Commit
+### 6. Commit
 ```bash
-git add src/leibniz.<ext> Earthfile icons/<name>.png analyze.py download_icons.py
+git add src/leibniz.<ext> Earthfile scripts/version-sources.json icons/<name>.png analyze.py download_icons.py
 git commit -m "feat: add <Language> implementation"
 ```
 
@@ -57,6 +77,7 @@ git commit -m "feat: add <Language> implementation"
 - [ ] Source file created in `src/`
 - [ ] Earthfile target added
 - [ ] Target added to `collect-data`
+- [ ] Version source added to `scripts/version-sources.json`
 - [ ] Icon added (devicon or custom)
 - [ ] ICON_MAP updated in `analyze.py`
 - [ ] ICON_MAP updated in `download_icons.py`

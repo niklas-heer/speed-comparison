@@ -2,6 +2,8 @@
 
 Update all programming language versions in the benchmark suite to their latest stable releases.
 
+> **Note**: There is also an automated daily workflow (`.github/workflows/version-check.yml`) that checks for updates and creates PRs automatically. Use this manual command for bulk updates or when you want more control.
+
 ## Benchmark Rules
 
 Before making any changes, remember these rules for implementations:
@@ -112,7 +114,15 @@ Check for open issues about language versions (like #136) and:
 
 ## Version Research Tips
 
+- **Use the version checker first**: Run `python scripts/check-versions.py --all` to see all available updates
 - Use web search for "[language] latest stable version 2025"
 - Check Docker Hub for available tags
 - Verify Alpine package versions: `docker run --rm alpine:X.XX apk info [package]`
 - For GitHub-released compilers, check the releases page
+
+## Version Sources Configuration
+
+When updating languages, ensure `scripts/version-sources.json` stays in sync:
+- If you change a Docker image name, update the `image` field
+- If you change the tag pattern, update `earthfile_pattern` and `tag_filter`
+- If you switch from Docker to Alpine package (or vice versa), update the `source` field
