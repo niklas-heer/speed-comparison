@@ -322,7 +322,7 @@ zig:
 # ============================================================================
 
 clj:
-  FROM clojure:temurin-21-tools-deps-alpine
+  FROM clojure:temurin-25-tools-deps-alpine
   DO +PREPARE_ALPINE
   RUN apk add --no-cache rlwrap  # Bug workaround
   DO +ADD_FILES --src="leibniz.clj"
