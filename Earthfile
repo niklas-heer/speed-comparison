@@ -540,7 +540,7 @@ ruby:
 # ============================================================================
 
 bunjs:
-  FROM oven/bun:1.2-alpine
+  FROM oven/bun:1.3-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.js"
   DO +BENCH --name="bunjs" --lang="Javascript (bun)" --version="bun --version" --cmd="bun run leibniz.js"
