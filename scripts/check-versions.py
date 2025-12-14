@@ -366,8 +366,8 @@ def main():
                 f.write(f"current_version={r['current_version'] or ''}\n")
                 f.write(f"new_version={r['latest_version'] or ''}\n")
 
-    # Exit with code 0 if updates found (success), 1 if no updates
-    sys.exit(0 if updates_found else 1)
+    # Always exit with 0 - use outputs to determine if updates are available
+    sys.exit(0)
 
 
 if __name__ == "__main__":

@@ -3,15 +3,15 @@ name: Version Check
 on:
   schedule:
     # Run daily at 6 AM UTC
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
   workflow_dispatch:
     inputs:
       language:
-        description: 'Specific language to check (leave empty for all)'
+        description: "Specific language to check (leave empty for all)"
         required: false
         type: string
       dry_run:
-        description: 'Dry run - check versions but do not create PRs'
+        description: "Dry run - check versions but do not create PRs"
         required: false
         type: boolean
         default: false
@@ -22,7 +22,7 @@ env:
 jobs:
   # Discover all language targets from Earthfile
   discover:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     outputs:
       languages: ${{ steps.discover.outputs.languages }}
     steps:
@@ -43,7 +43,7 @@ jobs:
   # Check for version updates
   check-versions:
     needs: discover
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     strategy:
       matrix:
         language: ${{ fromJson(needs.discover.outputs.languages) }}
@@ -58,7 +58,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Check for new version
         id: check
@@ -92,7 +92,7 @@ jobs:
   # Aggregate results and trigger updates
   process-updates:
     needs: check-versions
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     if: ${{ !inputs.dry_run }}
     outputs:
       languages_to_update: ${{ steps.aggregate.outputs.languages_to_update }}
@@ -193,7 +193,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install Claude Code and Router
         run: |
@@ -381,7 +381,7 @@ jobs:
   # Summary job
   summary:
     needs: [check-versions, process-updates]
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     if: always()
     steps:
       - uses: actions/checkout@v4
