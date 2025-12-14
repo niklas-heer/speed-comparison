@@ -108,6 +108,38 @@ Repository maintainers can trigger benchmarks on PRs using comments:
 - `enable-ci`: Trigger full benchmark suite on a PR
 - `skip-ci`: Skip the fast-check on a PR
 
+## Automated Version Updates
+
+This project uses an AI-powered CI workflow to keep all 58 programming languages up to date automatically.
+
+### How It Works
+
+1. **Daily Check**: A scheduled workflow runs daily at 6 AM UTC
+2. **Version Detection**: Checks for new versions via:
+   - Docker Hub Registry API (for official language images)
+   - GitHub Releases API (for languages like Zig, Nim, Gleam)
+   - Alpine package index (for Alpine-based packages)
+3. **Automated Updates**: Claude Code (via OpenRouter) updates the Earthfile with new versions
+4. **Validation**: Runs a quick benchmark to verify the update compiles and runs correctly
+5. **Breaking Changes**: If the build fails, Claude Code (Opus) researches and fixes breaking changes (up to 3 attempts)
+6. **PR Creation**: Creates a PR for review if successful, or an issue describing the failure if not
+
+### Manual Trigger
+
+You can manually trigger a version check:
+
+1. Go to **Actions** → **Version Check** → **Run workflow**
+2. Optionally specify a single language name to check only that one
+3. Enable "Dry run" to check versions without creating PRs
+
+### Configuration
+
+Version sources are defined in [`scripts/version-sources.json`](scripts/version-sources.json). Each language maps to:
+- `source`: Where to check for updates (docker, github, alpine, apt)
+- `image` or `repo`: The Docker image or GitHub repository
+- `earthfile_pattern`: Regex to extract current version from Earthfile
+- `source_file`: The source code file for this language
+
 ## FAQ
 
 > Why do you also count reading a file and printing the output?

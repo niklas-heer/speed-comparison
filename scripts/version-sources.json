@@ -1,0 +1,423 @@
+{
+  "$schema": "./version-sources.schema.json",
+  "_comment": "Configuration for automated version checking. Each language maps to its version source.",
+
+  "c": {
+    "source": "alpine",
+    "package": "gcc",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.c",
+    "notes": "Uses Alpine's gcc package"
+  },
+  "c-clang": {
+    "source": "alpine",
+    "package": "clang",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.c",
+    "notes": "Uses Alpine's clang package"
+  },
+  "cpp": {
+    "source": "alpine",
+    "package": "gcc",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.cpp",
+    "notes": "Uses Alpine's g++ (gcc package)"
+  },
+  "cpp-avx2": {
+    "source": "alpine",
+    "package": "gcc",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz_avx2.cpp",
+    "notes": "SIMD variant using g++"
+  },
+  "cpp-clang": {
+    "source": "alpine",
+    "package": "clang",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.cpp",
+    "notes": "Uses Alpine's clang++"
+  },
+  "d": {
+    "source": "alpine",
+    "package": "gcc-gdc",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.d",
+    "notes": "GCC-based D compiler"
+  },
+  "d-ldc": {
+    "source": "alpine",
+    "package": "ldc",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.d",
+    "notes": "LLVM-based D compiler"
+  },
+  "go": {
+    "source": "docker",
+    "image": "golang",
+    "earthfile_pattern": "golang:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz.go"
+  },
+  "nim": {
+    "source": "alpine",
+    "package": "nim",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.nim"
+  },
+  "odin": {
+    "source": "github",
+    "repo": "odin-lang/Odin",
+    "earthfile_pattern": "ubuntu:latest",
+    "source_file": "leibniz.odin",
+    "notes": "Built from source, tracks GitHub releases"
+  },
+  "rust": {
+    "source": "docker",
+    "image": "rust",
+    "earthfile_pattern": "rust:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz.rs"
+  },
+  "rust-nightly": {
+    "source": "docker",
+    "image": "rustlang/rust",
+    "earthfile_pattern": "rustlang/rust:nightly-slim",
+    "tag_filter": "nightly-slim",
+    "source_file": "leibniz_nightly.rs",
+    "notes": "Always uses nightly, no version tracking needed"
+  },
+  "v": {
+    "source": "github",
+    "repo": "vlang/v",
+    "earthfile_pattern": "ubuntu:latest",
+    "source_file": "leibniz.v",
+    "notes": "Built from source, tracks GitHub releases"
+  },
+  "zig": {
+    "source": "github",
+    "repo": "ziglang/zig",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz.zig",
+    "notes": "Uses Alpine edge testing repo"
+  },
+  "clj": {
+    "source": "docker",
+    "image": "clojure",
+    "earthfile_pattern": "clojure:temurin-(\\d+)-tools-deps-alpine",
+    "tag_filter": "^temurin-\\d+-tools-deps-alpine$",
+    "source_file": "leibniz.clj"
+  },
+  "groovy": {
+    "source": "docker",
+    "image": "groovy",
+    "earthfile_pattern": "groovy:(\\d+)-jdk21",
+    "tag_filter": "^\\d+-jdk21$",
+    "source_file": "leibniz.groovy"
+  },
+  "java": {
+    "source": "docker",
+    "image": "eclipse-temurin",
+    "earthfile_pattern": "eclipse-temurin:(\\d+)-jdk-alpine",
+    "tag_filter": "^\\d+-jdk-alpine$",
+    "source_file": "leibniz.java"
+  },
+  "java-graalvm": {
+    "source": "github",
+    "repo": "graalvm/graalvm-ce-builds",
+    "earthfile_pattern": "sdk install java (\\d+\\.\\d+\\.\\d+)-graal",
+    "source_file": "leibniz.java",
+    "notes": "Uses SDKMAN to install GraalVM"
+  },
+  "java-vecops": {
+    "source": "docker",
+    "image": "eclipse-temurin",
+    "earthfile_pattern": "eclipse-temurin:(\\d+)-jdk-alpine",
+    "tag_filter": "^\\d+-jdk-alpine$",
+    "source_file": "leibnizVecOps.java"
+  },
+  "kotlin": {
+    "source": "github",
+    "repo": "JetBrains/kotlin",
+    "earthfile_pattern": "kotlin-compiler-(\\d+\\.\\d+\\.\\d+)\\.zip",
+    "source_file": "leibniz.kt"
+  },
+  "scala": {
+    "source": "github",
+    "repo": "VirtusLab/scala-cli",
+    "earthfile_pattern": "scala-cli/releases/download/v(\\d+\\.\\d+\\.\\d+)/",
+    "source_file": "leibniz.scala",
+    "notes": "Also tracks Scala version via --scala flag"
+  },
+  "cs": {
+    "source": "alpine",
+    "package": "dotnet10-sdk",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "cs/",
+    "notes": ".NET 10 SDK"
+  },
+  "fs": {
+    "source": "alpine",
+    "package": "dotnet10-sdk",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "fs/",
+    "notes": ".NET 10 SDK"
+  },
+  "elixir": {
+    "source": "alpine",
+    "package": "elixir",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.ex"
+  },
+  "erlang": {
+    "source": "alpine",
+    "package": "erlang28",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz.erl",
+    "notes": "Uses Alpine edge"
+  },
+  "gleam": {
+    "source": "github",
+    "repo": "gleam-lang/gleam",
+    "earthfile_pattern": "ghcr.io/gleam-lang/gleam:v(\\d+\\.\\d+\\.\\d+)-erlang-alpine",
+    "source_file": "leibniz.gleam"
+  },
+  "haskell": {
+    "source": "docker",
+    "image": "haskell",
+    "earthfile_pattern": "haskell:(\\d+\\.\\d+)-slim-bullseye",
+    "tag_filter": "^\\d+\\.\\d+-slim-bullseye$",
+    "source_file": "leibniz.hs"
+  },
+  "ocaml": {
+    "source": "alpine",
+    "package": "ocaml5",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz.ml",
+    "notes": "Uses Alpine edge main repo"
+  },
+  "racket": {
+    "source": "alpine",
+    "package": "racket",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz.rkt"
+  },
+  "sbcl": {
+    "source": "alpine",
+    "package": "sbcl",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.lisp"
+  },
+  "cpython": {
+    "source": "docker",
+    "image": "python",
+    "earthfile_pattern": "python:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz.py"
+  },
+  "cpython-numpy": {
+    "source": "docker",
+    "image": "python",
+    "earthfile_pattern": "python:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz_np.py"
+  },
+  "lua": {
+    "source": "alpine",
+    "package": "lua5.4",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.lua"
+  },
+  "luajit": {
+    "source": "alpine",
+    "package": "luajit",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.lua"
+  },
+  "mypyc": {
+    "source": "docker",
+    "image": "python",
+    "earthfile_pattern": "python:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz_mypyc.py",
+    "notes": "MyPy version tracked via pip"
+  },
+  "perl": {
+    "source": "alpine",
+    "package": "perl",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.pl"
+  },
+  "php": {
+    "source": "alpine",
+    "package": "php84",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.php"
+  },
+  "pypy": {
+    "source": "docker",
+    "image": "pypy",
+    "earthfile_pattern": "pypy:(\\d+\\.\\d+)",
+    "tag_filter": "^\\d+\\.\\d+$",
+    "source_file": "leibniz.py"
+  },
+  "r": {
+    "source": "alpine",
+    "package": "R",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.r"
+  },
+  "raku": {
+    "source": "docker",
+    "image": "rakudo-star",
+    "earthfile_pattern": "rakudo-star:latest",
+    "tag_filter": "latest",
+    "source_file": "leibniz.raku",
+    "notes": "Uses latest tag, version from container"
+  },
+  "ruby": {
+    "source": "alpine",
+    "package": "ruby",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.rb"
+  },
+  "bunjs": {
+    "source": "docker",
+    "image": "oven/bun",
+    "earthfile_pattern": "oven/bun:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz.js"
+  },
+  "deno": {
+    "source": "docker",
+    "image": "denoland/deno",
+    "earthfile_pattern": "denoland/deno:debian",
+    "tag_filter": "debian",
+    "source_file": "leibniz.ts",
+    "notes": "Uses debian tag, version from container"
+  },
+  "nodejs": {
+    "source": "docker",
+    "image": "node",
+    "earthfile_pattern": "node:(\\d+)-alpine",
+    "tag_filter": "^\\d+-alpine$",
+    "source_file": "leibniz.js"
+  },
+  "ada": {
+    "source": "alpine",
+    "package": "gcc-gnat",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.adb"
+  },
+  "crystal": {
+    "source": "docker",
+    "image": "crystallang/crystal",
+    "earthfile_pattern": "crystallang/crystal:(\\d+\\.\\d+)-alpine",
+    "tag_filter": "^\\d+\\.\\d+-alpine$",
+    "source_file": "leibniz.cr"
+  },
+  "dart": {
+    "source": "docker",
+    "image": "dart",
+    "earthfile_pattern": "dart:stable",
+    "tag_filter": "stable",
+    "source_file": "leibniz.dart",
+    "notes": "Uses stable tag, version from container"
+  },
+  "dart-aot": {
+    "source": "docker",
+    "image": "dart",
+    "earthfile_pattern": "dart:stable",
+    "tag_filter": "stable",
+    "source_file": "leibniz.dart",
+    "notes": "Uses stable tag, version from container"
+  },
+  "fortran": {
+    "source": "apt",
+    "package": "gfortran-14",
+    "earthfile_pattern": "ubuntu:latest",
+    "source_file": "leibniz.f90",
+    "notes": "Ubuntu package, version pinned to gfortran-14"
+  },
+  "haxe": {
+    "source": "apt",
+    "package": "haxe",
+    "earthfile_pattern": "ubuntu:latest",
+    "source_file": "Leibniz.hx",
+    "notes": "Ubuntu PPA package"
+  },
+  "janet": {
+    "source": "alpine",
+    "package": "janet",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz.janet"
+  },
+  "janet-compiled": {
+    "source": "alpine",
+    "package": "janet",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz_compiled.janet"
+  },
+  "julia": {
+    "source": "docker",
+    "image": "julia",
+    "earthfile_pattern": "julia:(\\d+\\.\\d+)",
+    "tag_filter": "^\\d+\\.\\d+$",
+    "source_file": "leibniz.jl"
+  },
+  "julia-ux4": {
+    "source": "docker",
+    "image": "julia",
+    "earthfile_pattern": "julia:(\\d+\\.\\d+)",
+    "tag_filter": "^\\d+\\.\\d+$",
+    "source_file": "leibniz_ux4.jl"
+  },
+  "objc": {
+    "source": "alpine",
+    "package": "clang",
+    "earthfile_pattern": "alpine:(\\d+\\.\\d+)",
+    "source_file": "leibniz.m"
+  },
+  "pascal": {
+    "source": "alpine",
+    "package": "fpc",
+    "earthfile_pattern": "alpine:edge",
+    "source_file": "leibniz.pas",
+    "notes": "Uses Alpine edge testing repo"
+  },
+  "pony": {
+    "source": "docker",
+    "image": "ponylang/ponyc",
+    "earthfile_pattern": "ponylang/ponyc:release-alpine",
+    "tag_filter": "release-alpine",
+    "source_file": "leibniz.pony"
+  },
+  "pony-nightly": {
+    "source": "docker",
+    "image": "ponylang/ponyc",
+    "earthfile_pattern": "ponylang/ponyc:alpine",
+    "tag_filter": "alpine",
+    "source_file": "leibniz.pony",
+    "notes": "Nightly build, no version tracking needed"
+  },
+  "swift": {
+    "source": "docker",
+    "image": "swift",
+    "earthfile_pattern": "swift:(\\d+\\.\\d+)-jammy",
+    "tag_filter": "^\\d+\\.\\d+-jammy$",
+    "source_file": "leibniz.swift"
+  },
+  "swift-simd": {
+    "source": "docker",
+    "image": "swift",
+    "earthfile_pattern": "swift:(\\d+\\.\\d+)-jammy",
+    "tag_filter": "^\\d+\\.\\d+-jammy$",
+    "source_file": "leibniz-simd.swift"
+  },
+  "wasm": {
+    "source": "github",
+    "repo": "bytecodealliance/wasmtime",
+    "earthfile_pattern": "wasmtime/releases/download/v(\\d+\\.\\d+\\.\\d+)/",
+    "source_file": "leibniz.c",
+    "notes": "Also tracks wasi-sdk version"
+  }
+}

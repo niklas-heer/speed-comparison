@@ -1,0 +1,431 @@
+name: Version Check
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      language:
+        description: 'Specific language to check (leave empty for all)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run - check versions but do not create PRs'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  EARTHLY_VERSION: "0.8.15"
+
+jobs:
+  # Discover all language targets from Earthfile
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.discover.outputs.languages }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discover language targets
+        id: discover
+        run: |
+          if [ -n "${{ inputs.language }}" ]; then
+            # Single language specified
+            echo "languages=[\"${{ inputs.language }}\"]" >> $GITHUB_OUTPUT
+          else
+            # Discover all languages
+            LANGUAGES=$(./scripts/discover-languages.sh)
+            echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
+          fi
+
+  # Check for version updates
+  check-versions:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: ${{ fromJson(needs.discover.outputs.languages) }}
+      fail-fast: false
+      max-parallel: 10
+    outputs:
+      # These outputs are per-matrix job, we'll aggregate in the next job
+      result: ${{ steps.check.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check for new version
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/check-versions.py ${{ matrix.language }} --json > result.json
+          cat result.json
+
+          # Extract results
+          HAS_UPDATE=$(jq -r '.results[0].has_update' result.json)
+          CURRENT=$(jq -r '.results[0].current_version // "unknown"' result.json)
+          LATEST=$(jq -r '.results[0].latest_version // "unknown"' result.json)
+          ERROR=$(jq -r '.results[0].error // ""' result.json)
+
+          echo "has_update=$HAS_UPDATE" >> $GITHUB_OUTPUT
+          echo "current_version=$CURRENT" >> $GITHUB_OUTPUT
+          echo "new_version=$LATEST" >> $GITHUB_OUTPUT
+          echo "error=$ERROR" >> $GITHUB_OUTPUT
+
+          # Save result for aggregation
+          echo "{\"language\": \"${{ matrix.language }}\", \"has_update\": $HAS_UPDATE, \"current\": \"$CURRENT\", \"latest\": \"$LATEST\"}" > ${{ matrix.language }}-result.json
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-check-${{ matrix.language }}
+          path: ${{ matrix.language }}-result.json
+          retention-days: 1
+
+  # Aggregate results and trigger updates
+  process-updates:
+    needs: check-versions
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.dry_run }}
+    outputs:
+      languages_to_update: ${{ steps.aggregate.outputs.languages_to_update }}
+      has_updates: ${{ steps.aggregate.outputs.has_updates }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: version-check-*
+          path: results-raw
+          merge-multiple: false
+
+      - name: Aggregate results
+        id: aggregate
+        run: |
+          echo "Aggregating version check results..."
+
+          # Collect all results
+          UPDATES=()
+          for file in results-raw/version-check-*/*.json; do
+            if [ -f "$file" ]; then
+              LANG=$(jq -r '.language' "$file")
+              HAS_UPDATE=$(jq -r '.has_update' "$file")
+              if [ "$HAS_UPDATE" = "true" ]; then
+                UPDATES+=("$LANG")
+                echo "Update available for: $LANG"
+              fi
+            fi
+          done
+
+          if [ ${#UPDATES[@]} -eq 0 ]; then
+            echo "No updates found"
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "languages_to_update=[]" >> $GITHUB_OUTPUT
+          else
+            echo "Updates found for: ${UPDATES[*]}"
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+
+            # Convert to JSON array
+            JSON_ARRAY=$(printf '%s\n' "${UPDATES[@]}" | jq -R . | jq -s .)
+            echo "languages_to_update=$JSON_ARRAY" >> $GITHUB_OUTPUT
+          fi
+
+  # Update each language with a new version
+  update-language:
+    needs: process-updates
+    if: needs.process-updates.outputs.has_updates == 'true'
+    runs-on: ubicloud-standard-4
+    strategy:
+      matrix:
+        language: ${{ fromJson(needs.process-updates.outputs.languages_to_update) }}
+      fail-fast: false
+      max-parallel: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download version info
+        uses: actions/download-artifact@v4
+        with:
+          name: version-check-${{ matrix.language }}
+          path: version-info
+
+      - name: Extract version info
+        id: version
+        run: |
+          CURRENT=$(jq -r '.current' version-info/${{ matrix.language }}-result.json)
+          LATEST=$(jq -r '.latest' version-info/${{ matrix.language }}-result.json)
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          echo "new=$LATEST" >> $GITHUB_OUTPUT
+
+          # Determine source file extension
+          EXT=$(python3 -c "
+          import json
+          with open('scripts/version-sources.json') as f:
+              data = json.load(f)
+          src = data.get('${{ matrix.language }}', {}).get('source_file', '')
+          print(src.split('.')[-1] if '.' in src else '')
+          ")
+          echo "ext=$EXT" >> $GITHUB_OUTPUT
+
+      - name: Check if PR branch already exists
+        id: check-branch
+        run: |
+          BRANCH="update/${{ matrix.language }}-${{ steps.version.outputs.new }}"
+          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            echo "Branch $BRANCH already exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Branch $BRANCH does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Claude Code and Router
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          npm install -g @musistudio/claude-code-router
+
+      - name: Setup Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: ${{ env.EARTHLY_VERSION }}
+
+      - name: Prepare update prompt
+        id: prompt
+        run: |
+          # Substitute variables in the prompt template
+          PROMPT=$(cat .github/prompts/update-language.md | \
+            sed "s/{{LANGUAGE}}/${{ matrix.language }}/g" | \
+            sed "s/{{CURRENT_VERSION}}/${{ steps.version.outputs.current }}/g" | \
+            sed "s/{{NEW_VERSION}}/${{ steps.version.outputs.new }}/g")
+
+          # Save to file for Claude Code
+          echo "$PROMPT" > /tmp/update-prompt.md
+
+      - name: Update Earthfile with Claude Code (Haiku)
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_KEY }}
+        run: |
+          echo "Starting Claude Code Router..."
+          claude-code-router --provider openrouter --model anthropic/claude-3-5-haiku &
+          ROUTER_PID=$!
+          sleep 3
+
+          echo "Running Claude Code to update Earthfile..."
+          claude -p "$(cat /tmp/update-prompt.md)" \
+            --allowedTools "Read,Edit,Bash" \
+            --dangerouslySkipPermissions
+
+          kill $ROUTER_PID 2>/dev/null || true
+
+      - name: Validate build
+        id: validate
+        continue-on-error: true
+        run: |
+          echo "Running quick validation build..."
+          earthly --build-arg QUICK_TEST_ROUNDS=10000 +${{ matrix.language }} 2>&1 | tee build-output.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Fix breaking changes with Claude Code (Opus)
+        if: steps.validate.outcome == 'failure'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_KEY }}
+        run: |
+          ERROR_OUTPUT=$(cat build-output.txt | tail -100)
+
+          for attempt in 1 2 3; do
+            echo "::group::Fix attempt $attempt"
+
+            # Prepare prompt with error context
+            PROMPT=$(cat .github/prompts/fix-breaking-changes.md | \
+              sed "s/{{LANGUAGE}}/${{ matrix.language }}/g" | \
+              sed "s/{{NEW_VERSION}}/${{ steps.version.outputs.new }}/g" | \
+              sed "s/{{EXT}}/${{ steps.version.outputs.ext }}/g")
+
+            # Add error output (escape special chars)
+            PROMPT=$(echo "$PROMPT" | sed "s|{{ERROR_OUTPUT}}|See error below|g")
+            echo -e "$PROMPT\n\nError output:\n\`\`\`\n$ERROR_OUTPUT\n\`\`\`" > /tmp/fix-prompt.md
+
+            echo "Starting Claude Code Router with Opus..."
+            claude-code-router --provider openrouter --model anthropic/claude-opus-4 &
+            ROUTER_PID=$!
+            sleep 3
+
+            claude -p "$(cat /tmp/fix-prompt.md)" \
+              --allowedTools "Read,Edit,Bash,WebSearch" \
+              --dangerouslySkipPermissions
+
+            kill $ROUTER_PID 2>/dev/null || true
+
+            echo "::endgroup::"
+
+            echo "Validating fix..."
+            if earthly --build-arg QUICK_TEST_ROUNDS=10000 +${{ matrix.language }} 2>&1 | tee build-output.txt; then
+              echo "Fixed on attempt $attempt"
+              exit 0
+            fi
+
+            ERROR_OUTPUT=$(cat build-output.txt | tail -100)
+          done
+
+          echo "Failed after 3 attempts"
+          echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
+          cat build-output.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          exit 1
+
+      - name: Create or update PR
+        if: success()
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.check-branch.outputs.branch }}
+          delete-branch: true
+          title: "chore(${{ matrix.language }}): update to ${{ steps.version.outputs.new }}"
+          body: |
+            ## Automated Version Update
+
+            Updates **${{ matrix.language }}** from `${{ steps.version.outputs.current }}` to `${{ steps.version.outputs.new }}`.
+
+            ### Changes
+            - Updated version in Earthfile
+
+            ### Validation
+            - Quick benchmark test passed with `QUICK_TEST_ROUNDS=10000`
+
+            ---
+
+            > This PR was automatically created by the version-check workflow.
+            > Use `/bench ${{ matrix.language }}` to run a full benchmark before merging.
+          labels: |
+            version-update
+            automated
+          commit-message: "chore(${{ matrix.language }}): update to ${{ steps.version.outputs.new }}"
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const errorLog = process.env.ERROR_LOG || 'No error log available';
+            const truncatedLog = errorLog.length > 3000
+              ? errorLog.substring(0, 3000) + '\n\n... (truncated)'
+              : errorLog;
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'version-update,needs-manual-fix'
+            });
+
+            const existingIssue = issues.data.find(i =>
+              i.title.includes('${{ matrix.language }}') &&
+              i.title.includes('${{ steps.version.outputs.new }}')
+            );
+
+            if (existingIssue) {
+              console.log(`Issue already exists: #${existingIssue.number}`);
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Unable to auto-update ${{ matrix.language }} to ${{ steps.version.outputs.new }}`,
+              body: `## Automated Update Failed
+
+            The version-check workflow attempted to update **${{ matrix.language }}** but failed after 3 attempts.
+
+            | Field | Value |
+            |-------|-------|
+            | Current Version | \`${{ steps.version.outputs.current }}\` |
+            | Target Version | \`${{ steps.version.outputs.new }}\` |
+            | Workflow Run | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
+
+            ### Error Log
+
+            \`\`\`
+            ${truncatedLog}
+            \`\`\`
+
+            ### Next Steps
+
+            1. Review the error log above
+            2. Check for breaking changes in the new version
+            3. Manually update the Earthfile and source files
+            4. Test with \`earthly --build-arg QUICK_TEST_ROUNDS=10000 +${{ matrix.language }}\`
+
+            ---
+
+            > This issue was automatically created by the version-check workflow.`,
+              labels: ['version-update', 'needs-manual-fix']
+            });
+
+  # Summary job
+  summary:
+    needs: [check-versions, process-updates]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: version-check-*
+          path: results-raw
+          merge-multiple: false
+        continue-on-error: true
+
+      - name: Generate summary
+        run: |
+          echo "# Version Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d "results-raw" ]; then
+            echo "## Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Language | Current | Latest | Update? |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|---------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+
+            UPDATES=0
+            for file in results-raw/version-check-*/*.json; do
+              if [ -f "$file" ]; then
+                LANG=$(jq -r '.language' "$file")
+                CURRENT=$(jq -r '.current // "?"' "$file")
+                LATEST=$(jq -r '.latest // "?"' "$file")
+                HAS_UPDATE=$(jq -r '.has_update' "$file")
+
+                if [ "$HAS_UPDATE" = "true" ]; then
+                  echo "| **$LANG** | $CURRENT | $LATEST | Yes |" >> $GITHUB_STEP_SUMMARY
+                  UPDATES=$((UPDATES + 1))
+                else
+                  echo "| $LANG | $CURRENT | $LATEST | No |" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+            done
+
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Total updates available:** $UPDATES" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No results available." >> $GITHUB_STEP_SUMMARY
+          fi
