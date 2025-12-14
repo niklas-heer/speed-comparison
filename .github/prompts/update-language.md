@@ -1,11 +1,14 @@
 # Task: Update Language Version
 
-Update the **{{LANGUAGE}}** target in the Earthfile to use version **{{NEW_VERSION}}**.
+**CRITICAL: Change the version from `{{CURRENT_VERSION}}` to exactly `{{NEW_VERSION}}` - do not use "latest" or any other version.**
 
-## Current State
-- Language target: `{{LANGUAGE}}`
-- Current version: `{{CURRENT_VERSION}}`
-- New version: `{{NEW_VERSION}}`
+Update the **{{LANGUAGE}}** target in the Earthfile.
+
+## Required Change
+- Target: `{{LANGUAGE}}`  
+- FROM version: `{{CURRENT_VERSION}}` → `{{NEW_VERSION}}`
+
+For example, if current is `oven/bun:1.2-alpine` and new version is `1.3-alpine`, change to `oven/bun:1.3-alpine`.
 
 ## Instructions
 
