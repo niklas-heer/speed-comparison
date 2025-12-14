@@ -219,7 +219,7 @@ jobs:
 
       - name: Update Earthfile with Claude Code (Haiku)
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           echo "Starting Claude Code Router..."
           claude-code-router --provider openrouter --model anthropic/claude-haiku-4.5 &
@@ -244,7 +244,7 @@ jobs:
       - name: Fix breaking changes with Claude Code (Opus)
         if: steps.validate.outcome == 'failure'
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           ERROR_OUTPUT=$(cat build-output.txt | tail -100)
 
