@@ -1,0 +1,123 @@
+::group:: Init 🚀
+ Init 🚀
+————————————————————————————————————————————————————————————————————————————————
+
+           buildkitd | Starting buildkit daemon as a docker container (earthly-buildkitd)...
+           buildkitd | ...Done
+::endgroup:: Init 🚀
+
+::group:: Build 🔧
+ Build 🔧
+————————————————————————————————————————————————————————————————————————————————
+
+              logbus | Setting organization "" and project ""
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> FROM +base
+ earthly/dind:alpine | --> Load metadata earthly/dind:alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+  python:3.13-alpine | --> Load metadata python:3.13-alpine linux/amd64
+               +base | QUICK_TEST_ROUNDS=10000
+               +base | --> FROM earthly/dind:alpine
+               +base | [----------] 100% FROM earthly/dind:alpine[K
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> FROM python:3.13-alpine
+            +cpython | [----------] 100% FROM python:3.13-alpine[K
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> RUN apk add --no-cache hyperfine
+            +cpython | (1/2) Installing libgcc (15.2.0-r2)
+            +cpython | (2/2) Installing hyperfine (1.20.0-r0)
+            +cpython | Executing busybox-1.37.0-r29.trigger
+            +cpython | OK: 12 MiB in 31 packages
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> WORKDIR /app
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> mkdir /run
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> IF [ "$USE_PREBUILT_SCMETA" = "true" ]
+              +build | src=leibniz.py
+              +build | --> FROM +base
+c/crystal:1.15-alpine | --> Load metadata crystallang/crystal:1.15-alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+              +build | src=leibniz.py
+              +build | --> FROM crystallang/crystal:1.15-alpine
+              +build | [----------] 100% FROM crystallang/crystal:1.15-alpine[K
+              +build | src=leibniz.py
+              +build | --> WORKDIR /app
+              +build | src=leibniz.py
+              +build | --> COPY --dir scmeta ./
+              +build | src=leibniz.py
+              +build | --> WORKDIR /app/scmeta
+              +build | src=leibniz.py
+              +build | --> RUN shards install --production -v
+              +build | I: Resolving dependencies
+              +build | I: Fetching https://github.com/anykeyh/json_on_steroids.git
+              +build | D: git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- https://github.com/anykeyh/json_on_steroids.git /root/.cache/shards/github.com/anykeyh/json_on_steroids.git
+              +build | D: git ls-remote --get-url origin
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git log -n 1 --pretty=%H 9c43ff02a7c315290ba00a9257a88db0018124d7
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | I: Installing json_on_steroids (0.1.0 at 9c43ff0)
+              +build | D: rm -rf /app/scmeta/lib/json_on_steroids
+              +build | D: git --work-tree=/app/scmeta/lib/json_on_steroids checkout 9c43ff02a7c315290ba00a9257a88db0018124d7 -- .
+              +build | D: Link /app/scmeta/lib to /app/scmeta/lib/json_on_steroids/lib
+              +build | src=leibniz.py
+              +build | --> RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
+              +build | src=leibniz.py
+              +build | --> SAVE ARTIFACT bin/scmeta +build/scmeta
+              +build | [----------] 100% SAVE ARTIFACT bin/scmeta +build/scmeta[K
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> COPY +build/scmeta ./
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> COPY ./src/rounds.txt ./
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> mkdir /run
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> IF [ -n "$QUICK_TEST_ROUNDS" ]
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> COPY ./src/leibniz.py ./
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+            +cpython | Benchmark 1: python3 leibniz.py
+            +cpython |   Time (mean ± σ):      0.010 s ±  0.000 s    [User: 0.008 s, System: 0.002 s]
+            +cpython |   Range (min … max):    0.010 s …  0.010 s    3 runs
+            +cpython |  
+            +cpython |  
+            +cpython |   Warning: Statistical outliers were detected. Consider re-running this benchmark on a quiet system without any interferences from other programs. It might help to use the '--warmup' or '--prepare' options.
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> RUN --no-cache ./scmeta --lang-name="$lang" --target-name="$name" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
+            +cpython | Successfully created metadata
+            +cpython | Language: Python (CPython) (3.13.11)
+            +cpython | Output: ./scmeta.json
+            +cpython | QUICK_TEST_ROUNDS=10000
+            +cpython | --> SAVE ARTIFACT ./scmeta.json +cpython/scmeta.json AS LOCAL ./results/cpython.json
+              output | --> exporting outputs
+              output | sent 1 file stat
+              output | [----------] 100% exporting outputs[K
+              output | --> exporting outputs
+::endgroup:: Build 🔧
+
+::group:: Push Summary ⏫ (disabled)
+ Push Summary ⏫ (disabled)
+————————————————————————————————————————————————————————————————————————————————
+
+To enable pushing use earthly --push
+::endgroup:: Push Summary ⏫
+
+::group:: Local Output Summary 🎁
+ Local Output Summary 🎁
+————————————————————————————————————————————————————————————————————————————————
+
+Artifact github.com/niklas-heer/speed-comparison:master+cpython/scmeta.json output as ./results/cpython.json
+::endgroup:: Local Output Summary 🎁
+
+
+========================== 🌍 Earthly Build  ✅ SUCCESS ==========================
+
+🛰️ Reuse cache between CI runs with Earthly Satellites! 2-20X faster than without cache. Generous free tier https://cloud.earthly.dev
