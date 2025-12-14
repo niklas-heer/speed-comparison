@@ -280,7 +280,7 @@ odin:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y git clang llvm make
-  RUN git clone --depth=1 https://github.com/odin-lang/Odin.git /opt/odin && \
+  RUN git clone --depth=1 --branch=dev-2025-12a https://github.com/odin-lang/Odin.git /opt/odin && \
       cd /opt/odin && ./build_odin.sh release
   ENV PATH="/opt/odin:${PATH}"
   DO +ADD_FILES --src="leibniz.odin"
