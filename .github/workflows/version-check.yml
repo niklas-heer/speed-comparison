@@ -162,8 +162,8 @@ jobs:
       - name: Extract version info
         id: version
         run: |
-          CURRENT=$(jq -r '.current' version-info/${{ matrix.language }}-result.json)
-          LATEST=$(jq -r '.latest' version-info/${{ matrix.language }}-result.json)
+          CURRENT=$(jq -r '.current_version' version-info/${{ matrix.language }}-result.json)
+          LATEST=$(jq -r '.latest_version' version-info/${{ matrix.language }}-result.json)
           echo "current=$CURRENT" >> $GITHUB_OUTPUT
           echo "new=$LATEST" >> $GITHUB_OUTPUT
 
