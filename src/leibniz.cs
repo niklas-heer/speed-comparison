@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-
 var rounds = int.Parse(File.ReadAllText("rounds.txt"));
 
 var pi = 1.0D;
