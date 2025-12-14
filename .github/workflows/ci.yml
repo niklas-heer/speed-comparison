@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip_cache:
+        description: "Skip cache and run fresh benchmarks"
+        required: false
+        type: boolean
+        default: false
 
 env:
   EARTHLY_VERSION: "0.8.15"
@@ -458,30 +463,31 @@ jobs:
 
       - name: Cache benchmark result
         id: cache-benchmark
+        if: ${{ !inputs.skip_cache }}
         uses: actions/cache@v4
         with:
           path: results/${{ matrix.language }}.json
           key: benchmark-${{ matrix.language }}-${{ steps.cache-key.outputs.key }}
 
       - name: Download scmeta
-        if: steps.cache-benchmark.outputs.cache-hit != 'true'
+        if: steps.cache-benchmark.outputs.cache-hit != 'true' || inputs.skip_cache
         uses: actions/download-artifact@v4
         with:
           name: scmeta-binary
           path: scmeta-bin
 
       - name: Setup scmeta
-        if: steps.cache-benchmark.outputs.cache-hit != 'true'
+        if: steps.cache-benchmark.outputs.cache-hit != 'true' || inputs.skip_cache
         run: chmod +x scmeta-bin/scmeta
 
       - name: Setup Earthly
-        if: steps.cache-benchmark.outputs.cache-hit != 'true'
+        if: steps.cache-benchmark.outputs.cache-hit != 'true' || inputs.skip_cache
         uses: earthly/actions-setup@v1
         with:
           version: v${{ env.EARTHLY_VERSION }}
 
       - name: Run benchmark for ${{ matrix.language }}
-        if: steps.cache-benchmark.outputs.cache-hit != 'true'
+        if: steps.cache-benchmark.outputs.cache-hit != 'true' || inputs.skip_cache
         run: |
           for attempt in 1 2 3; do
             echo "Attempt $attempt of 3"
@@ -497,7 +503,9 @@ jobs:
 
       - name: Show cache status
         run: |
-          if [ "${{ steps.cache-benchmark.outputs.cache-hit }}" == "true" ]; then
+          if [ "${{ inputs.skip_cache }}" == "true" ]; then
+            echo "🔨 Ran fresh benchmark for ${{ matrix.language }} (cache skipped)"
+          elif [ "${{ steps.cache-benchmark.outputs.cache-hit }}" == "true" ]; then
             echo "✅ Using cached result for ${{ matrix.language }}"
           else
             echo "🔨 Ran fresh benchmark for ${{ matrix.language }}"
