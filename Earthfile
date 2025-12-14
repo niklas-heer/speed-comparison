@@ -553,7 +553,7 @@ deno:
   DO +BENCH --name="deno" --lang="Deno (TypeScript)" --version="deno --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="deno run --allow-read leibniz.ts"
 
 nodejs:
-  FROM node:22-alpine
+  FROM node:25-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.js"
   DO +BENCH --name="nodejs" --lang="Javascript (nodejs)" --version="node --version" --cmd="node leibniz.js"
