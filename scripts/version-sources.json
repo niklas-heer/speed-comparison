@@ -50,13 +50,6 @@
     "source_file": "leibniz.d",
     "notes": "LLVM-based D compiler"
   },
-  "go": {
-    "source": "docker",
-    "image": "golang",
-    "earthfile_pattern": "golang:(\\d+\\.\\d+)-alpine",
-    "tag_filter": "^\\d+\\.\\d+-alpine$",
-    "source_file": "leibniz.go"
-  },
   "nim": {
     "source": "alpine",
     "package": "nim",
