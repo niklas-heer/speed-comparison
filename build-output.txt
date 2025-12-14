@@ -1,0 +1,127 @@
+::group:: Init 🚀
+ Init 🚀
+————————————————————————————————————————————————————————————————————————————————
+
+           buildkitd | Starting buildkit daemon as a docker container (earthly-buildkitd)...
+           buildkitd | ...Done
+::endgroup:: Init 🚀
+
+::group:: Build 🔧
+ Build 🔧
+————————————————————————————————————————————————————————————————————————————————
+
+              logbus | Setting organization "" and project ""
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> FROM +base
+ earthly/dind:alpine | --> Load metadata earthly/dind:alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+clojure:temurin-21-tools-deps-alpine | --> Load metadata clojure:temurin-21-tools-deps-alpine linux/amd64
+               +base | QUICK_TEST_ROUNDS=10000
+               +base | --> FROM earthly/dind:alpine
+               +base | [----------] 100% FROM earthly/dind:alpine[K
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> FROM clojure:temurin-21-tools-deps-alpine
+                +clj | [----------] 100% FROM clojure:temurin-21-tools-deps-alpine[K
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> RUN apk add --no-cache hyperfine
+                +clj | fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+                +clj | fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+                +clj | (1/1) Installing hyperfine (1.19.0-r0)
+                +clj | Executing busybox-1.37.0-r19.trigger
+                +clj | OK: 64 MiB in 89 packages
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> RUN apk add --no-cache rlwrap
+                +clj | fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+                +clj | fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+                +clj | OK: 64 MiB in 89 packages
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> WORKDIR /app
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> mkdir /run
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> IF [ "$USE_PREBUILT_SCMETA" = "true" ]
+              +build | src=leibniz.clj
+              +build | --> FROM +base
+c/crystal:1.15-alpine | --> Load metadata crystallang/crystal:1.15-alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+              +build | src=leibniz.clj
+              +build | --> FROM crystallang/crystal:1.15-alpine
+              +build | [----------] 100% FROM crystallang/crystal:1.15-alpine[K
+              +build | src=leibniz.clj
+              +build | --> WORKDIR /app
+              +build | src=leibniz.clj
+              +build | --> COPY --dir scmeta ./
+              +build | src=leibniz.clj
+              +build | --> WORKDIR /app/scmeta
+              +build | src=leibniz.clj
+              +build | --> RUN shards install --production -v
+              +build | I: Resolving dependencies
+              +build | I: Fetching https://github.com/anykeyh/json_on_steroids.git
+              +build | D: git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- https://github.com/anykeyh/json_on_steroids.git /root/.cache/shards/github.com/anykeyh/json_on_steroids.git
+              +build | D: git ls-remote --get-url origin
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git log -n 1 --pretty=%H 9c43ff02a7c315290ba00a9257a88db0018124d7
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | I: Installing json_on_steroids (0.1.0 at 9c43ff0)
+              +build | D: rm -rf /app/scmeta/lib/json_on_steroids
+              +build | D: git --work-tree=/app/scmeta/lib/json_on_steroids checkout 9c43ff02a7c315290ba00a9257a88db0018124d7 -- .
+              +build | D: Link /app/scmeta/lib to /app/scmeta/lib/json_on_steroids/lib
+              +build | src=leibniz.clj
+              +build | --> RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
+              +build | src=leibniz.clj
+              +build | --> SAVE ARTIFACT bin/scmeta +build/scmeta
+              +build | [----------] 100% SAVE ARTIFACT bin/scmeta +build/scmeta[K
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> COPY +build/scmeta ./
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> COPY ./src/rounds.txt ./
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> mkdir /run
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> IF [ -n "$QUICK_TEST_ROUNDS" ]
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> COPY ./src/leibniz.clj ./
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+                +clj | Benchmark 1: clj leibniz.clj
+                +clj |   Time (mean ± σ):      0.492 s ±  0.013 s    [User: 0.999 s, System: 0.113 s]
+                +clj |   Range (min … max):    0.482 s …  0.507 s    3 runs
+                +clj |  
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> RUN --no-cache ./scmeta --lang-name="$lang" --target-name="$name" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
+                +clj | Successfully created metadata
+                +clj | Language: Clojure (1.12.4.1582)
+                +clj | Output: ./scmeta.json
+                +clj | QUICK_TEST_ROUNDS=10000
+                +clj | --> SAVE ARTIFACT ./scmeta.json +clj/scmeta.json AS LOCAL ./results/clj.json
+              output | --> exporting outputs
+              output | sent 1 file stat
+              output | [----------] 100% exporting outputs[K
+              output | --> exporting outputs
+::endgroup:: Build 🔧
+
+::group:: Push Summary ⏫ (disabled)
+ Push Summary ⏫ (disabled)
+————————————————————————————————————————————————————————————————————————————————
+
+To enable pushing use earthly --push
+::endgroup:: Push Summary ⏫
+
+::group:: Local Output Summary 🎁
+ Local Output Summary 🎁
+————————————————————————————————————————————————————————————————————————————————
+
+Artifact github.com/niklas-heer/speed-comparison:master+clj/scmeta.json output as ./results/clj.json
+::endgroup:: Local Output Summary 🎁
+
+
+========================== 🌍 Earthly Build  ✅ SUCCESS ==========================
+
+🛰️ Reuse cache between CI runs with Earthly Satellites! 2-20X faster than without cache. Generous free tier https://cloud.earthly.dev
