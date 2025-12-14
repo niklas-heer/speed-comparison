@@ -110,11 +110,11 @@ Repository maintainers can trigger benchmarks on PRs using comments:
 
 ## Automated Version Updates
 
-This project uses an AI-powered CI workflow to keep all 58 programming languages up to date automatically.
+This project uses an AI-powered CI workflow to keep all programming languages up to date automatically.
 
 ### How It Works
 
-1. **Daily Check**: A scheduled workflow runs daily at 6 AM UTC
+1. **Weekly Check**: A scheduled workflow runs every Monday at 6 AM UTC
 2. **Version Detection**: Checks for new versions via:
    - Docker Hub Registry API (for official language images)
    - GitHub Releases API (for languages like Zig, Nim, Gleam)
