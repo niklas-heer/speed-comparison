@@ -696,7 +696,7 @@ swift:
   DO +BENCH --name="swift" --lang="Swift" --version="swift --version" --cmd="./leibniz"
 
 swift-simd:
-  FROM swift:6.0-jammy
+  FROM swift:6.2-jammy
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz-simd.swift"
   RUN --no-cache swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full
