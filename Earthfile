@@ -260,7 +260,7 @@ d-ldc:
   DO +BENCH --name="d-ldc" --lang="D (LDC)" --version="ldc2 --version" --cmd="./leibniz"
 
 go:
-  FROM golang:1.23-alpine
+  FROM golang:1.25-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.go"
   RUN --no-cache go build leibniz.go
