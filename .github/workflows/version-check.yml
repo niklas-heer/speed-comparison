@@ -162,8 +162,17 @@ jobs:
       - name: Extract version info
         id: version
         run: |
-          CURRENT=$(jq -r '.current_version' version-info/${{ matrix.language }}-result.json)
-          LATEST=$(jq -r '.latest_version' version-info/${{ matrix.language }}-result.json)
+          echo "Looking for version info file..."
+          ls -la version-info/
+          CURRENT=$(jq -r '.current_version // empty' version-info/${{ matrix.language }}-result.json)
+          LATEST=$(jq -r '.latest_version // empty' version-info/${{ matrix.language }}-result.json)
+
+          if [ -z "$CURRENT" ] || [ -z "$LATEST" ]; then
+            echo "ERROR: Could not extract version info"
+            echo "File contents:"
+            cat version-info/${{ matrix.language }}-result.json
+            exit 1
+          fi
           echo "current=$CURRENT" >> $GITHUB_OUTPUT
           echo "new=$LATEST" >> $GITHUB_OUTPUT
 
@@ -217,7 +226,7 @@ jobs:
               }
             ],
             "Router": {
-              "default": "openrouter,anthropic/claude-haiku-4.5"
+              "default": "openrouter,anthropic/claude-opus-4.5"
             }
           }
           EOF
