@@ -229,7 +229,7 @@ jobs:
           echo "Running Claude Code to update Earthfile..."
           claude -p "$(cat /tmp/update-prompt.md)" \
             --allowedTools "Read,Edit,Bash" \
-            --dangerouslySkipPermissions
+            --dangerously-skip-permissions
 
           kill $ROUTER_PID 2>/dev/null || true
 
@@ -268,7 +268,7 @@ jobs:
 
             claude -p "$(cat /tmp/fix-prompt.md)" \
               --allowedTools "Read,Edit,Bash,WebSearch" \
-              --dangerouslySkipPermissions
+              --dangerously-skip-permissions
 
             kill $ROUTER_PID 2>/dev/null || true
 
