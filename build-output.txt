@@ -1,0 +1,151 @@
+::group:: Init 🚀
+ Init 🚀
+————————————————————————————————————————————————————————————————————————————————
+
+           buildkitd | Starting buildkit daemon as a docker container (earthly-buildkitd)...
+           buildkitd | ...Done
+::endgroup:: Init 🚀
+
+::group:: Build 🔧
+ Build 🔧
+————————————————————————————————————————————————————————————————————————————————
+
+              logbus | Setting organization "" and project ""
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> FROM +base
+ earthly/dind:alpine | --> Load metadata earthly/dind:alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+      groovy:4-jdk21 | --> Load metadata groovy:4-jdk21 linux/amd64
+               +base | QUICK_TEST_ROUNDS=10000
+               +base | --> FROM earthly/dind:alpine
+               +base | [----------] 100% FROM earthly/dind:alpine[K
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> FROM groovy:4-jdk21
+             +groovy | [----------] 100% FROM groovy:4-jdk21[K
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> RUN apt-get update && apt-get install -y wget
+             +groovy | Get:1 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+             +groovy | Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+             +groovy | Get:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+             +groovy | Get:4 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1,736 kB]
+             +groovy | Get:5 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+             +groovy | Get:6 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+             +groovy | Get:7 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [33.1 kB]
+             +groovy | Get:8 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2,874 kB]
+             +groovy | Get:9 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1,183 kB]
+             +groovy | Get:10 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+             +groovy | Get:11 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+             +groovy | Get:12 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1,808 kB]
+             +groovy | Get:13 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [3,048 kB]
+             +groovy | Get:14 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [2,118 kB]
+             +groovy | Get:15 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,943 kB]
+             +groovy | Get:16 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [35.9 kB]
+             +groovy | Get:17 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [34.3 kB]
+             +groovy | Get:18 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
+             +groovy | Fetched 35.3 MB in 2s (15.1 MB/s)
+             +groovy | Reading package lists...
+
+             +groovy | Reading package lists...
+
+             +groovy | Building dependency tree...
+             +groovy | Reading state information...
+             +groovy | wget is already the newest version (1.21.4-1ubuntu4.1).
+             +groovy | 0 upgraded, 0 newly installed, 0 to remove and 9 not upgraded.
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> RUN ARCH=$(dpkg --print-architecture) && wget -q https://github.com/sharkdp/hyperfine/releases/download/v1.18.0/hyperfine_1.18.0_${ARCH}.deb && dpkg -i hyperfine_1.18.0_${ARCH}.deb
+             +groovy | Selecting previously unselected package hyperfine.
+             +groovy | (Reading database ... 6882 files and directories currently installed.)
+             +groovy | Preparing to unpack hyperfine_1.18.0_amd64.deb ...
+             +groovy | Unpacking hyperfine (1.18.0) ...
+             +groovy | Setting up hyperfine (1.18.0) ...
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> WORKDIR /app
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> mkdir /run
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> IF [ "$USE_PREBUILT_SCMETA" = "true" ]
+              +build | src=leibniz.groovy
+              +build | --> FROM +base
+c/crystal:1.15-alpine | --> Load metadata crystallang/crystal:1.15-alpine linux/amd64
+Warning: you are not logged into registry-1.docker.io, you may experience rate-limitting when pulling images
+              +build | src=leibniz.groovy
+              +build | --> FROM crystallang/crystal:1.15-alpine
+              +build | [----------] 100% FROM crystallang/crystal:1.15-alpine[K
+              +build | src=leibniz.groovy
+              +build | --> WORKDIR /app
+              +build | src=leibniz.groovy
+              +build | --> COPY --dir scmeta ./
+              +build | src=leibniz.groovy
+              +build | --> WORKDIR /app/scmeta
+              +build | src=leibniz.groovy
+              +build | --> RUN shards install --production -v
+              +build | I: Resolving dependencies
+              +build | I: Fetching https://github.com/anykeyh/json_on_steroids.git
+              +build | D: git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- https://github.com/anykeyh/json_on_steroids.git /root/.cache/shards/github.com/anykeyh/json_on_steroids.git
+              +build | D: git ls-remote --get-url origin
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git log -n 1 --pretty=%H 9c43ff02a7c315290ba00a9257a88db0018124d7
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | D: git ls-tree -r --full-tree --name-only 9c43ff02a7c315290ba00a9257a88db0018124d7 -- shard.yml
+              +build | D: git show 9c43ff02a7c315290ba00a9257a88db0018124d7:shard.yml
+              +build | I: Installing json_on_steroids (0.1.0 at 9c43ff0)
+              +build | D: rm -rf /app/scmeta/lib/json_on_steroids
+              +build | D: git --work-tree=/app/scmeta/lib/json_on_steroids checkout 9c43ff02a7c315290ba00a9257a88db0018124d7 -- .
+              +build | D: Link /app/scmeta/lib to /app/scmeta/lib/json_on_steroids/lib
+              +build | src=leibniz.groovy
+              +build | --> RUN crystal build src/scmeta.cr --release --static -o bin/scmeta
+              +build | src=leibniz.groovy
+              +build | --> SAVE ARTIFACT bin/scmeta +build/scmeta
+              +build | [----------] 100% SAVE ARTIFACT bin/scmeta +build/scmeta[K
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> COPY +build/scmeta ./
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> COPY ./src/rounds.txt ./
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> mkdir /run
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> IF [ -n "$QUICK_TEST_ROUNDS" ]
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> RUN echo "$QUICK_TEST_ROUNDS" > rounds.txt
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> COPY ./src/leibniz.groovy ./
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> RUN --no-cache hyperfine "$cmd" --warmup $warmups --runs $iterations --time-unit $timeas --export-json "./hyperfine.json" --output "./pi.txt"
+             +groovy | Benchmark 1: groovy leibniz.groovy
+             +groovy |   Time (mean ± σ):      0.750 s ±  0.089 s    [User: 1.796 s, System: 0.110 s]
+             +groovy |   Range (min … max):    0.657 s …  0.834 s    3 runs
+             +groovy |  
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> RUN --no-cache ./scmeta --lang-name="$lang" --target-name="$name" --lang-version="$version" --hyperfine="./hyperfine.json" --pi="./pi.txt" --output="./scmeta.json" --lang-version-match-index="$index"
+             +groovy | Successfully created metadata
+             +groovy | Language: Groovy (4.0.27)
+             +groovy | Output: ./scmeta.json
+             +groovy | QUICK_TEST_ROUNDS=10000
+             +groovy | --> SAVE ARTIFACT ./scmeta.json +groovy/scmeta.json AS LOCAL ./results/groovy.json
+              output | --> exporting outputs
+              output | sent 1 file stat
+              output | [----------] 100% exporting outputs[K
+              output | --> exporting outputs
+::endgroup:: Build 🔧
+
+::group:: Push Summary ⏫ (disabled)
+ Push Summary ⏫ (disabled)
+————————————————————————————————————————————————————————————————————————————————
+
+To enable pushing use earthly --push
+::endgroup:: Push Summary ⏫
+
+::group:: Local Output Summary 🎁
+ Local Output Summary 🎁
+————————————————————————————————————————————————————————————————————————————————
+
+Artifact github.com/niklas-heer/speed-comparison:master+groovy/scmeta.json output as ./results/groovy.json
+::endgroup:: Local Output Summary 🎁
+
+
+========================== 🌍 Earthly Build  ✅ SUCCESS ==========================
+
+🛰️ Reuse cache between CI runs with Earthly Satellites! 2-20X faster than without cache. Generous free tier https://cloud.earthly.dev
