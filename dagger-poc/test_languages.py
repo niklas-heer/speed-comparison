@@ -161,12 +161,23 @@ class TestLanguageDataclass:
 
     def test_missing_packages_raises(self):
         """Language without any packages should raise."""
-        with pytest.raises(ValueError, match="must have nixpkgs"):
+        with pytest.raises(ValueError, match="must have nixpkgs or nix_flakes"):
             Language(
                 name="Test",
                 file="leibniz.c",
                 run="./test",
             )
+
+    def test_nix_flakes_primary_package(self):
+        """primary_package should extract from nix_flakes if no nixpkgs."""
+        lang = Language(
+            name="Swift",
+            nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
+            file="leibniz.swift",
+            run="./test",
+        )
+        assert lang.primary_package == "swift"
+        assert lang.primary_version == "24.05"
 
 
 class TestCategoryGrouping:

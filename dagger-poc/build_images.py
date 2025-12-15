@@ -78,22 +78,29 @@ async def build_devbox_image(
 ) -> dagger.Container:
     """Build a container image using Devbox for package management.
 
-    This is used for languages that work well with Devbox (most of them).
+    Supports two package sources:
+    - nixpkgs: Standard Devbox packages with versions (e.g., "go@1.23.4")
+    - nix_flakes: Nix flake refs for binary cache hits (e.g., "github:NixOS/nixpkgs/nixos-24.05#swift")
+
+    Both can be combined in the same language definition.
     """
     container = client.container().from_(DEVBOX_IMAGE)
 
-    # Initialize devbox and add packages (including micropython for scmeta)
+    # Initialize devbox
+    container = container.with_workdir("/app").with_exec(["devbox", "init"])
+
+    # Add standard nixpkgs packages (including hyperfine and micropython)
     packages = list(lang.nixpkgs) + [
         f"hyperfine@{HYPERFINE_VERSION}",
         f"micropython@{MICROPYTHON_VERSION}",
     ]
-    packages_str = " ".join(packages)
+    if packages:
+        packages_str = " ".join(packages)
+        container = container.with_exec(["sh", "-c", f"devbox add {packages_str}"])
 
-    container = (
-        container.with_workdir("/app")
-        .with_exec(["devbox", "init"])
-        .with_exec(["sh", "-c", f"devbox add {packages_str}"])
-    )
+    # Add nix flake packages (for binary cache hits from specific nixpkgs channels)
+    for flake_ref in lang.nix_flakes:
+        container = container.with_exec(["devbox", "add", flake_ref])
 
     # Run any post-install setup
     if lang.nix_setup:

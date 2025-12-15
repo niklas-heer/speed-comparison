@@ -52,6 +52,9 @@ class Language:
         category: Language category for organization
         version_regex: Regex to extract version from version_cmd output
         nixpkgs: List of Devbox packages ["pkg@version", ...]
+        nix_flakes: List of Nix flake refs for packages not available in Devbox
+                    or that need a specific nixpkgs channel for binary cache hits.
+                    Format: ("github:NixOS/nixpkgs/nixos-24.05#swift",)
         nix_setup: Optional shell commands to run after packages are installed
     """
 
@@ -66,6 +69,8 @@ class Language:
 
     # Devbox packages: ("go@1.23.4", "gcc@14.2.0")
     nixpkgs: tuple[str, ...] = ()
+    # Nix flake refs for binary cache hits: ("github:NixOS/nixpkgs/nixos-24.05#swift",)
+    nix_flakes: tuple[str, ...] = ()
     nix_setup: Optional[str] = None  # Post-install setup commands
 
     # Security
@@ -82,9 +87,9 @@ class Language:
         if not self.name:
             raise ValueError("Language name is required")
 
-        # Must have packages
-        if not self.nixpkgs:
-            raise ValueError(f"Language {self.name} must have nixpkgs")
+        # Must have at least one package source
+        if not self.nixpkgs and not self.nix_flakes:
+            raise ValueError(f"Language {self.name} must have nixpkgs or nix_flakes")
 
         # Validate nixpkgs have versions
         for pkg in self.nixpkgs:
@@ -101,12 +106,27 @@ class Language:
     @property
     def primary_package(self) -> str:
         """Get the primary package name."""
-        return self.nixpkgs[0].split("@")[0]
+        if self.nixpkgs:
+            return self.nixpkgs[0].split("@")[0]
+        elif self.nix_flakes:
+            # Extract package from flake ref: "github:NixOS/nixpkgs/nixos-24.05#swift" -> "swift"
+            return self.nix_flakes[0].split("#")[-1]
+        return "unknown"
 
     @property
     def primary_version(self) -> str:
         """Get the pinned version of the primary package."""
-        return self.nixpkgs[0].split("@")[1]
+        if self.nixpkgs:
+            return self.nixpkgs[0].split("@")[1]
+        elif self.nix_flakes:
+            # Extract channel from flake ref: "github:NixOS/nixpkgs/nixos-24.05#swift" -> "24.05"
+            ref = self.nix_flakes[0]
+            # Try to extract version from channel name (e.g., nixos-24.05 -> 24.05)
+            if "nixos-" in ref:
+                return ref.split("nixos-")[1].split("#")[0]
+            # Fallback to full ref
+            return ref.split("/")[-1].split("#")[0]
+        return "unknown"
 
     @property
     def image_tag(self) -> str:
@@ -287,9 +307,11 @@ LANGUAGES: dict[str, Language] = {
         base="crystal",
         category="systems",
     ),
+    # Swift uses nix_flakes with nixos-24.05 for binary cache hits
+    # Swift 5.10.1 in unstable has build failures; 5.8 in 24.05 has cached binaries
     "swift": Language(
         name="Swift",
-        nixpkgs=("swift@5.10.1",),
+        nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
         file="leibniz.swift",
         compile="swiftc -O -o leibniz leibniz.swift",
         run="./leibniz",
@@ -299,7 +321,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nixpkgs=("swift@5.10.1",),
+        nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
         file="leibniz-simd.swift",
         compile="swiftc -O -o leibniz leibniz-simd.swift",
         run="./leibniz",
@@ -309,7 +331,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (Relaxed)",
-        nixpkgs=("swift@5.10.1",),
+        nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
         file="leibniz.swift",
         compile="swiftc -O -enable-experimental-feature Extern -Xcc -ffast-math -o leibniz leibniz.swift",
         run="./leibniz",
