@@ -272,7 +272,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "d": Language(
         name="D (GDC)",
-        nixpkgs=("gdc@15.2.0",),
+        nixpkgs=("gdc@11.5.0",),  # 15.2.0 not available in nixpkgs
         file="leibniz.d",
         compile=f"gdc leibniz.d -o leibniz -O3 -frelease -flto -ffast-math {MARCH_NATIVE}",
         run="./leibniz",
@@ -368,7 +368,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "objc": Language(
         name="Objective-C",
-        nixpkgs=("clang@21.1.2", "gnustep-base@1.30.0"),
+        nixpkgs=("clang@18.1.8", "gnustep-base@1.29.0"),  # 21.1.2/1.30.0 not available
         file="leibniz.m",
         compile=f"clang {C_FLAGS} $(gnustep-config --objc-flags) $(gnustep-config --base-libs) -o leibniz leibniz.m",
         run="./leibniz",
@@ -523,7 +523,7 @@ LANGUAGES: dict[str, Language] = {
     "mypyc": Language(
         name="Python (mypyc)",
         nixpkgs=("python3@3.12.8", "gcc@14.2.0"),
-        nix_setup="pip install mypy",
+        nix_setup="python3 -m pip install mypy",
         file="leibniz.py",
         compile="mypyc leibniz.py && python -c 'import leibniz'",
         run="python -c 'import leibniz'",
