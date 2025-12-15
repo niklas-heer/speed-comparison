@@ -9,6 +9,8 @@ on:
       - ".gitignore"
       - ".gitattributes"
       - "docs/**"
+      - "dagger-poc/**"
+      - ".github/workflows/dagger-*.yml"
     branches:
       - master
   pull_request:
