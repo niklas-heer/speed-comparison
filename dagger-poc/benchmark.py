@@ -42,7 +42,7 @@ from pathlib import Path
 
 import dagger
 
-from languages import IS_ARM, LANGUAGES, Language, get_language
+from languages import IS_ARM, LANGUAGES, Language, get_base_image_name, get_language
 
 # =============================================================================
 # Configuration
@@ -83,22 +83,13 @@ def get_scmeta_script(client: dagger.Client) -> dagger.File:
 # =============================================================================
 
 
-def get_base_image_name(target: str, lang: Language) -> str:
-    """Get the base image name for a language.
-
-    Languages with a `base` field share the same base image.
-    For example, swift-simd and swift-relaxed both use "swift" as their base.
-    """
-    return lang.base or target
-
-
 def get_image_tag(registry: str, target: str, lang: Language) -> str:
     """Generate the full image tag for a language.
 
     Uses the base image name for languages that share a base.
     E.g., swift-simd uses the "swift" image.
     """
-    base_name = get_base_image_name(target, lang)
+    base_name = get_base_image_name(target)
     version = lang.primary_version.replace("+", "-")
     return f"{registry}/{base_name}:{version}"
 

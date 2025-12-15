@@ -92,38 +92,55 @@ jobs:
         run: |
           uv sync --quiet
 
+          # Helper to get all unique base images (deduplicated)
+          get_all_bases() {
+            uv run python -c "
+from languages import get_base_languages
+bases = get_base_languages()
+print(' '.join(sorted(bases.keys())))
+"
+          }
+
           # Manual input takes priority
           if [ -n "${{ inputs.languages }}" ]; then
             if [ "${{ inputs.languages }}" = "all" ]; then
-              echo "Building all languages (manual request)"
-              LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+              echo "Building all base images (manual request)"
+              LANGS=$(get_all_bases)
             else
               echo "Building specified languages: ${{ inputs.languages }}"
-              LANGS="${{ inputs.languages }}"
+              # Convert specified languages to their base images
+              LANGS=$(uv run python -c "
+from languages import resolve_targets_to_bases
+targets = '${{ inputs.languages }}'.split()
+bases = resolve_targets_to_bases(targets)
+print(' '.join(sorted(bases.keys())))
+")
             fi
           elif [ "${{ inputs.force_all }}" = "true" ]; then
-            echo "Building all languages (force_all=true)"
-            LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+            echo "Building all base images (force_all=true)"
+            LANGS=$(get_all_bases)
           elif [ "${{ github.event_name }}" = "push" ]; then
             # Detect which languages changed by comparing languages.py
             echo "Detecting changed languages..."
 
             # Check if build_images.py changed (rebuild all)
             if git diff --name-only HEAD~1 HEAD | grep -q "dagger-poc/build_images.py"; then
-              echo "build_images.py changed - rebuilding all"
-              LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+              echo "build_images.py changed - rebuilding all base images"
+              LANGS=$(get_all_bases)
             else
               # Get changed languages by diffing the Language definitions
               # Also check for missing images in the registry
+              # detect_changes.py already outputs base images
               LANGS=$(uv run python detect_changes.py --check-registry)
             fi
           elif [ "${{ inputs.check_registry }}" = "true" ]; then
             # Check registry for missing images
             echo "Checking registry for missing images..."
+            # detect_changes.py already outputs base images
             LANGS=$(uv run python detect_changes.py --check-registry)
           else
-            # Default: build all
-            LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+            # Default: build all base images
+            LANGS=$(get_all_bases)
           fi
 
           # Trim whitespace

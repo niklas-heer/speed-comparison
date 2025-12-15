@@ -40,45 +40,15 @@ from pathlib import Path
 
 import dagger
 
-from languages import IS_ARM, LANGUAGES, Language, get_language
-
-
-def get_base_image_name(target: str, lang: Language) -> str:
-    """Get the base image name for a language.
-
-    Languages with a `base` field share the same base image.
-    For example, swift-simd and swift-relaxed both use "swift" as their base.
-
-    Returns:
-        The base image name (e.g., "swift" for swift-simd)
-    """
-    return lang.base or target
-
-
-def get_base_languages() -> dict[str, tuple[str, Language]]:
-    """Get a deduplicated mapping of base images to build.
-
-    Groups languages by their base image. For each base, picks the
-    canonical language to use for building (prefers the one where
-    target == base, otherwise first one found).
-
-    Returns:
-        Dict mapping base_name -> (canonical_target, Language)
-    """
-    bases: dict[str, tuple[str, Language]] = {}
-
-    for target, lang in LANGUAGES.items():
-        base_name = get_base_image_name(target, lang)
-
-        if base_name not in bases:
-            # First language with this base
-            bases[base_name] = (target, lang)
-        elif target == base_name:
-            # Prefer the canonical target (e.g., "swift" over "swift-simd")
-            bases[base_name] = (target, lang)
-
-    return bases
-
+from languages import (
+    IS_ARM,
+    LANGUAGES,
+    Language,
+    get_base_image_name,
+    get_base_languages,
+    get_language,
+    resolve_targets_to_bases,
+)
 
 # =============================================================================
 # Configuration
@@ -202,7 +172,7 @@ def get_image_tag(registry: str, target: str, lang: Language) -> str:
     Uses the base image name for languages that share a base.
     E.g., swift-simd uses the "swift" image.
     """
-    base_name = get_base_image_name(target, lang)
+    base_name = get_base_image_name(target)
     version = lang.primary_version
     # Sanitize version for Docker tag (replace invalid chars)
     version = version.replace("+", "-")
@@ -257,33 +227,6 @@ async def build_and_push(
 
     except Exception as e:
         return (target, False, f"ERROR: {e}")
-
-
-def resolve_targets_to_bases(targets: list[str]) -> dict[str, tuple[str, Language]]:
-    """Convert a list of targets to their base images.
-
-    For example, if targets = ["swift-simd", "swift-relaxed"], this returns
-    just {"swift": ("swift", swift_lang)} since both use the same base.
-
-    Args:
-        targets: List of language targets to build
-
-    Returns:
-        Dict mapping base_name -> (canonical_target, Language)
-    """
-    bases: dict[str, tuple[str, Language]] = {}
-
-    for target in targets:
-        lang = get_language(target)
-        base_name = get_base_image_name(target, lang)
-
-        if base_name not in bases:
-            bases[base_name] = (target, lang)
-        elif target == base_name:
-            # Prefer the canonical target
-            bases[base_name] = (target, lang)
-
-    return bases
 
 
 async def main(

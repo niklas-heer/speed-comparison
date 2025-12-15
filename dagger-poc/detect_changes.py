@@ -6,6 +6,10 @@ This script detects languages that need their images rebuilt by checking:
 1. Languages whose definitions changed between HEAD~1 and HEAD
 2. Languages whose images don't exist in the registry (optional)
 
+**Base Image Deduplication:**
+Output is deduplicated by base image. For example, if swift-simd and swift-relaxed
+both need building, only "swift" is output since they share the same base image.
+
 Usage:
     # Detect changed languages only (default, fast)
     python detect_changes.py
@@ -24,6 +28,19 @@ Environment:
 import os
 import subprocess
 import sys
+
+from languages import get_base_image_name
+
+
+def targets_to_bases(targets: list[str]) -> list[str]:
+    """Convert a list of targets to unique base image names.
+
+    For example, ["swift", "swift-simd", "swift-relaxed"] -> ["swift"]
+    """
+    bases = set()
+    for target in targets:
+        bases.add(get_base_image_name(target))
+    return sorted(bases)
 
 
 def get_old_languages():
@@ -110,15 +127,24 @@ def main():
         print("Checking registry for missing images...", file=sys.stderr)
         missing = get_missing_images()
         # Combine and deduplicate
-        all_needed = sorted(set(changed) | set(missing))
+        all_targets = sorted(set(changed) | set(missing))
         if missing:
             print(f"Found {len(missing)} missing images in registry", file=sys.stderr)
     else:
-        all_needed = changed
+        all_targets = changed
 
-    # Output space-separated list
-    if all_needed:
-        print(" ".join(all_needed))
+    # Convert to base images (deduplicate variants like swift, swift-simd, swift-relaxed)
+    base_images = targets_to_bases(all_targets)
+
+    if len(base_images) < len(all_targets):
+        print(
+            f"Deduplicated {len(all_targets)} targets to {len(base_images)} base images",
+            file=sys.stderr,
+        )
+
+    # Output space-separated list of base images
+    if base_images:
+        print(" ".join(base_images))
     else:
         print("")  # No changes
 

@@ -34,19 +34,10 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from languages import LANGUAGES, Language, get_language
+from languages import LANGUAGES, Language, get_base_image_name, get_language
 
 # Default registry
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
-
-
-def get_base_image_name(target: str, lang: Language) -> str:
-    """Get the base image name for a language.
-
-    Languages with a `base` field share the same base image.
-    For example, swift-simd and swift-relaxed both use "swift" as their base.
-    """
-    return lang.base or target
 
 
 def get_image_tag(registry: str, target: str, lang: Language) -> str:
@@ -54,7 +45,7 @@ def get_image_tag(registry: str, target: str, lang: Language) -> str:
 
     Uses the base image name for languages that share a base.
     """
-    base_name = get_base_image_name(target, lang)
+    base_name = get_base_image_name(target)
     version = lang.primary_version.replace("+", "-")
     return f"{registry}/{base_name}:{version}"
 
@@ -139,8 +130,8 @@ def get_bases_to_check(targets: list[str] | None) -> dict[str, list[str]]:
 
     # Group targets by base image
     bases: dict[str, list[str]] = {}
-    for target, lang in languages_to_check.items():
-        base_name = get_base_image_name(target, lang)
+    for target in languages_to_check:
+        base_name = get_base_image_name(target)
         if base_name not in bases:
             bases[base_name] = []
         bases[base_name].append(target)
