@@ -18,44 +18,17 @@ To add a new language:
 
 from __future__ import annotations
 
-import platform
 import re
 from dataclasses import dataclass
 from typing import Optional
 
 # =============================================================================
-# Architecture Detection
+# Compiler Flags
 # =============================================================================
 
-ARCH = platform.machine()
-IS_ARM = ARCH in ("aarch64", "arm64")
-
-# Compiler optimization flags
-MARCH_NATIVE = "-march=armv8-a" if IS_ARM else "-march=native"
-
-# =============================================================================
-# Pinned Nixpkgs Version (for reproducibility)
-# =============================================================================
-
-# Pin to a specific nixpkgs commit for reproducible builds
-# Update this periodically to get newer package versions
-# Find commits at: https://github.com/NixOS/nixpkgs/commits/nixos-unstable
-NIXPKGS_REV = "nixos-24.11"  # Stable release branch
-NIXPKGS_REF = f"github:NixOS/nixpkgs/{NIXPKGS_REV}"
-
-
-def nix_pkg(name: str, version: str = "") -> str:
-    """Create a pinned Nix flake reference.
-
-    Args:
-        name: Package name (e.g., "jdk21", "dotnet-sdk_8")
-        version: Version for documentation/image tagging (not used in flake ref)
-
-    Returns:
-        Pinned flake reference like "github:NixOS/nixpkgs/nixos-24.11#jdk21"
-    """
-    return f"{NIXPKGS_REF}#{name}"
-
+# Compiler optimization flags for x86_64 targets
+# Note: All builds run on x86_64 Linux (either CI or Fly.io remote builder)
+MARCH_NATIVE = "-march=native"
 
 # =============================================================================
 # Language Configuration
@@ -67,9 +40,7 @@ class Language:
     """Configuration for a benchmark language.
 
     Container Build Strategy:
-    - If `nixpkgs` is set: Use Devbox to install packages
-    - If `nix_flake` is set: Use raw Nix flakes (for packages not in Devbox)
-    - Both can be combined (Devbox base + extra Nix packages)
+    Uses Devbox to install packages from nixpkgs.
 
     Attributes:
         name: Display name shown in charts
@@ -80,11 +51,8 @@ class Language:
         base: Base language for icon mapping (e.g., "rust" for "rust-nightly")
         category: Language category for organization
         version_regex: Regex to extract version from version_cmd output
-
-        # Package configuration (choose one or combine):
         nixpkgs: List of Devbox packages ["pkg@version", ...]
-        nix_flake: List of Nix flake refs ["nixpkgs#pkg", "github:org/repo#pkg", ...]
-        nix_setup: Optional shell commands to run after Nix packages are installed
+        nix_setup: Optional shell commands to run after packages are installed
     """
 
     name: str
@@ -96,14 +64,9 @@ class Language:
     category: str = "other"
     version_regex: str = r"(\d+\.\d+\.?\d*)"
 
-    # Package sources (at least one required)
-    nixpkgs: tuple[str, ...] = ()  # Devbox packages: ("go@1.23.4", "gcc@14.2.0")
-    nix_flake: tuple[str, ...] = ()  # Raw Nix flakes via nix_pkg(): (nix_pkg("jdk21"),)
-    nix_flake_version: str = ""  # Version string for flake packages (for image tagging)
+    # Devbox packages: ("go@1.23.4", "gcc@14.2.0")
+    nixpkgs: tuple[str, ...] = ()
     nix_setup: Optional[str] = None  # Post-install setup commands
-
-    # Platform limitations
-    x86_64_only: bool = False  # Some packages only work on x86_64 (wasi-sdk, some JVMs)
 
     # Security
     allow_insecure: bool = False  # Allow insecure packages (e.g., haxe needs mbedtls)
@@ -119,19 +82,14 @@ class Language:
         if not self.name:
             raise ValueError("Language name is required")
 
-        # Must have at least one package source
-        if not self.nixpkgs and not self.nix_flake:
-            raise ValueError(f"Language {self.name} must have nixpkgs or nix_flake")
+        # Must have packages
+        if not self.nixpkgs:
+            raise ValueError(f"Language {self.name} must have nixpkgs")
 
         # Validate nixpkgs have versions
         for pkg in self.nixpkgs:
             if "@" not in pkg:
                 raise ValueError(f"Package '{pkg}' must have version (e.g., '{pkg}@1.0.0')")
-
-    @property
-    def uses_nix_flake(self) -> bool:
-        """Check if this language uses raw Nix flakes (not just Devbox)."""
-        return len(self.nix_flake) > 0
 
     @property
     def icon_key(self) -> str:
@@ -143,22 +101,12 @@ class Language:
     @property
     def primary_package(self) -> str:
         """Get the primary package name."""
-        if self.nixpkgs:
-            return self.nixpkgs[0].split("@")[0]
-        elif self.nix_flake:
-            # Extract package name from flake ref: "nixpkgs#jdk21" -> "jdk21"
-            return self.nix_flake[0].split("#")[-1]
-        return "unknown"
+        return self.nixpkgs[0].split("@")[0]
 
     @property
     def primary_version(self) -> str:
         """Get the pinned version of the primary package."""
-        if self.nixpkgs:
-            return self.nixpkgs[0].split("@")[1]
-        elif self.nix_flake:
-            # For flakes, use explicit version or derive from NIXPKGS_REV
-            return self.nix_flake_version if self.nix_flake_version else NIXPKGS_REV
-        return "unknown"
+        return self.nixpkgs[0].split("@")[1]
 
     @property
     def image_tag(self) -> str:
@@ -339,12 +287,9 @@ LANGUAGES: dict[str, Language] = {
         base="crystal",
         category="systems",
     ),
-    # Swift uses nix_flake with pinned nixpkgs to use pre-built binaries from cache
-    # nixos-24.05 has working Swift binaries; newer versions have GCC 14 build failures
     "swift": Language(
         name="Swift",
-        nix_flake=("github:NixOS/nixpkgs/nixos-24.05#swift",),
-        nix_flake_version="5.10.1",
+        nixpkgs=("swift@5.10.1",),
         file="leibniz.swift",
         compile="swiftc -O -o leibniz leibniz.swift",
         run="./leibniz",
@@ -354,8 +299,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nix_flake=("github:NixOS/nixpkgs/nixos-24.05#swift",),
-        nix_flake_version="5.10.1",
+        nixpkgs=("swift@5.10.1",),
         file="leibniz-simd.swift",
         compile="swiftc -O -o leibniz leibniz-simd.swift",
         run="./leibniz",
@@ -365,8 +309,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (Relaxed)",
-        nix_flake=("github:NixOS/nixpkgs/nixos-24.05#swift",),
-        nix_flake_version="5.10.1",
+        nixpkgs=("swift@5.10.1",),
         file="leibniz.swift",
         compile="swiftc -O -enable-experimental-feature Extern -Xcc -ffast-math -o leibniz leibniz.swift",
         run="./leibniz",
@@ -385,12 +328,11 @@ LANGUAGES: dict[str, Language] = {
         category="systems",
     ),
     # =========================================================================
-    # .NET Languages (using Nix flakes for better compatibility)
+    # .NET Languages
     # =========================================================================
     "csharp": Language(
         name="C#",
-        nix_flake=(nix_pkg("dotnet-sdk_8"),),
-        nix_flake_version="8.0.403",
+        nixpkgs=("dotnet-sdk@8.0.416",),
         file="leibniz.cs",
         compile="dotnet new console -n leibniz -o _build --force && cp leibniz.cs _build/Program.cs && cd _build && dotnet publish -c Release -o ../out",
         run="./out/leibniz",
@@ -400,8 +342,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "csharp-simd": Language(
         name="C# (SIMD)",
-        nix_flake=(nix_pkg("dotnet-sdk_8"),),
-        nix_flake_version="8.0.403",
+        nixpkgs=("dotnet-sdk@8.0.416",),
         file="leibniz-simd.cs",
         compile="dotnet new console -n leibniz -o _build --force && cp leibniz-simd.cs _build/Program.cs && cd _build && dotnet publish -c Release -o ../out",
         run="./out/leibniz",
@@ -411,8 +352,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "fsharp": Language(
         name="F#",
-        nix_flake=(nix_pkg("dotnet-sdk_8"),),
-        nix_flake_version="8.0.403",
+        nixpkgs=("dotnet-sdk@8.0.416",),
         file="fs/Program.fs",
         compile="cd fs && dotnet publish -c Release -o ../out",
         run="./out/leibniz",
@@ -421,12 +361,11 @@ LANGUAGES: dict[str, Language] = {
         category="dotnet",
     ),
     # =========================================================================
-    # JVM Languages (using Nix flakes for JDK)
+    # JVM Languages
     # =========================================================================
     "java": Language(
         name="Java",
-        nix_flake=(nix_pkg("jdk21"),),
-        nix_flake_version="21.0.2",
+        nixpkgs=("jdk@21.0.9",),
         file="leibniz.java",
         compile="javac leibniz.java",
         run="java leibniz",
@@ -436,30 +375,27 @@ LANGUAGES: dict[str, Language] = {
     ),
     "java-graalvm": Language(
         name="Java (GraalVM)",
-        nix_flake=(nix_pkg("graalvm-ce"),),
-        nix_flake_version="23.0.1",
+        nixpkgs=("graalvm-ce@23.0.1",),
         file="leibniz.java",
         compile="javac leibniz.java && native-image leibniz -o leibniz-native",
         run="./leibniz-native",
         version_cmd="java --version",
-        base="java",
+        base="java-graalvm",
         category="jvm",
     ),
     "java-vecops": Language(
         name="Java (Vec Ops)",
-        nix_flake=(nix_pkg("jdk23"),),  # Vector API needs JDK 23+
-        nix_flake_version="23",
+        nixpkgs=("jdk@23.0.2",),  # Vector API needs JDK 23+
         file="leibnizVecOps.java",
         compile="javac --add-modules jdk.incubator.vector leibnizVecOps.java",
         run="java --add-modules jdk.incubator.vector leibnizVecOps",
         version_cmd="java -version 2>&1 | head -1",
-        base="java",
+        base="java-vecops",
         category="jvm",
     ),
     "kotlin": Language(
         name="Kotlin",
-        nix_flake=(nix_pkg("kotlin"), nix_pkg("jdk21")),
-        nix_flake_version="2.2.21",
+        nixpkgs=("kotlin@2.1.0", "jdk@21.0.9"),
         file="leibniz.kt",
         compile="kotlinc leibniz.kt -include-runtime -d leibniz.jar",
         run="java -jar leibniz.jar",
@@ -479,8 +415,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "clojure": Language(
         name="Clojure",
-        nix_flake=(nix_pkg("clojure"), nix_pkg("jdk21")),
-        nix_flake_version="1.12.3.1577",
+        nixpkgs=("clojure@1.12.0.1530", "jdk@21.0.9"),
         file="leibniz.clj",
         run="clj leibniz.clj",
         version_cmd="clj --version",
@@ -489,8 +424,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "groovy": Language(
         name="Groovy",
-        nix_flake=(nix_pkg("groovy"), nix_pkg("jdk21")),
-        nix_flake_version="5.0.2",
+        nixpkgs=("groovy@4.0.26", "jdk@21.0.9"),
         file="leibniz.groovy",
         run="groovy leibniz.groovy",
         version_cmd="groovy --version",
@@ -520,12 +454,11 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpython-numpy": Language(
         name="Python (NumPy)",
-        nix_flake=(nix_pkg("python3"), nix_pkg("python3Packages.numpy")),
-        nix_flake_version="3.12.8",
+        nixpkgs=("python312@3.12.9", "python312Packages.numpy@2.2.2"),
         file="leibniz_np.py",
         run="python3 leibniz_np.py",
         version_cmd="python3 --version",
-        base="python",
+        base="cpython-numpy",
         category="interpreted",
     ),
     "mypyc": Language(
@@ -788,8 +721,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "haxe": Language(
         name="Haxe",
-        nix_flake=(nix_pkg("haxe"),),
-        nix_flake_version="4.3.6",
+        nixpkgs=("haxe@4.3.6",),
         file="Leibniz.hx",
         compile="haxe -main Leibniz -cpp out && cd out && make",
         run="./out/Leibniz",
@@ -816,7 +748,6 @@ LANGUAGES: dict[str, Language] = {
         version_cmd="wasmtime --version",
         base="wasm",
         category="compiled",
-        x86_64_only=True,  # wasi-sdk not available for aarch64
     ),
 }
 
@@ -849,28 +780,53 @@ def get_variants(base: str) -> list[str]:
     return [name for name, lang in LANGUAGES.items() if lang.base == base]
 
 
-def get_base_image_name(target: str) -> str:
+def get_base_image_name(target: str, lang: Language | None = None) -> str:
     """Get the base image name for a language target.
 
-    Languages with a `base` field share the same base image.
-    For example, swift-simd and swift-relaxed both use "swift" as their base.
+    Languages can share images only if they have the same `base` AND the same
+    `nixpkgs` packages. This prevents issues where cpp (gcc) and cpp-clang (clang)
+    incorrectly share an image despite needing different compilers.
+
+    Strategy:
+    1. Group all languages with the same base by their packages
+    2. For each package group, use a canonical image name:
+       - If a target matches the base name, use that
+       - Otherwise, use the alphabetically first target in the group
 
     Args:
         target: The language target name (e.g., "swift-simd")
+        lang: Optional Language object (avoids dict lookup if already available)
 
     Returns:
-        The base image name (e.g., "swift")
+        The base image name (e.g., "swift" or "cpp-clang" if packages differ)
     """
-    lang = LANGUAGES[target]
-    return lang.base or target
+    if lang is None:
+        lang = LANGUAGES[target]
+
+    base = lang.base or target
+
+    # Find all languages with the same base AND same packages as this one
+    same_package_group = []
+    for other_target, other_lang in LANGUAGES.items():
+        other_base = other_lang.base or other_target
+        if other_base == base and other_lang.nixpkgs == lang.nixpkgs:
+            same_package_group.append(other_target)
+
+    # Sort for deterministic ordering
+    same_package_group.sort()
+
+    # Prefer the base name if it's in the group, otherwise use first alphabetically
+    if base in same_package_group:
+        return base
+    return same_package_group[0]
 
 
 def get_base_languages() -> dict[str, tuple[str, Language]]:
     """Get a deduplicated mapping of base images to build.
 
-    Groups languages by their base image. For each base, picks the
-    canonical language to use for building (prefers the one where
-    target == base, otherwise first one found).
+    Groups languages by their base image name (which accounts for package
+    differences). For each base, picks the canonical language to use for
+    building (prefers the one where target == base_name, otherwise first found).
 
     Returns:
         Dict mapping base_name -> (canonical_target, Language)
@@ -878,7 +834,7 @@ def get_base_languages() -> dict[str, tuple[str, Language]]:
     bases: dict[str, tuple[str, Language]] = {}
 
     for target, lang in LANGUAGES.items():
-        base_name = get_base_image_name(target)
+        base_name = get_base_image_name(target, lang)
 
         if base_name not in bases:
             # First language with this base
@@ -894,7 +850,9 @@ def resolve_targets_to_bases(targets: list[str]) -> dict[str, tuple[str, Languag
     """Convert a list of targets to their base images.
 
     For example, if targets = ["swift-simd", "swift-relaxed"], this returns
-    just {"swift": ("swift", swift_lang)} since both use the same base.
+    just {"swift": ("swift", swift_lang)} since both use the same base and packages.
+
+    Languages with the same base but different packages get separate entries.
 
     Args:
         targets: List of language targets to build
@@ -906,7 +864,7 @@ def resolve_targets_to_bases(targets: list[str]) -> dict[str, tuple[str, Languag
 
     for target in targets:
         lang = LANGUAGES[target]
-        base_name = get_base_image_name(target)
+        base_name = get_base_image_name(target, lang)
 
         if base_name not in bases:
             bases[base_name] = (target, lang)
@@ -928,10 +886,8 @@ if __name__ == "__main__":
         print(f"  {category.upper()}:")
         for name in sorted(langs):
             lang = LANGUAGES[name]
-            pkg_type = "flake" if lang.uses_nix_flake else "devbox"
             compiled = "compiled" if lang.compile else "interpreted"
-            print(f"    {name:15} -> {lang.name:20} [{pkg_type}] ({compiled})")
+            print(f"    {name:15} -> {lang.name:20} ({compiled})")
         print()
 
-    print(f"Architecture: {ARCH}")
     print(f"March flag: {MARCH_NATIVE}")

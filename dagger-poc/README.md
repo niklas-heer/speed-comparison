@@ -125,22 +125,9 @@ Runs benchmarks using pre-built images.
 ),
 ```
 
-2. For languages not in Devbox, use Nix flakes:
+2. Create source file: `src/leibniz.ml`
 
-```python
-"mylang": Language(
-    name="MyLang",
-    file="leibniz.ml",
-    nix_flake=("github:NixOS/nixpkgs/nixos-24.11#mylang",),
-    nix_flake_version="1.2.3",  # For image tagging
-    version_cmd="mylang --version",
-    run="./leibniz",
-),
-```
-
-3. Create source file: `src/leibniz.ml`
-
-4. Test locally:
+3. Test locally:
 ```bash
 QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py mylang
 ```

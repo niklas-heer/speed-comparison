@@ -42,7 +42,7 @@ from pathlib import Path
 
 import dagger
 
-from languages import IS_ARM, LANGUAGES, Language, get_base_image_name, get_language
+from languages import LANGUAGES, Language, get_base_image_name, get_language
 
 # =============================================================================
 # Configuration
@@ -56,9 +56,8 @@ TIME_UNIT = "second"
 # Registry (same as build_images.py)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
 
-# Base images for local builds
+# Base image for local builds
 DEVBOX_IMAGE = "jetpackio/devbox:latest"
-NIX_IMAGE = "nixos/nix:latest"
 HYPERFINE_VERSION = "1.18.0"
 MICROPYTHON_VERSION = "1.24.1"
 
@@ -131,35 +130,6 @@ async def build_local_devbox_container(
     return container
 
 
-async def build_local_nix_container(
-    client: dagger.Client,
-    lang: Language,
-) -> dagger.Container:
-    """Build a Nix flake container locally (for development/testing)."""
-    container = client.container().from_(NIX_IMAGE)
-
-    container = container.with_exec(
-        [
-            "sh",
-            "-c",
-            "mkdir -p /etc/nix && echo 'experimental-features = nix-command flakes' >> /etc/nix/nix.conf",
-        ]
-    )
-
-    flake_refs = list(lang.nix_flake) + ["nixpkgs#hyperfine", "nixpkgs#micropython"]
-    flake_refs_str = " ".join(flake_refs)
-
-    install_cmd = f"nix profile install {flake_refs_str}"
-    if lang.allow_insecure:
-        install_cmd = f"NIXPKGS_ALLOW_INSECURE=1 nix profile install --impure {flake_refs_str}"
-    container = container.with_exec(["sh", "-c", install_cmd])
-
-    if lang.nix_setup:
-        container = container.with_exec(["sh", "-c", lang.nix_setup])
-
-    return container.with_workdir("/app")
-
-
 async def get_container(
     client: dagger.Client,
     target: str,
@@ -170,10 +140,7 @@ async def get_container(
     """Get a container for the language, either from registry or built locally."""
     if use_local:
         print(f"  Building locally...")
-        if lang.uses_nix_flake:
-            return await build_local_nix_container(client, lang)
-        else:
-            return await build_local_devbox_container(client, lang)
+        return await build_local_devbox_container(client, lang)
     else:
         return await get_container_from_registry(client, target, lang, registry)
 
@@ -185,11 +152,11 @@ async def exec_cmd(
     use_local: bool = False,
 ) -> dagger.Container:
     """Execute a command in the container with appropriate shell wrapper."""
-    if use_local and not lang.uses_nix_flake:
+    if use_local:
         # Local Devbox build needs devbox run wrapper
         return container.with_exec(["devbox", "run", "--", "sh", "-c", cmd])
     else:
-        # Registry images and Nix containers have packages in PATH
+        # Registry images have packages in PATH via entrypoint
         return container.with_exec(["sh", "-c", cmd])
 
 
@@ -337,13 +304,6 @@ async def main(targets: list[str] | None = None) -> int:
         src_dir = client.host().directory(str(SRC_DIR))
 
         for target, lang in languages_to_run.items():
-            # Skip x86_64-only languages on ARM when building locally
-            if use_local and IS_ARM and lang.x86_64_only:
-                print(f"\n{'=' * 60}")
-                print(f"Skipping: {lang.name} ({target}) - x86_64 only")
-                print(f"{'=' * 60}")
-                continue
-
             result = await run_benchmark(
                 client, target, lang, src_dir, scmeta_script, quick_rounds, use_local, registry
             )

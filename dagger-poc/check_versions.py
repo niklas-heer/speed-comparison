@@ -171,7 +171,6 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
     """
     package = lang.primary_package
     current = lang.primary_version
-    package_type = "flake" if lang.uses_nix_flake else "devbox"
 
     # Get available versions from nixhub
     versions = get_nixhub_versions(package, stable_only=stable_only)
@@ -181,9 +180,7 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
     # Determine if update is available
     update_available = False
     if latest and current:
-        # Skip comparison for nixpkgs rev (e.g., "nixos-24.11")
-        if not current.startswith("nixos-"):
-            update_available = compare_versions(current, latest)
+        update_available = compare_versions(current, latest)
 
     return VersionInfo(
         language=target,

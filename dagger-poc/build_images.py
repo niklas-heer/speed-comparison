@@ -41,7 +41,6 @@ from pathlib import Path
 import dagger
 
 from languages import (
-    IS_ARM,
     LANGUAGES,
     Language,
     get_base_image_name,
@@ -57,9 +56,8 @@ from languages import (
 # Default registry (can be overridden via REGISTRY env var)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
 
-# Base images
+# Base image
 DEVBOX_IMAGE = "jetpackio/devbox:latest"
-NIX_IMAGE = "nixos/nix:latest"
 
 # Hyperfine version to include in all images
 HYPERFINE_VERSION = "1.18.0"
@@ -113,57 +111,13 @@ exec devbox run -- "$@"
     return container
 
 
-async def build_nix_flake_image(
-    client: dagger.Client,
-    target: str,
-    lang: Language,
-) -> dagger.Container:
-    """Build a container image using raw Nix flakes.
-
-    This is used for languages that need packages not available in Devbox,
-    or that need specific Nix configurations.
-    """
-    container = client.container().from_(NIX_IMAGE)
-
-    # Enable flakes
-    container = container.with_exec(
-        [
-            "sh",
-            "-c",
-            "mkdir -p /etc/nix && echo 'experimental-features = nix-command flakes' >> /etc/nix/nix.conf",
-        ]
-    )
-
-    # Build a nix shell command with all required packages
-    flake_refs = list(lang.nix_flake) + ["nixpkgs#hyperfine", "nixpkgs#micropython"]
-    flake_refs_str = " ".join(flake_refs)
-
-    # Create a profile with all packages installed
-    # This makes the packages available without needing `nix shell` wrapper
-    install_cmd = f"nix profile install {flake_refs_str}"
-    if lang.allow_insecure:
-        install_cmd = f"NIXPKGS_ALLOW_INSECURE=1 nix profile install --impure {flake_refs_str}"
-    container = container.with_exec(["sh", "-c", install_cmd])
-
-    # Run any post-install setup
-    if lang.nix_setup:
-        container = container.with_exec(["sh", "-c", lang.nix_setup])
-
-    container = container.with_workdir("/app")
-
-    return container
-
-
 async def build_image(
     client: dagger.Client,
     target: str,
     lang: Language,
 ) -> dagger.Container:
-    """Build the appropriate image type for a language."""
-    if lang.uses_nix_flake:
-        return await build_nix_flake_image(client, target, lang)
-    else:
-        return await build_devbox_image(client, target, lang)
+    """Build a container image for a language using Devbox."""
+    return await build_devbox_image(client, target, lang)
 
 
 def get_image_tag(registry: str, target: str, lang: Language) -> str:
@@ -195,8 +149,7 @@ async def build_and_push(
     image_tag = get_image_tag(registry, target, lang)
 
     if dry_run:
-        pkg_type = "flake" if lang.uses_nix_flake else "devbox"
-        return (target, True, f"Would build {image_tag} [{pkg_type}]")
+        return (target, True, f"Would build {image_tag}")
 
     print(f"\n{'=' * 60}")
     print(f"Building: {target} -> {image_tag}")
@@ -207,12 +160,9 @@ async def build_and_push(
 
         # Verify the image works by checking package version
         version_cmd = lang.version_cmd or "echo unknown"
-        if lang.uses_nix_flake:
-            result = await container.with_exec(["sh", "-c", version_cmd]).stdout()
-        else:
-            result = await container.with_exec(
-                ["devbox", "run", "--", "sh", "-c", version_cmd]
-            ).stdout()
+        result = await container.with_exec(
+            ["devbox", "run", "--", "sh", "-c", version_cmd]
+        ).stdout()
 
         version = result.strip().split("\n")[0]
         print(f"  Version check: {version}")
@@ -267,29 +217,21 @@ async def main(
     if dry_run:
         print("\n--- DRY RUN ---\n")
         for base_name, (target, lang) in bases_to_build.items():
-            pkg_type = "flake" if lang.uses_nix_flake else "devbox"
             tag = get_image_tag(registry, target, lang)
-            skip = " [SKIP: x86_64 only]" if IS_ARM and lang.x86_64_only else ""
             variants = [t for t, l in LANGUAGES.items() if get_base_image_name(t, l) == base_name]
             if len(variants) > 1:
-                print(f"  {base_name:15} -> {tag} [{pkg_type}]{skip}")
+                print(f"  {base_name:15} -> {tag}")
                 print(f"                    (covers: {', '.join(variants)})")
             else:
-                print(f"  {base_name:15} -> {tag} [{pkg_type}]{skip}")
+                print(f"  {base_name:15} -> {tag}")
         return 0
 
     results: list[tuple[str, bool, str]] = []
-    skipped: list[str] = []
 
     config = dagger.Config(log_output=sys.stderr)
 
     async with dagger.Connection(config) as client:
         for base_name, (target, lang) in bases_to_build.items():
-            # Skip x86_64-only languages on ARM
-            if IS_ARM and lang.x86_64_only:
-                skipped.append(base_name)
-                continue
-
             result = await build_and_push(client, target, lang, registry, push, dry_run)
             results.append(result)
 
@@ -302,11 +244,6 @@ async def main(
     failed = [r for r in results if not r[1]]
 
     print(f"Succeeded: {len(succeeded)}/{len(results)}")
-
-    if skipped:
-        print(f"Skipped (x86_64 only): {len(skipped)}")
-        for target in skipped:
-            print(f"  {target}")
 
     if failed:
         print("\nFailed:")

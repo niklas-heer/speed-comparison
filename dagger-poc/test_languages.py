@@ -159,38 +159,9 @@ class TestLanguageDataclass:
         )
         assert lang.extract_version("go version go1.23.4 linux/amd64") == "1.23.4"
 
-    def test_nix_flake_language(self):
-        """Language with nix_flake should work without nixpkgs."""
-        from languages import NIXPKGS_REV, nix_pkg
-
-        lang = Language(
-            name="Test",
-            nix_flake=(nix_pkg("jdk21"),),
-            nix_flake_version="21",
-            file="leibniz.java",
-            run="java leibniz",
-            base="java",
-        )
-        assert lang.uses_nix_flake
-        assert lang.primary_package == "jdk21"
-        assert lang.primary_version == "21"
-
-    def test_nix_flake_default_version(self):
-        """Language with nix_flake without explicit version uses NIXPKGS_REV."""
-        from languages import NIXPKGS_REV, nix_pkg
-
-        lang = Language(
-            name="Test",
-            nix_flake=(nix_pkg("jdk21"),),
-            file="leibniz.java",
-            run="java leibniz",
-            base="java",
-        )
-        assert lang.primary_version == NIXPKGS_REV
-
     def test_missing_packages_raises(self):
         """Language without any packages should raise."""
-        with pytest.raises(ValueError, match="must have nixpkgs or nix_flake"):
+        with pytest.raises(ValueError, match="must have nixpkgs"):
             Language(
                 name="Test",
                 file="leibniz.c",
