@@ -522,8 +522,8 @@ LANGUAGES: dict[str, Language] = {
     ),
     "mypyc": Language(
         name="Python (mypyc)",
-        nixpkgs=("python3@3.12.8", "gcc@14.2.0"),
-        nix_setup="python3 -m pip install mypy",
+        nixpkgs=("python3@3.12.8", "gcc@14.2.0", "uv@0.5.11"),
+        nix_setup="uv pip install --system mypy",
         file="leibniz.py",
         compile="mypyc leibniz.py && python -c 'import leibniz'",
         run="python -c 'import leibniz'",
