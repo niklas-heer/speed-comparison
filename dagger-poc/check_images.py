@@ -168,8 +168,10 @@ def check_all_images(
         futures = {}
         for base_name, base_targets in bases_to_check.items():
             # Use the first target to get the language config (they share the same base config)
-            lang = get_language(base_targets[0])
-            futures[executor.submit(check_single_image, base_name, lang, registry)] = (
+            # Pass the actual target name (e.g., "cpp"), not the base name (e.g., "cplusplus")
+            canonical_target = base_targets[0]
+            lang = get_language(canonical_target)
+            futures[executor.submit(check_single_image, canonical_target, lang, registry)] = (
                 base_name,
                 base_targets,
             )
