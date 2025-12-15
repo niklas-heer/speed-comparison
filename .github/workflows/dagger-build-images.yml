@@ -25,6 +25,11 @@ on:
         required: false
         type: boolean
         default: false
+      check_registry:
+        description: "Check registry for missing images (disable to only build specified languages)"
+        required: false
+        type: boolean
+        default: true
 
 env:
   REGISTRY: ghcr.io/${{ github.repository }}
@@ -34,6 +39,9 @@ jobs:
   # Determine which images to build
   prepare:
     runs-on: ubicloud-standard-2
+    permissions:
+      contents: read
+      packages: read
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       has_languages: ${{ steps.matrix.outputs.has_languages }}
@@ -50,9 +58,18 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
+      - name: Log in to GHCR (for registry checks)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Detect changed languages
         id: matrix
         working-directory: dagger-poc
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
         run: |
           uv sync --quiet
 
@@ -78,8 +95,13 @@ jobs:
               LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
             else
               # Get changed languages by diffing the Language definitions
-              LANGS=$(uv run python detect_changes.py)
+              # Also check for missing images in the registry
+              LANGS=$(uv run python detect_changes.py --check-registry)
             fi
+          elif [ "${{ inputs.check_registry }}" = "true" ]; then
+            # Check registry for missing images
+            echo "Checking registry for missing images..."
+            LANGS=$(uv run python detect_changes.py --check-registry)
           else
             # Default: build all
             LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")

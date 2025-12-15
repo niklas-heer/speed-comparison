@@ -10,6 +10,11 @@ Image Layers:
 1. Base image (from registry): Language + hyperfine (cached, rarely changes)
 2. Runtime additions: Source code + scmeta + rounds.txt (added each run)
 
+Smart Image Detection:
+- By default, tries to pull from registry first
+- If image doesn't exist, automatically builds locally
+- Optionally pushes newly built images to registry (AUTO_PUSH_IMAGES=1)
+
 Usage:
     # Run all benchmarks
     dagger run python benchmark.py
@@ -20,8 +25,11 @@ Usage:
     # Quick test with fewer iterations
     QUICK_TEST_ROUNDS=10000 dagger run python benchmark.py rust
 
-    # Use local images (for development/testing)
+    # Force local images only (skip registry pull attempts)
     USE_LOCAL_IMAGES=1 dagger run python benchmark.py rust
+
+    # Auto-push built images to registry (when image was missing)
+    AUTO_PUSH_IMAGES=1 dagger run python benchmark.py rust
 """
 
 from __future__ import annotations

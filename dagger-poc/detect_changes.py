@@ -1,6 +1,27 @@
 #!/usr/bin/env python3
-"""Detect which languages have changed between HEAD~1 and HEAD."""
+"""
+Detect which languages need image builds.
 
+This script detects languages that need their images rebuilt by checking:
+1. Languages whose definitions changed between HEAD~1 and HEAD
+2. Languages whose images don't exist in the registry (optional)
+
+Usage:
+    # Detect changed languages only (default, fast)
+    python detect_changes.py
+
+    # Also check for missing images in registry (slower, requires network)
+    python detect_changes.py --check-registry
+
+    # Check registry with custom URL
+    REGISTRY=ghcr.io/niklas-heer/speed-comparison python detect_changes.py --check-registry
+
+Environment:
+    REGISTRY: Container registry URL (default: ghcr.io/niklas-heer/speed-comparison)
+    CHECK_REGISTRY: Set to "1" or "true" to enable registry checks (alternative to --check-registry)
+"""
+
+import os
 import subprocess
 import sys
 
@@ -25,15 +46,15 @@ def get_old_languages():
         return None
 
 
-def main():
+def get_changed_languages() -> list[str]:
+    """Get list of languages that changed between HEAD~1 and HEAD."""
     old_languages = get_old_languages()
 
     if old_languages is None:
         # Can't get old version - rebuild all
         from languages import LANGUAGES
 
-        print(" ".join(LANGUAGES.keys()))
-        return
+        return list(LANGUAGES.keys())
 
     # Get current languages
     from languages import LANGUAGES
@@ -48,8 +69,56 @@ def main():
         elif old_languages[lang] != definition:
             changed.append(lang)  # Changed definition
 
-    if changed:
-        print(" ".join(changed))
+    return changed
+
+
+def get_missing_images() -> list[str]:
+    """Get list of languages whose images are missing from the registry."""
+    try:
+        from check_images import check_all_images
+    except ImportError:
+        print("Warning: check_images.py not found, skipping registry check", file=sys.stderr)
+        return []
+
+    registry = os.environ.get("REGISTRY", "ghcr.io/niklas-heer/speed-comparison")
+    return check_all_images(registry=registry, verbose=False)
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Detect languages that need image builds")
+    parser.add_argument(
+        "--check-registry",
+        action="store_true",
+        help="Also check for missing images in the registry",
+    )
+    args = parser.parse_args()
+
+    # Check environment variable as alternative to flag
+    check_registry = args.check_registry or os.environ.get("CHECK_REGISTRY", "").lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+    # Get changed languages
+    changed = get_changed_languages()
+
+    # Optionally check for missing images
+    if check_registry:
+        print("Checking registry for missing images...", file=sys.stderr)
+        missing = get_missing_images()
+        # Combine and deduplicate
+        all_needed = sorted(set(changed) | set(missing))
+        if missing:
+            print(f"Found {len(missing)} missing images in registry", file=sys.stderr)
+    else:
+        all_needed = changed
+
+    # Output space-separated list
+    if all_needed:
+        print(" ".join(all_needed))
     else:
         print("")  # No changes
 
