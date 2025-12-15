@@ -39,6 +39,17 @@ The benchmark measures **single-threaded computational performance**. To keep co
 
 [<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ") -->
 
+## Used hardware
+
+The benchmarks run on Ubicloud standard-4 runners:
+
+    CPU: 4 vCPUs (2 physical cores) on AMD EPYC 9454P processors
+    RAM: 16 GB
+    Storage: NVMe SSDs
+    OS: Ubuntu 24.04
+
+See [Ubicloud Runner Types](https://www.ubicloud.com/docs/github-actions-integration/runner-types) for more details.
+
 ## Run it yourself
 
 Everything is run by a Docker container and a bash script which envokes the programs.
