@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # Need previous commit to detect changes
+          fetch-depth: 2 # Need previous commit to detect changes
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -78,55 +78,7 @@ jobs:
               LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
             else
               # Get changed languages by diffing the Language definitions
-              LANGS=$(uv run python << 'EOF'
-import subprocess
-import sys
-
-# Get the previous version of languages.py
-result = subprocess.run(
-    ["git", "show", "HEAD~1:dagger-poc/languages.py"],
-    capture_output=True,
-    text=True
-)
-
-if result.returncode != 0:
-    # First commit or file didn't exist - build all
-    from languages import LANGUAGES
-    print(" ".join(LANGUAGES.keys()))
-    sys.exit(0)
-
-old_content = result.stdout
-
-# Parse old LANGUAGES dict
-old_languages = {}
-try:
-    exec_globals = {"__builtins__": __builtins__}
-    exec(old_content, exec_globals)
-    old_languages = {k: repr(v) for k, v in exec_globals.get("LANGUAGES", {}).items()}
-except Exception as e:
-    # If parsing fails, rebuild all
-    from languages import LANGUAGES
-    print(" ".join(LANGUAGES.keys()))
-    sys.exit(0)
-
-# Get current languages
-from languages import LANGUAGES
-current_languages = {k: repr(v) for k, v in LANGUAGES.items()}
-
-# Find changed or new languages
-changed = []
-for lang, definition in current_languages.items():
-    if lang not in old_languages:
-        changed.append(lang)  # New language
-    elif old_languages[lang] != definition:
-        changed.append(lang)  # Changed definition
-
-if changed:
-    print(" ".join(changed))
-else:
-    print("")  # No changes
-EOF
-)
+              LANGS=$(uv run python detect_changes.py)
             fi
           else
             # Default: build all
