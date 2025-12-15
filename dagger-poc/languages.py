@@ -523,10 +523,10 @@ LANGUAGES: dict[str, Language] = {
     "mypyc": Language(
         name="Python (mypyc)",
         nixpkgs=("python3@3.12.8", "gcc@14.2.0", "uv@0.5.11"),
-        nix_setup="uv pip install --system mypy",
+        nix_setup="uv venv /app/.venv && . /app/.venv/bin/activate && uv pip install mypy",
         file="leibniz.py",
-        compile="mypyc leibniz.py && python -c 'import leibniz'",
-        run="python -c 'import leibniz'",
+        compile=". /app/.venv/bin/activate && mypyc leibniz.py && python -c 'import leibniz'",
+        run=". /app/.venv/bin/activate && python -c 'import leibniz'",
         version_cmd="python --version",
         base="python",
         category="compiled",
