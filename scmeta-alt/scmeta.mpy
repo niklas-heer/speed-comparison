@@ -1,0 +1,198 @@
+#!/usr/bin/env micropython
+# scmeta - MicroPython variant
+# MicroPython has built-in JSON (ujson) and math modules
+
+import sys
+import os
+import math
+
+# MicroPython uses ujson, but also supports json as alias
+try:
+    import ujson as json
+except ImportError:
+    import json
+
+VERSION = "1.0.0"
+PI = 3.141592653589793
+
+
+def usage():
+    print("Usage: scmeta.mpy [arguments]")
+    print("")
+    print("Options:")
+    print("  --lang-name=NAME        Language name")
+    print("  --target-name=TARGET    Earthfile target name")
+    print("  --lang-version=CMD      Command to get version")
+    print("  --lang-version-match-index=N  Version match index (default 0)")
+    print("  --hyperfine=FILE        Path to hyperfine JSON")
+    print("  --pi=FILE               Path to pi.txt")
+    print("  --output=FILE           Output JSON path")
+    print("  -h, --help              Show this help")
+    print("  -v, --version           Show version")
+
+
+def pi_accuracy(value):
+    """Calculate pi accuracy: -log10(|1 - (value / PI)|)"""
+    ratio = value / PI
+    diff = abs(1 - ratio)
+    if diff == 0:
+        return 999
+    return -math.log10(diff)
+
+
+def get_version(text, match_index=0):
+    """Extract version from text at given index using simple parsing."""
+    versions = []
+    i = 0
+    while i < len(text):
+        # Find start of a number
+        if text[i].isdigit():
+            start = i
+            has_dot = False
+            while i < len(text) and (text[i].isdigit() or text[i] == '.'):
+                if text[i] == '.':
+                    has_dot = True
+                i += 1
+            if has_dot:
+                # Remove trailing dot if present
+                ver = text[start:i].rstrip('.')
+                if '.' in ver:
+                    versions.append(ver)
+        else:
+            i += 1
+
+    if len(versions) > match_index:
+        return versions[match_index]
+    raise ValueError(f"No version found at index {match_index}")
+
+
+def to_timedelta(num):
+    return f"{num}s"
+
+
+def read_file(path):
+    with open(path, 'r') as f:
+        return f.read()
+
+
+def write_file(path, content):
+    with open(path, 'w') as f:
+        f.write(content)
+
+
+def run_cmd(cmd):
+    """Run shell command and capture output."""
+    # MicroPython Unix port supports os.popen
+    try:
+        p = os.popen(cmd + " 2>&1")
+        result = p.read()
+        p.close()
+        return result
+    except Exception as e:
+        return str(e)
+
+
+def parse_args(argv):
+    """Parse command line arguments."""
+    args = {
+        'lang_name': None,
+        'target_name': None,
+        'lang_version_cmd': None,
+        'lang_version_match_index': 0,
+        'hyperfine_file': None,
+        'pi_file': None,
+        'output_file': None,
+    }
+
+    for arg in argv[1:]:  # Skip script name
+        if arg in ('-h', '--help'):
+            usage()
+            sys.exit(0)
+        elif arg in ('-v', '--version'):
+            print(f"scmeta {VERSION}")
+            sys.exit(0)
+        elif arg.startswith('--lang-name='):
+            args['lang_name'] = arg[len('--lang-name='):]
+        elif arg.startswith('--target-name='):
+            args['target_name'] = arg[len('--target-name='):]
+        elif arg.startswith('--lang-version='):
+            args['lang_version_cmd'] = arg[len('--lang-version='):]
+        elif arg.startswith('--lang-version-match-index='):
+            args['lang_version_match_index'] = int(arg[len('--lang-version-match-index='):])
+        elif arg.startswith('--hyperfine='):
+            args['hyperfine_file'] = arg[len('--hyperfine='):]
+        elif arg.startswith('--pi='):
+            args['pi_file'] = arg[len('--pi='):]
+        elif arg.startswith('--output='):
+            args['output_file'] = arg[len('--output='):]
+
+    return args
+
+
+def main():
+    args = parse_args(sys.argv)
+
+    # Validate required arguments
+    if not args['lang_name']:
+        print("ERROR: --lang-name is required!", file=sys.stderr)
+        sys.exit(1)
+    if not args['target_name']:
+        print("ERROR: --target-name is required!", file=sys.stderr)
+        sys.exit(1)
+    if not args['hyperfine_file']:
+        print("ERROR: --hyperfine is required!", file=sys.stderr)
+        sys.exit(1)
+    if not args['pi_file']:
+        print("ERROR: --pi is required!", file=sys.stderr)
+        sys.exit(1)
+    if not args['output_file']:
+        print("ERROR: --output is required!", file=sys.stderr)
+        sys.exit(1)
+    if not args['lang_version_cmd']:
+        print("ERROR: --lang-version is required!", file=sys.stderr)
+        sys.exit(1)
+
+    # Read pi value and calculate accuracy
+    computed_pi = read_file(args['pi_file']).strip()
+    if not computed_pi:
+        print("ERROR: Pi file is empty!", file=sys.stderr)
+        sys.exit(1)
+    accuracy = pi_accuracy(float(computed_pi))
+
+    # Get language version
+    version_output = run_cmd(args['lang_version_cmd'])
+    lang_version = get_version(version_output, args['lang_version_match_index'])
+
+    # Parse hyperfine JSON
+    hyperfine = json.loads(read_file(args['hyperfine_file']))
+    result = hyperfine['results'][0]
+
+    # Build output
+    metadata = {
+        'Language': args['lang_name'],
+        'Target': args['target_name'],
+        'Version': lang_version,
+        'Command': result['command'],
+        'CalculatedPi': computed_pi,
+        'Accuracy': accuracy,
+        'Mean': to_timedelta(result['mean']),
+        'Stddev': to_timedelta(result['stddev']),
+        'UserTime': to_timedelta(result['user']),
+        'SystemTime': to_timedelta(result['system']),
+        'Median': to_timedelta(result['median']),
+        'Min': to_timedelta(result['min']),
+        'Max': to_timedelta(result['max']),
+        'TimesPerRun': result['times'],
+        'ExitCodesPerRun': result['exit_codes'],
+    }
+
+    # Write output (MicroPython's ujson.dumps doesn't support indent)
+    write_file(args['output_file'], json.dumps(metadata) + '\n')
+
+    print("Successfully created metadata")
+    print(f"Language: {args['lang_name']} ({lang_version})")
+    print(f"Output: {args['output_file']}")
+
+
+if __name__ == '__main__':
+    main()
