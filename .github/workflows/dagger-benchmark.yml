@@ -348,6 +348,7 @@ jobs:
     if: github.event_name != 'issue_comment'
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
+      languages: ${{ steps.matrix.outputs.languages }}
     steps:
       - uses: actions/checkout@v4
 
@@ -376,12 +377,24 @@ jobs:
           # Convert to JSON array
           JSON_ARRAY=$(echo "$LANGS" | tr ' ' '\n' | jq -R . | jq -s -c .)
           echo "matrix={\"language\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+          echo "languages=$LANGS" >> $GITHUB_OUTPUT
           echo "Languages to benchmark: $LANGS"
+
+  # Ensure base images exist before running benchmarks
+  ensure-images:
+    needs: prepare
+    if: github.event_name != 'issue_comment' && !inputs.use_local_images
+    uses: ./.github/workflows/dagger-build-images.yml
+    with:
+      languages: ${{ needs.prepare.outputs.languages }}
+      check_registry: true
+    secrets: inherit
 
   # Run benchmarks in parallel (for push/PR/dispatch triggers)
   benchmark:
-    needs: prepare
-    if: github.event_name != 'issue_comment'
+    needs: [prepare, ensure-images]
+    # Run even if ensure-images is skipped (use_local_images=true)
+    if: ${{ !cancelled() && !failure() && github.event_name != 'issue_comment' }}
     runs-on: ubicloud-standard-4
     permissions:
       contents: read

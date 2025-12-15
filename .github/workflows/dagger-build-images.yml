@@ -30,6 +30,25 @@ on:
         required: false
         type: boolean
         default: true
+  # Called by other workflows (e.g., dagger-benchmark.yml)
+  workflow_call:
+    inputs:
+      languages:
+        description: "Languages to build (space-separated)"
+        required: false
+        type: string
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+      force_all:
+        required: false
+        type: boolean
+        default: false
+      check_registry:
+        required: false
+        type: boolean
+        default: true
 
 env:
   REGISTRY: ghcr.io/${{ github.repository }}
