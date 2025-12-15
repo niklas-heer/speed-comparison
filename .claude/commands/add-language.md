@@ -12,73 +12,103 @@ Create `src/leibniz.<ext>` with the Leibniz formula implementation:
 - Calculate pi using the Leibniz formula: pi = 4 * (1 - 1/3 + 1/5 - 1/7 + ...)
 - Print the result with full precision (no newline if possible)
 
-### 2. Add Earthfile Target
-Add a new target in `Earthfile` following this pattern:
-```
-<language>:
-  FROM <base-image>
-  DO +PREPARE_ALPINE  # or +PREPARE_DEBIAN if needed
-  DO +ADD_FILES --src="leibniz.<ext>"
-  RUN --no-cache <compile-command>  # if compiled language
-  DO +BENCH --name="<language>" --lang="<Display Name>" --version="<version-cmd>" --cmd="<run-cmd>"
-```
+### 2. Add Language to `dagger-poc/languages.py`
 
-Key conventions:
-- Prefer Alpine over Debian for smaller images
-- Use dynamic version detection (no hardcoded versions)
-- Make downloads architecture-aware for ARM64/x86_64 compatibility
-- Add `BUILD +<language>` to the `collect-data` target
+Add an entry to the `LANGUAGES` dict:
 
-### 3. Add Version Source Configuration
-Add entry to `scripts/version-sources.json` for automated version tracking:
-```json
-"<language>": {
-  "source": "docker",           // or "github", "alpine", "apt"
-  "image": "<image-name>",      // Docker image (for docker source)
-  "repo": "org/repo",           // GitHub repo (for github source)
-  "package": "<pkg-name>",      // Package name (for alpine/apt source)
-  "earthfile_pattern": "<image>:(\\d+\\.\\d+)-alpine",  // Regex to extract current version
-  "tag_filter": "^\\d+\\.\\d+-alpine$",                 // Filter for Docker tags
-  "source_file": "leibniz.<ext>"
-}
+```python
+"mylang": Language(
+    name="MyLang",                    # Display name for charts
+    nixpkgs=("mylang@1.2.3",),        # Devbox package with pinned version
+    file="leibniz.ml",                # Source file in src/
+    run="./leibniz",                  # Run command (or "mylang leibniz.ml")
+    compile="mylangc leibniz.ml -o leibniz",  # Compile command (if compiled)
+    version_cmd="mylang --version",   # Command to get version
+    base="mylang",                    # Base language for icon mapping
+    category="compiled",              # "compiled", "interpreted", "jit", "vm", "functional", etc.
+),
 ```
 
-Source types:
-- `docker`: Official Docker Hub images (rust, golang, python, node, etc.)
-- `github`: GitHub Releases API (zig, nim, gleam, etc.)
-- `alpine`: Alpine package index (gcc, clang, sbcl, etc.)
-- `apt`: Ubuntu/Debian packages (less common)
+**Key validation rules:**
+- All `nixpkgs` must have explicit versions (`pkg@x.y.z`, not `pkg@latest`)
+- `file` must start with "leibniz."
+- Must have at least one package in `nixpkgs`
 
-### 4. Add Language Icon
+**Finding package versions:**
+```bash
+devbox search <package>           # Search Devbox packages
+# Or visit https://search.nixos.org/packages
+```
+
+### 3. Add Language Icon
 1. Check if icon exists in devicon: https://devicon.dev/
 2. If yes: Add to `download_icons.py` ICON_MAP and run:
-   ```
+   ```bash
    DYLD_LIBRARY_PATH=/opt/homebrew/opt/cairo/lib uv run python download_icons.py
    ```
 3. If no: Create custom SVG in `icons/<name>.svg` and convert to PNG
 4. Add mapping to `ICON_MAP` in `analyze.py`
 
-### 5. Test Locally
-```bash
-# Test the build
-earthly +<language>
+### 4. Run Tests and Validate
 
-# Or with quick test rounds
-earthly --build-arg QUICK_TEST_ROUNDS=1000000 +<language>
+```bash
+cd dagger-poc
+
+# Run validation tests
+uv run pytest
+
+# Quick benchmark test (10k iterations)
+just test mylang
+
+# Full benchmark (1B iterations) - optional
+just bench mylang
 ```
 
-### 6. Commit
+**On ARM Mac with emulation issues** (Java, C#, Swift, WASM):
 ```bash
-git add src/leibniz.<ext> Earthfile scripts/version-sources.json icons/<name>.png analyze.py download_icons.py
+just remote-test mylang    # Uses Fly.io x86_64 builder
+```
+
+### 5. Commit
+
+```bash
+git add src/leibniz.<ext> dagger-poc/languages.py icons/<name>.png analyze.py download_icons.py
 git commit -m "feat: add <Language> implementation"
 ```
 
 ## Checklist
-- [ ] Source file created in `src/`
-- [ ] Earthfile target added
-- [ ] Target added to `collect-data`
-- [ ] Version source added to `scripts/version-sources.json`
+- [ ] Source file created in `src/leibniz.<ext>`
+- [ ] Language added to `dagger-poc/languages.py`
+- [ ] Validation tests pass (`uv run pytest` in dagger-poc/)
+- [ ] Quick benchmark works (`just test mylang`)
 - [ ] Icon added (devicon or custom)
 - [ ] ICON_MAP updated in `analyze.py`
 - [ ] ICON_MAP updated in `download_icons.py`
-- [ ] Tested locally with `earthly +<language>`
+
+## Language Configuration Reference
+
+```python
+@dataclass(frozen=True)
+class Language:
+    name: str              # Display name (e.g., "Rust")
+    file: str              # Source file: "leibniz.rs"
+    run: str               # Run command: "./leibniz"
+    compile: str | None    # Compile command (if compiled)
+    version_cmd: str | None # Version command (defaults to primary package)
+    base: str | None       # Base language for icon mapping (e.g., "python" for "cpython")
+    category: str          # "compiled", "interpreted", "jit", "vm", etc.
+    version_regex: str     # Regex to extract version (default: r"(\d+\.\d+\.?\d*)")
+    nixpkgs: tuple[str, ...] = ()  # Devbox packages: ("go@1.23.4",)
+    nix_setup: str | None = None   # Post-install setup commands
+    allow_insecure: bool = False   # Allow insecure packages (e.g., haxe needs mbedtls)
+```
+
+## Common Categories
+
+- `systems`: C, C++, Rust, Go, Zig, Nim, etc.
+- `jvm`: Java, Kotlin, Scala, Clojure, Groovy
+- `dotnet`: C#, F#
+- `interpreted`: Python, Ruby, JavaScript, Lua, Perl, PHP
+- `functional`: Haskell, OCaml, Elixir, Erlang, Racket, Lisp
+- `compiled`: Other compiled languages
+- `jit`: Languages with JIT compilation (Julia)
