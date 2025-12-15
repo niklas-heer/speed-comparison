@@ -454,7 +454,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpython-numpy": Language(
         name="Python (NumPy)",
-        nixpkgs=("python312@3.12.9", "python312Packages.numpy@2.2.2"),
+        nixpkgs=("python312@3.12.3", "python312Packages.numpy@2.2.2"),
         file="leibniz_np.py",
         run="python3 leibniz_np.py",
         version_cmd="python3 --version",
