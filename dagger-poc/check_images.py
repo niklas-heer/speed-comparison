@@ -6,6 +6,11 @@ This script queries the GitHub Container Registry (GHCR) to determine
 which images need to be built. It outputs a space-separated list of
 languages that are missing from the registry.
 
+**Base Image Deduplication:**
+Languages that share the same `base` field use the same container image.
+For example, swift, swift-simd, and swift-relaxed all share the "swift" image.
+This script checks for base images only and reports missing languages.
+
 Usage:
     # Check all languages, output missing ones
     python check_images.py
@@ -35,10 +40,23 @@ from languages import LANGUAGES, Language, get_language
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
 
 
+def get_base_image_name(target: str, lang: Language) -> str:
+    """Get the base image name for a language.
+
+    Languages with a `base` field share the same base image.
+    For example, swift-simd and swift-relaxed both use "swift" as their base.
+    """
+    return lang.base or target
+
+
 def get_image_tag(registry: str, target: str, lang: Language) -> str:
-    """Generate the full image tag for a language."""
+    """Generate the full image tag for a language.
+
+    Uses the base image name for languages that share a base.
+    """
+    base_name = get_base_image_name(target, lang)
     version = lang.primary_version.replace("+", "-")
-    return f"{registry}/{target}:{version}"
+    return f"{registry}/{base_name}:{version}"
 
 
 def check_image_exists(image_tag: str) -> bool:
@@ -101,20 +119,14 @@ def check_single_image(target: str, lang: Language, registry: str) -> tuple[str,
     return (target, exists, image_tag)
 
 
-def check_all_images(
-    targets: list[str] | None = None,
-    registry: str = DEFAULT_REGISTRY,
-    verbose: bool = False,
-) -> list[str]:
-    """Check which images are missing from the registry.
+def get_bases_to_check(targets: list[str] | None) -> dict[str, list[str]]:
+    """Get base images to check and their associated targets.
 
     Args:
         targets: Specific targets to check (or all if None)
-        registry: Container registry URL
-        verbose: Print detailed status for each image
 
     Returns:
-        List of target names that are missing from the registry
+        Dict mapping base_name -> list of targets that use that base
     """
     if targets:
         invalid = [t for t in targets if t not in LANGUAGES]
@@ -125,25 +137,76 @@ def check_all_images(
     else:
         languages_to_check = LANGUAGES
 
-    missing = []
+    # Group targets by base image
+    bases: dict[str, list[str]] = {}
+    for target, lang in languages_to_check.items():
+        base_name = get_base_image_name(target, lang)
+        if base_name not in bases:
+            bases[base_name] = []
+        bases[base_name].append(target)
 
-    # Check images in parallel for speed
+    return bases
+
+
+def check_all_images(
+    targets: list[str] | None = None,
+    registry: str = DEFAULT_REGISTRY,
+    verbose: bool = False,
+) -> list[str]:
+    """Check which images are missing from the registry.
+
+    This checks base images only - if a base image is missing, all targets
+    that use that base are returned as missing.
+
+    Args:
+        targets: Specific targets to check (or all if None)
+        registry: Container registry URL
+        verbose: Print detailed status for each image
+
+    Returns:
+        List of target names that are missing from the registry
+    """
+    bases_to_check = get_bases_to_check(targets)
+
+    missing_targets = []
+    checked_count = 0
+
+    # Check base images in parallel for speed
     with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = {
-            executor.submit(check_single_image, target, lang, registry): target
-            for target, lang in languages_to_check.items()
-        }
+        # Submit checks for each unique base image
+        futures = {}
+        for base_name, base_targets in bases_to_check.items():
+            # Use the first target to get the language config (they share the same base config)
+            lang = get_language(base_targets[0])
+            futures[executor.submit(check_single_image, base_name, lang, registry)] = (
+                base_name,
+                base_targets,
+            )
 
         for future in as_completed(futures):
-            target, exists, image_tag = future.result()
+            base_name, base_targets = futures[future]
+            _, exists, image_tag = future.result()
+            checked_count += 1
+
             if verbose:
                 status = "✓ exists" if exists else "✗ missing"
-                print(f"  {target:15} {status:12} {image_tag}", file=sys.stderr)
+                if len(base_targets) > 1:
+                    targets_str = f" (covers: {', '.join(base_targets)})"
+                else:
+                    targets_str = ""
+                print(f"  {base_name:15} {status:12} {image_tag}{targets_str}", file=sys.stderr)
 
             if not exists:
-                missing.append(target)
+                # All targets that use this base are missing
+                missing_targets.extend(base_targets)
 
-    return sorted(missing)
+    if verbose:
+        print(
+            f"Checked {checked_count} base images for {len(bases_to_check)} targets",
+            file=sys.stderr,
+        )
+
+    return sorted(missing_targets)
 
 
 def main():

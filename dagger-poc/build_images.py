@@ -9,6 +9,14 @@ Each image contains:
 
 Images are tagged with the primary package version for cache invalidation.
 
+**Base Image Deduplication:**
+Languages that share the same `base` field and identical package configuration
+will share a single base image. For example:
+- swift, swift-simd, swift-relaxed all use base="swift" -> one swift image
+- java, java-graalvm, java-vecops all use base="java" -> one java image
+
+This significantly reduces build times for language families.
+
 Usage:
     # Build all images
     dagger run python build_images.py
@@ -33,6 +41,44 @@ from pathlib import Path
 import dagger
 
 from languages import IS_ARM, LANGUAGES, Language, get_language
+
+
+def get_base_image_name(target: str, lang: Language) -> str:
+    """Get the base image name for a language.
+
+    Languages with a `base` field share the same base image.
+    For example, swift-simd and swift-relaxed both use "swift" as their base.
+
+    Returns:
+        The base image name (e.g., "swift" for swift-simd)
+    """
+    return lang.base or target
+
+
+def get_base_languages() -> dict[str, tuple[str, Language]]:
+    """Get a deduplicated mapping of base images to build.
+
+    Groups languages by their base image. For each base, picks the
+    canonical language to use for building (prefers the one where
+    target == base, otherwise first one found).
+
+    Returns:
+        Dict mapping base_name -> (canonical_target, Language)
+    """
+    bases: dict[str, tuple[str, Language]] = {}
+
+    for target, lang in LANGUAGES.items():
+        base_name = get_base_image_name(target, lang)
+
+        if base_name not in bases:
+            # First language with this base
+            bases[base_name] = (target, lang)
+        elif target == base_name:
+            # Prefer the canonical target (e.g., "swift" over "swift-simd")
+            bases[base_name] = (target, lang)
+
+    return bases
+
 
 # =============================================================================
 # Configuration
@@ -151,11 +197,16 @@ async def build_image(
 
 
 def get_image_tag(registry: str, target: str, lang: Language) -> str:
-    """Generate the full image tag for a language."""
+    """Generate the full image tag for a language.
+
+    Uses the base image name for languages that share a base.
+    E.g., swift-simd uses the "swift" image.
+    """
+    base_name = get_base_image_name(target, lang)
     version = lang.primary_version
     # Sanitize version for Docker tag (replace invalid chars)
     version = version.replace("+", "-")
-    return f"{registry}/{target}:{version}"
+    return f"{registry}/{base_name}:{version}"
 
 
 async def build_and_push(
@@ -208,38 +259,80 @@ async def build_and_push(
         return (target, False, f"ERROR: {e}")
 
 
+def resolve_targets_to_bases(targets: list[str]) -> dict[str, tuple[str, Language]]:
+    """Convert a list of targets to their base images.
+
+    For example, if targets = ["swift-simd", "swift-relaxed"], this returns
+    just {"swift": ("swift", swift_lang)} since both use the same base.
+
+    Args:
+        targets: List of language targets to build
+
+    Returns:
+        Dict mapping base_name -> (canonical_target, Language)
+    """
+    bases: dict[str, tuple[str, Language]] = {}
+
+    for target in targets:
+        lang = get_language(target)
+        base_name = get_base_image_name(target, lang)
+
+        if base_name not in bases:
+            bases[base_name] = (target, lang)
+        elif target == base_name:
+            # Prefer the canonical target
+            bases[base_name] = (target, lang)
+
+    return bases
+
+
 async def main(
     targets: list[str] | None = None,
     push: bool = False,
     dry_run: bool = False,
 ) -> int:
-    """Build images for specified targets (or all if none specified)."""
+    """Build images for specified targets (or all if none specified).
+
+    Images are deduplicated by base: if multiple targets share the same
+    base (e.g., swift, swift-simd, swift-relaxed all use base="swift"),
+    only one image is built.
+    """
 
     registry = os.environ.get("REGISTRY", DEFAULT_REGISTRY)
 
-    # Determine which languages to build
+    # Determine which base images to build
     if targets:
         invalid = [t for t in targets if t not in LANGUAGES]
         if invalid:
             print(f"Unknown targets: {invalid}")
             print(f"Available: {list(LANGUAGES.keys())}")
             return 1
-        languages_to_build = {t: get_language(t) for t in targets}
+        # Convert targets to their deduplicated base images
+        bases_to_build = resolve_targets_to_bases(targets)
+        original_count = len(targets)
     else:
-        languages_to_build = LANGUAGES
+        # Build all unique base images
+        bases_to_build = get_base_languages()
+        original_count = len(LANGUAGES)
 
     print(f"Registry: {registry}")
-    print(f"Languages: {len(languages_to_build)}")
+    print(f"Requested targets: {original_count}")
+    print(f"Unique base images: {len(bases_to_build)}")
     print(f"Push: {push}")
     print(f"Dry run: {dry_run}")
 
     if dry_run:
         print("\n--- DRY RUN ---\n")
-        for target, lang in languages_to_build.items():
+        for base_name, (target, lang) in bases_to_build.items():
             pkg_type = "flake" if lang.uses_nix_flake else "devbox"
             tag = get_image_tag(registry, target, lang)
             skip = " [SKIP: x86_64 only]" if IS_ARM and lang.x86_64_only else ""
-            print(f"  {target:15} -> {tag} [{pkg_type}]{skip}")
+            variants = [t for t, l in LANGUAGES.items() if get_base_image_name(t, l) == base_name]
+            if len(variants) > 1:
+                print(f"  {base_name:15} -> {tag} [{pkg_type}]{skip}")
+                print(f"                    (covers: {', '.join(variants)})")
+            else:
+                print(f"  {base_name:15} -> {tag} [{pkg_type}]{skip}")
         return 0
 
     results: list[tuple[str, bool, str]] = []
@@ -248,10 +341,10 @@ async def main(
     config = dagger.Config(log_output=sys.stderr)
 
     async with dagger.Connection(config) as client:
-        for target, lang in languages_to_build.items():
+        for base_name, (target, lang) in bases_to_build.items():
             # Skip x86_64-only languages on ARM
             if IS_ARM and lang.x86_64_only:
-                skipped.append(target)
+                skipped.append(base_name)
                 continue
 
             result = await build_and_push(client, target, lang, registry, push, dry_run)
