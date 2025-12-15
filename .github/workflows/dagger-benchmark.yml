@@ -201,8 +201,7 @@ jobs:
 
       - name: Install Dagger
         run: |
-          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} BIN_DIR=/usr/local/bin sudo -E sh
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -403,8 +402,7 @@ jobs:
 
       - name: Install Dagger
         run: |
-          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} BIN_DIR=/usr/local/bin sudo -E sh
 
       - name: Log in to GHCR
         if: ${{ !inputs.use_local_images }}
