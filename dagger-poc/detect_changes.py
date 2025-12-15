@@ -43,6 +43,16 @@ def targets_to_bases(targets: list[str]) -> list[str]:
     return sorted(bases)
 
 
+def language_image_key(lang) -> str:
+    """Get a string key representing the fields that affect the container image.
+
+    Only compares fields that affect the built image, not all fields.
+    This prevents false positives when the Language dataclass adds new fields.
+    """
+    # These fields affect what goes into the container image
+    return f"{lang.nixpkgs}|{getattr(lang, 'nix_flakes', ())}|{lang.nix_setup}|{getattr(lang, 'allow_insecure', False)}"
+
+
 def get_old_languages():
     """Get LANGUAGES dict from the previous commit."""
     result = subprocess.run(
@@ -58,7 +68,9 @@ def get_old_languages():
     try:
         exec_globals = {"__builtins__": __builtins__}
         exec(result.stdout, exec_globals)
-        return {k: repr(v) for k, v in exec_globals.get("LANGUAGES", {}).items()}
+        old_langs = exec_globals.get("LANGUAGES", {})
+        # Extract only image-relevant fields
+        return {k: language_image_key(v) for k, v in old_langs.items()}
     except Exception:
         return None
 
@@ -76,14 +88,14 @@ def get_changed_languages() -> list[str]:
     # Get current languages
     from languages import LANGUAGES
 
-    current_languages = {k: repr(v) for k, v in LANGUAGES.items()}
+    current_languages = {k: language_image_key(v) for k, v in LANGUAGES.items()}
 
     # Find changed or new languages
     changed = []
-    for lang, definition in current_languages.items():
+    for lang, key in current_languages.items():
         if lang not in old_languages:
             changed.append(lang)  # New language
-        elif old_languages[lang] != definition:
+        elif old_languages[lang] != key:
             changed.append(lang)  # Changed definition
 
     return changed
