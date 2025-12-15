@@ -1,13 +1,14 @@
-name: "[Dagger] Run Benchmarks"
+name: "[Dagger] CI"
 
 on:
   push:
     paths:
       - "src/leibniz.*"
       - "src/rounds.txt"
-      - "dagger-poc/benchmark.py"
-      - "dagger-poc/scmeta.py"
       - "dagger-poc/languages.py"
+      - "dagger-poc/benchmark.py"
+      - "dagger-poc/build_images.py"
+      - "dagger-poc/scmeta.py"
     branches:
       - master
   pull_request:
@@ -20,21 +21,31 @@ on:
   workflow_dispatch:
     inputs:
       languages:
-        description: 'Languages to benchmark (space-separated, e.g., "rust go python"). Leave empty for all.'
+        description: 'Languages to build/benchmark (space-separated, e.g., "rust go python"). Leave empty for all, "all" for everything.'
         required: false
         type: string
+      build_only:
+        description: "Only build images, skip benchmarks"
+        required: false
+        type: boolean
+        default: false
+      benchmark_only:
+        description: "Only run benchmarks (assumes images exist)"
+        required: false
+        type: boolean
+        default: false
       quick_test:
         description: "Quick test mode (10000 iterations instead of 1 billion)"
         required: false
         type: boolean
         default: false
-      use_local_images:
-        description: "Build images locally instead of pulling from registry"
+      skip_cache:
+        description: "Skip cache and run fresh benchmarks"
         required: false
         type: boolean
         default: false
-      skip_cache:
-        description: "Skip cache and run fresh benchmarks"
+      dry_run:
+        description: "Dry run (don't push images to registry)"
         required: false
         type: boolean
         default: false
@@ -44,7 +55,9 @@ env:
   DAGGER_VERSION: "0.19.8"
 
 jobs:
-  # Parse /dagger-bench commands from PR comments
+  # ==========================================================================
+  # PR Comment Handler (/dagger-bench command)
+  # ==========================================================================
   parse-comment:
     runs-on: ubicloud-standard-2
     if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/dagger-bench')
@@ -65,11 +78,9 @@ jobs:
             const association = context.payload.comment.author_association;
             const trustedAssociations = ['OWNER', 'MEMBER', 'COLLABORATOR', 'CONTRIBUTOR'];
             const authorized = trustedAssociations.includes(association);
-
             console.log(`Comment author: ${context.payload.comment.user.login}`);
             console.log(`Author association: ${association}`);
             console.log(`Authorized: ${authorized}`);
-
             core.setOutput('authorized', authorized ? 'true' : 'false');
 
       - name: Parse /dagger-bench command
@@ -119,18 +130,14 @@ jobs:
               '## /dagger-bench Command Help',
               '',
               '**Usage:**',
-              '- `/dagger-bench <language> [language2] ...` - Benchmark specific languages using Dagger pipeline',
+              '- `/dagger-bench <language> [language2] ...` - Benchmark specific languages',
               '- `/dagger-bench help` - Show this help message',
               '',
               '**Examples:**',
               '- `/dagger-bench rust go c` - Benchmark Rust, Go, and C',
               '- `/dagger-bench julia` - Benchmark Julia',
               '',
-              '**Note:** Use target names from `dagger-poc/languages.py` (e.g., `rust`, `cpython`, `nodejs`).',
-              '',
-              '**Difference from /bench:**',
-              '- `/bench` uses the Earthly pipeline',
-              '- `/dagger-bench` uses the Dagger pipeline with pre-built container images'
+              '**Note:** Use target names from `dagger-poc/languages.py` (e.g., `rust`, `cpython`, `nodejs`).'
             ].join('\n');
 
             await github.rest.issues.createComment({
@@ -152,7 +159,7 @@ jobs:
               content: 'rocket'
             });
 
-  # Run benchmarks from /dagger-bench command
+  # Run benchmarks from /dagger-bench command (simplified, single job)
   bench-comment:
     needs: parse-comment
     if: needs.parse-comment.outputs.should_run == 'true'
@@ -163,11 +170,6 @@ jobs:
       contents: read
       packages: read
     steps:
-      - name: Determine languages to benchmark
-        id: langs
-        run: |
-          echo "languages=${{ needs.parse-comment.outputs.languages }}" >> $GITHUB_OUTPUT
-
       - name: Create check run
         id: check
         uses: actions/github-script@v7
@@ -176,12 +178,12 @@ jobs:
             const check = await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: '[Dagger] Benchmark: ${{ steps.langs.outputs.languages }}',
+              name: '[Dagger] Benchmark: ${{ needs.parse-comment.outputs.languages }}',
               head_sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               status: 'in_progress',
               output: {
                 title: 'Running Dagger benchmarks',
-                summary: 'Benchmarking: `${{ steps.langs.outputs.languages }}`'
+                summary: 'Benchmarking: `${{ needs.parse-comment.outputs.languages }}`'
               }
             });
             core.setOutput('check_id', check.data.id);
@@ -210,14 +212,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run benchmarks for specified languages
+      - name: Run benchmarks
         id: bench
         working-directory: dagger-poc
         env:
           REGISTRY: ${{ env.REGISTRY }}
         run: |
           uv sync --quiet
-          LANGUAGES="${{ steps.langs.outputs.languages }}"
+          LANGUAGES="${{ needs.parse-comment.outputs.languages }}"
           echo "Running Dagger benchmarks for: $LANGUAGES"
           FAILED=""
           for lang in $LANGUAGES; do
@@ -234,25 +236,18 @@ jobs:
             echo "failed=$FAILED" >> $GITHUB_OUTPUT
           fi
 
-      - name: Archive test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: dagger-bench-results-${{ needs.parse-comment.outputs.pr_number }}
-          path: results/*.json
-
       - name: Comment results on PR
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const languages = '${{ steps.langs.outputs.languages }}';
+            const languages = '${{ needs.parse-comment.outputs.languages }}';
             const failed = '${{ steps.bench.outputs.failed }}'.trim();
 
             let comment = '## Dagger Benchmark Results\n\n';
             comment += `**Languages tested:** \`${languages}\`\n`;
-            comment += `**Commit:** \`${{ needs.parse-comment.outputs.pr_sha }}\`\n`;
-            comment += `**Pipeline:** Dagger\n\n`;
+            comment += `**Commit:** \`${{ needs.parse-comment.outputs.pr_sha }}\`\n\n`;
 
             if (failed) {
               comment += `> **Warning:** Some benchmarks failed: \`${failed}\`\n\n`;
@@ -280,15 +275,12 @@ jobs:
                 for (const r of results) {
                   comment += `| ${r.language} | ${r.min.toFixed(1)} ms | ${r.median.toFixed(1)} ms | ${r.max.toFixed(1)} ms | ${r.accuracy} |\n`;
                 }
-                comment += '\n';
               }
             } catch (e) {
-              comment += `_Could not parse results: ${e.message}_\n\n`;
+              comment += `_Could not parse results: ${e.message}_\n`;
             }
 
-            comment += `<details>\n<summary>View artifacts and logs</summary>\n\n`;
-            comment += `[View workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})\n`;
-            comment += `</details>`;
+            comment += `\n[View workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -302,34 +294,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const path = require('path');
             const failed = '${{ steps.bench.outputs.failed }}'.trim();
             const conclusion = failed ? 'failure' : 'success';
-
-            let summary = '';
-            try {
-              const resultsDir = 'results';
-              const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
-              const results = [];
-              for (const file of files) {
-                const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
-                results.push({
-                  language: data.Language,
-                  median: parseFloat(data.Median) * 1000
-                });
-              }
-              if (results.length > 0) {
-                results.sort((a, b) => a.median - b.median);
-                summary = '| Language | Median |\n|:---------|-------:|\n';
-                for (const r of results) {
-                  summary += `| ${r.language} | ${r.median.toFixed(1)} ms |\n`;
-                }
-              }
-            } catch (e) {
-              summary = 'Results not available';
-            }
-
             await github.rest.checks.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -337,20 +303,31 @@ jobs:
               status: 'completed',
               conclusion: conclusion,
               output: {
-                title: failed ? `Benchmarks completed with failures: ${failed}` : 'Benchmarks completed',
-                summary: summary
+                title: failed ? `Failed: ${failed}` : 'Benchmarks completed',
+                summary: 'See workflow run for details'
               }
             });
 
-  # Build matrix of languages to benchmark (for push/PR/dispatch triggers)
+  # ==========================================================================
+  # Main CI Pipeline (push, PR, workflow_dispatch)
+  # ==========================================================================
+
+  # Determine what to build and benchmark
   prepare:
     runs-on: ubicloud-standard-2
     if: github.event_name != 'issue_comment'
+    permissions:
+      contents: read
+      packages: read
     outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
-      languages: ${{ steps.matrix.outputs.languages }}
+      build_matrix: ${{ steps.detect.outputs.build_matrix }}
+      bench_matrix: ${{ steps.detect.outputs.bench_matrix }}
+      has_builds: ${{ steps.detect.outputs.has_builds }}
+      has_benchmarks: ${{ steps.detect.outputs.has_benchmarks }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -360,48 +337,114 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Generate language matrix
-        id: matrix
+      - name: Log in to GHCR (for registry checks)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect what needs building/benchmarking
+        id: detect
         working-directory: dagger-poc
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
         run: |
           uv sync --quiet
 
-          # Get languages from input or use all
+          # Helper functions
+          get_all_langs() {
+            uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))"
+          }
+
+          get_all_bases() {
+            uv run python -c "from languages import get_base_languages; print(' '.join(sorted(get_base_languages().keys())))"
+          }
+
+          targets_to_bases() {
+            uv run python -c "from languages import resolve_targets_to_bases; bases = resolve_targets_to_bases('$1'.split()); print(' '.join(sorted(bases.keys())))"
+          }
+
+          # Determine which languages to process
           if [ -n "${{ inputs.languages }}" ]; then
-            LANGS="${{ inputs.languages }}"
+            if [ "${{ inputs.languages }}" = "all" ]; then
+              LANGS=$(get_all_langs)
+            else
+              LANGS="${{ inputs.languages }}"
+            fi
           else
-            # Get all language names from languages.py
-            LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+            LANGS=$(get_all_langs)
           fi
 
-          # Convert to JSON array
-          JSON_ARRAY=$(echo "$LANGS" | tr ' ' '\n' | jq -R . | jq -s -c .)
-          echo "matrix={\"language\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
-          echo "languages=$LANGS" >> $GITHUB_OUTPUT
-          echo "Languages to benchmark: $LANGS"
+          # Determine images to build
+          if [ "${{ inputs.benchmark_only }}" = "true" ]; then
+            BUILD_LANGS=""
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            # Check if build_images.py changed (rebuild all)
+            if git diff --name-only HEAD~1 HEAD | grep -q "dagger-poc/build_images.py"; then
+              echo "build_images.py changed - rebuilding all base images"
+              BUILD_LANGS=$(get_all_bases)
+            else
+              # Detect changed + missing images
+              BUILD_LANGS=$(uv run python detect_changes.py --check-registry)
+            fi
+          else
+            # For PRs and dispatch, check registry for missing images
+            BUILD_LANGS=$(targets_to_bases "$LANGS")
+            # Filter to only missing images
+            MISSING=""
+            for base in $BUILD_LANGS; do
+              if ! uv run python check_images.py $base --quiet 2>/dev/null; then
+                MISSING="$MISSING $base"
+              fi
+            done
+            BUILD_LANGS=$(echo "$MISSING" | xargs)
+          fi
 
-  # Ensure base images exist before running benchmarks
-  ensure-images:
+          # Determine benchmarks to run
+          if [ "${{ inputs.build_only }}" = "true" ]; then
+            BENCH_LANGS=""
+          else
+            BENCH_LANGS="$LANGS"
+          fi
+
+          # Output build matrix
+          BUILD_LANGS=$(echo "$BUILD_LANGS" | xargs)
+          if [ -z "$BUILD_LANGS" ]; then
+            echo "No images to build"
+            echo "has_builds=false" >> $GITHUB_OUTPUT
+            echo "build_matrix={\"language\":[]}" >> $GITHUB_OUTPUT
+          else
+            echo "Images to build: $BUILD_LANGS"
+            echo "has_builds=true" >> $GITHUB_OUTPUT
+            JSON_ARRAY=$(echo "$BUILD_LANGS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+            echo "build_matrix={\"language\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+          fi
+
+          # Output benchmark matrix
+          BENCH_LANGS=$(echo "$BENCH_LANGS" | xargs)
+          if [ -z "$BENCH_LANGS" ]; then
+            echo "No benchmarks to run"
+            echo "has_benchmarks=false" >> $GITHUB_OUTPUT
+            echo "bench_matrix={\"language\":[]}" >> $GITHUB_OUTPUT
+          else
+            echo "Languages to benchmark: $BENCH_LANGS"
+            echo "has_benchmarks=true" >> $GITHUB_OUTPUT
+            JSON_ARRAY=$(echo "$BENCH_LANGS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+            echo "bench_matrix={\"language\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+          fi
+
+  # Build images in parallel
+  build:
     needs: prepare
-    if: github.event_name != 'issue_comment' && !inputs.use_local_images
-    uses: ./.github/workflows/dagger-build-images.yml
-    with:
-      languages: ${{ needs.prepare.outputs.languages }}
-      check_registry: true
-    secrets: inherit
-
-  # Run benchmarks in parallel (for push/PR/dispatch triggers)
-  benchmark:
-    needs: [prepare, ensure-images]
-    # Run even if ensure-images is skipped (use_local_images=true)
-    if: ${{ !cancelled() && !failure() && github.event_name != 'issue_comment' }}
+    if: needs.prepare.outputs.has_builds == 'true'
     runs-on: ubicloud-standard-4
     permissions:
       contents: read
-      packages: read
+      packages: write
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.build_matrix) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -418,7 +461,56 @@ jobs:
           curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} BIN_DIR=/usr/local/bin sudo -E sh
 
       - name: Log in to GHCR
-        if: ${{ !inputs.use_local_images }}
+        if: ${{ !inputs.dry_run }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        working-directory: dagger-poc
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+        run: |
+          uv sync --quiet
+          PUSH_FLAG=""
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            PUSH_FLAG="--push"
+          fi
+          uv run dagger run python build_images.py ${{ matrix.language }} $PUSH_FLAG
+
+  # Run benchmarks in parallel
+  benchmark:
+    needs: [prepare, build]
+    # Run if we have benchmarks AND (builds succeeded OR no builds needed)
+    if: |
+      always() &&
+      needs.prepare.outputs.has_benchmarks == 'true' &&
+      (needs.build.result == 'success' || needs.build.result == 'skipped')
+    runs-on: ubicloud-standard-4
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.bench_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Dagger
+        run: |
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} BIN_DIR=/usr/local/bin sudo -E sh
+
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -427,7 +519,7 @@ jobs:
 
       - name: Cache benchmark result
         id: cache
-        if: ${{ !inputs.skip_cache }}
+        if: ${{ !inputs.skip_cache && github.event_name == 'push' }}
         uses: actions/cache@v4
         with:
           path: results/${{ matrix.language }}.json
@@ -439,20 +531,9 @@ jobs:
         env:
           REGISTRY: ${{ env.REGISTRY }}
           QUICK_TEST_ROUNDS: ${{ inputs.quick_test && '10000' || '' }}
-          USE_LOCAL_IMAGES: ${{ inputs.use_local_images && '1' || '' }}
         run: |
           uv sync --quiet
           uv run dagger run python benchmark.py ${{ matrix.language }}
-
-      - name: Show cache status
-        run: |
-          if [ "${{ inputs.skip_cache }}" == "true" ]; then
-            echo "🔨 Ran fresh benchmark for ${{ matrix.language }} (cache skipped)"
-          elif [ "${{ steps.cache.outputs.cache-hit }}" == "true" ]; then
-            echo "✅ Using cached result for ${{ matrix.language }}"
-          else
-            echo "🔨 Ran fresh benchmark for ${{ matrix.language }}"
-          fi
 
       - name: Upload result
         uses: actions/upload-artifact@v4
@@ -461,10 +542,10 @@ jobs:
           path: results/${{ matrix.language }}.json
           if-no-files-found: warn
 
-  # Collect results and generate analysis (for push/PR/dispatch triggers)
+  # Collect results and generate analysis
   analyze:
-    needs: benchmark
-    if: github.event_name != 'issue_comment'
+    needs: [prepare, benchmark]
+    if: always() && needs.prepare.outputs.has_benchmarks == 'true' && needs.benchmark.result == 'success'
     runs-on: ubicloud-standard-2
     steps:
       - uses: actions/checkout@v4
@@ -484,18 +565,26 @@ jobs:
       - name: Install dependencies
         run: pip install matplotlib pandas
 
-      - name: List results
+      - name: Generate summary
         run: |
           echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          ls -la results/ >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "No results found" >> $GITHUB_STEP_SUMMARY
+          if [ -d results ] && [ "$(ls results/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
+            echo "| Language | Median (ms) |" >> $GITHUB_STEP_SUMMARY
+            echo "|:---------|------------:|" >> $GITHUB_STEP_SUMMARY
+            for f in results/*.json; do
+              lang=$(jq -r '.Language' "$f")
+              median=$(jq -r '.Median' "$f" | awk '{printf "%.1f", $1 * 1000}')
+              echo "| $lang | $median |" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "No results found" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Generate analysis
         run: |
           if [ -f analyze.py ] && [ "$(ls results/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
             python analyze.py --folder ./results/ --out ./results/ --rounds ./src/rounds.txt
-          else
-            echo "Skipping analysis - no results or analyze.py not found"
           fi
 
       - name: Upload analysis
@@ -506,3 +595,20 @@ jobs:
             results/*.csv
             results/*.png
           if-no-files-found: ignore
+
+  # Final summary
+  summary:
+    needs: [prepare, build, benchmark, analyze]
+    runs-on: ubicloud-standard-2
+    if: always() && github.event_name != 'issue_comment'
+    steps:
+      - name: Summary
+        run: |
+          echo "## Dagger CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|:------|:-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Prepare | ${{ needs.prepare.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Images | ${{ needs.build.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Benchmarks | ${{ needs.benchmark.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Analysis | ${{ needs.analyze.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY

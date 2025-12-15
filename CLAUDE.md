@@ -334,38 +334,38 @@ docker system prune -af
 
 ## Dagger CI/CD Workflows
 
-The Dagger pipeline has dedicated GitHub Actions workflows in `.github/workflows/`:
+The Dagger pipeline uses GitHub Actions workflows in `.github/workflows/`:
 
-### dagger-build-images.yml
+### dagger-ci.yml
 
-Builds and pushes container images to GHCR.
-
-**Triggers:**
-- Push to `master` when `languages.py` or `build_images.py` changes
-- Manual dispatch with optional language selection
-- Called by `dagger-benchmark.yml` to ensure images exist
-
-**Key features:**
-- Uses `detect_changes.py` to only build changed images
-- Uses `check_images.py` to find missing images in registry
-- Parallel matrix builds for speed
-- Supports `dry_run` mode for testing
-
-### dagger-benchmark.yml
-
-Runs benchmarks using the Dagger pipeline.
+Combined workflow for building images and running benchmarks in a single pipeline.
 
 **Triggers:**
-- Push to `master` when source files change (`src/leibniz.*`, `src/rounds.txt`)
+- Push to `master` when source files or language config changes
 - Pull requests that modify `dagger-poc/` or source files
 - `/dagger-bench <language> [language2] ...` command in PR comments
-- Manual dispatch with optional language selection
+- Manual dispatch with flexible options
+
+**Pipeline stages:**
+1. **prepare** - Detect what images need building and what to benchmark
+2. **build** - Build and push missing/changed images (parallel matrix)
+3. **benchmark** - Run benchmarks (parallel matrix, waits for build)
+4. **analyze** - Generate charts and summary
 
 **Key features:**
-- Automatically ensures images exist before benchmarking
-- Caches results based on source file + language config hash
-- Supports quick test mode (10k iterations) for faster feedback
-- Posts results as PR comments when triggered by `/dagger-bench`
+- Single workflow run shows entire pipeline status
+- Only builds images that are missing or changed
+- Caches benchmark results based on source + config hash
+- Supports `build_only` and `benchmark_only` modes
+- Quick test mode (10k iterations) for faster feedback
+
+**Manual dispatch options:**
+- `languages` - Space-separated list, or "all"
+- `build_only` - Only build images, skip benchmarks
+- `benchmark_only` - Only benchmark (assumes images exist)
+- `quick_test` - Use 10k iterations instead of 1B
+- `skip_cache` - Force fresh benchmarks
+- `dry_run` - Don't push images to registry
 
 **PR Benchmark Command:**
 ```
