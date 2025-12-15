@@ -144,7 +144,10 @@ async def build_local_nix_container(
     flake_refs = list(lang.nix_flake) + ["nixpkgs#hyperfine", "nixpkgs#micropython"]
     flake_refs_str = " ".join(flake_refs)
 
-    container = container.with_exec(["sh", "-c", f"nix profile install {flake_refs_str}"])
+    install_cmd = f"nix profile install {flake_refs_str}"
+    if lang.allow_insecure:
+        install_cmd = f"NIXPKGS_ALLOW_INSECURE=1 nix profile install --impure {flake_refs_str}"
+    container = container.with_exec(["sh", "-c", install_cmd])
 
     if lang.nix_setup:
         container = container.with_exec(["sh", "-c", lang.nix_setup])

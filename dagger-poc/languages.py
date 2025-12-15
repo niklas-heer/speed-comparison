@@ -105,6 +105,9 @@ class Language:
     # Platform limitations
     x86_64_only: bool = False  # Some packages only work on x86_64 (wasi-sdk, some JVMs)
 
+    # Security
+    allow_insecure: bool = False  # Allow insecure packages (e.g., haxe needs mbedtls)
+
     def __post_init__(self) -> None:
         """Validate configuration on creation."""
         # Validate file name
@@ -703,7 +706,7 @@ LANGUAGES: dict[str, Language] = {
         file="leibniz.pas",
         compile="fpc -O3 -XX -Xs leibniz.pas",
         run="./leibniz",
-        version_cmd="fpc -version",
+        version_cmd="fpc -iV",
         base="pascal",
         category="systems",
     ),
@@ -780,23 +783,30 @@ LANGUAGES: dict[str, Language] = {
     ),
     "haxe": Language(
         name="Haxe",
-        nixpkgs=("haxe@4.3.6",),
+        nix_flake=(nix_pkg("haxe"),),
+        nix_flake_version="4.3.6",
         file="Leibniz.hx",
         compile="haxe -main Leibniz -cpp out && cd out && make",
         run="./out/Leibniz",
         version_cmd="haxe --version",
         base="haxe",
         category="compiled",
+        allow_insecure=True,  # haxe depends on insecure mbedtls
     ),
     # =========================================================================
     # WebAssembly
     # =========================================================================
     "wasm": Language(
         name="WASM (C via Wasmtime)",
-        nix_flake=(nix_pkg("wasmtime"), nix_pkg("wasi-sdk")),
-        nix_flake_version="39.0.1",
+        nixpkgs=("wasmtime@29.0.1", "wget@1.25.0"),
+        nix_setup=(
+            "wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-x86_64-linux.tar.gz && "
+            "tar -xf wasi-sdk-25.0-x86_64-linux.tar.gz && "
+            "mv wasi-sdk-25.0-x86_64-linux /tmp/wasi-sdk && "
+            "rm wasi-sdk-25.0-x86_64-linux.tar.gz"
+        ),
         file="leibniz.c",
-        compile="$WASI_SDK_PATH/bin/clang -O3 -o leibniz.wasm leibniz.c",
+        compile="/tmp/wasi-sdk/bin/clang -O3 -o leibniz.wasm leibniz.c",
         run="wasmtime --dir=. leibniz.wasm",
         version_cmd="wasmtime --version",
         base="wasm",
