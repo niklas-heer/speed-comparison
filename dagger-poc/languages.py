@@ -339,9 +339,12 @@ LANGUAGES: dict[str, Language] = {
         base="crystal",
         category="systems",
     ),
+    # Swift uses nix_flake with pinned nixpkgs to use pre-built binaries from cache
+    # nixos-24.05 has working Swift binaries; newer versions have GCC 14 build failures
     "swift": Language(
         name="Swift",
-        nixpkgs=("swift@5.10.1",),
+        nix_flake=("github:NixOS/nixpkgs/nixos-24.05#swift",),
+        nix_flake_version="5.10.1",
         file="leibniz.swift",
         compile="swiftc -O -o leibniz leibniz.swift",
         run="./leibniz",
@@ -351,7 +354,8 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nixpkgs=("swift@5.10.1",),
+        nix_flake=("github:NixOS/nixpkgs/nixos-24.05#swift",),
+        nix_flake_version="5.10.1",
         file="leibniz-simd.swift",
         compile="swiftc -O -o leibniz leibniz-simd.swift",
         run="./leibniz",
@@ -361,7 +365,8 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (Relaxed)",
-        nixpkgs=("swift@5.10.1",),
+        nix_flake=("github:NixOS/nixpkgs/nixos-24.05#swift",),
+        nix_flake_version="5.10.1",
         file="leibniz.swift",
         compile="swiftc -O -enable-experimental-feature Extern -Xcc -ffast-math -o leibniz leibniz.swift",
         run="./leibniz",
