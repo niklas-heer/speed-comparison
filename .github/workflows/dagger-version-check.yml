@@ -1,0 +1,178 @@
+name: "[Dagger] Version Check"
+
+on:
+  schedule:
+    # Run weekly on Tuesdays at 6 AM UTC (offset from Earthly check on Monday)
+    - cron: "0 6 * * 2"
+  workflow_dispatch:
+    inputs:
+      include_unstable:
+        description: "Include unstable/preview versions"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run - check versions but do not create PR"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  check-and-update:
+    runs-on: ubicloud-standard-2
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        working-directory: dagger-poc
+        run: uv sync --quiet
+
+      - name: Check for version updates
+        id: check
+        working-directory: dagger-poc
+        run: |
+          ARGS=""
+          if [ "${{ inputs.include_unstable }}" == "true" ]; then
+            ARGS="--include-unstable"
+          fi
+
+          echo "Running: uv run python check_versions.py $ARGS"
+          uv run python check_versions.py $ARGS | tee version-report.txt
+
+          # Count updates (lines with →)
+          UPDATES=$(grep -c "→" version-report.txt || echo "0")
+          echo "updates_count=$UPDATES" >> $GITHUB_OUTPUT
+
+          # Extract language names that need updates
+          LANGS=$(grep "→" version-report.txt | awk '{print $1}' | tr '\n' ' ' | xargs)
+          echo "languages=$LANGS" >> $GITHUB_OUTPUT
+
+      - name: Apply version updates
+        if: steps.check.outputs.updates_count != '0' && !inputs.dry_run
+        working-directory: dagger-poc
+        run: |
+          echo "Applying updates to languages.py..."
+
+          # Parse the version report and update languages.py
+          while IFS= read -r line; do
+            if echo "$line" | grep -q "→"; then
+              LANG=$(echo "$line" | awk '{print $1}')
+              NEW_VERSION=$(echo "$line" | grep -oP '→ \K[0-9][^\s]+' | head -1)
+
+              if [ -n "$LANG" ] && [ -n "$NEW_VERSION" ]; then
+                echo "Updating $LANG to $NEW_VERSION"
+
+                # Update nixpkgs version (format: package@version)
+                # Match the pattern and replace the version
+                sed -i "s/\(\"$LANG\".*nixpkgs=([^)]*@\)[0-9][^\"]*\"/\1$NEW_VERSION\"/g" languages.py
+
+                # Update nix_flake_version if it exists for this language
+                # This is a simple replacement - the version checker reports the new version
+                python3 << EOF
+          import re
+
+          with open('languages.py', 'r') as f:
+              content = f.read()
+
+          # Find the language block and update nix_flake_version if present
+          lang = "$LANG"
+          new_ver = "$NEW_VERSION"
+
+          # Pattern to find the language definition
+          pattern = rf'("{lang}":\s*Language\([^)]+nix_flake_version=")[^"]*(")'
+          replacement = rf'\g<1>{new_ver}\g<2>'
+          content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+
+          with open('languages.py', 'w') as f:
+              f.write(content)
+          EOF
+              fi
+            fi
+          done < version-report.txt
+
+      - name: Verify updates
+        if: steps.check.outputs.updates_count != '0' && !inputs.dry_run
+        working-directory: dagger-poc
+        run: |
+          echo "Verifying updates..."
+          uv run python check_versions.py | tee post-update-report.txt
+
+          # Check if any updates remain
+          REMAINING=$(grep -c "→" post-update-report.txt || echo "0")
+          if [ "$REMAINING" != "0" ]; then
+            echo "Warning: Some updates may not have been applied correctly"
+            cat post-update-report.txt
+          fi
+
+      - name: Generate summary
+        working-directory: dagger-poc
+        run: |
+          echo "# Dagger Version Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Updates Found:** ${{ steps.check.outputs.updates_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Version Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat version-report.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create Pull Request
+        if: steps.check.outputs.updates_count != '0' && !inputs.dry_run
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: dagger/version-updates
+          delete-branch: true
+          title: "[Dagger] Update ${{ steps.check.outputs.updates_count }} language versions"
+          body: |
+            ## Automated Version Updates
+
+            This PR updates **${{ steps.check.outputs.updates_count }}** language versions in the Dagger pipeline.
+
+            ### Languages Updated
+            ${{ steps.check.outputs.languages }}
+
+            ### Version Report
+            ```
+            ${{ steps.check.outputs.updates_count }} updates applied
+            ```
+
+            <details>
+            <summary>Full version check output</summary>
+
+            ```
+            $(cat dagger-poc/version-report.txt)
+            ```
+            </details>
+
+            ### Testing
+
+            Test locally before merging:
+            ```bash
+            cd dagger-poc
+            QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py <lang>
+            ```
+
+            Or use `/dagger-bench <lang1> <lang2> ...` to test in CI.
+
+            ---
+
+            > This PR was automatically created by the dagger-version-check workflow.
+          labels: |
+            dagger
+            version-update
+            automated
+          commit-message: "chore(dagger): update language versions"

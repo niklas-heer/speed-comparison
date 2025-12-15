@@ -1,0 +1,27 @@
+[project]
+name = "speed-comparison"
+version = "0.1.0"
+description = "Benchmark comparing programming languages using Leibniz formula for π"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dagger-io>=0.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "mypy>=1.10",
+    "ruff>=0.5",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

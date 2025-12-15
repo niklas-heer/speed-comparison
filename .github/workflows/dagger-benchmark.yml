@@ -1,0 +1,497 @@
+name: "[Dagger] Run Benchmarks"
+
+on:
+  push:
+    paths:
+      - "src/leibniz.*"
+      - "src/rounds.txt"
+      - "dagger-poc/benchmark.py"
+      - "dagger-poc/scmeta.py"
+      - "dagger-poc/languages.py"
+    branches:
+      - master
+  pull_request:
+    paths:
+      - "src/leibniz.*"
+      - "dagger-poc/**"
+  # Handle /dagger-bench comments on PRs
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      languages:
+        description: 'Languages to benchmark (space-separated, e.g., "rust go python"). Leave empty for all.'
+        required: false
+        type: string
+      quick_test:
+        description: "Quick test mode (10000 iterations instead of 1 billion)"
+        required: false
+        type: boolean
+        default: false
+      use_local_images:
+        description: "Build images locally instead of pulling from registry"
+        required: false
+        type: boolean
+        default: false
+      skip_cache:
+        description: "Skip cache and run fresh benchmarks"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository }}
+  DAGGER_VERSION: "0.19.8"
+
+jobs:
+  # Parse /dagger-bench commands from PR comments
+  parse-comment:
+    runs-on: ubicloud-standard-2
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/dagger-bench')
+    outputs:
+      languages: ${{ steps.parse.outputs.languages }}
+      should_run: ${{ steps.parse.outputs.should_run }}
+      show_help: ${{ steps.parse.outputs.show_help }}
+      pr_ref: ${{ steps.get-pr.outputs.ref }}
+      pr_sha: ${{ steps.get-pr.outputs.sha }}
+      pr_repo: ${{ steps.get-pr.outputs.repo }}
+      pr_number: ${{ steps.get-pr.outputs.pr_number }}
+    steps:
+      - name: Check if comment author is trusted
+        id: check-permission
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const association = context.payload.comment.author_association;
+            const trustedAssociations = ['OWNER', 'MEMBER', 'COLLABORATOR', 'CONTRIBUTOR'];
+            const authorized = trustedAssociations.includes(association);
+
+            console.log(`Comment author: ${context.payload.comment.user.login}`);
+            console.log(`Author association: ${association}`);
+            console.log(`Authorized: ${authorized}`);
+
+            core.setOutput('authorized', authorized ? 'true' : 'false');
+
+      - name: Parse /dagger-bench command
+        id: parse
+        if: steps.check-permission.outputs.authorized == 'true'
+        run: |
+          COMMENT="${{ github.event.comment.body }}"
+          LANGUAGES=$(echo "$COMMENT" | sed -n 's/^\/dagger-bench[[:space:]]*//p' | tr -s ' ' | xargs)
+
+          if [ -z "$LANGUAGES" ]; then
+            echo "No languages specified, will show help"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "show_help=true" >> $GITHUB_OUTPUT
+          elif [ "$LANGUAGES" = "help" ]; then
+            echo "Help requested"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "show_help=true" >> $GITHUB_OUTPUT
+          else
+            echo "Languages to benchmark: $LANGUAGES"
+            echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "show_help=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get PR info
+        id: get-pr
+        if: steps.check-permission.outputs.authorized == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            core.setOutput('ref', pr.data.head.ref);
+            core.setOutput('sha', pr.data.head.sha);
+            core.setOutput('repo', pr.data.head.repo.full_name);
+            core.setOutput('pr_number', context.issue.number);
+
+      - name: Show help
+        if: steps.parse.outputs.show_help == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const helpText = [
+              '## /dagger-bench Command Help',
+              '',
+              '**Usage:**',
+              '- `/dagger-bench <language> [language2] ...` - Benchmark specific languages using Dagger pipeline',
+              '- `/dagger-bench help` - Show this help message',
+              '',
+              '**Examples:**',
+              '- `/dagger-bench rust go c` - Benchmark Rust, Go, and C',
+              '- `/dagger-bench julia` - Benchmark Julia',
+              '',
+              '**Note:** Use target names from `dagger-poc/languages.py` (e.g., `rust`, `cpython`, `nodejs`).',
+              '',
+              '**Difference from /bench:**',
+              '- `/bench` uses the Earthly pipeline',
+              '- `/dagger-bench` uses the Dagger pipeline with pre-built container images'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: helpText
+            });
+
+      - name: Add reaction to comment
+        if: steps.parse.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
+
+  # Run benchmarks from /dagger-bench command
+  bench-comment:
+    needs: parse-comment
+    if: needs.parse-comment.outputs.should_run == 'true'
+    runs-on: ubicloud-standard-4
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: read
+      packages: read
+    steps:
+      - name: Determine languages to benchmark
+        id: langs
+        run: |
+          echo "languages=${{ needs.parse-comment.outputs.languages }}" >> $GITHUB_OUTPUT
+
+      - name: Create check run
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const check = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: '[Dagger] Benchmark: ${{ steps.langs.outputs.languages }}',
+              head_sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              status: 'in_progress',
+              output: {
+                title: 'Running Dagger benchmarks',
+                summary: 'Benchmarking: `${{ steps.langs.outputs.languages }}`'
+              }
+            });
+            core.setOutput('check_id', check.data.id);
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.parse-comment.outputs.pr_repo }}
+          ref: ${{ needs.parse-comment.outputs.pr_sha }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Dagger
+        run: |
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run benchmarks for specified languages
+        id: bench
+        working-directory: dagger-poc
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+        run: |
+          uv sync --quiet
+          LANGUAGES="${{ steps.langs.outputs.languages }}"
+          echo "Running Dagger benchmarks for: $LANGUAGES"
+          FAILED=""
+          for lang in $LANGUAGES; do
+            echo "::group::Benchmarking $lang"
+            if uv run dagger run python benchmark.py $lang; then
+              echo "Success: $lang"
+            else
+              FAILED="$FAILED $lang"
+              echo "::error::Benchmark for $lang failed"
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$FAILED" ]; then
+            echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dagger-bench-results-${{ needs.parse-comment.outputs.pr_number }}
+          path: results/*.json
+
+      - name: Comment results on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const languages = '${{ steps.langs.outputs.languages }}';
+            const failed = '${{ steps.bench.outputs.failed }}'.trim();
+
+            let comment = '## Dagger Benchmark Results\n\n';
+            comment += `**Languages tested:** \`${languages}\`\n`;
+            comment += `**Commit:** \`${{ needs.parse-comment.outputs.pr_sha }}\`\n`;
+            comment += `**Pipeline:** Dagger\n\n`;
+
+            if (failed) {
+              comment += `> **Warning:** Some benchmarks failed: \`${failed}\`\n\n`;
+            }
+
+            const results = [];
+            const resultsDir = 'results';
+            try {
+              const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+              for (const file of files) {
+                const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+                results.push({
+                  language: data.Language,
+                  min: parseFloat(data.Min) * 1000,
+                  median: parseFloat(data.Median) * 1000,
+                  max: parseFloat(data.Max) * 1000,
+                  accuracy: data.Accuracy ? data.Accuracy.toFixed(2) : 'N/A'
+                });
+              }
+
+              if (results.length > 0) {
+                results.sort((a, b) => a.median - b.median);
+                comment += '| Language | Min | Median | Max | Accuracy |\n';
+                comment += '|:---------|----:|-------:|----:|:--------:|\n';
+                for (const r of results) {
+                  comment += `| ${r.language} | ${r.min.toFixed(1)} ms | ${r.median.toFixed(1)} ms | ${r.max.toFixed(1)} ms | ${r.accuracy} |\n`;
+                }
+                comment += '\n';
+              }
+            } catch (e) {
+              comment += `_Could not parse results: ${e.message}_\n\n`;
+            }
+
+            comment += `<details>\n<summary>View artifacts and logs</summary>\n\n`;
+            comment += `[View workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})\n`;
+            comment += `</details>`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ needs.parse-comment.outputs.pr_number }},
+              body: comment
+            });
+
+      - name: Update check run
+        if: always() && steps.check.outputs.check_id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const failed = '${{ steps.bench.outputs.failed }}'.trim();
+            const conclusion = failed ? 'failure' : 'success';
+
+            let summary = '';
+            try {
+              const resultsDir = 'results';
+              const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+              const results = [];
+              for (const file of files) {
+                const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+                results.push({
+                  language: data.Language,
+                  median: parseFloat(data.Median) * 1000
+                });
+              }
+              if (results.length > 0) {
+                results.sort((a, b) => a.median - b.median);
+                summary = '| Language | Median |\n|:---------|-------:|\n';
+                for (const r of results) {
+                  summary += `| ${r.language} | ${r.median.toFixed(1)} ms |\n`;
+                }
+              }
+            } catch (e) {
+              summary = 'Results not available';
+            }
+
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: ${{ steps.check.outputs.check_id }},
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: failed ? `Benchmarks completed with failures: ${failed}` : 'Benchmarks completed',
+                summary: summary
+              }
+            });
+
+  # Build matrix of languages to benchmark (for push/PR/dispatch triggers)
+  prepare:
+    runs-on: ubicloud-standard-2
+    if: github.event_name != 'issue_comment'
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Generate language matrix
+        id: matrix
+        working-directory: dagger-poc
+        run: |
+          uv sync --quiet
+
+          # Get languages from input or use all
+          if [ -n "${{ inputs.languages }}" ]; then
+            LANGS="${{ inputs.languages }}"
+          else
+            # Get all language names from languages.py
+            LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+          fi
+
+          # Convert to JSON array
+          JSON_ARRAY=$(echo "$LANGS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+          echo "matrix={\"language\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+          echo "Languages to benchmark: $LANGS"
+
+  # Run benchmarks in parallel (for push/PR/dispatch triggers)
+  benchmark:
+    needs: prepare
+    if: github.event_name != 'issue_comment'
+    runs-on: ubicloud-standard-4
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Dagger
+        run: |
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Log in to GHCR
+        if: ${{ !inputs.use_local_images }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache benchmark result
+        id: cache
+        if: ${{ !inputs.skip_cache }}
+        uses: actions/cache@v4
+        with:
+          path: results/${{ matrix.language }}.json
+          key: dagger-benchmark-${{ matrix.language }}-${{ hashFiles('src/leibniz.*', 'dagger-poc/languages.py', 'src/rounds.txt') }}
+
+      - name: Run benchmark
+        if: steps.cache.outputs.cache-hit != 'true' || inputs.skip_cache
+        working-directory: dagger-poc
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          QUICK_TEST_ROUNDS: ${{ inputs.quick_test && '10000' || '' }}
+          USE_LOCAL_IMAGES: ${{ inputs.use_local_images && '1' || '' }}
+        run: |
+          uv sync --quiet
+          uv run dagger run python benchmark.py ${{ matrix.language }}
+
+      - name: Show cache status
+        run: |
+          if [ "${{ inputs.skip_cache }}" == "true" ]; then
+            echo "🔨 Ran fresh benchmark for ${{ matrix.language }} (cache skipped)"
+          elif [ "${{ steps.cache.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Using cached result for ${{ matrix.language }}"
+          else
+            echo "🔨 Ran fresh benchmark for ${{ matrix.language }}"
+          fi
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.language }}
+          path: results/${{ matrix.language }}.json
+          if-no-files-found: warn
+
+  # Collect results and generate analysis (for push/PR/dispatch triggers)
+  analyze:
+    needs: benchmark
+    if: github.event_name != 'issue_comment'
+    runs-on: ubicloud-standard-2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: result-*
+          path: results
+          merge-multiple: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install matplotlib pandas
+
+      - name: List results
+        run: |
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ls -la results/ >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "No results found" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate analysis
+        run: |
+          if [ -f analyze.py ] && [ "$(ls results/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
+            python analyze.py --folder ./results/ --out ./results/ --rounds ./src/rounds.txt
+          else
+            echo "Skipping analysis - no results or analyze.py not found"
+          fi
+
+      - name: Upload analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-analysis
+          path: |
+            results/*.csv
+            results/*.png
+          if-no-files-found: ignore

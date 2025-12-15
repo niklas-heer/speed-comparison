@@ -1,0 +1,123 @@
+name: "[Dagger] Build Base Images"
+
+on:
+  # Rebuild images when language versions change
+  push:
+    paths:
+      - "dagger-poc/languages.py"
+      - "dagger-poc/build_images.py"
+    branches:
+      - master
+  # Manual trigger with optional specific languages
+  workflow_dispatch:
+    inputs:
+      languages:
+        description: 'Languages to build (space-separated, e.g., "rust go python"). Leave empty for all.'
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (don't push to registry)"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository }}
+  DAGGER_VERSION: "0.19.8"
+
+jobs:
+  # Determine which images to build
+  prepare:
+    runs-on: ubicloud-standard-2
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Generate build matrix
+        id: matrix
+        working-directory: dagger-poc
+        run: |
+          uv sync --quiet
+
+          # Get languages from input or use all
+          if [ -n "${{ inputs.languages }}" ]; then
+            LANGS="${{ inputs.languages }}"
+          else
+            # Get all language names
+            LANGS=$(uv run python -c "from languages import LANGUAGES; print(' '.join(LANGUAGES.keys()))")
+          fi
+
+          # Convert to JSON array
+          JSON_ARRAY=$(echo "$LANGS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+          echo "matrix={\"language\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+          echo "Languages to build: $LANGS"
+
+  # Build images in parallel
+  build:
+    needs: prepare
+    runs-on: ubicloud-standard-4
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Dagger
+        run: |
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ env.DAGGER_VERSION }} sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Log in to GHCR
+        if: ${{ !inputs.dry_run }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        working-directory: dagger-poc
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+        run: |
+          uv sync --quiet
+
+          PUSH_FLAG=""
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            PUSH_FLAG="--push"
+          fi
+
+          uv run dagger run python build_images.py ${{ matrix.language }} $PUSH_FLAG
+
+  # Summary of built images
+  summary:
+    needs: build
+    runs-on: ubicloud-standard-2
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Registry: ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "Dry run: ${{ inputs.dry_run || 'false' }}" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,97 @@
+# Dagger Pipeline Commands
+# Run `just` or `just help` to see available commands
+
+# Default: show help
+default:
+    @just --list
+
+# Show detailed help
+help:
+    @echo "Dagger Pipeline for speed-comparison benchmarks"
+    @echo ""
+    @echo "Quick Start:"
+    @echo "  just test rust go        # Quick benchmark test"
+    @echo "  just bench rust          # Full benchmark"
+    @echo "  just build rust go       # Build container images"
+    @echo ""
+    @echo "Run 'just --list' for all commands"
+
+# === Benchmarking ===
+
+# Run a quick benchmark test (10k iterations, local build)
+test *langs:
+    QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py {{ langs }}
+
+# Run full benchmark (1 billion iterations, local build)
+bench *langs:
+    USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py {{ langs }}
+
+# Run benchmark using pre-built registry images
+bench-registry *langs:
+    uv run dagger run python benchmark.py {{ langs }}
+
+# === Container Images ===
+
+# Build container images locally (don't push)
+build *langs:
+    uv run dagger run python build_images.py {{ langs }}
+
+# Build and push images to registry
+push *langs:
+    uv run dagger run python build_images.py --push {{ langs }}
+
+# Show what images would be built
+build-dry-run *langs:
+    uv run dagger run python build_images.py --dry-run {{ langs }}
+
+# === Version Management ===
+
+# Check for version updates
+check-versions *langs:
+    uv run python check_versions.py {{ langs }}
+
+# Check versions including unstable/preview
+check-versions-unstable *langs:
+    uv run python check_versions.py --include-unstable {{ langs }}
+
+# === Development ===
+
+# Run all tests
+tests:
+    uv run pytest -v
+
+# Run tests with coverage
+tests-cov:
+    uv run pytest -v --cov=. --cov-report=term-missing
+
+# Install dependencies
+install:
+    uv sync
+
+# Update dependencies
+update:
+    uv lock --upgrade
+
+# === Info ===
+
+# List all available languages
+list-langs:
+    @uv run python -c "from languages import LANGUAGES; print('\n'.join(sorted(LANGUAGES.keys())))"
+
+# Count languages
+count-langs:
+    @uv run python -c "from languages import LANGUAGES; print(f'{len(LANGUAGES)} languages')"
+
+# Show language details
+lang-info lang:
+    @uv run python -c "from languages import get_language; l = get_language('{{ lang }}'); print(f'Name: {l.name}\nFile: {l.file}\nPackages: {l.nixpkgs or l.nix_flake}\nCompile: {l.compile}\nRun: {l.run}')"
+
+# === Cleanup ===
+
+# Clean Python cache files
+clean:
+    rm -rf __pycache__ .pytest_cache .venv results/*.json
+
+# Clean everything including venv
+clean-all: clean
+    rm -rf .venv
