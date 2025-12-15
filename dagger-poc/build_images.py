@@ -86,6 +86,10 @@ async def build_devbox_image(
     """
     container = client.container().from_(DEVBOX_IMAGE)
 
+    # Allow insecure packages if needed (e.g., haxe depends on mbedtls)
+    if lang.allow_insecure:
+        container = container.with_env_variable("NIXPKGS_ALLOW_INSECURE", "1")
+
     # Initialize devbox
     container = container.with_workdir("/app").with_exec(["devbox", "init"])
 
