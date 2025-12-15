@@ -100,7 +100,9 @@ async def build_devbox_image(
     ]
     if packages:
         packages_str = " ".join(packages)
-        container = container.with_exec(["sh", "-c", f"devbox add {packages_str}"])
+        # Use --allow-insecure for packages that depend on insecure deps (e.g., haxe -> mbedtls)
+        insecure_flag = " --allow-insecure" if lang.allow_insecure else ""
+        container = container.with_exec(["sh", "-c", f"devbox add {packages_str}{insecure_flag}"])
 
     # Add nix flake packages (for binary cache hits from specific nixpkgs channels)
     for flake_ref in lang.nix_flakes:
