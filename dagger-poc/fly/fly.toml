@@ -1,0 +1,30 @@
+# Fly.io configuration for speed-comparison remote builds
+# This machine is started on-demand for local development builds
+
+app = "speed-comparison-builder"
+primary_region = "fra"  # Frankfurt, close to you
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Dagger needs Docker socket
+  DOCKER_HOST = "unix:///var/run/docker.sock"
+
+# Machine configuration - generous specs for fast builds
+# Billed per-second, only when running
+[[vm]]
+  size = "performance-2x"  # 2 CPU, 4GB RAM, ~$0.00005/sec
+  memory = "4gb"
+
+# Auto-stop after 10 minutes of inactivity
+[http_service]
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+# Mount for Docker storage (persists between runs)
+[[mounts]]
+  source = "docker_data"
+  destination = "/var/lib/docker"
+  initial_size = "10gb"

@@ -9,10 +9,16 @@ default:
 help:
     @echo "Dagger Pipeline for speed-comparison benchmarks"
     @echo ""
-    @echo "Quick Start:"
+    @echo "Quick Start (local):"
     @echo "  just test rust go        # Quick benchmark test"
     @echo "  just bench rust          # Full benchmark"
     @echo "  just build rust go       # Build container images"
+    @echo ""
+    @echo "Remote Builds (Fly.io x86_64 - for ARM Mac users):"
+    @echo "  just remote-setup        # One-time: create Fly app"
+    @echo "  just remote-build rust   # Build images on remote"
+    @echo "  just remote-test rust    # Quick benchmark on remote"
+    @echo "  just remote-shell        # SSH into remote for debug"
     @echo ""
     @echo "Run 'just --list' for all commands"
 
@@ -84,7 +90,7 @@ count-langs:
 
 # Show language details
 lang-info lang:
-    @uv run python -c "from languages import get_language; l = get_language('{{ lang }}'); print(f'Name: {l.name}\nFile: {l.file}\nPackages: {l.nixpkgs or l.nix_flake}\nCompile: {l.compile}\nRun: {l.run}')"
+    @uv run python -c "from languages import get_language; l = get_language('{{ lang }}'); print(f'Name: {l.name}\nFile: {l.file}\nPackages: {l.nixpkgs}\nCompile: {l.compile}\nRun: {l.run}')"
 
 # === Cleanup ===
 
@@ -95,3 +101,120 @@ clean:
 # Clean everything including venv
 clean-all: clean
     rm -rf .venv
+
+# === Remote Builds (Fly.io) ===
+# For local development on ARM Macs - runs builds on x86_64 Linux
+
+# Fly.io app name
+fly_app := "speed-comparison-builder"
+
+# One-time setup: create the Fly.io app and deploy the builder image
+remote-setup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    APP="speed-comparison-builder"
+    cd fly
+    echo "Creating Fly.io app..."
+    flyctl apps create "$APP" --org personal 2>/dev/null || echo "App already exists"
+    echo "Creating volume for Docker data..."
+    flyctl volumes create docker_data --size 10 --region fra -a "$APP" 2>/dev/null || echo "Volume already exists"
+    echo "Deploying builder image..."
+    flyctl deploy -a "$APP"
+    echo "Done! The machine will auto-stop when idle."
+
+# Start the remote builder machine
+remote-start:
+    #!/usr/bin/env bash
+    APP="speed-comparison-builder"
+    echo "Starting remote builder..."
+    MACHINE_ID=$(flyctl machines list -a "$APP" -q 2>/dev/null | head -1)
+    if [ -n "$MACHINE_ID" ]; then
+        flyctl machines start "$MACHINE_ID" -a "$APP" 2>/dev/null || echo "Machine already running"
+    else
+        echo "No machine found. Run 'just remote-setup' first."
+        exit 1
+    fi
+    echo "Waiting for machine to be ready..."
+    sleep 5
+
+# Stop the remote builder machine (saves money)
+remote-stop:
+    #!/usr/bin/env bash
+    APP="speed-comparison-builder"
+    echo "Stopping remote builder..."
+    MACHINE_ID=$(flyctl machines list -a "$APP" -q 2>/dev/null | head -1)
+    if [ -n "$MACHINE_ID" ]; then
+        flyctl machines stop "$MACHINE_ID" -a "$APP" 2>/dev/null || echo "Machine already stopped"
+    fi
+
+# Check remote builder status
+remote-status:
+    #!/usr/bin/env bash
+    APP="speed-comparison-builder"
+    flyctl machines list -a "$APP"
+
+# SSH into the remote builder for debugging
+remote-shell:
+    #!/usr/bin/env bash
+    APP="speed-comparison-builder"
+    flyctl ssh console -a "$APP"
+
+# Sync project files to remote builder
+remote-sync:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    APP="speed-comparison-builder"
+    PROJECT_ROOT="$(cd .. && pwd)"
+    TARBALL="/tmp/speed-comparison-sync.tar.gz"
+
+    echo "Creating tarball of project files..."
+    (cd "$PROJECT_ROOT" && tar -czf "$TARBALL" \
+        src/ \
+        dagger-poc/*.py \
+        dagger-poc/pyproject.toml \
+        dagger-poc/uv.lock)
+
+    echo "Uploading to remote builder..."
+    flyctl ssh sftp put "$TARBALL" /workspace/sync.tar.gz -a "$APP"
+
+    echo "Extracting on remote..."
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace && tar -xzf sync.tar.gz && rm sync.tar.gz'"
+
+    echo "Installing dependencies..."
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv sync'"
+
+    rm "$TARBALL"
+    echo "Sync complete!"
+
+# Build container images on remote x86_64 machine
+remote-build *langs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just remote-start
+    just remote-sync
+
+    APP="speed-comparison-builder"
+    echo "Building images: {{ langs }}"
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv run dagger run python build_images.py {{ langs }}'"
+
+# Run quick benchmark test on remote x86_64 machine
+remote-test *langs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just remote-start
+    just remote-sync
+
+    APP="speed-comparison-builder"
+    echo "Running quick benchmark: {{ langs }}"
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && QUICK_TEST_ROUNDS=10000 uv run dagger run python benchmark.py {{ langs }}'"
+
+# Run full benchmark on remote x86_64 machine
+remote-bench *langs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just remote-start
+    just remote-sync
+
+    APP="speed-comparison-builder"
+    echo "Running full benchmark: {{ langs }}"
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv run dagger run python benchmark.py {{ langs }}'"
