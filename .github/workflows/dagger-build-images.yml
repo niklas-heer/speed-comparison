@@ -94,11 +94,12 @@ jobs:
 
           # Helper to get all unique base images (deduplicated)
           get_all_bases() {
-            uv run python -c "
-from languages import get_base_languages
-bases = get_base_languages()
-print(' '.join(sorted(bases.keys())))
-"
+            uv run python -c "from languages import get_base_languages; print(' '.join(sorted(get_base_languages().keys())))"
+          }
+
+          # Helper to convert targets to base images
+          targets_to_bases() {
+            uv run python -c "from languages import resolve_targets_to_bases; bases = resolve_targets_to_bases('$1'.split()); print(' '.join(sorted(bases.keys())))"
           }
 
           # Manual input takes priority
@@ -109,12 +110,7 @@ print(' '.join(sorted(bases.keys())))
             else
               echo "Building specified languages: ${{ inputs.languages }}"
               # Convert specified languages to their base images
-              LANGS=$(uv run python -c "
-from languages import resolve_targets_to_bases
-targets = '${{ inputs.languages }}'.split()
-bases = resolve_targets_to_bases(targets)
-print(' '.join(sorted(bases.keys())))
-")
+              LANGS=$(targets_to_bases "${{ inputs.languages }}")
             fi
           elif [ "${{ inputs.force_all }}" = "true" ]; then
             echo "Building all base images (force_all=true)"
