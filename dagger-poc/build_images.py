@@ -89,6 +89,12 @@ async def build_devbox_image(
     # Allow insecure packages if needed (e.g., haxe depends on mbedtls)
     if lang.allow_insecure:
         container = container.with_env_variable("NIXPKGS_ALLOW_INSECURE", "1")
+        # Set NIX_CONFIG to allow insecure packages by name
+        # This helps with nix-build level checks
+        insecure_list = " ".join(lang.allow_insecure)
+        container = container.with_env_variable(
+            "NIX_CONFIG", f"extra-allowed-insecure-packages = {insecure_list}"
+        )
 
     # Initialize devbox
     container = container.with_workdir("/app").with_exec(["devbox", "init"])
@@ -101,13 +107,14 @@ async def build_devbox_image(
     if packages:
         packages_str = " ".join(packages)
         # Use --allow-insecure=<pkg> for packages that depend on insecure deps (e.g., haxe -> mbedtls)
-        # The flag requires the package name as argument
+        # The flag requires the insecure dependency name(s), not the package being installed
         if lang.allow_insecure:
-            insecure_pkg = lang.nixpkgs[0].split("@")[0]  # Get primary package name
-            insecure_flag = f" --allow-insecure={insecure_pkg}"
+            insecure_flags = " ".join(f"--allow-insecure={pkg}" for pkg in lang.allow_insecure)
+            container = container.with_exec(
+                ["sh", "-c", f"devbox add {packages_str} {insecure_flags}"]
+            )
         else:
-            insecure_flag = ""
-        container = container.with_exec(["sh", "-c", f"devbox add {packages_str}{insecure_flag}"])
+            container = container.with_exec(["sh", "-c", f"devbox add {packages_str}"])
 
     # Add nix flake packages (for binary cache hits from specific nixpkgs channels)
     for flake_ref in lang.nix_flakes:

@@ -73,8 +73,9 @@ class Language:
     nix_flakes: tuple[str, ...] = ()
     nix_setup: Optional[str] = None  # Post-install setup commands
 
-    # Security
-    allow_insecure: bool = False  # Allow insecure packages (e.g., haxe needs mbedtls)
+    # Security - specify insecure dependency names that need to be allowed
+    # e.g., haxe depends on mbedtls which is marked insecure
+    allow_insecure: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         """Validate configuration on creation."""
@@ -750,7 +751,7 @@ LANGUAGES: dict[str, Language] = {
         version_cmd="haxe --version",
         base="haxe",
         category="compiled",
-        allow_insecure=True,  # haxe depends on insecure mbedtls
+        allow_insecure=("mbedtls-2.28.10",),  # haxe depends on insecure mbedtls
     ),
     # =========================================================================
     # WebAssembly
