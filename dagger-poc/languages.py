@@ -495,6 +495,15 @@ LANGUAGES: dict[str, Language] = {
         base="python",
         category="compiled",
     ),
+    "micropython": Language(
+        name="MicroPython",
+        nixpkgs=("micropython@1.24.1",),
+        file="leibniz.py",
+        run="micropython leibniz.py",
+        version_cmd="micropython --version",
+        base="micropython",
+        category="interpreted",
+    ),
     "ruby": Language(
         name="Ruby",
         nixpkgs=("ruby@3.4.7",),
