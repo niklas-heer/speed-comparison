@@ -199,9 +199,15 @@ async def run_benchmark(
         # Setup working directory
         container = container.with_workdir("/app")
 
-        # Copy source file
-        source_file = src_dir.file(lang.file)
-        container = container.with_file(f"/app/{lang.file}", source_file)
+        # Copy source file(s)
+        # For directory-based sources (e.g., "fs/Program.fs"), copy the entire directory
+        if "/" in lang.file:
+            source_dir_name = lang.file.split("/")[0]
+            source_subdir = src_dir.directory(source_dir_name)
+            container = container.with_directory(f"/app/{source_dir_name}", source_subdir)
+        else:
+            source_file = src_dir.file(lang.file)
+            container = container.with_file(f"/app/{lang.file}", source_file)
 
         # Copy rounds.txt (or override for quick testing)
         if quick_rounds:
@@ -221,6 +227,13 @@ async def run_benchmark(
         version_cmd = lang.version_cmd or "echo unknown"
         version_result = await (await exec_cmd(container, lang, version_cmd)).stdout()
         version = version_result.strip().split("\n")[0]
+        # Escape special characters for shell safety
+        version_escaped = (
+            version.replace("\\", "\\\\")
+            .replace('"', '\\"')
+            .replace("$", "\\$")
+            .replace("`", "\\`")
+        )
         print(f"  Version: {version}")
 
         # Run benchmark with hyperfine
@@ -240,7 +253,7 @@ async def run_benchmark(
             f"micropython scmeta.py "
             f'--lang-name="{lang.name}" '
             f'--target-name="{target}" '
-            f'--lang-version="{version}" '
+            f'--lang-version="{version_escaped}" '
             f"--hyperfine=hyperfine.json "
             f"--pi=pi.txt "
             f"--output=result.json"
