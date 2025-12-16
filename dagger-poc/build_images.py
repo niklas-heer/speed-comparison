@@ -100,8 +100,13 @@ async def build_devbox_image(
     ]
     if packages:
         packages_str = " ".join(packages)
-        # Use --allow-insecure for packages that depend on insecure deps (e.g., haxe -> mbedtls)
-        insecure_flag = " --allow-insecure" if lang.allow_insecure else ""
+        # Use --allow-insecure=<pkg> for packages that depend on insecure deps (e.g., haxe -> mbedtls)
+        # The flag requires the package name as argument
+        if lang.allow_insecure:
+            insecure_pkg = lang.nixpkgs[0].split("@")[0]  # Get primary package name
+            insecure_flag = f" --allow-insecure={insecure_pkg}"
+        else:
+            insecure_flag = ""
         container = container.with_exec(["sh", "-c", f"devbox add {packages_str}{insecure_flag}"])
 
     # Add nix flake packages (for binary cache hits from specific nixpkgs channels)
