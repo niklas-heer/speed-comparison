@@ -279,7 +279,8 @@ LANGUAGES: dict[str, Language] = {
         name="C++ (clang++)",
         nixpkgs=("clang@21.1.2", "lld@21.1.2"),
         file="leibniz.cpp",
-        compile=f"clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -static -flto {MARCH_NATIVE} -ffast-math",
+        # Note: -static removed because nixpkgs doesn't include glibc.static by default
+        compile=f"clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -flto {MARCH_NATIVE} -ffast-math",
         run="./leibniz",
         version_cmd="clang++ --version",
         base="cplusplus",
@@ -308,39 +309,13 @@ LANGUAGES: dict[str, Language] = {
         base="crystal",
         category="systems",
     ),
-    # Swift uses nix_flakes with nixos-24.05 for binary cache hits
-    # Swift 5.10.1 in unstable has build failures; 5.8 in 24.05 has cached binaries
-    # Use -target to specify correct triple for nixpkgs Swift
-    "swift": Language(
-        name="Swift",
-        nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
-        file="leibniz.swift",
-        compile="swiftc -O -o leibniz leibniz.swift -target x86_64-unknown-linux-gnu",
-        run="./leibniz",
-        version_cmd="swift --version",
-        base="swift",
-        category="systems",
-    ),
-    "swift-simd": Language(
-        name="Swift (SIMD)",
-        nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
-        file="leibniz-simd.swift",
-        compile="swiftc -O -o leibniz leibniz-simd.swift -target x86_64-unknown-linux-gnu",
-        run="./leibniz",
-        version_cmd="swift --version",
-        base="swift",
-        category="systems",
-    ),
-    "swift-relaxed": Language(
-        name="Swift (Relaxed)",
-        nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
-        file="leibniz.swift",
-        compile="swiftc -O -enable-experimental-feature Extern -Xcc -ffast-math -o leibniz leibniz.swift -target x86_64-unknown-linux-gnu",
-        run="./leibniz",
-        version_cmd="swift --version",
-        base="swift",
-        category="systems",
-    ),
+    # NOTE: Swift is disabled in Dagger pipeline because nixpkgs Swift doesn't
+    # include Foundation module properly. Use Earthfile for Swift benchmarks.
+    # The Earthfile uses the official swift:6.2-jammy Docker image which works.
+    #
+    # "swift": Language(...),
+    # "swift-simd": Language(...),
+    # "swift-relaxed": Language(...),
     "objc": Language(
         name="Objective-C",
         nixpkgs=("clang@18.1.8", "gnustep-base@1.29.0"),  # 21.1.2/1.30.0 not available
@@ -378,7 +353,7 @@ LANGUAGES: dict[str, Language] = {
         name="F#",
         nixpkgs=("dotnet-sdk@8.0.416",),
         file="fs/Program.fs",
-        compile="cd fs && dotnet publish -c Release -o ../out",
+        compile="dotnet publish fs/leibniz.fsproj -c Release -o out",
         run="./out/leibniz",
         version_cmd="dotnet --version",
         base="fsharp",
@@ -490,8 +465,9 @@ LANGUAGES: dict[str, Language] = {
         nixpkgs=("python3@3.12.8", "gcc@14.2.0", "uv@0.5.11"),
         nix_setup="uv venv /app/.venv && . /app/.venv/bin/activate && uv pip install mypy setuptools",
         file="leibniz.py",
-        compile=". /app/.venv/bin/activate && mypyc leibniz.py && python -c 'import leibniz'",
-        run=". /app/.venv/bin/activate && python -c 'import leibniz'",
+        compile='. /app/.venv/bin/activate && mypyc leibniz.py && python -c "import leibniz"',
+        # Use double quotes to avoid conflict with hyperfine's single quotes
+        run='. /app/.venv/bin/activate && python -c "import leibniz"',
         version_cmd="python --version",
         base="python",
         category="compiled",
@@ -653,8 +629,10 @@ LANGUAGES: dict[str, Language] = {
         nixpkgs=("gleam@1.13.0", "erlang@27.2"),
         nix_setup="gleam new leibniz_app && cd leibniz_app && sed -i 's/\\[dependencies\\]/[dependencies]\\nsimplifile = \"~> 2.0\"/' gleam.toml && gleam deps download",
         file="leibniz.gleam",
+        # Build in leibniz_app, then run with output to /app level
         compile="cp leibniz.gleam leibniz_app/src/leibniz_app.gleam && cp rounds.txt leibniz_app/ && cd leibniz_app && gleam build",
-        run="cd leibniz_app && gleam run",
+        # Use subshell so cd doesn't affect pi.txt location for scmeta
+        run="(cd leibniz_app && gleam run)",
         version_cmd="gleam --version",
         base="gleam",
         category="functional",
@@ -757,8 +735,8 @@ LANGUAGES: dict[str, Language] = {
     ),
     "haxe": Language(
         name="Haxe",
-        nixpkgs=("haxe@4.3.6",),
-        nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib",
+        nixpkgs=("haxe@4.3.6", "gcc@14.2.0"),
+        nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib && haxelib install hxcpp",
         file="Leibniz.hx",
         compile="haxe -main Leibniz -cpp out && cd out && make",
         run="./out/Leibniz",
