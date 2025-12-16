@@ -149,15 +149,13 @@ async def exec_cmd(
     container: dagger.Container,
     lang: Language,
     cmd: str,
-    use_local: bool = False,
 ) -> dagger.Container:
-    """Execute a command in the container with appropriate shell wrapper."""
-    if use_local:
-        # Local Devbox build needs devbox run wrapper
-        return container.with_exec(["devbox", "run", "--", "sh", "-c", cmd])
-    else:
-        # Registry images have packages in PATH via entrypoint
-        return container.with_exec(["sh", "-c", cmd])
+    """Execute a command in the container with devbox environment.
+
+    All containers (registry or local) use Devbox, so we always need
+    to run commands through 'devbox run' to get packages in PATH.
+    """
+    return container.with_exec(["devbox", "run", "--", "sh", "-c", cmd])
 
 
 # =============================================================================
@@ -217,11 +215,11 @@ async def run_benchmark(
         # Compile if needed
         if lang.compile:
             print(f"  Compiling: {lang.compile}")
-            container = await exec_cmd(container, lang, lang.compile, use_local)
+            container = await exec_cmd(container, lang, lang.compile)
 
         # Get version
         version_cmd = lang.version_cmd or "echo unknown"
-        version_result = await (await exec_cmd(container, lang, version_cmd, use_local)).stdout()
+        version_result = await (await exec_cmd(container, lang, version_cmd)).stdout()
         version = version_result.strip().split("\n")[0]
         print(f"  Version: {version}")
 
@@ -235,7 +233,7 @@ async def run_benchmark(
             f"--export-json hyperfine.json "
             f"&& {lang.run} > pi.txt"
         )
-        container = await exec_cmd(container, lang, hyperfine_cmd, use_local)
+        container = await exec_cmd(container, lang, hyperfine_cmd)
 
         # Run scmeta.py with micropython to generate result JSON
         scmeta_cmd = (
@@ -247,7 +245,7 @@ async def run_benchmark(
             f"--pi=pi.txt "
             f"--output=result.json"
         )
-        container = await exec_cmd(container, lang, scmeta_cmd, use_local)
+        container = await exec_cmd(container, lang, scmeta_cmd)
 
         # Extract result
         result_content = await container.file("/app/result.json").contents()
