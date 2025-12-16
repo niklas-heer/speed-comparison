@@ -758,7 +758,7 @@ LANGUAGES: dict[str, Language] = {
     "haxe": Language(
         name="Haxe",
         nixpkgs=("haxe@4.3.6",),
-        nix_setup="mkdir -p ~/.haxelib && haxelib setup ~/.haxelib",
+        nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib",
         file="Leibniz.hx",
         compile="haxe -main Leibniz -cpp out && cd out && make",
         run="./out/Leibniz",
