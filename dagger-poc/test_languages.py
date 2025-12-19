@@ -70,7 +70,7 @@ class TestLanguageDefinitions:
     def test_compiled_languages_have_compile_command(self):
         """Languages with binary output should have compile commands."""
         # These are known interpreted languages that don't need compilation
-        interpreted = {"python", "pypy", "ruby", "nodejs", "bun", "lua", "luajit", "perl", "php"}
+        interpreted = {"python", "pypy", "ruby", "ruby-yjit", "nodejs", "bun", "lua", "luajit", "perl", "php"}
 
         for target, lang in LANGUAGES.items():
             if target not in interpreted and lang.run.startswith("./"):

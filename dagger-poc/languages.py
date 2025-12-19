@@ -490,6 +490,15 @@ LANGUAGES: dict[str, Language] = {
         base="ruby",
         category="interpreted",
     ),
+    "ruby-yjit": Language(
+        name="Ruby (with YJIT)",
+        nixpkgs=("ruby@3.4.7",),
+        file="leibniz.rb",
+        run="ruby leibniz.rb",
+        version_cmd="ruby --version --yjit",
+        base="ruby --yjit",
+        category="jit",
+    ),
     "nodejs": Language(
         name="Javascript (nodejs)",
         nixpkgs=("nodejs@25.2.1",),
