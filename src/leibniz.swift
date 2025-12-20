@@ -5,14 +5,15 @@ let rounds = Int(text)!
 var remainingIterations = rounds + 1
 var d = 3.0
 
-// Use 4 independent accumulators to allow instruction-level parallelism
+// Use 4 independent accumulators to break data dependency chains,
+// allowing the CPU pipeline to process calculations more efficiently.
 var sum1 = 0.0
 var sum2 = 0.0
 var sum3 = 0.0
 var sum4 = 0.0
 
-// Process 8 pairs (16 terms) per iteration using 4 accumulators
-// Each accumulator handles 2 pairs
+// Unroll the loop to process 8 pairs (16 terms) per iteration
+// Distributing work across accumulators keeps the CPU busy waiting for results.
 while remainingIterations >= 16 {
     // Accumulator 1: pairs at d and d+4
     sum1 += -2.0 / (d * (d + 2.0)) + -2.0 / ((d + 4.0) * (d + 6.0))
@@ -30,10 +31,10 @@ while remainingIterations >= 16 {
     remainingIterations -= 16
 }
 
-// Combine accumulators
+// Combine the unrolled sums
 var pi = 1.0 + sum1 + sum2 + sum3 + sum4
 
-// Cleanup: process remaining pairs
+// Cleanup: process remaining pairs sequentially
 while remainingIterations >= 2 {
     pi -= 2.0 / (d * (d + 2.0))
     d += 4.0
