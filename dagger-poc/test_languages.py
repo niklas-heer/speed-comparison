@@ -30,6 +30,10 @@ class TestLanguageDefinitions:
             src_path = SRC_DIR / lang.file
             if not src_path.exists():
                 missing.append(f"{target}: {lang.file}")
+            for extra_file in lang.extra_files:
+                extra_path = SRC_DIR / extra_file
+                if not extra_path.exists():
+                    missing.append(f"{target}: {extra_file}")
 
         if missing:
             pytest.fail(f"Missing source files:\n" + "\n".join(missing))

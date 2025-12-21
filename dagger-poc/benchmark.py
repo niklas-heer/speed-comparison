@@ -218,6 +218,10 @@ async def run_benchmark(
             source_file = src_dir.file(lang.file)
             container = container.with_file(f"/app/{lang.file}", source_file)
 
+        # Copy any extra files needed by the language
+        for extra_file in lang.extra_files:
+            container = container.with_file(f"/app/{extra_file}", src_dir.file(extra_file))
+
         # Copy rounds.txt (or override for quick testing)
         if quick_rounds:
             container = container.with_new_file("/app/rounds.txt", quick_rounds)

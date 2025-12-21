@@ -45,6 +45,7 @@ class Language:
     Attributes:
         name: Display name shown in charts
         file: Source file name in src/ directory
+        extra_files: Additional source files needed at build/run time
         run: Command to execute the benchmark
         compile: Optional compilation command
         version_cmd: Command to get version string
@@ -60,6 +61,7 @@ class Language:
 
     name: str
     file: str
+    extra_files: tuple[str, ...] = ()
     run: str
     compile: Optional[str] = None
     version_cmd: Optional[str] = None
@@ -147,8 +149,14 @@ class Language:
 # Shared Compiler Flags
 # =============================================================================
 
-C_FLAGS = f"-O3 {MARCH_NATIVE} -ffast-math"
-CPP_FLAGS = f"-O3 {MARCH_NATIVE} -ffast-math -std=c++17"
+C_FLAGS = (
+    f"-O3 -s -flto {MARCH_NATIVE} -mtune=native -fomit-frame-pointer "
+    "-fno-signed-zeros -fno-trapping-math -fassociative-math"
+)
+CPP_FLAGS = (
+    f"-O3 -s -flto {MARCH_NATIVE} -mtune=native -fomit-frame-pointer "
+    "-fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17"
+)
 RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort"
 
 
@@ -269,7 +277,7 @@ LANGUAGES: dict[str, Language] = {
         name="C++ (g++)",
         nixpkgs=("gcc@15.2.0",),
         file="leibniz.cpp",
-        compile=f"g++ leibniz.cpp -o leibniz -O3 -s -flto {MARCH_NATIVE} -ffast-math",
+        compile=f"g++ leibniz.cpp -o leibniz {CPP_FLAGS}",
         run="./leibniz",
         version_cmd="g++ --version",
         base="cplusplus",
@@ -282,7 +290,7 @@ LANGUAGES: dict[str, Language] = {
         # Note: -static removed because nixpkgs doesn't include glibc.static by default
         compile=(
             "clang++ -fuse-ld=lld leibniz.cpp -o leibniz "
-            f"-O3 -s -flto {MARCH_NATIVE} -ffast-math "
+            f"{CPP_FLAGS} "
             "-Wl,-rpath,$(dirname $(gcc -print-file-name=libstdc++.so.6)) "
             "-Wl,-rpath,$(dirname $(gcc -print-file-name=libgcc_s.so.1))"
         ),
@@ -294,9 +302,9 @@ LANGUAGES: dict[str, Language] = {
     "cpp-avx2": Language(
         name="C++ (AVX2)",
         nixpkgs=("gcc@15.2.0",),
-        file="leibniz.cpp",
-        compile="g++ leibniz.cpp -o leibniz -O3 -s -flto -mavx2 -mfma -ffast-math",
-        run="./leibniz",
+        file="leibniz_avx2.cpp",
+        compile=f"g++ leibniz_avx2.cpp -o leibniz_avx2 {CPP_FLAGS}",
+        run="./leibniz_avx2",
         version_cmd="g++ --version",
         base="cplusplus",
         category="systems",
@@ -314,13 +322,52 @@ LANGUAGES: dict[str, Language] = {
         base="crystal",
         category="systems",
     ),
-    # NOTE: Swift is disabled in Dagger pipeline because nixpkgs Swift doesn't
-    # include Foundation module properly. Use Earthfile for Swift benchmarks.
-    # The Earthfile uses the official swift:6.2-jammy Docker image which works.
-    #
-    # "swift": Language(...),
-    # "swift-simd": Language(...),
-    # "swift-relaxed": Language(...),
+    "swift": Language(
+        name="Swift",
+        nixpkgs=(
+            "swift@5.10.1",
+            "swiftPackages.Foundation@5.10.1",
+            "swift-corelibs-libdispatch@5.10.1",
+        ),
+        file="leibniz.swift",
+        compile="swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full",
+        run="./leibniz",
+        version_cmd="swift --version",
+        base="swift",
+        category="systems",
+    ),
+    "swift-simd": Language(
+        name="Swift (SIMD)",
+        nixpkgs=(
+            "swift@5.10.1",
+            "swiftPackages.Foundation@5.10.1",
+            "swift-corelibs-libdispatch@5.10.1",
+        ),
+        file="leibniz-simd.swift",
+        compile="swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full",
+        run="./leibniz",
+        version_cmd="swift --version",
+        base="swift",
+        category="systems",
+    ),
+    "swift-relaxed": Language(
+        name="Swift (relaxed)",
+        nixpkgs=(
+            "swift@5.10.1",
+            "swiftPackages.Foundation@5.10.1",
+            "swift-corelibs-libdispatch@5.10.1",
+        ),
+        file="leibniz-relaxed.swift",
+        extra_files=("relaxed.h",),
+        compile=(
+            "swiftc leibniz-relaxed.swift -O -o leibniz -clang-target native "
+            "-lto=llvm-full -import-objc-header relaxed.h"
+        ),
+        run="./leibniz",
+        version_cmd="swift --version",
+        base="swift",
+        category="systems",
+    ),
     "objc": Language(
         name="Objective-C",
         nixpkgs=("clang@18.1.8", "gnustep-base@1.29.0"),  # 21.1.2/1.30.0 not available
@@ -825,11 +872,17 @@ def get_base_image_name(target: str, lang: Language | None = None) -> str:
 
     base = lang.base or target
 
-    # Find all languages with the same base AND same packages as this one
+    # Find all languages with the same base AND same image inputs as this one
     same_package_group = []
     for other_target, other_lang in LANGUAGES.items():
         other_base = other_lang.base or other_target
-        if other_base == base and other_lang.nixpkgs == lang.nixpkgs:
+        if (
+            other_base == base
+            and other_lang.nixpkgs == lang.nixpkgs
+            and other_lang.nix_flakes == lang.nix_flakes
+            and other_lang.nix_setup == lang.nix_setup
+            and other_lang.allow_insecure == lang.allow_insecure
+        ):
             same_package_group.append(other_target)
 
     # Sort for deterministic ordering

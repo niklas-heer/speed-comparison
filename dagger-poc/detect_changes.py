@@ -50,7 +50,10 @@ def language_image_key(lang) -> str:
     This prevents false positives when the Language dataclass adds new fields.
     """
     # These fields affect what goes into the container image
-    return f"{lang.nixpkgs}|{getattr(lang, 'nix_flakes', ())}|{lang.nix_setup}|{getattr(lang, 'allow_insecure', ())}"
+    return (
+        f"{lang.nixpkgs}|{getattr(lang, 'nix_flakes', ())}|{lang.nix_setup}|"
+        f"{getattr(lang, 'allow_insecure', ())}"
+    )
 
 
 def get_old_languages():
