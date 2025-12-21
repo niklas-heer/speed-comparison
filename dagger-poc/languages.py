@@ -61,8 +61,8 @@ class Language:
 
     name: str
     file: str
-    extra_files: tuple[str, ...] = ()
     run: str
+    extra_files: tuple[str, ...] = ()
     compile: Optional[str] = None
     version_cmd: Optional[str] = None
     base: Optional[str] = None
