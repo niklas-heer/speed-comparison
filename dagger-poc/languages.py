@@ -277,10 +277,15 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpp-clang": Language(
         name="C++ (clang++)",
-        nixpkgs=("clang@21.1.2", "lld@21.1.2"),
+        nixpkgs=("clang@21.1.2", "lld@21.1.2", "gcc@15.2.0"),
         file="leibniz.cpp",
         # Note: -static removed because nixpkgs doesn't include glibc.static by default
-        compile=f"clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -flto {MARCH_NATIVE} -ffast-math",
+        compile=(
+            "clang++ -fuse-ld=lld leibniz.cpp -o leibniz "
+            f"-O3 -s -flto {MARCH_NATIVE} -ffast-math "
+            "-Wl,-rpath,$(dirname $(gcc -print-file-name=libstdc++.so.6)) "
+            "-Wl,-rpath,$(dirname $(gcc -print-file-name=libgcc_s.so.1))"
+        ),
         run="./leibniz",
         version_cmd="clang++ --version",
         base="cplusplus",
