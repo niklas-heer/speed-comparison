@@ -29,6 +29,9 @@ from typing import Optional
 # Compiler optimization flags for x86_64 targets
 # Note: All builds run on x86_64 Linux (either CI or Fly.io remote builder)
 MARCH_NATIVE = "-march=native"
+SWIFT_C_INCLUDE_PATH = (
+    "C_INCLUDE_PATH=$(gcc -print-file-name=include)${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+)
 
 # =============================================================================
 # Language Configuration
@@ -328,9 +331,13 @@ LANGUAGES: dict[str, Language] = {
             "swiftPackages.swift@5.7.3",
             "swiftPackages.Foundation@5.7.3",
             "swiftPackages.Dispatch@5.7.3",
+            "gcc@14.3.0",
         ),
         file="leibniz.swift",
-        compile="swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full",
+        compile=(
+            SWIFT_C_INCLUDE_PATH
+            + " swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full"
+        ),
         run="./leibniz",
         version_cmd="swift --version",
         base="swift",
@@ -342,9 +349,13 @@ LANGUAGES: dict[str, Language] = {
             "swiftPackages.swift@5.7.3",
             "swiftPackages.Foundation@5.7.3",
             "swiftPackages.Dispatch@5.7.3",
+            "gcc@14.3.0",
         ),
         file="leibniz-simd.swift",
-        compile="swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full",
+        compile=(
+            SWIFT_C_INCLUDE_PATH
+            + " swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full"
+        ),
         run="./leibniz",
         version_cmd="swift --version",
         base="swift",
@@ -356,11 +367,13 @@ LANGUAGES: dict[str, Language] = {
             "swiftPackages.swift@5.7.3",
             "swiftPackages.Foundation@5.7.3",
             "swiftPackages.Dispatch@5.7.3",
+            "gcc@14.3.0",
         ),
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
         compile=(
-            "swiftc leibniz-relaxed.swift -O -o leibniz -clang-target native "
+            SWIFT_C_INCLUDE_PATH
+            + " swiftc leibniz-relaxed.swift -O -o leibniz -clang-target native "
             "-lto=llvm-full -import-objc-header relaxed.h"
         ),
         run="./leibniz",
