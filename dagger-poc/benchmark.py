@@ -158,6 +158,15 @@ async def exec_cmd(
     return container.with_exec(["devbox", "run", "--", "sh", "-c", cmd])
 
 
+def ensure_app_writable(container: dagger.Container) -> dagger.Container:
+    """Ensure /app is writable for the devbox user in registry images."""
+    return (
+        container.with_user("root")
+        .with_exec(["sh", "-c", "chown -R devbox:devbox /app"])
+        .with_user("devbox")
+    )
+
+
 # =============================================================================
 # Pipeline
 # =============================================================================
@@ -217,6 +226,9 @@ async def run_benchmark(
 
         # Copy scmeta.py script (runs with micropython)
         container = container.with_file("/app/scmeta.py", scmeta_script)
+
+        # Ensure the devbox user can write to /app (CI uses non-root user)
+        container = ensure_app_writable(container)
 
         # Compile if needed
         if lang.compile:
