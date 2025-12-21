@@ -153,13 +153,80 @@ Version sources are defined in [`scripts/version-sources.json`](scripts/version-
 
 ## FAQ
 
-> Why do you also count reading a file and printing the output?
+<details>
+<summary><strong>Why do you also count reading a file and printing the output?</strong></summary>
 
 Because I think this is a more realistic scenario to compare speeds.
+</details>
 
-> Are the compile times included in the measurements?
+<details>
+<summary><strong>Are the compile times included in the measurements?</strong></summary>
 
 No they are not included, because when running the program in the real world this would also be done before.
+</details>
+
+<details>
+<summary><strong>Isn't this just measuring startup time for fast languages?</strong></summary>
+
+No. The benchmark runs 1 billion iterations. Testing with Zig by timing segments inside the program:
+
+- Startup + file read: ~0.01ms
+- Computation: ~200ms
+- Overhead: ~0.01%
+
+Even at 1 million iterations, startup would only be ~4% overhead. At 1 billion, it's essentially zero.
+</details>
+
+<details>
+<summary><strong>Why is C++ (AVX2) slower than regular C++?</strong></summary>
+
+The standard C++ uses `i & 0x1` which lets the compiler auto-vectorize. With `-O3 -ffast-math -march=native`, modern compilers do this extremely well. The explicit AVX2 version has overhead from manual vector setup and horizontal sum operations. Often compiler auto-vectorization beats hand-written SIMD for simple loops.
+</details>
+
+<details>
+<summary><strong>Why are Crystal/Odin/Ada so slow?</strong></summary>
+
+All three use the `x = -x` pattern which creates a loop-carried dependency that blocks auto-vectorization. The fast implementations use the branchless `i & 0x1` trick instead, which allows the compiler to vectorize the loop.
+</details>
+
+<details>
+<summary><strong>Does Zig use fast-math?</strong></summary>
+
+Yes. Zig uses `@setFloatMode(.optimized)` which is equivalent to `-ffast-math`. This is documented in the source code.
+</details>
+
+<details>
+<summary><strong>Does Julia use fast-math and SIMD?</strong></summary>
+
+Yes. Julia uses `@fastmath @simd for` - both annotations together. The `@simd` enables vectorization hints (similar to compiler auto-vectorization), while `@fastmath` relaxes floating-point strictness.
+</details>
+
+<details>
+<summary><strong>Why is Nim faster than C?</strong></summary>
+
+Both compile to native code via gcc with similar flags. The marginal difference is likely measurement variance. Nim's code explicitly uses `cuint` to match C's unsigned int type for the loop counter.
+</details>
+
+<details>
+<summary><strong>Some implementations aren't optimized / weren't written by experts</strong></summary>
+
+Fair point. I'm not an expert in all 40+ languages. The goal was idiomatic-ish code, but some implementations could definitely be improved. That's why PRs are always welcome! For example, Swift has 3 variants (standard, relaxed, SIMD) showing different optimization levels.
+
+This benchmark shows what performance you can expect when someone not deeply versed in a language writes the code - which is actually a useful data point.
+</details>
+
+<details>
+<summary><strong>Which languages use -ffast-math or equivalent?</strong></summary>
+
+| Language | Fast-math | Notes |
+|----------|-----------|-------|
+| C/C++ (gcc/clang) | `-ffast-math` | Full optimizations |
+| D (GDC/LDC) | `-ffast-math` | Full optimizations |
+| Zig | `@setFloatMode(.optimized)` | Equivalent to fast-math |
+| Julia | `@fastmath` | Plus `@simd` hint |
+| Fortran | **No** | Uses manual loop unrolling instead |
+| Rust | **No** | But uses vectorizable pattern |
+</details>
 
 ## Thanks
 

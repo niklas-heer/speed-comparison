@@ -66,6 +66,8 @@ def main():
     # Validate input
     csv_file = results_dir / "combined_results.csv"
     png_file = results_dir / "combined_results.png"
+    json_file = results_dir / "combined_results.json"
+    meta_file = results_dir / "run_metadata.json"
 
     if not csv_file.exists():
         print(f"Error: {csv_file} not found")
@@ -82,12 +84,20 @@ def main():
     run_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(csv_file, run_dir / "combined_results.csv")
     shutil.copy(png_file, run_dir / "combined_results.png")
+    if json_file.exists():
+        shutil.copy(json_file, run_dir / "combined_results.json")
+    if meta_file.exists():
+        shutil.copy(meta_file, run_dir / "run_metadata.json")
 
     # Also copy to 'latest' folder for stable URL reference
     latest_dir = history_dir / "latest"
     latest_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(csv_file, latest_dir / "combined_results.csv")
     shutil.copy(png_file, latest_dir / "combined_results.png")
+    if json_file.exists():
+        shutil.copy(json_file, latest_dir / "combined_results.json")
+    if meta_file.exists():
+        shutil.copy(meta_file, latest_dir / "run_metadata.json")
 
     # Update manifest
     lang_count = count_languages(csv_file)

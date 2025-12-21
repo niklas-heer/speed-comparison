@@ -256,6 +256,10 @@
                 color: var(--text-primary);
             }
 
+            th:not([data-sort]) {
+                cursor: default;
+            }
+
             th.sorted-asc::after {
                 content: " \2191";
             }
@@ -306,6 +310,89 @@
 
             .accuracy {
                 font-family: "JetBrains Mono", monospace;
+            }
+
+            .details-cell {
+                text-align: center;
+                width: 48px;
+            }
+
+            .info-pill {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 22px;
+                height: 22px;
+                border-radius: 999px;
+                border: 1px solid var(--border-color);
+                background-color: var(--bg-tertiary);
+                color: var(--text-secondary);
+                font-size: 0.8rem;
+                cursor: help;
+            }
+
+            .info-pill:hover {
+                color: var(--text-primary);
+                border-color: var(--accent-color);
+            }
+
+            /* Environment Section */
+            .env-section {
+                background-color: var(--bg-secondary);
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .env-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+            }
+
+            .env-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .env-note {
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+            }
+
+            .env-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 0.75rem;
+            }
+
+            .env-item {
+                background-color: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 0.75rem 1rem;
+            }
+
+            .env-label {
+                font-size: 0.7rem;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+            }
+
+            .env-value {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.85rem;
+                color: var(--text-primary);
+                margin-top: 0.2rem;
+            }
+
+            .env-placeholder {
+                color: var(--text-secondary);
+                font-size: 0.85rem;
             }
 
             /* Footer */
@@ -431,6 +518,16 @@
                 </div>
             </section>
 
+            <section class="env-section" id="env-section">
+                <div class="env-header">
+                    <h2>Environment</h2>
+                    <span class="env-note" id="env-variants"></span>
+                </div>
+                <div class="env-grid" id="env-grid">
+                    <div class="env-placeholder">Loading environment...</div>
+                </div>
+            </section>
+
             <section class="table-section">
                 <div class="table-header">
                     <h2>Results</h2>
@@ -453,11 +550,12 @@
                                 <th data-sort="median">Median</th>
                                 <th data-sort="max">Max</th>
                                 <th data-sort="accuracy">Accuracy</th>
+                                <th>Info</th>
                             </tr>
                         </thead>
                         <tbody id="results-body">
                             <tr>
-                                <td colspan="7" class="loading">
+                                <td colspan="8" class="loading">
                                     <div class="spinner"></div>
                                     <span>Loading results...</span>
                                 </td>
@@ -583,18 +681,36 @@
                     document.getElementById("chart-container");
                 chartContainer.innerHTML = `<img src="${basePath}/combined_results.png" alt="Speed comparison chart" loading="lazy">`;
 
+                // Load environment metadata
+                try {
+                    const metadata = await fetchJSON(
+                        `${basePath}/run_metadata.json`,
+                    );
+                    renderEnvironment(metadata);
+                } catch (error) {
+                    renderEnvironment(null);
+                }
+
                 // Load data
                 try {
-                    currentData = await fetchCSV(
-                        `${basePath}/combined_results.csv`,
+                    currentData = await fetchJSON(
+                        `${basePath}/combined_results.json`,
                     );
-                    currentData.forEach((row, i) => (row.rank = i + 1));
-                    document.getElementById("lang-count").textContent =
-                        currentData.length;
-                    renderTable(currentData);
                 } catch (error) {
-                    console.error("Failed to load CSV:", error);
+                    try {
+                        currentData = await fetchCSV(
+                            `${basePath}/combined_results.csv`,
+                        );
+                    } catch (csvError) {
+                        console.error("Failed to load CSV:", csvError);
+                        throw csvError;
+                    }
                 }
+
+                currentData.forEach((row, i) => (row.rank = i + 1));
+                document.getElementById("lang-count").textContent =
+                    currentData.length;
+                renderTable(currentData);
             }
 
             async function handleRunChange(e) {
@@ -659,7 +775,7 @@
 
                 if (data.length === 0) {
                     tbody.innerHTML =
-                        '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary)">No results found</td></tr>';
+                        '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-secondary)">No results found</td></tr>';
                     return;
                 }
 
@@ -687,6 +803,11 @@
                                     ? '<span class="rank-medal">🥉</span>'
                                     : row.rank;
 
+                        const details = buildDetails(row);
+                        const infoCell = details
+                            ? `<span class="info-pill" title="${escapeHtml(details)}">i</span>`
+                            : `<span class="info-pill" title="No details available">i</span>`;
+
                         return `
                     <tr>
                         <td class="rank">${rankDisplay}</td>
@@ -696,10 +817,82 @@
                         <td class="time-value">${formatTime(row.median)}</td>
                         <td class="time-value">${formatTime(row.max)}</td>
                         <td class="accuracy">${parseFloat(row.accuracy).toFixed(2)}</td>
+                        <td class="details-cell">${infoCell}</td>
                     </tr>
                 `;
                     })
                     .join("");
+            }
+
+            function buildDetails(row) {
+                const env = row.environment || {};
+                const details = [];
+                if (env.cpu_model) details.push(`CPU: ${env.cpu_model}`);
+                if (env.cpu_cores || env.cpu_threads) {
+                    const cores = env.cpu_cores || "?";
+                    const threads = env.cpu_threads || "?";
+                    details.push(`Cores/Threads: ${cores}/${threads}`);
+                }
+                if (env.arch) details.push(`Arch: ${env.arch}`);
+                if (env.kernel) details.push(`Kernel: ${env.kernel}`);
+                if (env.os_release) details.push(`OS: ${env.os_release}`);
+                if (env.libc) details.push(`libc: ${env.libc}`);
+                if (env.cpu_flags) details.push(`CPU Flags: ${env.cpu_flags}`);
+                if (row.compile) details.push(`Compile: ${row.compile}`);
+                if (row.run) details.push(`Run: ${row.run}`);
+                if (row.nixpkgs && row.nixpkgs.length > 0) {
+                    details.push(`nixpkgs: ${row.nixpkgs.join(" ")}`);
+                }
+                if (row.nix_flakes && row.nix_flakes.length > 0) {
+                    details.push(`nix flakes: ${row.nix_flakes.join(" ")}`);
+                }
+                return details.join("\n");
+            }
+
+            function renderEnvironment(metadata) {
+                const grid = document.getElementById("env-grid");
+                const note = document.getElementById("env-variants");
+
+                if (!metadata || !metadata.environment) {
+                    grid.innerHTML =
+                        '<div class="env-placeholder">Environment metadata not available</div>';
+                    note.textContent = "";
+                    return;
+                }
+
+                const env = metadata.environment;
+                const items = [
+                    ["CPU", env.cpu_model || "unknown"],
+                    [
+                        "Cores/Threads",
+                        env.cpu_cores && env.cpu_threads
+                            ? `${env.cpu_cores}/${env.cpu_threads}`
+                            : "unknown",
+                    ],
+                    ["Arch", env.arch || "unknown"],
+                    ["Kernel", env.kernel || "unknown"],
+                    ["OS", env.os_release || "unknown"],
+                    ["libc", env.libc || "unknown"],
+                ];
+
+                grid.innerHTML = items
+                    .map(
+                        ([label, value]) => `
+                    <div class="env-item">
+                        <div class="env-label">${label}</div>
+                        <div class="env-value">${escapeHtml(value)}</div>
+                    </div>
+                `,
+                    )
+                    .join("");
+
+                if (metadata.environment_variants > 1) {
+                    note.textContent = `Mixed (${metadata.environment_variants})`;
+                } else {
+                    note.textContent = metadata.generated
+                        ? `Generated ${metadata.generated}`
+                        : "";
+                }
             }
 
             function formatTime(ms) {

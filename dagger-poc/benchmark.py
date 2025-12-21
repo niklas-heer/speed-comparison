@@ -167,6 +167,39 @@ def ensure_app_writable(container: dagger.Container) -> dagger.Container:
     )
 
 
+async def collect_environment(container: dagger.Container) -> dict[str, str]:
+    """Collect host environment details from inside the container."""
+    env_cmd = (
+        "cpu_model=$(awk -F': ' '/model name/{print $2; exit}' /proc/cpuinfo); "
+        "cpu_flags=$(awk -F': ' '/flags/{print $2; exit}' /proc/cpuinfo); "
+        "cpu_cores=$(awk -F': ' '/cpu cores/{print $2; exit}' /proc/cpuinfo); "
+        "cpu_threads=$(grep -c '^processor' /proc/cpuinfo 2>/dev/null || nproc); "
+        "arch=$(uname -m); "
+        "kernel=$(uname -sr); "
+        'os_release=$(awk -F= \'/^PRETTY_NAME=/{gsub(/"/,"",$2); print $2; exit}\' /etc/os-release); '
+        "libc=$(getconf GNU_LIBC_VERSION 2>/dev/null || ldd --version 2>&1 | head -n1); "
+        'echo "cpu_model=$cpu_model"; '
+        'echo "cpu_cores=$cpu_cores"; '
+        'echo "cpu_threads=$cpu_threads"; '
+        'echo "cpu_flags=$cpu_flags"; '
+        'echo "arch=$arch"; '
+        'echo "kernel=$kernel"; '
+        'echo "os_release=$os_release"; '
+        'echo "libc=$libc"'
+    )
+    try:
+        output = await container.with_exec(["sh", "-c", env_cmd]).stdout()
+    except Exception:
+        return {}
+    info: dict[str, str] = {}
+    for line in output.splitlines():
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        info[key.strip()] = value.strip()
+    return info
+
+
 # =============================================================================
 # Pipeline
 # =============================================================================
@@ -233,6 +266,7 @@ async def run_benchmark(
 
         # Ensure the devbox user can write to /app (CI uses non-root user)
         container = ensure_app_writable(container)
+        env_info = await collect_environment(container)
 
         # Compile if needed
         if lang.compile:
@@ -281,6 +315,12 @@ async def run_benchmark(
         # Extract result
         result_content = await container.file("/app/result.json").contents()
         result = json.loads(result_content)
+        result["Environment"] = env_info
+        result["Compile"] = lang.compile or ""
+        result["Run"] = lang.run
+        result["Nixpkgs"] = list(lang.nixpkgs)
+        result["NixFlakes"] = list(lang.nix_flakes)
+        result["Category"] = lang.category
 
         print(f"  Result: {result.get('Min', 'N/A')} (min)")
         print(f"  Accuracy: {result.get('Accuracy', 'N/A')}")

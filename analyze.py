@@ -152,6 +152,18 @@ def parse_time_value(value: str) -> float:
     return float(value)
 
 
+def load_raw_results(folder: str) -> list[dict]:
+    """Load raw JSON results (per-language) from a folder."""
+    folder_path = Path(folder)
+    results = []
+    for file_path in folder_path.glob("*.json"):
+        if file_path.name in ("combined_results.json", "run_metadata.json"):
+            continue
+        with open(file_path, "r") as f:
+            results.append(json.load(f))
+    return results
+
+
 def load_results(folder: str) -> pd.DataFrame:
     """Load all JSON result files from a folder into a DataFrame."""
     folder_path = Path(folder)
@@ -219,7 +231,16 @@ def format_time(ms: float) -> str:
     return f"{ms:.1f}ms"
 
 
-def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
+def trim_text(text: str, max_len: int = 60) -> str:
+    """Trim text to a max length using ASCII ellipsis."""
+    if len(text) <= max_len:
+        return text
+    return text[: max_len - 3] + "..."
+
+
+def plot_results(
+    df: pd.DataFrame, rounds: str, output_path: str, env_summary: dict | None = None
+):
     """Generate the benchmark comparison chart."""
     # Calculate dynamic figure size based on number of languages
     num_languages = len(df)
@@ -378,6 +399,39 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
     x_max = df["min"].max()
     ax.set_xlim(right=x_max * 2.2)
 
+    # Optional environment line
+    if env_summary and env_summary.get("environment"):
+        env = env_summary["environment"]
+        parts = []
+        cpu_model = env.get("cpu_model", "")
+        if cpu_model:
+            parts.append(trim_text(cpu_model, 48))
+        cores = env.get("cpu_cores", "")
+        threads = env.get("cpu_threads", "")
+        if cores:
+            parts.append(f"{cores}c/{threads}t" if threads else f"{cores}c")
+        arch = env.get("arch", "")
+        if arch:
+            parts.append(arch)
+        libc = env.get("libc", "")
+        if libc:
+            parts.append(trim_text(libc, 28))
+
+        env_line = " | ".join(parts)
+        if env_line:
+            fig.text(
+                0.01,
+                0.02,
+                f"Env: {env_line}",
+                ha="left",
+                va="bottom",
+                fontsize=8,
+                color="#4a5568",
+                alpha=0.8,
+                fontfamily="monospace",
+                transform=fig.transFigure,
+            )
+
     # Add watermark with generation date+time (left) and repo URL (right)
     generation_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
     fig.text(
@@ -407,7 +461,7 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
 
     # Save with proper layout - tight margins
     plt.tight_layout()
-    plt.subplots_adjust(top=0.98, bottom=0.02, left=0.15, right=0.92)
+    plt.subplots_adjust(top=0.98, bottom=0.04, left=0.15, right=0.92)
     plt.savefig(
         output_path,
         dpi=150,
@@ -417,6 +471,68 @@ def plot_results(df: pd.DataFrame, rounds: str, output_path: str):
         pad_inches=0.1,
     )
     plt.close()
+
+
+def summarize_environment(raw_results: list[dict]) -> dict:
+    """Summarize environment metadata across all results."""
+    envs = [r.get("Environment", {}) for r in raw_results if r.get("Environment")]
+    if not envs:
+        return {}
+
+    keys = [
+        "cpu_model",
+        "cpu_cores",
+        "cpu_threads",
+        "arch",
+        "kernel",
+        "os_release",
+        "libc",
+    ]
+    summary: dict[str, str] = {}
+    unique_envs = set()
+    for env in envs:
+        unique_envs.add(tuple(env.get(k, "") for k in keys))
+
+    for key in keys:
+        values = sorted({env.get(key, "") for env in envs if env.get(key)})
+        if len(values) == 1:
+            summary[key] = values[0]
+        elif len(values) > 1:
+            summary[key] = "mixed"
+        else:
+            summary[key] = ""
+
+    return {
+        "environment": summary,
+        "environment_variants": len(unique_envs),
+        "languages": len(envs),
+    }
+
+
+def build_combined_results(raw_results: list[dict]) -> list[dict]:
+    """Build combined results with extended metadata."""
+    combined = []
+    for result in raw_results:
+        combined.append(
+            {
+                "name": result.get("Language", ""),
+                "target": result.get("Target", ""),
+                "version": result.get("Version", ""),
+                "median": round(parse_time_value(result.get("Median", 0)) * 1000, 2),
+                "min": round(parse_time_value(result.get("Min", 0)) * 1000, 2),
+                "max": round(parse_time_value(result.get("Max", 0)) * 1000, 2),
+                "accuracy": round(float(result.get("Accuracy", 0)), 4),
+                "environment": result.get("Environment", {}),
+                "compile": result.get("Compile", ""),
+                "run": result.get("Run", ""),
+                "nixpkgs": result.get("Nixpkgs", []),
+                "nix_flakes": result.get("NixFlakes", []),
+                "category": result.get("Category", ""),
+            }
+        )
+
+    combined.sort(key=lambda r: float(r["min"]))
+    return combined
 
 
 def main():
@@ -442,24 +558,43 @@ def main():
 
     # Load data
     df = load_results(args.folder)
+    raw_results = load_raw_results(args.folder)
 
     if df.empty:
         print("No JSON result files found!")
         return 1
 
+    output_dir = Path(args.out)
+
     # Save CSV
-    csv_path = Path(args.out) / "combined_results.csv"
+    csv_path = output_dir / "combined_results.csv"
     df.to_csv(csv_path, index=False, encoding="utf-8")
+
+    # Save combined JSON and run metadata
+    env_summary = summarize_environment(raw_results) if raw_results else {}
+    if raw_results:
+        combined_results = build_combined_results(raw_results)
+        combined_json_path = output_dir / "combined_results.json"
+        combined_json_path.write_text(json.dumps(combined_results, indent=2))
+
+        if env_summary:
+            env_summary["generated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+            run_meta_path = output_dir / "run_metadata.json"
+            run_meta_path.write_text(json.dumps(env_summary, indent=2))
 
     # Read rounds
     rounds = Path(args.rounds).read_text().strip()
 
     # Generate visualization
-    png_path = Path(args.out) / "combined_results.png"
-    plot_results(df, rounds, str(png_path))
+    png_path = output_dir / "combined_results.png"
+    plot_results(df, rounds, str(png_path), env_summary=env_summary)
 
     print(f"Generated {len(df)} language results:")
     print(f"  CSV: {csv_path}")
+    if raw_results:
+        print(f"  JSON: {output_dir / 'combined_results.json'}")
+        if (output_dir / "run_metadata.json").exists():
+            print(f"  Metadata: {output_dir / 'run_metadata.json'}")
     print(f"  PNG: {png_path}")
 
     return 0
