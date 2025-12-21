@@ -325,9 +325,9 @@ LANGUAGES: dict[str, Language] = {
     "swift": Language(
         name="Swift",
         nixpkgs=(
-            "swift@5.10.1",
-            "swiftPackages.Foundation@5.10.1",
-            "swift-corelibs-libdispatch@5.10.1",
+            "swiftPackages.swift@5.7.3",
+            "swiftPackages.Foundation@5.7.3",
+            "swiftPackages.Dispatch@5.7.3",
         ),
         file="leibniz.swift",
         compile="swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full",
@@ -339,9 +339,9 @@ LANGUAGES: dict[str, Language] = {
     "swift-simd": Language(
         name="Swift (SIMD)",
         nixpkgs=(
-            "swift@5.10.1",
-            "swiftPackages.Foundation@5.10.1",
-            "swift-corelibs-libdispatch@5.10.1",
+            "swiftPackages.swift@5.7.3",
+            "swiftPackages.Foundation@5.7.3",
+            "swiftPackages.Dispatch@5.7.3",
         ),
         file="leibniz-simd.swift",
         compile="swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full",
@@ -353,9 +353,9 @@ LANGUAGES: dict[str, Language] = {
     "swift-relaxed": Language(
         name="Swift (relaxed)",
         nixpkgs=(
-            "swift@5.10.1",
-            "swiftPackages.Foundation@5.10.1",
-            "swift-corelibs-libdispatch@5.10.1",
+            "swiftPackages.swift@5.7.3",
+            "swiftPackages.Foundation@5.7.3",
+            "swiftPackages.Dispatch@5.7.3",
         ),
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
