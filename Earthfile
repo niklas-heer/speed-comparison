@@ -481,7 +481,7 @@ cpython:
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
 
 cpython-numpy:
-  FROM python:3.13-alpine
+  FROM python:3.14-alpine
   DO +PREPARE_ALPINE
   RUN apk add --no-cache gcc build-base
   RUN pip install numpy
