@@ -19,7 +19,7 @@ I'm no expert in all these languages, so take my results with a grain of salt.<b
 
 This is a microbenchmark. It can certainly give you some clue about a language, but it doesn't tell you the whole picture. 
 
-Also the findings just show how good a language is (or can be) at loops and floating point math, which is just a small subset of a programming language.
+Also the findings just show how good a language is (or can be) at loops and floating-point math, which is just a small subset of a programming language.
 
 You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
 
