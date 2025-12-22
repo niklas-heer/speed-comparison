@@ -1,4 +1,4 @@
-var rounds = int.Parse(File.ReadAllText("rounds.txt"));
+var rounds = double.Parse(File.ReadAllText("rounds.txt"));
 
 var pi = 1.0D;
 var x = 1.0D;
