@@ -276,7 +276,8 @@ async def run_benchmark(
         # Get version
         version_cmd = lang.version_cmd or "echo unknown"
         version_result = await (await exec_cmd(container, lang, f"{version_cmd} 2>&1")).stdout()
-        version = " ".join(version_result.strip().splitlines())
+        version_output = version_result.strip()
+        version = lang.extract_version(version_output) if version_output else "unknown"
         if not version:
             version = "unknown"
         # Escape special characters for shell safety
