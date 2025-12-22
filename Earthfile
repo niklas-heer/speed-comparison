@@ -156,6 +156,7 @@ collect-data:
   BUILD +gleam
   BUILD +haskell
   BUILD +ocaml
+  BUILD +chezscheme
   BUILD +racket
   BUILD +sbcl
   # Scripting languages
@@ -456,6 +457,14 @@ ocaml:
   DO +ADD_FILES --src="leibniz.ml"
   RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
   DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
+
+chezscheme:
+  FROM alpine:edge
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache chez-scheme
+  DO +ADD_FILES --src="leibniz.ss"
+  RUN --no-cache echo '(compile-program "leibniz.ss")' | chez --optimize-level 3
+  DO +BENCH --name="chez" --lang="Chez Scheme" --version="chez --version" --cmd="chez --program leibniz.so"
 
 racket:
   FROM alpine:edge
