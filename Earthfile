@@ -551,7 +551,7 @@ bunjs:
   DO +BENCH --name="bunjs" --lang="Javascript (bun)" --version="bun --version" --cmd="bun run leibniz.js"
 
 deno:
-  FROM denoland/deno:debian
+  FROM denoland/deno:debian-2.6.3
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.ts"
   DO +BENCH --name="deno" --lang="Deno (TypeScript)" --version="deno --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="deno run --allow-read leibniz.ts"
