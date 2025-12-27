@@ -158,6 +158,7 @@ collect-data:
   BUILD +ocaml
   BUILD +racket
   BUILD +sbcl
+  BUILD +sbcl-simd
   # Scripting languages
   BUILD +cpython
   BUILD +cpython-numpy
@@ -469,6 +470,12 @@ sbcl:
   RUN apk add --no-cache sbcl
   RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz.lisp")' --quit
   DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
+
+sbcl-simd:
+  FROM +alpine --src="leibniz-simd-sbcl.lisp"
+  RUN apk add --no-cache sbcl
+  RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz-sbcl-simd.lisp")' --quit
+  DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz-sbcl-simd.fasl"
 
 # ============================================================================
 # SCRIPTING LANGUAGES (Python, Ruby, Perl, PHP, Lua, R)

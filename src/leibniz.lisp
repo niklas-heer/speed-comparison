@@ -1,3 +1,5 @@
+(declaim (optimize (speed 3) (safety 0) (debug 0)))
+
 (defun leibniz (rounds)
   (declare (optimize (speed 3) (safety 0) (debug 0))
            (fixnum rounds))
@@ -13,6 +15,7 @@
 
 #-swank
 (with-open-file (in "rounds.txt")
+  (declare (optimize (speed 3) (safety 0) (debug 0))) ; in the spirit of the thing..
   (let ((*read-default-float-format* 'double-float)
         (n (parse-integer (read-line in))))
     (princ (leibniz n))
