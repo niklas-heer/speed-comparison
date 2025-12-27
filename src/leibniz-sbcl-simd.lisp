@@ -4,7 +4,7 @@
 
 (require 'sb-simd)
 
-;; adapted from leibnix_avx2.cpp.
+;; adapted from leibniz_avx2.cpp.
 (defun leibniz (rounds)
   (declare (optimize (speed 3) (safety 0) (debug 0))
    (fixnum rounds))
