@@ -5,7 +5,7 @@
 (require 'sb-simd)
 
 ;; adapted from leibnix_avx2.cpp.
-(defun leibniz (&optional (rounds 1000000))
+(defun leibniz (rounds)
   (declare (optimize (speed 3) (safety 0) (debug 0))
    (fixnum rounds))
   (incf rounds 2) ; do this outside the loop
