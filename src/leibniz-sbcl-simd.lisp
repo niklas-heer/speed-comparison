@@ -18,6 +18,7 @@
         (ivec (sb-simd-avx2:make-f64.4 2.0 3.0 4.0 5.0))
         (pivec (sb-simd-avx2:make-f64.4 0.0 0.0 0.0 0.0)))
     (let ((vec-end (- rounds (mod rounds unroll))))
+
       (loop for i from 2 below vec-end by unroll do
         ;; compute den = (2 * i - 1)
         (setf den (sb-simd-avx2:f64.4+ (sb-simd-avx2:f64.4* two ivec) mone)
@@ -34,10 +35,10 @@
                 underscore-pi (+ underscore-pi (* underscore-x (/ (- (* 2.0 i) 1.0))))))
         (* underscore-pi 4.0d0)))))
 
-#-swank
-(with-open-file (in "rounds.txt")
-  (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (let ((*read-default-float-format* 'double-float)
-        (n (parse-integer (read-line in))))
-    (princ (leibniz n))
-    (fresh-line)))
+(defun main ()
+  (with-open-file (in "rounds.txt")
+    (declare (optimize (speed 3) (safety 0) (debug 0)))
+    (let ((*read-default-float-format* 'double-float)
+          (n (parse-integer (read-line in))))
+      (princ (leibniz n))
+      (fresh-line))))

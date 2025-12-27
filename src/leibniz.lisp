@@ -13,10 +13,10 @@
              (incf ans (/ sig i)))
     (* ans 4)))
 
-#-swank
-(with-open-file (in "rounds.txt")
-  (declare (optimize (speed 3) (safety 0) (debug 0))) ; in the spirit of the thing..
-  (let ((*read-default-float-format* 'double-float)
-        (n (parse-integer (read-line in))))
-    (princ (leibniz n))
-    (fresh-line)))
+(defun main ()
+  (with-open-file (in "rounds.txt")
+    (declare (optimize (speed 3) (safety 0) (debug 0))) ; in the spirit of the thing..
+    (let ((*read-default-float-format* 'double-float)
+          (n (parse-integer (read-line in))))
+      (princ (leibniz n))
+      (fresh-line))))
