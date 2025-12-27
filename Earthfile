@@ -472,7 +472,7 @@ sbcl:
   DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
 
 sbcl-simd:
-  FROM +alpine --src="leibniz-simd-sbcl.lisp"
+  FROM +alpine --src="leibniz-sbcl-simd.lisp"
   RUN apk add --no-cache sbcl
   RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz-sbcl-simd.lisp")' --quit
   DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz-sbcl-simd.fasl"
