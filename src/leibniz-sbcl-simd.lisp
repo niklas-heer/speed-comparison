@@ -10,22 +10,22 @@
    (fixnum rounds))
   (incf rounds 2) ; do this outside the loop
   (let ((unroll 4)
-        (x (sb-simd-avx2:make-f64.4 -1.0 1.0 -1.0 1.0))
-        (den (sb-simd-avx2:make-f64.4 0.0 0.0 0.0 0.0))
-        (inc (sb-simd-avx2:make-f64.4 4.0 4.0 4.0 4.0))
-        (two (sb-simd-avx2:make-f64.4 2.0 2.0 2.0 2.0))
-        (mone (sb-simd-avx2:make-f64.4 -1.0 -1.0 -1.0 -1.0))
-        (ivec (sb-simd-avx2:make-f64.4 2.0 3.0 4.0 5.0))
-        (pivec (sb-simd-avx2:make-f64.4 0.0 0.0 0.0 0.0)))
+        (x (sb-simd-avx:make-f64.4 -1.0 1.0 -1.0 1.0))
+        (den (sb-simd-avx:make-f64.4 0.0 0.0 0.0 0.0))
+        (inc (sb-simd-avx:make-f64.4 4.0 4.0 4.0 4.0))
+        (two (sb-simd-avx:make-f64.4 2.0 2.0 2.0 2.0))
+        (mone (sb-simd-avx:make-f64.4 -1.0 -1.0 -1.0 -1.0))
+        (ivec (sb-simd-avx:make-f64.4 2.0 3.0 4.0 5.0))
+        (pivec (sb-simd-avx:make-f64.4 0.0 0.0 0.0 0.0)))
     (let ((vec-end (- rounds (mod rounds unroll))))
 
       (loop for i from 2 below vec-end by unroll do
         ;; compute den = (2 * i - 1)
-        (setf den (sb-simd-avx2:f64.4+ (sb-simd-avx2:f64.4* two ivec) mone)
+        (setf den (sb-simd-avx:f64.4+ (sb-simd-avx:f64.4* two ivec) mone)
               ;; increment ivec, so ivec +=inc
-              ivec (sb-simd-avx2:f64.4+ ivec inc)
+              ivec (sb-simd-avx:f64.4+ ivec inc)
               ;; compute partial sums
-              pivec (sb-simd-avx2:f64.4+ pivec (sb-simd-avx2:f64.4/ x den))))
+              pivec (sb-simd-avx:f64.4+ pivec (sb-simd-avx:f64.4/ x den))))
 
       ;; gather the partial sums
       (let ((underscore-pi (+ 1.0d0 (sb-simd-avx:f64.4-horizontal+ pivec))))
