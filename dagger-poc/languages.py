@@ -612,7 +612,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "php": Language(
         name="PHP",
-        nixpkgs=("php@8.4.15",),
+        nixpkgs=("php@8.4.16",),
         file="leibniz.php",
         run="php -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php",
         version_cmd="php --version",
