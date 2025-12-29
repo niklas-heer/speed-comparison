@@ -427,7 +427,7 @@ erlang:
   DO +BENCH --name="erlang" --lang="Erlang" --version="cat /usr/lib/erlang/releases/*/OTP_VERSION" --cmd="erl -noshell -s leibniz main -s init stop"
 
 gleam:
-  FROM ghcr.io/gleam-lang/gleam:v1.13.0-erlang-alpine
+  FROM ghcr.io/gleam-lang/gleam:v1.14.0-erlang-alpine
   DO +PREPARE_ALPINE
   WORKDIR /app
   RUN gleam new leibniz_app && cd leibniz_app && \
