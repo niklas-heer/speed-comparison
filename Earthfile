@@ -161,6 +161,7 @@ collect-data:
   # Scripting languages
   BUILD +cpython
   BUILD +cpython-numpy
+  BUILD +cpython-numba
   BUILD +lua
   BUILD +luajit
   BUILD +mypyc
@@ -487,6 +488,14 @@ cpython-numpy:
   RUN pip install numpy
   DO +ADD_FILES --src="leibniz_np.py"
   DO +BENCH --name="cpython-numpy" --lang="Python (NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
+
+cpython-numba:
+  FROM python:3.13-alpine
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache gcc build-base python3-dev
+  RUN pip install numba
+  DO +ADD_FILES --src="leibniz_numba.py"
+  DO +BENCH --name="cpython-numba" --lang="Python (Numba)" --version="python3 --version" --cmd="python3 leibniz_numba.py"
 
 lua:
   FROM +alpine --src="leibniz.lua"
