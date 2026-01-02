@@ -490,9 +490,9 @@ cpython-numpy:
   DO +BENCH --name="cpython-numpy" --lang="Python (NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
 
 cpython-numba:
-  FROM python:3.13-alpine
-  DO +PREPARE_ALPINE
-  RUN apk add --no-cache gcc build-base python3-dev
+  FROM python:3.13-slim
+  DO +PREPARE_DEBIAN
+  RUN apt-get install -y gcc build-essential python3-dev
   RUN pip install numba
   DO +ADD_FILES --src="leibniz_numba.py"
   DO +BENCH --name="cpython-numba" --lang="Python (Numba)" --version="python3 --version" --cmd="python3 leibniz_numba.py"
