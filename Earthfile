@@ -517,7 +517,7 @@ octave:
 octave-vectorised:
   FROM +alpine --src="leibniz_octave_vectorised.m"
   RUN apk add --no-cache octave
-  DO +BENCH --name="octave" --lang="Octave (Vectorised)" --version="octave -v" --cmd="octave leibniz_octave_vectorised.m"
+  DO +BENCH --name="octave-vectorised" --lang="Octave (Vectorised)" --version="octave -v" --cmd="octave leibniz_octave_vectorised.m"
 
 perl:
   FROM perl:5.42.0-slim
