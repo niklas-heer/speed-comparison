@@ -2,7 +2,6 @@
 
 rounds = csvread('rounds.txt');
 
-x = 1;
 pi = 1;
 
 for ii=2:rounds
