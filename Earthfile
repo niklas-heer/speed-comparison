@@ -190,6 +190,7 @@ collect-data:
   BUILD +swift
   BUILD +swift-relaxed
   BUILD +swift-simd
+  BUILD +nature
   BUILD +wasm
 
 all:
@@ -677,6 +678,13 @@ pony-nightly:
   DO +ADD_FILES --src="leibniz.pony"
   RUN --no-cache ponyc ./ -o=out --bin-name=leibniz
   DO +BENCH --name "pony-nightly" --lang="Pony(nightly)" --version="ponyc --version" --cmd="./out/leibniz"
+
+nature:
+  FROM naturelang/nature:v0.7.1
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.n"
+  RUN --no-cache nature build leibniz.n -o leibniz
+  DO +BENCH --name="nature" --lang="Nature" --version="nature -v" --cmd="./leibniz"
 
 swift:
   FROM swift:6.2-jammy

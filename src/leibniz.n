@@ -1,0 +1,19 @@
+import syscall
+import fs
+import strings
+
+fn main() {
+    var f = fs.open('./rounds.txt', syscall.O_RDONLY, 0).content()
+    var rounds = f.trim([' ', '\n']).to_int()
+    var x = 1.0
+    var pi = 1.0
+    f64 stop = (rounds + 2) as float
+
+    for f64 i = 2.0; i <= stop; i+=1 {
+        x = -x
+        pi += x / (2.0 * i - 1.0)
+    }
+
+    pi *= 4.0
+    println(pi)
+}
