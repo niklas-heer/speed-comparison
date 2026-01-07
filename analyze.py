@@ -32,6 +32,7 @@ ICON_MAP = {
     "Go": "go",
     "Zig": "zig",
     "Nim": "nim",
+    "Nature": "nature",
     "D (GDC)": "d",
     "D (LDC)": "d",
     "Odin": "odin",
