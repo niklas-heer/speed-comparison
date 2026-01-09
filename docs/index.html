@@ -223,6 +223,41 @@
                 font-size: 0.85rem;
             }
 
+            .table-actions {
+                display: flex;
+                gap: 0.75rem;
+                align-items: center;
+            }
+
+            .download-btn {
+                font-family: "Inter", sans-serif;
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+                background-color: var(--accent-color);
+                color: var(--bg-primary);
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 500;
+                transition: background-color 0.2s;
+            }
+
+            .download-btn:hover {
+                background-color: var(--accent-hover);
+            }
+
+            .download-btn:active {
+                transform: translateY(1px);
+            }
+
+            .download-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
             .table-container {
                 overflow-x: auto;
             }
@@ -477,6 +512,16 @@
                     flex-direction: column;
                     gap: 1rem;
                 }
+
+                .table-actions {
+                    width: 100%;
+                    flex-direction: column;
+                }
+
+                .download-btn {
+                    width: 100%;
+                    justify-content: center;
+                }
             }
         </style>
     </head>
@@ -531,12 +576,22 @@
             <section class="table-section">
                 <div class="table-header">
                     <h2>Results</h2>
-                    <div class="search-box">
-                        <input
-                            type="text"
-                            id="search"
-                            placeholder="Filter languages..."
-                        />
+                    <div class="table-actions">
+                        <div class="search-box">
+                            <input
+                                type="text"
+                                id="search"
+                                placeholder="Filter languages..."
+                            />
+                        </div>
+                        <button id="download-csv" class="download-btn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download CSV
+                        </button>
                     </div>
                 </div>
                 <div class="table-container">
@@ -623,6 +678,9 @@
                 document
                     .getElementById("search")
                     .addEventListener("input", handleSearch);
+                document
+                    .getElementById("download-csv")
+                    .addEventListener("click", handleDownloadCSV);
                 document.querySelectorAll("th[data-sort]").forEach((th) => {
                     th.addEventListener("click", () =>
                         handleSort(th.dataset.sort),
@@ -711,6 +769,9 @@
                 document.getElementById("lang-count").textContent =
                     currentData.length;
                 renderTable(currentData);
+                
+                // Enable download button
+                document.getElementById("download-csv").disabled = false;
             }
 
             async function handleRunChange(e) {
@@ -726,6 +787,103 @@
                     row.name.toLowerCase().includes(query),
                 );
                 renderTable(filtered);
+            }
+
+            function exportToCSV(data) {
+                if (!data || data.length === 0) {
+                    alert("No data to export");
+                    return;
+                }
+
+                // Columns to exclude from CSV export
+                const excludedColumns = [
+                    "category",
+                    "compile",
+                    "environment",
+                    "nix_flakes",
+                    "nixpkgs",
+                    "run",
+                    "target",
+                ];
+
+                // Get all unique keys from all rows
+                const allKeys = new Set();
+                data.forEach((row) => {
+                    Object.keys(row).forEach((key) => {
+                        // Filter out excluded columns
+                        if (!excludedColumns.includes(key)) {
+                            allKeys.add(key);
+                        }
+                    });
+                });
+
+                // Define column order
+                const orderedKeys = [
+                    "rank",
+                    "name",
+                    "version",
+                    "min",
+                    "median",
+                    "max",
+                    "accuracy",
+                ];
+
+                orderedKeys.forEach((key) => allKeys.delete(key));
+                const keys = [...orderedKeys, ...Array.from(allKeys).sort()];
+                const headers = keys.join(",");
+
+                const rows = data.map((row) => {
+                    return keys
+                        .map((key) => {
+                            const value = row[key];
+                            if (value === null || value === undefined) {
+                                return "";
+                            }
+                            const stringValue = String(value);
+                            if (
+                                stringValue.includes(",") ||
+                                stringValue.includes('"') ||
+                                stringValue.includes("\n")
+                            ) {
+                                return `"${stringValue.replace(/"/g, '""')}"`;
+                            }
+                            return stringValue;
+                        })
+                        .join(",");
+                });
+
+                const csvContent = [headers, ...rows].join("\n");
+
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                const select = document.getElementById("run-select");
+                const runText = select.options[select.selectedIndex].text;
+                const filename = `speed-comparison-${runText.split(" ")[0] || "results"}.csv`.replace(
+                    /[^a-z0-9._-]/gi,
+                    "-"
+                );
+
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = "hidden";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function handleDownloadCSV() {
+                const searchValue = document.getElementById("search").value.toLowerCase();
+                let dataToExport = currentData;
+
+                // If there's an active search filter, export filtered data
+                if (searchValue) {
+                    dataToExport = currentData.filter((row) =>
+                        row.name.toLowerCase().includes(searchValue),
+                    );
+                }
+
+                exportToCSV(dataToExport);
             }
 
             function handleSort(column) {
