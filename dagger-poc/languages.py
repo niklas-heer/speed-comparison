@@ -548,7 +548,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "ruby": Language(
         name="Ruby",
-        nixpkgs=("ruby@3.4.7",),
+        nixpkgs=("ruby@3.4.8",),
         file="leibniz.rb",
         run="ruby leibniz.rb",
         version_cmd="ruby --version",
