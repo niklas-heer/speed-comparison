@@ -705,10 +705,10 @@ wasm:
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y wget xz-utils
   RUN ARCH=$(uname -m) && \
-      wget -q https://github.com/bytecodealliance/wasmtime/releases/download/v39.0.1/wasmtime-v39.0.1-${ARCH}-linux.tar.xz && \
-      tar -xf wasmtime-v39.0.1-${ARCH}-linux.tar.xz && \
-      mv wasmtime-v39.0.1-${ARCH}-linux/wasmtime /usr/local/bin/ && \
-      rm -rf wasmtime-v39.0.1-${ARCH}-linux*
+      wget -q https://github.com/bytecodealliance/wasmtime/releases/download/v40.0.2/wasmtime-v40.0.2-${ARCH}-linux.tar.xz && \
+      tar -xf wasmtime-v40.0.2-${ARCH}-linux.tar.xz && \
+      mv wasmtime-v40.0.2-${ARCH}-linux/wasmtime /usr/local/bin/ && \
+      rm -rf wasmtime-v40.0.2-${ARCH}-linux*
   RUN ARCH=$(uname -m | sed 's/x86_64/x86_64/;s/aarch64/arm64/') && \
       wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-${ARCH}-linux.tar.gz && \
       tar -xf wasi-sdk-25.0-${ARCH}-linux.tar.gz && \
