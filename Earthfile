@@ -288,7 +288,7 @@ odin:
   DO +BENCH --name="odin" --lang="Odin" --version="odin version 2>&1 | grep -oE '[0-9]+-[0-9]+' | head -1" --cmd="./leibniz"
 
 rust:
-  FROM rust:1.92-alpine
+  FROM rust:1.93-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
