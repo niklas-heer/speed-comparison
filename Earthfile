@@ -305,7 +305,7 @@ v:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y git gcc make
-  RUN git clone --depth=1 --branch weekly.2025.50 https://github.com/vlang/v /opt/vlang && \
+  RUN git clone --depth=1 --branch weekly.2026.04 https://github.com/vlang/v /opt/vlang && \
       cd /opt/vlang && make && ./v symlink
   DO +ADD_FILES --src="leibniz.v"
   RUN --no-cache v -prod -o leibniz leibniz.v
