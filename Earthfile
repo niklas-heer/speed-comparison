@@ -350,7 +350,7 @@ java-graalvm:
   RUN apt install -y unzip zip curl build-essential libz-dev zlib1g-dev
   RUN curl -s "https://get.sdkman.io" | bash; \
       source "/root/.sdkman/bin/sdkman-init.sh" ; \
-      sdk install java 25.0.1-graal
+      sdk install java 25.0.2-graal
   ENV PATH=/root/.sdkman/candidates/java/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   DO +ADD_FILES --src="leibniz.java"
   RUN javac leibniz.java
