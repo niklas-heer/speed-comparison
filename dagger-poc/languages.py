@@ -542,7 +542,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "ruby": Language(
         name="Ruby",
-        nixpkgs=("ruby@3.4.7",),
+        nixpkgs=("ruby@3.4.8",),
         file="leibniz.rb",
         run="ruby leibniz.rb",
         version_cmd="ruby --version",
@@ -606,7 +606,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "php": Language(
         name="PHP",
-        nixpkgs=("php@8.4.15",),
+        nixpkgs=("php@8.4.17",),
         file="leibniz.php",
         run="php -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php",
         version_cmd="php --version",

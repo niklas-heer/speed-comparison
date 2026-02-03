@@ -280,7 +280,7 @@ odin:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y git clang llvm make
-  RUN git clone --depth=1 --branch=dev-2025-12a https://github.com/odin-lang/Odin.git /opt/odin && \
+  RUN git clone --depth=1 --branch=dev-2026-01 https://github.com/odin-lang/Odin.git /opt/odin && \
       cd /opt/odin && ./build_odin.sh release
   ENV PATH="/opt/odin:${PATH}"
   DO +ADD_FILES --src="leibniz.odin"
@@ -288,7 +288,7 @@ odin:
   DO +BENCH --name="odin" --lang="Odin" --version="odin version 2>&1 | grep -oE '[0-9]+-[0-9]+' | head -1" --cmd="./leibniz"
 
 rust:
-  FROM rust:1.92-alpine
+  FROM rust:1.93-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz.rs
@@ -305,7 +305,7 @@ v:
   FROM ubuntu:latest
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y git gcc make
-  RUN git clone --depth=1 --branch weekly.2025.50 https://github.com/vlang/v /opt/vlang && \
+  RUN git clone --depth=1 --branch weekly.2026.05 https://github.com/vlang/v /opt/vlang && \
       cd /opt/vlang && make && ./v symlink
   DO +ADD_FILES --src="leibniz.v"
   RUN --no-cache v -prod -o leibniz leibniz.v
@@ -350,7 +350,7 @@ java-graalvm:
   RUN apt install -y unzip zip curl build-essential libz-dev zlib1g-dev
   RUN curl -s "https://get.sdkman.io" | bash; \
       source "/root/.sdkman/bin/sdkman-init.sh" ; \
-      sdk install java 25.0.1-graal
+      sdk install java 25.0.2-graal
   ENV PATH=/root/.sdkman/candidates/java/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   DO +ADD_FILES --src="leibniz.java"
   RUN javac leibniz.java
@@ -368,9 +368,9 @@ kotlin:
   FROM eclipse-temurin:21-jdk-alpine
   DO +PREPARE_ALPINE
   RUN apk add --no-cache bash
-  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.2.21/kotlin-compiler-2.2.21.zip && \
-      unzip -q kotlin-compiler-2.2.21.zip && \
-      rm kotlin-compiler-2.2.21.zip
+  RUN wget -q https://github.com/JetBrains/kotlin/releases/download/v2.3.0/kotlin-compiler-2.3.0.zip && \
+      unzip -q kotlin-compiler-2.3.0.zip && \
+      rm kotlin-compiler-2.3.0.zip
   ENV PATH="/kotlinc/bin:${PATH}"
   DO +ADD_FILES --src="leibniz.kt"
   RUN --no-cache kotlinc leibniz.kt -include-runtime -d leibniz.jar
@@ -427,7 +427,7 @@ erlang:
   DO +BENCH --name="erlang" --lang="Erlang" --version="cat /usr/lib/erlang/releases/*/OTP_VERSION" --cmd="erl -noshell -s leibniz main -s init stop"
 
 gleam:
-  FROM ghcr.io/gleam-lang/gleam:v1.13.0-erlang-alpine
+  FROM ghcr.io/gleam-lang/gleam:v1.14.0-erlang-alpine
   DO +PREPARE_ALPINE
   WORKDIR /app
   RUN gleam new leibniz_app && cd leibniz_app && \
@@ -481,7 +481,7 @@ cpython:
   DO +BENCH --name="cpython" --lang="Python (CPython)" --version="python3 --version" --cmd="python3 leibniz.py"
 
 cpython-numpy:
-  FROM python:3.13-alpine
+  FROM python:3.14-alpine
   DO +PREPARE_ALPINE
   RUN apk add --no-cache gcc build-base
   RUN pip install numpy
@@ -551,7 +551,7 @@ bunjs:
   DO +BENCH --name="bunjs" --lang="Javascript (bun)" --version="bun --version" --cmd="bun run leibniz.js"
 
 deno:
-  FROM denoland/deno:debian
+  FROM denoland/deno:debian-2.6.7
   DO +PREPARE_DEBIAN
   DO +ADD_FILES --src="leibniz.ts"
   DO +BENCH --name="deno" --lang="Deno (TypeScript)" --version="deno --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1" --cmd="deno run --allow-read leibniz.ts"
@@ -576,7 +576,7 @@ ada:
   DO +BENCH --name="ada" --lang="Ada (gnat-gcc)" --version="gcc --version" --cmd="./leibniz"
 
 crystal:
-  FROM crystallang/crystal:1.18-alpine
+  FROM crystallang/crystal:1.19-alpine
   DO +PREPARE_ALPINE
   DO +ADD_FILES --src="leibniz.cr"
   RUN --no-cache crystal build leibniz.cr --release
@@ -705,10 +705,10 @@ wasm:
   DO +PREPARE_DEBIAN
   RUN apt-get update && apt-get install -y wget xz-utils
   RUN ARCH=$(uname -m) && \
-      wget -q https://github.com/bytecodealliance/wasmtime/releases/download/v39.0.1/wasmtime-v39.0.1-${ARCH}-linux.tar.xz && \
-      tar -xf wasmtime-v39.0.1-${ARCH}-linux.tar.xz && \
-      mv wasmtime-v39.0.1-${ARCH}-linux/wasmtime /usr/local/bin/ && \
-      rm -rf wasmtime-v39.0.1-${ARCH}-linux*
+      wget -q https://github.com/bytecodealliance/wasmtime/releases/download/v41.0.1/wasmtime-v41.0.1-${ARCH}-linux.tar.xz && \
+      tar -xf wasmtime-v41.0.1-${ARCH}-linux.tar.xz && \
+      mv wasmtime-v41.0.1-${ARCH}-linux/wasmtime /usr/local/bin/ && \
+      rm -rf wasmtime-v41.0.1-${ARCH}-linux*
   RUN ARCH=$(uname -m | sed 's/x86_64/x86_64/;s/aarch64/arm64/') && \
       wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-${ARCH}-linux.tar.gz && \
       tar -xf wasi-sdk-25.0-${ARCH}-linux.tar.gz && \
