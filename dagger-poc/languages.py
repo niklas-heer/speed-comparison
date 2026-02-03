@@ -306,7 +306,7 @@ LANGUAGES: dict[str, Language] = {
         name="C++ (AVX2)",
         nixpkgs=("gcc@15.2.0",),
         file="leibniz_avx2.cpp",
-        compile=f"g++ leibniz_avx2.cpp -o leibniz_avx2 {CPP_FLAGS}",
+        compile=f"g++ leibniz_avx2.cpp -o leibniz_avx2 {CPP_FLAGS} -mavx2",
         run="./leibniz_avx2",
         version_cmd="g++ --version",
         base="cplusplus",
@@ -328,9 +328,7 @@ LANGUAGES: dict[str, Language] = {
     "swift": Language(
         name="Swift",
         nixpkgs=(
-            "swiftPackages.swift@5.7.3",
-            "swiftPackages.Foundation@5.7.3",
-            "swiftPackages.Dispatch@5.7.3",
+            "swift@5.10.1",
             "gcc@14.3.0",
         ),
         file="leibniz.swift",
@@ -346,9 +344,7 @@ LANGUAGES: dict[str, Language] = {
     "swift-simd": Language(
         name="Swift (SIMD)",
         nixpkgs=(
-            "swiftPackages.swift@5.7.3",
-            "swiftPackages.Foundation@5.7.3",
-            "swiftPackages.Dispatch@5.7.3",
+            "swift@5.10.1",
             "gcc@14.3.0",
         ),
         file="leibniz-simd.swift",
@@ -364,9 +360,7 @@ LANGUAGES: dict[str, Language] = {
     "swift-relaxed": Language(
         name="Swift (relaxed)",
         nixpkgs=(
-            "swiftPackages.swift@5.7.3",
-            "swiftPackages.Foundation@5.7.3",
-            "swiftPackages.Dispatch@5.7.3",
+            "swift@5.10.1",
             "gcc@14.3.0",
         ),
         file="leibniz-relaxed.swift",

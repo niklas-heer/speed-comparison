@@ -138,66 +138,27 @@ jobs:
             echo "languages_to_update=$JSON_ARRAY" >> $GITHUB_OUTPUT
           fi
 
-  # Update each language with a new version
-  update-language:
+  # Update all languages in a single bundled PR
+  update-bundle:
     needs: process-updates
     if: needs.process-updates.outputs.has_updates == 'true'
     runs-on: ubicloud-standard-4
-    strategy:
-      matrix:
-        language: ${{ fromJson(needs.process-updates.outputs.languages_to_update) }}
-      fail-fast: false
-      max-parallel: 3
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Download version info
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Download all results
         uses: actions/download-artifact@v4
         with:
-          name: version-check-${{ matrix.language }}
-          path: version-info
-
-      - name: Extract version info
-        id: version
-        run: |
-          echo "Looking for version info file..."
-          ls -la version-info/
-          CURRENT=$(jq -r '.current // empty' version-info/${{ matrix.language }}-result.json)
-          LATEST=$(jq -r '.latest // empty' version-info/${{ matrix.language }}-result.json)
-
-          if [ -z "$CURRENT" ] || [ -z "$LATEST" ]; then
-            echo "ERROR: Could not extract version info"
-            echo "File contents:"
-            cat version-info/${{ matrix.language }}-result.json
-            exit 1
-          fi
-          echo "current=$CURRENT" >> $GITHUB_OUTPUT
-          echo "new=$LATEST" >> $GITHUB_OUTPUT
-
-          # Determine source file extension
-          EXT=$(python3 -c "
-          import json
-          with open('scripts/version-sources.json') as f:
-              data = json.load(f)
-          src = data.get('${{ matrix.language }}', {}).get('source_file', '')
-          print(src.split('.')[-1] if '.' in src else '')
-          ")
-          echo "ext=$EXT" >> $GITHUB_OUTPUT
-
-      - name: Check if PR branch already exists
-        id: check-branch
-        run: |
-          BRANCH="update/${{ matrix.language }}-${{ steps.version.outputs.new }}"
-          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            echo "Branch $BRANCH already exists"
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Branch $BRANCH does not exist"
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          pattern: version-check-*
+          path: results-raw
+          merge-multiple: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -236,144 +197,201 @@ jobs:
         with:
           version: ${{ env.EARTHLY_VERSION }}
 
-      - name: Prepare update prompt
-        id: prompt
-        run: |
-          # Substitute variables in the prompt template
-          PROMPT=$(cat .github/prompts/update-language.md | \
-            sed "s/{{LANGUAGE}}/${{ matrix.language }}/g" | \
-            sed "s/{{CURRENT_VERSION}}/${{ steps.version.outputs.current }}/g" | \
-            sed "s/{{NEW_VERSION}}/${{ steps.version.outputs.new }}/g")
-
-          # Save to file for Claude Code
-          echo "$PROMPT" > /tmp/update-prompt.md
-
       - name: Install useful tools
         run: |
           # Install tools that Claude may want to use for verification
           sudo apt-get update -qq
           sudo apt-get install -y -qq curl wget jq > /dev/null
 
-      - name: Update Earthfile with Claude Code (Opus)
+      - name: Apply updates (bundled)
+        id: bundle
         run: |
-          echo "Running Claude Code via router to update Earthfile..."
-          # Pipe prompt via stdin to avoid shell expansion issues
-          cat /tmp/update-prompt.md | ccr code -p \
-            --allowedTools "Read,Edit,Bash" \
-            --dangerously-skip-permissions
+          set -euo pipefail
 
-      - name: Validate build
-        id: validate
-        continue-on-error: true
-        run: |
-          echo "Running quick validation build..."
-          earthly --build-arg QUICK_TEST_ROUNDS=10000 +${{ matrix.language }} 2>&1 | tee build-output.txt
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
+          LANGUAGES=$(echo '${{ needs.process-updates.outputs.languages_to_update }}' | jq -r '.[]')
+          if [ -z "$LANGUAGES" ]; then
+            echo "No languages to update."
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "updates=[]" >> $GITHUB_OUTPUT
+            echo "failures=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-      - name: Fix breaking changes with Claude Code (Opus)
-        if: steps.validate.outcome == 'failure'
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: |
-          ERROR_OUTPUT=$(cat build-output.txt | tail -100)
+          UPDATES=()
+          : > /tmp/updates.md
+          : > /tmp/failures.jsonl
 
-          for attempt in 1 2 3; do
-            echo "::group::Fix attempt $attempt"
+          for LANG in $LANGUAGES; do
+            echo "::group::Update $LANG"
 
-            # Prepare prompt with error context
-            PROMPT=$(cat .github/prompts/fix-breaking-changes.md | \
-              sed "s/{{LANGUAGE}}/${{ matrix.language }}/g" | \
-              sed "s/{{NEW_VERSION}}/${{ steps.version.outputs.new }}/g" | \
-              sed "s/{{EXT}}/${{ steps.version.outputs.ext }}/g")
-
-            # Add error output (escape special chars)
-            PROMPT=$(echo "$PROMPT" | sed "s|{{ERROR_OUTPUT}}|See error below|g")
-            echo -e "$PROMPT\n\nError output:\n\`\`\`\n$ERROR_OUTPUT\n\`\`\`" > /tmp/fix-prompt.md
-
-            # Update router config to use Opus for this attempt
-            cat > ~/.claude-code-router/config.json << EOF
-            {
-              "Providers": [
-                {
-                  "name": "openrouter",
-                  "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
-                  "api_key": "$OPENROUTER_API_KEY",
-                  "models": ["anthropic/claude-opus-4.5"],
-                  "transformer": { "use": ["openrouter"] }
-                }
-              ],
-              "Router": {
-                "default": "openrouter,anthropic/claude-opus-4.5"
-              }
-            }
-          EOF
-
-            echo "Running Claude Code via router (Opus) to fix issues..."
-            # Pipe prompt via stdin to avoid shell expansion issues
-            cat /tmp/fix-prompt.md | ccr code -p \
-              --allowedTools "Read,Edit,Bash,WebSearch" \
-              --dangerously-skip-permissions
-
-            echo "::endgroup::"
-
-            echo "Validating fix..."
-            if earthly --build-arg QUICK_TEST_ROUNDS=10000 +${{ matrix.language }} 2>&1 | tee build-output.txt; then
-              echo "Fixed on attempt $attempt"
-              exit 0
+            FILE="results-raw/version-check-${LANG}/${LANG}-result.json"
+            if [ ! -f "$FILE" ]; then
+              echo "Missing result file: $FILE"
+              echo "{\"language\":\"$LANG\",\"error\":\"missing_result\"}" >> /tmp/failures.jsonl
+              echo "::endgroup::"
+              continue
             fi
 
-            ERROR_OUTPUT=$(cat build-output.txt | tail -100)
+            CURRENT=$(jq -r '.current // empty' "$FILE")
+            LATEST=$(jq -r '.latest // empty' "$FILE")
+
+            if [ -z "$CURRENT" ] || [ -z "$LATEST" ]; then
+              echo "Missing version info for $LANG"
+              echo "{\"language\":\"$LANG\",\"current\":\"$CURRENT\",\"latest\":\"$LATEST\",\"error\":\"missing_version\"}" >> /tmp/failures.jsonl
+              echo "::endgroup::"
+              continue
+            fi
+
+            EXT=$(python3 -c "
+            import json
+            with open('scripts/version-sources.json') as f:
+                data = json.load(f)
+            src = data.get('${LANG}', {}).get('source_file', '')
+            print(src.split('.')[-1] if '.' in src else '')
+            ")
+
+            # Prepare update prompt
+            PROMPT=$(cat .github/prompts/update-language.md | \
+              sed "s/{{LANGUAGE}}/${LANG}/g" | \
+              sed "s/{{CURRENT_VERSION}}/${CURRENT}/g" | \
+              sed "s/{{NEW_VERSION}}/${LATEST}/g")
+            echo "$PROMPT" > /tmp/update-prompt.md
+
+            echo "Running Claude Code via router to update Earthfile..."
+            cat /tmp/update-prompt.md | ccr code -p \
+              --allowedTools "Read,Edit,Bash" \
+              --dangerously-skip-permissions
+
+            echo "Running quick validation build..."
+            if earthly --build-arg QUICK_TEST_ROUNDS=10000 +${LANG} 2>&1 | tee build-output.txt; then
+              if git diff --quiet; then
+                echo "No changes detected for ${LANG}"
+                rm -f build-output.txt /tmp/update-prompt.md
+                echo "::endgroup::"
+                continue
+              fi
+              git add -A
+              git commit -m "chore(${LANG}): update to ${LATEST}"
+              UPDATES+=("$LANG")
+              echo "- ${LANG}: ${CURRENT} -> ${LATEST}" >> /tmp/updates.md
+              rm -f build-output.txt /tmp/update-prompt.md
+              echo "::endgroup::"
+              continue
+            fi
+
+            ERROR_OUTPUT=$(tail -100 build-output.txt)
+            FIXED=false
+
+            for attempt in 1 2 3; do
+              echo "::group::Fix attempt ${attempt}"
+
+              FIX_PROMPT=$(cat .github/prompts/fix-breaking-changes.md | \
+                sed "s/{{LANGUAGE}}/${LANG}/g" | \
+                sed "s/{{NEW_VERSION}}/${LATEST}/g" | \
+                sed "s/{{EXT}}/${EXT}/g")
+
+              FIX_PROMPT=$(echo "$FIX_PROMPT" | sed "s|{{ERROR_OUTPUT}}|See error below|g")
+              echo -e "$FIX_PROMPT\n\nError output:\n\`\`\`\n$ERROR_OUTPUT\n\`\`\`" > /tmp/fix-prompt.md
+
+              echo "Running Claude Code via router (Opus) to fix issues..."
+              cat /tmp/fix-prompt.md | ccr code -p \
+                --allowedTools "Read,Edit,Bash,WebSearch" \
+                --dangerously-skip-permissions
+
+              echo "::endgroup::"
+
+              echo "Validating fix..."
+              if earthly --build-arg QUICK_TEST_ROUNDS=10000 +${LANG} 2>&1 | tee build-output.txt; then
+                FIXED=true
+                break
+              fi
+
+              ERROR_OUTPUT=$(tail -100 build-output.txt)
+            done
+
+            if [ "$FIXED" = true ]; then
+              if git diff --quiet; then
+                echo "No changes detected for ${LANG}"
+                rm -f build-output.txt /tmp/update-prompt.md /tmp/fix-prompt.md
+                echo "::endgroup::"
+                continue
+              fi
+              git add -A
+              git commit -m "chore(${LANG}): update to ${LATEST}"
+              UPDATES+=("$LANG")
+              echo "- ${LANG}: ${CURRENT} -> ${LATEST}" >> /tmp/updates.md
+              rm -f build-output.txt /tmp/update-prompt.md /tmp/fix-prompt.md
+              echo "::endgroup::"
+              continue
+            fi
+
+            echo "Failed to update ${LANG}"
+            echo "{\"language\":\"${LANG}\",\"current\":\"${CURRENT}\",\"latest\":\"${LATEST}\",\"error\":\"update_failed\"}" >> /tmp/failures.jsonl
+            git restore -SW .
+            rm -f build-output.txt /tmp/update-prompt.md /tmp/fix-prompt.md
+            echo "::endgroup::"
           done
 
-          echo "Failed after 3 attempts"
-          echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
-          cat build-output.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-          exit 1
+          if [ ${#UPDATES[@]} -gt 0 ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            UPDATES_JSON=$(printf '%s\n' "${UPDATES[@]}" | jq -R . | jq -sc .)
+            echo "updates=$UPDATES_JSON" >> $GITHUB_OUTPUT
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "updates=[]" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Clean up temporary files
-        if: success()
-        run: rm -f build-output.txt
+          if [ -s /tmp/failures.jsonl ]; then
+            FAILURES_JSON=$(jq -sc '.' /tmp/failures.jsonl)
+          else
+            FAILURES_JSON='[]'
+          fi
+          echo "failures=$FAILURES_JSON" >> $GITHUB_OUTPUT
+
+      - name: Prepare PR body
+        if: steps.bundle.outputs.has_updates == 'true'
+        run: |
+          COUNT=$(jq -r 'length' <<< '${{ steps.bundle.outputs.updates }}')
+          cat > /tmp/pr-body.md << EOF
+          ## Automated Version Update (Bundled)
+
+          This PR updates **$COUNT** languages:
+
+          $(cat /tmp/updates.md)
+
+          ### Validation
+          - Quick benchmark test passed with \`QUICK_TEST_ROUNDS=10000\` for each updated language
+
+          ---
+
+          > This PR was automatically created by the version-check workflow.
+          > Use \`/bench <language>\` to run a full benchmark before merging.
+          EOF
 
       - name: Create or update PR
-        if: success()
+        if: steps.bundle.outputs.has_updates == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.check-branch.outputs.branch }}
+          branch: update/version-bundle-${{ github.run_id }}
           delete-branch: true
-          title: "chore(${{ matrix.language }}): update to ${{ steps.version.outputs.new }}"
-          body: |
-            ## Automated Version Update
-
-            Updates **${{ matrix.language }}** from `${{ steps.version.outputs.current }}` to `${{ steps.version.outputs.new }}`.
-
-            ### Changes
-            - Updated version in Earthfile
-
-            ### Validation
-            - Quick benchmark test passed with `QUICK_TEST_ROUNDS=10000`
-
-            ---
-
-            > This PR was automatically created by the version-check workflow.
-            > Use `/bench ${{ matrix.language }}` to run a full benchmark before merging.
+          title: "chore: update language versions (bundled)"
+          body-path: /tmp/pr-body.md
           labels: |
             version-update
             automated
-          commit-message: "chore(${{ matrix.language }}): update to ${{ steps.version.outputs.new }}"
+          commit-message: "chore: update language versions"
 
-      - name: Create issue on failure
-        if: failure() && steps.validate.outcome != ''
+      - name: Create issues on failures
+        if: steps.bundle.outputs.failures != '[]'
         uses: actions/github-script@v7
         with:
           script: |
-            const errorLog = process.env.ERROR_LOG || 'No error log available';
-            const truncatedLog = errorLog.length > 3000
-              ? errorLog.substring(0, 3000) + '\n\n... (truncated)'
-              : errorLog;
+            const failures = ${{ fromJSON(steps.bundle.outputs.failures) }};
+            if (!Array.isArray(failures) || failures.length === 0) {
+              return;
+            }
 
-            // Check if issue already exists
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -381,48 +399,48 @@ jobs:
               labels: 'version-update,needs-manual-fix'
             });
 
-            const existingIssue = issues.data.find(i =>
-              i.title.includes('${{ matrix.language }}') &&
-              i.title.includes('${{ steps.version.outputs.new }}')
-            );
+            for (const failure of failures) {
+              const lang = failure.language;
+              const current = failure.current || 'unknown';
+              const latest = failure.latest || 'unknown';
+              const title = `Unable to auto-update ${lang} to ${latest}`;
 
-            if (existingIssue) {
-              console.log(`Issue already exists: #${existingIssue.number}`);
-              return;
-            }
+              const exists = issues.data.find(i =>
+                i.title.includes(lang) && i.title.includes(latest)
+              );
 
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Unable to auto-update ${{ matrix.language }} to ${{ steps.version.outputs.new }}`,
-              body: `## Automated Update Failed
+              if (exists) {
+                console.log(`Issue already exists: #${exists.number}`);
+                continue;
+              }
 
-            The version-check workflow attempted to update **${{ matrix.language }}** but failed after 3 attempts.
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: `## Automated Update Failed
+
+            The version-check workflow attempted to update **${lang}** but failed.
 
             | Field | Value |
             |-------|-------|
-            | Current Version | \`${{ steps.version.outputs.current }}\` |
-            | Target Version | \`${{ steps.version.outputs.new }}\` |
+            | Current Version | \`${current}\` |
+            | Target Version | \`${latest}\` |
             | Workflow Run | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
-
-            ### Error Log
-
-            \`\`\`
-            ${truncatedLog}
-            \`\`\`
 
             ### Next Steps
 
-            1. Review the error log above
+            1. Review the workflow logs for failure details
             2. Check for breaking changes in the new version
             3. Manually update the Earthfile and source files
-            4. Test with \`earthly --build-arg QUICK_TEST_ROUNDS=10000 +${{ matrix.language }}\`
+            4. Test with \`earthly --build-arg QUICK_TEST_ROUNDS=10000 +${lang}\`
 
             ---
 
             > This issue was automatically created by the version-check workflow.`,
-              labels: ['version-update', 'needs-manual-fix']
-            });
+                labels: ['version-update', 'needs-manual-fix']
+              });
+            }
 
   # Summary job
   summary:
