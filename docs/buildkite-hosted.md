@@ -13,9 +13,9 @@ Path: `.buildkite/pipeline.yml`
 2. Queue assignment:
 Queue key used in this repo is `default`
 
-## Required Environment Variables
+## Environment Variables
 
-Set these in Buildkite pipeline environment (or via Secrets):
+Required only if you want to publish images (`PUSH_IMAGES=true`):
 
 - `GHCR_USER`: GitHub username used for container registry login
 - `GHCR_TOKEN`: GitHub token with package read/write access
@@ -32,7 +32,7 @@ All toggles are optional and can be passed per build:
 `rust bun deno lua ocaml racket sbcl julia`
 - `BUILD_ONLY`: `true` or `false` (default `false`)
 - `BENCHMARK_ONLY`: `true` or `false` (default `false`)
-- `PUSH_IMAGES`: `true` or `false` (default `true`)
+- `PUSH_IMAGES`: `true` or `false` (default `false`)
 - `QUICK_TEST_ROUNDS`: e.g. `10000`
 - `DRY_RUN`: `true` or `false` (default `false`)
 

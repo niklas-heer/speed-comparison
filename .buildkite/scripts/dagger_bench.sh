@@ -31,7 +31,7 @@ LANGUAGES="${LANGUAGES:-rust bun deno lua ocaml racket sbcl julia}"
 REGISTRY="${REGISTRY:-ghcr.io/niklas-heer/speed-comparison}"
 BUILD_ONLY="$(norm_bool "${BUILD_ONLY:-false}")"
 BENCHMARK_ONLY="$(norm_bool "${BENCHMARK_ONLY:-false}")"
-PUSH_IMAGES="$(norm_bool "${PUSH_IMAGES:-true}")"
+PUSH_IMAGES="$(norm_bool "${PUSH_IMAGES:-false}")"
 DRY_RUN="$(norm_bool "${DRY_RUN:-false}")"
 
 if [[ "$BUILD_ONLY" == "true" && "$BENCHMARK_ONLY" == "true" ]]; then

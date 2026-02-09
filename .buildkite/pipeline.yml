@@ -14,6 +14,8 @@ steps:
     key: "dagger-benchmark"
     agents:
       queue: "default"
+    env:
+      PUSH_IMAGES: "false"
     timeout_in_minutes: 240
     command:
       - ".buildkite/scripts/dagger_bench.sh"
