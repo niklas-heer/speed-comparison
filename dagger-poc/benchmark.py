@@ -66,6 +66,10 @@ DEFAULT_ALLOW_NATIVE_FLAGS = HOST_ARCH in ("x86_64", "amd64")
 ALLOW_NATIVE_FLAGS = os.environ.get(
     "ALLOW_NATIVE_FLAGS", "1" if DEFAULT_ALLOW_NATIVE_FLAGS else "0"
 ).lower() in ("1", "true", "yes")
+# Isolate runtime caches for benchmark reproducibility.
+BENCH_XDG_CACHE_HOME = "/tmp/bench-xdg-cache"
+BENCH_XDG_CONFIG_HOME = "/tmp/bench-xdg-config"
+BENCH_JULIA_DEPOT_PATH = "/tmp/bench-julia-depot"
 
 # Registry (same as build_images.py)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
@@ -169,7 +173,13 @@ async def exec_cmd(
     All containers (registry or local) use Devbox, so we always need
     to run commands through 'devbox run' to get packages in PATH.
     """
-    wrapped_cmd = f"unset NIX_ENFORCE_NO_NATIVE; {cmd}" if ALLOW_NATIVE_FLAGS else cmd
+    env_prefix = (
+        f"export XDG_CACHE_HOME={BENCH_XDG_CACHE_HOME}; "
+        f"export XDG_CONFIG_HOME={BENCH_XDG_CONFIG_HOME}; "
+        f"export JULIA_DEPOT_PATH={BENCH_JULIA_DEPOT_PATH}; "
+    )
+    native_prefix = "unset NIX_ENFORCE_NO_NATIVE; " if ALLOW_NATIVE_FLAGS else ""
+    wrapped_cmd = f"{env_prefix}{native_prefix}{cmd}"
     return container.with_exec(["devbox", "run", "--", "sh", "-c", wrapped_cmd])
 
 
@@ -281,6 +291,14 @@ async def run_benchmark(
 
         # Ensure the devbox user can write to /app (CI uses non-root user)
         container = ensure_app_writable(container)
+        container = await exec_cmd(
+            container,
+            lang,
+            "rm -rf "
+            f"{BENCH_XDG_CACHE_HOME} {BENCH_XDG_CONFIG_HOME} {BENCH_JULIA_DEPOT_PATH} "
+            "&& mkdir -p "
+            f"{BENCH_XDG_CACHE_HOME} {BENCH_XDG_CONFIG_HOME} {BENCH_JULIA_DEPOT_PATH}",
+        )
         env_info = await collect_environment(container)
 
         # Compile if needed

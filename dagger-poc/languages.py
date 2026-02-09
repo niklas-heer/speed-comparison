@@ -171,7 +171,7 @@ CPP_FLAGS = (
     f"-O3 -s -flto {MARCH_NATIVE} -mtune=native -fomit-frame-pointer "
     "-fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17"
 )
-RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort"
+RUST_FLAGS = "-C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort"
 
 
 # =============================================================================
@@ -689,7 +689,8 @@ LANGUAGES: dict[str, Language] = {
         name="Common Lisp (SBCL)",
         nixpkgs=("sbcl@2.5.10",),
         file="leibniz.lisp",
-        run="sbcl --script leibniz.lisp",
+        compile='sbcl --noinform --eval \'(compile-file "leibniz.lisp")\' --quit',
+        run="sbcl --script leibniz.fasl",
         version_cmd="sbcl --version",
         base="lisp",
         category="functional",
@@ -778,7 +779,7 @@ LANGUAGES: dict[str, Language] = {
         name="Julia",
         nixpkgs=("julia@1.12.1",),
         file="leibniz.jl",
-        run="julia leibniz.jl",
+        run="julia --startup-file=no --math-mode=fast -O3 -C native leibniz.jl",
         version_cmd="julia --version",
         base="julia",
         category="jit",
