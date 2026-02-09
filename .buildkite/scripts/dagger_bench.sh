@@ -123,15 +123,24 @@ if [[ "$BUILD_ONLY" != "true" ]]; then
 
   failed=()
   for lang in "${LANG_ARRAY[@]}"; do
+    used_local_fallback="false"
     if [[ "${MISSING_TARGETS[$lang]:-0}" == "1" ]]; then
       echo "Benchmarking: $lang (local image fallback)"
       bench_cmd=(env REGISTRY="$REGISTRY" USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py "$lang")
+      used_local_fallback="true"
     else
       echo "Benchmarking: $lang"
       bench_cmd=(env REGISTRY="$REGISTRY" uv run dagger run python benchmark.py "$lang")
     fi
 
     if ! retry 3 "${bench_cmd[@]}"; then
+      if [[ "$used_local_fallback" != "true" ]]; then
+        echo "Registry benchmark failed for $lang; retrying with local image fallback."
+        fallback_cmd=(env REGISTRY="$REGISTRY" USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py "$lang")
+        if retry 2 "${fallback_cmd[@]}"; then
+          continue
+        fi
+      fi
       failed+=("$lang")
     fi
   done
