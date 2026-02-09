@@ -621,6 +621,8 @@ jobs:
               --candidate results \
               --key name \
               --top 30 \
+              --top-k 10 \
+              --tie-epsilon-pct 5.0 \
               --show-missing \
               --missing-limit 20 \
               --summary-json results/parity_report.json \

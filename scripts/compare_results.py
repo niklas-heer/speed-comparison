@@ -110,6 +110,124 @@ def rank_map(records: list[dict[str, Any]], key: str) -> dict[str, int]:
     return {str(row[key]): idx + 1 for idx, row in enumerate(sorted_rows)}
 
 
+def rank_key_order(records: list[dict[str, Any]], key: str) -> list[str]:
+    """Return keys ordered by ascending min time."""
+    return [str(row[key]) for row in sorted(records, key=lambda r: r["min_ms"])]
+
+
+def pair_relation(a_ms: float, b_ms: float, tie_epsilon_pct: float) -> int:
+    """Compare two timings with a tolerance band.
+
+    Returns:
+      -1 if a faster than b (materially)
+       0 if within tie band
+      +1 if a slower than b (materially)
+    """
+    if a_ms <= 0 or b_ms <= 0:
+        return 0
+    gap_pct = abs(a_ms - b_ms) / min(a_ms, b_ms) * 100.0
+    if gap_pct <= tie_epsilon_pct:
+        return 0
+    return -1 if a_ms < b_ms else 1
+
+
+def material_rank_map(
+    keys: list[str],
+    times: dict[str, float],
+    tie_epsilon_pct: float,
+) -> dict[str, int]:
+    """Rank based only on materially faster competitors (tie-aware)."""
+    ranks: dict[str, int] = {}
+    for key in keys:
+        faster = 0
+        for other in keys:
+            if other == key:
+                continue
+            # other materially faster than key
+            if pair_relation(times[other], times[key], tie_epsilon_pct) == -1:
+                faster += 1
+        ranks[key] = faster + 1
+    return ranks
+
+
+def rank_parity_metrics(
+    *,
+    keys_in_baseline_order: list[str],
+    baseline_times: dict[str, float],
+    candidate_times: dict[str, float],
+    candidate_ranks: dict[str, int],
+    baseline_material_ranks: dict[str, int],
+    candidate_material_ranks: dict[str, int],
+    top_k: int,
+    tie_epsilon_pct: float,
+) -> dict[str, float | int]:
+    """Compute rank-parity metrics from baseline ordering and candidate ranks."""
+    n = len(keys_in_baseline_order)
+    total_pairs = n * (n - 1) // 2
+    decisive_pairs = 0
+    tie_ignored_pairs = 0
+    inversions = 0
+    for i in range(n):
+        a = keys_in_baseline_order[i]
+        for j in range(i + 1, n):
+            b = keys_in_baseline_order[j]
+            baseline_rel = pair_relation(
+                baseline_times[a], baseline_times[b], tie_epsilon_pct
+            )
+            candidate_rel = pair_relation(
+                candidate_times[a], candidate_times[b], tie_epsilon_pct
+            )
+            if baseline_rel == 0 or candidate_rel == 0:
+                tie_ignored_pairs += 1
+                continue
+            decisive_pairs += 1
+            if baseline_rel != candidate_rel:
+                inversions += 1
+
+    non_inversions = decisive_pairs - inversions
+    inversion_rate_pct = (inversions / decisive_pairs * 100.0) if decisive_pairs else 0.0
+    kendall_tau = (
+        (non_inversions - inversions) / decisive_pairs if decisive_pairs else 1.0
+    )
+
+    k = max(1, min(top_k, n)) if n else 0
+    top_keys = keys_in_baseline_order[:k]
+    top_disp: list[int] = []
+    for idx, key in enumerate(top_keys, 1):
+        top_disp.append(abs(idx - candidate_ranks[key]))
+
+    top_mean_displacement = (
+        sum(top_disp) / len(top_disp) if top_disp else 0.0
+    )
+    top_max_displacement = max(top_disp) if top_disp else 0
+
+    candidate_top_set = {name for name, rank in candidate_ranks.items() if rank <= k}
+    baseline_top_set = set(top_keys)
+    top_overlap = len(baseline_top_set & candidate_top_set)
+    top_overlap_pct = (top_overlap / k * 100.0) if k else 0.0
+
+    material_rank_changes = 0
+    for key in keys_in_baseline_order:
+        if baseline_material_ranks.get(key) != candidate_material_ranks.get(key):
+            material_rank_changes += 1
+
+    return {
+        "n": n,
+        "pair_count": total_pairs,
+        "decisive_pair_count": decisive_pairs,
+        "tie_ignored_pair_count": tie_ignored_pairs,
+        "inversions": inversions,
+        "inversion_rate_pct": inversion_rate_pct,
+        "kendall_tau": kendall_tau,
+        "top_k": k,
+        "top_k_mean_displacement": top_mean_displacement,
+        "top_k_max_displacement": top_max_displacement,
+        "top_k_overlap": top_overlap,
+        "top_k_overlap_pct": top_overlap_pct,
+        "material_rank_changes": material_rank_changes,
+    }
+
+
 def fmt_pct(value: float) -> str:
     sign = "+" if value >= 0 else ""
     return f"{sign}{value:.2f}%"
@@ -182,6 +300,48 @@ def main() -> int:
         help="Fail if number of rank changes exceeds this threshold",
     )
     parser.add_argument(
+        "--tie-epsilon-pct",
+        type=float,
+        default=5.0,
+        help="Treat pairwise differences <= this percent as same performance cluster",
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=10,
+        help="Top-K slice used for rank displacement/overlap metrics",
+    )
+    parser.add_argument(
+        "--max-inversion-rate-pct",
+        type=float,
+        default=None,
+        help="Fail if pairwise inversion rate exceeds this threshold",
+    )
+    parser.add_argument(
+        "--min-kendall-tau",
+        type=float,
+        default=None,
+        help="Fail if Kendall tau drops below this threshold",
+    )
+    parser.add_argument(
+        "--max-topk-mean-displacement",
+        type=float,
+        default=None,
+        help="Fail if top-K mean rank displacement exceeds this threshold",
+    )
+    parser.add_argument(
+        "--min-topk-overlap-pct",
+        type=float,
+        default=None,
+        help="Fail if top-K overlap percentage is below this threshold",
+    )
+    parser.add_argument(
+        "--max-tolerant-rank-changes",
+        type=int,
+        default=None,
+        help="Fail if cluster-aware rank changes exceed this threshold",
+    )
+    parser.add_argument(
         "--summary-json",
         default=None,
         help="Optional path to write machine-readable summary JSON",
@@ -215,6 +375,19 @@ def main() -> int:
 
     baseline_ranks = rank_map([baseline_idx[k] for k in common_keys], args.key)
     candidate_ranks = rank_map([candidate_idx[k] for k in common_keys], args.key)
+    baseline_order = rank_key_order([baseline_idx[k] for k in common_keys], args.key)
+    baseline_times = {k: baseline_idx[k]["min_ms"] for k in common_keys}
+    candidate_times = {k: candidate_idx[k]["min_ms"] for k in common_keys}
+    baseline_material_ranks = material_rank_map(
+        baseline_order,
+        baseline_times,
+        args.tie_epsilon_pct,
+    )
+    candidate_material_ranks = material_rank_map(
+        baseline_order,
+        candidate_times,
+        args.tie_epsilon_pct,
+    )
 
     rows = []
     for key in common_keys:
@@ -262,8 +435,35 @@ def main() -> int:
 
     avg_abs = sum(abs(r["min_delta_pct"]) for r in rows) / len(rows) if rows else 0.0
     moved = sum(1 for r in rows if r["rank_delta"] != 0)
+    rank_metrics = rank_parity_metrics(
+        keys_in_baseline_order=baseline_order,
+        baseline_times=baseline_times,
+        candidate_times=candidate_times,
+        candidate_ranks=candidate_ranks,
+        baseline_material_ranks=baseline_material_ranks,
+        candidate_material_ranks=candidate_material_ranks,
+        top_k=args.top_k,
+        tie_epsilon_pct=args.tie_epsilon_pct,
+    )
     print(
         f"\nSummary: avg |min delta| = {avg_abs:.2f}% | rank changes = {moved}/{len(rows)}"
+    )
+    print(
+        f"Cluster-aware (<= {args.tie_epsilon_pct:.2f}% treated as tie): "
+        f"rank changes = {rank_metrics['material_rank_changes']}/{len(rows)}"
+    )
+    print(
+        "Rank parity: "
+        f"inversions={rank_metrics['inversions']}/"
+        f"{rank_metrics['decisive_pair_count']} "
+        f"({rank_metrics['inversion_rate_pct']:.2f}%) | "
+        f"tie-ignored pairs={rank_metrics['tie_ignored_pair_count']} | "
+        f"kendall_tau={rank_metrics['kendall_tau']:.4f} | "
+        f"top{rank_metrics['top_k']} mean displacement="
+        f"{rank_metrics['top_k_mean_displacement']:.2f} (max "
+        f"{rank_metrics['top_k_max_displacement']}) | "
+        f"top{rank_metrics['top_k']} overlap={rank_metrics['top_k_overlap']}/"
+        f"{rank_metrics['top_k']} ({rank_metrics['top_k_overlap_pct']:.1f}%)"
     )
 
     if args.show_missing:
@@ -282,6 +482,50 @@ def main() -> int:
         violations.append(
             f"rank changes {moved} > threshold {args.max_rank_changes}"
         )
+    if (
+        args.max_tolerant_rank_changes is not None
+        and rank_metrics["material_rank_changes"] > args.max_tolerant_rank_changes
+    ):
+        violations.append(
+            "cluster-aware rank changes "
+            f"{rank_metrics['material_rank_changes']} > threshold "
+            f"{args.max_tolerant_rank_changes}"
+        )
+    if (
+        args.max_inversion_rate_pct is not None
+        and rank_metrics["inversion_rate_pct"] > args.max_inversion_rate_pct
+    ):
+        violations.append(
+            "inversion rate "
+            f"{rank_metrics['inversion_rate_pct']:.2f}% > threshold "
+            f"{args.max_inversion_rate_pct:.2f}%"
+        )
+    if (
+        args.min_kendall_tau is not None
+        and rank_metrics["kendall_tau"] < args.min_kendall_tau
+    ):
+        violations.append(
+            f"kendall_tau {rank_metrics['kendall_tau']:.4f} < threshold "
+            f"{args.min_kendall_tau:.4f}"
+        )
+    if (
+        args.max_topk_mean_displacement is not None
+        and rank_metrics["top_k_mean_displacement"] > args.max_topk_mean_displacement
+    ):
+        violations.append(
+            "top-K mean displacement "
+            f"{rank_metrics['top_k_mean_displacement']:.2f} > threshold "
+            f"{args.max_topk_mean_displacement:.2f}"
+        )
+    if (
+        args.min_topk_overlap_pct is not None
+        and rank_metrics["top_k_overlap_pct"] < args.min_topk_overlap_pct
+    ):
+        violations.append(
+            "top-K overlap "
+            f"{rank_metrics['top_k_overlap_pct']:.1f}% < threshold "
+            f"{args.min_topk_overlap_pct:.1f}%"
+        )
 
     if args.summary_json:
         payload = {
@@ -291,6 +535,7 @@ def main() -> int:
             "coverage_pct": coverage,
             "avg_abs_min_delta_pct": avg_abs,
             "rank_changes": moved,
+            "rank_parity": rank_metrics,
             "rows": rows,
             "baseline_only": baseline_only,
             "candidate_only": candidate_only,
