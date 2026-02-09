@@ -27,6 +27,35 @@ retry() {
   done
 }
 
+detect_missing_targets() {
+  local missing_output
+  local check_log
+  check_log="$(mktemp)"
+
+  # check_images.py reads GITHUB_TOKEN for auth; reuse GHCR_TOKEN when available.
+  if [[ -n "${GHCR_TOKEN:-}" && -z "${GITHUB_TOKEN:-}" ]]; then
+    export GITHUB_TOKEN="$GHCR_TOKEN"
+  fi
+
+  if ! missing_output="$(uv run python check_images.py "${LANG_ARRAY[@]}" 2>"$check_log")"; then
+    echo "Unable to pre-check registry images; continuing without local fallback planning."
+    tail -n 20 "$check_log" || true
+    rm -f "$check_log"
+    return 1
+  fi
+  rm -f "$check_log"
+
+  if [[ -z "${missing_output//[[:space:]]/}" ]]; then
+    echo "All selected targets have registry images."
+    return 0
+  fi
+
+  for target in $missing_output; do
+    MISSING_TARGETS["$target"]=1
+  done
+  echo "Missing registry images for selected targets: ${missing_output}"
+}
+
 LANGUAGES="${LANGUAGES:-rust bun deno lua ocaml racket sbcl julia}"
 REGISTRY="${REGISTRY:-ghcr.io/niklas-heer/speed-comparison}"
 BUILD_ONLY="$(norm_bool "${BUILD_ONLY:-false}")"
@@ -74,19 +103,35 @@ cd "$ROOT_DIR/dagger-poc"
 uv sync --quiet
 
 if [[ "$BENCHMARK_ONLY" != "true" ]]; then
-  build_cmd=(uv run dagger run python build_images.py "${LANG_ARRAY[@]}")
-  if [[ "$PUSH_IMAGES" == "true" ]]; then
-    build_cmd+=(--push)
+  if [[ "$PUSH_IMAGES" == "true" || "$BUILD_ONLY" == "true" ]]; then
+    build_cmd=(uv run dagger run python build_images.py "${LANG_ARRAY[@]}")
+    if [[ "$PUSH_IMAGES" == "true" ]]; then
+      build_cmd+=(--push)
+    fi
+    echo "Building images..."
+    retry 3 "${build_cmd[@]}"
+  else
+    echo "Skipping image prebuild (PUSH_IMAGES=false and BUILD_ONLY=false)."
   fi
-  echo "Building images..."
-  retry 3 "${build_cmd[@]}"
 fi
 
 if [[ "$BUILD_ONLY" != "true" ]]; then
+  declare -A MISSING_TARGETS=()
+  if [[ "$PUSH_IMAGES" != "true" ]]; then
+    detect_missing_targets || true
+  fi
+
   failed=()
   for lang in "${LANG_ARRAY[@]}"; do
-    echo "Benchmarking: $lang"
-    if ! retry 3 uv run dagger run python benchmark.py "$lang"; then
+    if [[ "${MISSING_TARGETS[$lang]:-0}" == "1" ]]; then
+      echo "Benchmarking: $lang (local image fallback)"
+      bench_cmd=(env REGISTRY="$REGISTRY" USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py "$lang")
+    else
+      echo "Benchmarking: $lang"
+      bench_cmd=(env REGISTRY="$REGISTRY" uv run dagger run python benchmark.py "$lang")
+    fi
+
+    if ! retry 3 "${bench_cmd[@]}"; then
       failed+=("$lang")
     fi
   done

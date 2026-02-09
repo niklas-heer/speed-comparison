@@ -36,6 +36,10 @@ All toggles are optional and can be passed per build:
 - `QUICK_TEST_ROUNDS`: e.g. `10000`
 - `DRY_RUN`: `true` or `false` (default `false`)
 
+Notes:
+- With `PUSH_IMAGES=false` (default), the benchmark step skips registry prebuild/push.
+- If a selected target image is missing in GHCR, the step auto-falls back to `USE_LOCAL_IMAGES=1` for that target.
+
 ## Branch Test Run
 
 To test this branch (`codex/dagger-parity-repro`) in Buildkite:
