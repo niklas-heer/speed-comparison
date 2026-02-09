@@ -245,7 +245,11 @@ LANGUAGES: dict[str, Language] = {
         name="Nim",
         nixpkgs=("nim@2.2.4",),
         file="leibniz.nim",
-        compile=f"nim c -d:release --opt:speed --passC:'{MARCH_NATIVE}' -o:leibniz leibniz.nim",
+        compile=(
+            "nim c --verbosity:0 -d:danger -d:lto --gc:arc "
+            f"--passC:'{MARCH_NATIVE} -fno-signed-zeros -fno-trapping-math -fassociative-math' "
+            "--passL:'-s' -o:leibniz leibniz.nim"
+        ),
         run="./leibniz",
         version_cmd="nim --version",
         base="nim",
@@ -275,7 +279,11 @@ LANGUAGES: dict[str, Language] = {
         name="D (LDC)",
         nixpkgs=("ldc@1.41.0",),
         file="leibniz.d",
-        compile="ldc2 leibniz.d -of=leibniz -O3 -release -flto=thin -ffast-math",
+        compile=(
+            "ldc2 leibniz.d -of=leibniz -O3 -release -mcpu=native -static -flto=thin -ffast-math "
+            f"-Xcc='{MARCH_NATIVE} -mtune=native -fomit-frame-pointer -fno-signed-zeros "
+            "-fno-trapping-math -fassociative-math'"
+        ),
         run="./leibniz",
         version_cmd="ldc2 --version",
         base="d",
@@ -521,10 +529,15 @@ LANGUAGES: dict[str, Language] = {
         name="Python (mypyc)",
         nixpkgs=("python3@3.12.8", "gcc@14.2.0", "uv@0.5.11"),
         nix_setup="uv venv /app/.venv && . /app/.venv/bin/activate && uv pip install mypy setuptools",
-        file="leibniz.py",
-        compile='. /app/.venv/bin/activate && mypyc leibniz.py && python -c "import leibniz"',
+        file="leibniz_mypyc.py",
+        compile=(
+            '. /app/.venv/bin/activate && '
+            "CFLAGS='-O3 -march=native -mtune=native -fomit-frame-pointer "
+            "-fno-signed-zeros -fno-trapping-math -fassociative-math' "
+            'mypyc leibniz_mypyc.py && python -c "import leibniz_mypyc"'
+        ),
         # Use double quotes to avoid conflict with hyperfine's single quotes
-        run='. /app/.venv/bin/activate && python -c "import leibniz"',
+        run='. /app/.venv/bin/activate && python -c "import leibniz_mypyc"',
         version_cmd="python --version",
         base="python",
         category="compiled",
@@ -702,7 +715,7 @@ LANGUAGES: dict[str, Language] = {
         name="Fortran 90",
         nixpkgs=("gfortran@14.3.0",),
         file="leibniz.f90",
-        compile=f"gfortran leibniz.f90 -o leibniz -O3 -flto {MARCH_NATIVE}",
+        compile=f"gfortran leibniz.f90 -o leibniz -Ofast -flto -ffast-math {MARCH_NATIVE} -mtune=native",
         run="./leibniz",
         version_cmd="gfortran --version",
         base="fortran",
@@ -750,17 +763,23 @@ LANGUAGES: dict[str, Language] = {
         base="dart",
         category="compiled",
     ),
-    # Note: janet-compiled in Earthfile uses jpm quickbin for native compilation
-    # which requires complex setup (janet-dev, janet-static, git clone jpm, etc.)
-    # For now, we use interpreted Janet as a baseline. Native compilation needs more work.
     "janet-compiled": Language(
         name="Janet (compiled)",
-        nixpkgs=("janet@1.39.1",),
-        file="leibniz.janet",
-        run="janet leibniz.janet",
+        nixpkgs=("janet@1.39.1", "git@2.47.1", "gcc@14.2.0", "gnumake@4.4.1"),
+        nix_setup=(
+            "rm -rf /tmp/jpm && "
+            "git clone --depth=1 https://github.com/janet-lang/jpm.git /tmp/jpm && "
+            "cd /tmp/jpm && janet bootstrap.janet && "
+            "sed -i '1s|.*|#!/usr/bin/env janet|' /tmp/jpm/jpm && "
+            "sed -i '2d' /tmp/jpm/jpm && "
+            "chmod +x /tmp/jpm/jpm"
+        ),
+        file="leibniz_compiled.janet",
+        compile="/tmp/jpm/jpm quickbin leibniz_compiled.janet leibniz",
+        run="./leibniz",
         version_cmd="janet -v",
         base="janet",
-        category="interpreted",  # Actually interpreted until jpm setup is added
+        category="compiled",
     ),
     "julia": Language(
         name="Julia",
