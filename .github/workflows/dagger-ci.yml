@@ -613,6 +613,26 @@ jobs:
             python analyze.py --folder ./results/ --out ./results/ --rounds ./src/rounds.txt
           fi
 
+      - name: Generate parity report
+        run: |
+          if [ -f scripts/compare_results.py ] && [ "$(ls results/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
+            python3 scripts/compare_results.py \
+              --baseline docs/history/latest/combined_results.json \
+              --candidate results \
+              --key name \
+              --top 30 \
+              --show-missing \
+              --missing-limit 20 \
+              --summary-json results/parity_report.json \
+              > results/parity_report.txt || true
+
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Parity vs docs/history/latest" >> $GITHUB_STEP_SUMMARY
+            echo '```text' >> $GITHUB_STEP_SUMMARY
+            cat results/parity_report.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Upload analysis
         uses: actions/upload-artifact@v4
         with:
@@ -620,6 +640,8 @@ jobs:
           path: |
             results/*.csv
             results/*.png
+            results/parity_report.txt
+            results/parity_report.json
           if-no-files-found: ignore
 
   # Final summary

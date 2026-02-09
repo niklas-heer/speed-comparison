@@ -204,7 +204,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "rust": Language(
         name="Rust",
-        nixpkgs=("rustc@1.91.1",),
+        nixpkgs=("rustc@1.92.0",),
         file="leibniz.rs",
         compile=f"rustc {RUST_FLAGS} -o leibniz leibniz.rs",
         run="./leibniz",
@@ -214,7 +214,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "go": Language(
         name="Go",
-        nixpkgs=("go@1.25.4",),
+        nixpkgs=("go@1.25.5",),
         file="leibniz.go",
         compile="go build -ldflags='-s -w' -o leibniz leibniz.go",
         run="./leibniz",

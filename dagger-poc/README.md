@@ -91,6 +91,7 @@ ALLOW_NATIVE_FLAGS=0 uv run dagger run python benchmark.py rust
 ```bash
 just check-versions     # Check all languages for updates
 just check-versions rust  # Check specific language
+python ../scripts/audit_language_versions.py --only-mismatch
 ```
 
 **Development:**
@@ -122,6 +123,7 @@ Runs benchmarks using pre-built images.
   - `quick_test`: Use 10k iterations
   - `use_local_images`: Build locally instead of pulling
   - `skip_cache`: Force fresh benchmarks
+  - includes parity report vs `docs/history/latest/combined_results.json` in workflow summary/artifacts
 
 ## Adding a New Language
 

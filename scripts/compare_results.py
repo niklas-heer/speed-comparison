@@ -110,6 +110,27 @@ def fmt_pct(value: float) -> str:
     return f"{sign}{value:.2f}%"
 
 
+def print_missing(
+    *,
+    baseline_only: list[str],
+    candidate_only: list[str],
+    limit: int,
+) -> None:
+    """Print keys that exist only on one side."""
+    if baseline_only:
+        print(f"\nMissing from candidate: {len(baseline_only)}")
+        for key in baseline_only[:limit]:
+            print(f"  - {key}")
+        if len(baseline_only) > limit:
+            print(f"  ... ({len(baseline_only) - limit} more)")
+    if candidate_only:
+        print(f"\nOnly in candidate: {len(candidate_only)}")
+        for key in candidate_only[:limit]:
+            print(f"  - {key}")
+        if len(candidate_only) > limit:
+            print(f"  ... ({len(candidate_only) - limit} more)")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Compare two benchmark result sets")
     parser.add_argument("--baseline", required=True, help="Baseline dir or combined_results.json")
@@ -126,6 +147,40 @@ def main() -> int:
         default=20,
         help="How many largest deltas to print",
     )
+    parser.add_argument(
+        "--show-missing",
+        action="store_true",
+        help="Show keys missing from one side",
+    )
+    parser.add_argument(
+        "--missing-limit",
+        type=int,
+        default=30,
+        help="Max keys to print per missing list",
+    )
+    parser.add_argument(
+        "--require-min-overlap",
+        type=int,
+        default=1,
+        help="Fail if overlapping entries are below this count",
+    )
+    parser.add_argument(
+        "--max-avg-abs-pct",
+        type=float,
+        default=None,
+        help="Fail if average absolute min delta exceeds this threshold",
+    )
+    parser.add_argument(
+        "--max-rank-changes",
+        type=int,
+        default=None,
+        help="Fail if number of rank changes exceeds this threshold",
+    )
+    parser.add_argument(
+        "--summary-json",
+        default=None,
+        help="Optional path to write machine-readable summary JSON",
+    )
     args = parser.parse_args()
 
     baseline_records = load_result_set(Path(args.baseline))
@@ -134,9 +189,23 @@ def main() -> int:
     baseline_idx = build_index(baseline_records, args.key)
     candidate_idx = build_index(candidate_records, args.key)
 
-    common_keys = sorted(set(baseline_idx) & set(candidate_idx))
-    if not common_keys:
-        print("No overlapping entries found.")
+    baseline_keys = set(baseline_idx)
+    candidate_keys = set(candidate_idx)
+    common_keys = sorted(baseline_keys & candidate_keys)
+    baseline_only = sorted(baseline_keys - candidate_keys)
+    candidate_only = sorted(candidate_keys - baseline_keys)
+
+    if len(common_keys) < args.require_min_overlap:
+        print(
+            f"Insufficient overlap: {len(common_keys)} entries "
+            f"(required >= {args.require_min_overlap})"
+        )
+        if args.show_missing:
+            print_missing(
+                baseline_only=baseline_only,
+                candidate_only=candidate_only,
+                limit=args.missing_limit,
+            )
         return 1
 
     baseline_ranks = rank_map([baseline_idx[k] for k in common_keys], args.key)
@@ -170,6 +239,8 @@ def main() -> int:
         f"Compared {len(common_keys)} overlapping entries "
         f"(baseline={len(baseline_records)}, candidate={len(candidate_records)})"
     )
+    coverage = (len(common_keys) / len(baseline_idx) * 100.0) if baseline_idx else 0.0
+    print(f"Coverage vs baseline: {coverage:.2f}%")
     print(
         f"{'Key':24} {'Min Δ%':>10} {'Median Δ%':>10} {'Rank Δ':>8} "
         f"{'Baseline(ms)':>12} {'Candidate(ms)':>14}"
@@ -184,11 +255,49 @@ def main() -> int:
             f"{row['candidate_min']:>14.2f}"
         )
 
-    avg_abs = sum(abs(r["min_delta_pct"]) for r in rows) / len(rows)
+    avg_abs = sum(abs(r["min_delta_pct"]) for r in rows) / len(rows) if rows else 0.0
     moved = sum(1 for r in rows if r["rank_delta"] != 0)
     print(
         f"\nSummary: avg |min delta| = {avg_abs:.2f}% | rank changes = {moved}/{len(rows)}"
     )
+
+    if args.show_missing:
+        print_missing(
+            baseline_only=baseline_only,
+            candidate_only=candidate_only,
+            limit=args.missing_limit,
+        )
+
+    violations: list[str] = []
+    if args.max_avg_abs_pct is not None and avg_abs > args.max_avg_abs_pct:
+        violations.append(
+            f"avg |min delta| {avg_abs:.2f}% > threshold {args.max_avg_abs_pct:.2f}%"
+        )
+    if args.max_rank_changes is not None and moved > args.max_rank_changes:
+        violations.append(
+            f"rank changes {moved} > threshold {args.max_rank_changes}"
+        )
+
+    if args.summary_json:
+        payload = {
+            "overlap": len(common_keys),
+            "baseline_records": len(baseline_records),
+            "candidate_records": len(candidate_records),
+            "coverage_pct": coverage,
+            "avg_abs_min_delta_pct": avg_abs,
+            "rank_changes": moved,
+            "rows": rows,
+            "baseline_only": baseline_only,
+            "candidate_only": candidate_only,
+            "violations": violations,
+        }
+        Path(args.summary_json).write_text(json.dumps(payload, indent=2))
+
+    if violations:
+        print("\nParity thresholds failed:")
+        for violation in violations:
+            print(f"  - {violation}")
+        return 2
 
     return 0
 
