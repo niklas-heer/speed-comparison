@@ -780,7 +780,9 @@ LANGUAGES: dict[str, Language] = {
         nixpkgs=("julia@1.12.1", "gcc@15.2.0"),
         file="leibniz.jl",
         compile=(
-            "julia -e 'using Pkg; Pkg.activate(\".\"); Pkg.Registry.update(); Pkg.Apps.add([\"JuliaC\"])' && "
+            "julia -e 'using Pkg; Pkg.activate(\".\"); "
+            "isempty(Pkg.Registry.reachable_registries()) && Pkg.Registry.add(\"General\"); "
+            "Pkg.Registry.update(); Pkg.Apps.add([\"JuliaC\"])' && "
             "/tmp/bench-julia-depot/bin/juliac --output-exe leibniz --trim --experimental "
             "--bundle bun --project . leibniz.jl"
         ),
