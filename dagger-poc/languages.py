@@ -580,7 +580,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "deno": Language(
         name="Deno (TypeScript)",
-        nixpkgs=("deno@2.6.0",),
+        nixpkgs=("deno@2.6.6",),
         file="leibniz.ts",
         run="deno run --allow-read leibniz.ts",
         version_cmd="deno --version",
@@ -589,7 +589,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "lua": Language(
         name="Lua",
-        nixpkgs=("lua5_4@5.4.8",),
+        nixpkgs=("lua5_4@5.4.4",),
         file="leibniz.lua",
         run="lua leibniz.lua",
         version_cmd="lua -v",
@@ -648,7 +648,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "ocaml": Language(
         name="OCaml",
-        nixpkgs=("ocaml@5.4.0",),
+        nixpkgs=("ocaml@5.3.0",),
         file="leibniz.ml",
         compile="ocamlopt -O2 -o leibniz leibniz.ml",
         run="./leibniz",
@@ -687,7 +687,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "sbcl": Language(
         name="Common Lisp (SBCL)",
-        nixpkgs=("sbcl@2.5.11",),
+        nixpkgs=("sbcl@2.5.10",),
         file="leibniz.lisp",
         run="sbcl --script leibniz.lisp",
         version_cmd="sbcl --version",
@@ -776,7 +776,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "julia": Language(
         name="Julia",
-        nixpkgs=("julia@1.12.2",),
+        nixpkgs=("julia@1.12.1",),
         file="leibniz.jl",
         run="julia leibniz.jl",
         version_cmd="julia --version",
