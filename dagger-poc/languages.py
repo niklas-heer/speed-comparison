@@ -345,7 +345,7 @@ LANGUAGES: dict[str, Language] = {
         file="leibniz.swift",
         compile=(
             SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full"
+            + " swiftc leibniz.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full"
         ),
         run="./leibniz",
         version_cmd="swift --version",
@@ -361,7 +361,7 @@ LANGUAGES: dict[str, Language] = {
         file="leibniz-simd.swift",
         compile=(
             SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full"
+            + " swiftc leibniz-simd.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full"
         ),
         run="./leibniz",
         version_cmd="swift --version",
@@ -378,7 +378,7 @@ LANGUAGES: dict[str, Language] = {
         extra_files=("relaxed.h",),
         compile=(
             SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz-relaxed.swift -O -o leibniz -clang-target native "
+            + " swiftc leibniz-relaxed.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native "
             "-lto=llvm-full -import-objc-header relaxed.h"
         ),
         run="./leibniz",
