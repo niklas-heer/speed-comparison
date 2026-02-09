@@ -130,17 +130,33 @@ async def build_local_devbox_container(
     """Build a Devbox container locally (for development/testing)."""
     container = client.container().from_(get_devbox_image())
 
+    if lang.allow_insecure:
+        container = container.with_env_variable("NIXPKGS_ALLOW_INSECURE", "1")
+        insecure_list = " ".join(lang.allow_insecure)
+        container = container.with_env_variable(
+            "NIX_CONFIG", f"extra-allowed-insecure-packages = {insecure_list}"
+        )
+
     packages = list(lang.nixpkgs) + [
         f"hyperfine@{HYPERFINE_VERSION}",
         f"micropython@{MICROPYTHON_VERSION}",
     ]
-    packages_str = " ".join(packages)
+    container = container.with_workdir("/app").with_exec(["devbox", "init"])
 
-    container = (
-        container.with_workdir("/app")
-        .with_exec(["devbox", "init"])
-        .with_exec(["sh", "-c", f"devbox add {packages_str}"])
-    )
+    if packages:
+        packages_str = " ".join(packages)
+        if lang.allow_insecure:
+            insecure_flags = " ".join(
+                f"--allow-insecure={pkg}" for pkg in lang.allow_insecure
+            )
+            container = container.with_exec(
+                ["sh", "-c", f"devbox add {packages_str} {insecure_flags}"]
+            )
+        else:
+            container = container.with_exec(["sh", "-c", f"devbox add {packages_str}"])
+
+    for flake_ref in lang.nix_flakes:
+        container = container.with_exec(["devbox", "add", flake_ref])
 
     if lang.nix_setup:
         container = container.with_exec(["devbox", "run", "--", "sh", "-c", lang.nix_setup])

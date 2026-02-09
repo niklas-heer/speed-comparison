@@ -280,9 +280,10 @@ LANGUAGES: dict[str, Language] = {
         nixpkgs=("ldc@1.41.0",),
         file="leibniz.d",
         compile=(
-            "ldc2 leibniz.d -of=leibniz -O3 -release -mcpu=native -static -flto=thin -ffast-math "
-            f"-Xcc='{MARCH_NATIVE} -mtune=native -fomit-frame-pointer -fno-signed-zeros "
-            "-fno-trapping-math -fassociative-math'"
+            # Avoid static link mode in nixpkgs hosted environments where libc static
+            # artifacts are not available by default.
+            # Keep codegen flags deterministic across hosts (no native CPU probing).
+            "ldc2 leibniz.d -of=leibniz -O3 -release -flto=thin -ffast-math"
         ),
         run="./leibniz",
         version_cmd="ldc2 --version",
@@ -767,15 +768,20 @@ LANGUAGES: dict[str, Language] = {
         name="Janet (compiled)",
         nixpkgs=("janet@1.39.1", "git@2.47.1", "gcc@14.2.0", "gnumake@4.4.1"),
         nix_setup=(
-            "rm -rf /tmp/jpm && "
+            "rm -rf /tmp/jpm /tmp/janet-modules /tmp/jpm-prefix && "
+            "mkdir -p /tmp/janet-modules /tmp/jpm-prefix && "
             "git clone --depth=1 https://github.com/janet-lang/jpm.git /tmp/jpm && "
-            "cd /tmp/jpm && janet bootstrap.janet && "
-            "sed -i '1s|.*|#!/usr/bin/env janet|' /tmp/jpm/jpm && "
-            "sed -i '2d' /tmp/jpm/jpm && "
-            "chmod +x /tmp/jpm/jpm"
+            "cd /tmp/jpm && JANET_PATH=/tmp/janet-modules JANET_PREFIX=/tmp/jpm-prefix janet bootstrap.janet && "
+            "mkdir -p /tmp/jpm-prefix/bin /tmp/jpm-prefix/lib && "
+            "ln -sf \"$(command -v janet)\" /tmp/jpm-prefix/bin/janet && "
+            "ln -sf \"$(dirname $(command -v janet))/../lib/libjanet.a\" /tmp/jpm-prefix/lib/libjanet.a"
         ),
         file="leibniz_compiled.janet",
-        compile="/tmp/jpm/jpm quickbin leibniz_compiled.janet leibniz",
+        # Keep Janet manifests/modules in writable storage (not /nix/store).
+        compile=(
+            "mkdir -p /tmp/janet-modules && "
+            "JANET_PATH=/tmp/janet-modules /tmp/jpm-prefix/bin/jpm quickbin leibniz_compiled.janet leibniz"
+        ),
         run="./leibniz",
         version_cmd="janet -v",
         base="janet",
