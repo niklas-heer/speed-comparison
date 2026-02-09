@@ -67,9 +67,14 @@ def load_result_set(path: Path) -> list[dict[str, Any]]:
         raise FileNotFoundError(path)
 
     records: list[dict[str, Any]] = []
+    skip_files = {
+        "combined_results.json",
+        "run_metadata.json",
+        "parity_report.json",
+    }
     for file in sorted(path.rglob("*.json")):
         # Skip generated aggregate files if present in directory mode
-        if file.name in {"combined_results.json", "run_metadata.json"}:
+        if file.name in skip_files:
             continue
         try:
             data = json.loads(file.read_text())
