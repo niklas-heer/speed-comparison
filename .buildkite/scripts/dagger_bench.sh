@@ -53,7 +53,7 @@ echo "  BENCHMARK_ONLY=$BENCHMARK_ONLY"
 echo "  PUSH_IMAGES=$PUSH_IMAGES"
 echo "  DRY_RUN=$DRY_RUN"
 
-"$ROOT_DIR/.buildkite/scripts/bootstrap.sh"
+. "$ROOT_DIR/.buildkite/scripts/bootstrap.sh"
 
 if [[ -n "${GHCR_TOKEN:-}" ]]; then
   GHCR_USER="${GHCR_USER:-buildkite}"

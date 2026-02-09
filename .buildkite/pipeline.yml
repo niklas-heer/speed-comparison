@@ -4,7 +4,7 @@ steps:
     agents:
       queue: "default"
     command:
-      - ".buildkite/scripts/bootstrap.sh"
+      - ". .buildkite/scripts/bootstrap.sh"
       - "cd dagger-poc"
       - "uv run pytest -q test_languages.py"
 
@@ -27,7 +27,7 @@ steps:
     agents:
       queue: "default"
     command:
-      - ".buildkite/scripts/bootstrap.sh"
+      - ". .buildkite/scripts/bootstrap.sh"
       - "mkdir -p results test_output/buildkite"
       - "buildkite-agent artifact download \"results/*.json\" results/ || true"
       - |
