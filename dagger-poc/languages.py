@@ -32,9 +32,6 @@ from typing import Optional
 # Compiler optimization flags for x86_64 targets
 # Note: All builds run on x86_64 Linux (either CI or Fly.io remote builder)
 MARCH_NATIVE = "-march=native"
-SWIFT_C_INCLUDE_PATH = (
-    "C_INCLUDE_PATH=$(gcc -print-file-name=include)${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-)
 
 # Shared tooling versions used for image builds
 HYPERFINE_VERSION = "1.18.0"
@@ -338,15 +335,12 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift": Language(
         name="Swift",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#swift",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
         ),
         file="leibniz.swift",
-        compile=(
-            SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full"
-        ),
+        compile="swiftc leibniz.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full",
         run="./leibniz",
         version_cmd="swift --version",
         base="swift",
@@ -354,15 +348,12 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#swift",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
         ),
         file="leibniz-simd.swift",
-        compile=(
-            SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz-simd.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full"
-        ),
+        compile="swiftc leibniz-simd.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full",
         run="./leibniz",
         version_cmd="swift --version",
         base="swift",
@@ -370,17 +361,13 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (relaxed)",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#swift",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
         ),
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
-        compile=(
-            SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz-relaxed.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native "
-            "-lto=llvm-full -import-objc-header relaxed.h"
-        ),
+        compile="swiftc leibniz-relaxed.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -lto=llvm-full -import-objc-header relaxed.h",
         run="./leibniz",
         version_cmd="swift --version",
         base="swift",

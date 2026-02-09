@@ -1,7 +1,18 @@
-import Foundation
+import Glibc
 
-let text = try! String(contentsOfFile: "rounds.txt").split(separator: "\n")[0]
-var rounds = UInt(text)!
+func readRounds() -> UInt64 {
+    var rounds: UInt64 = 0
+    guard let file = fopen("rounds.txt", "r") else {
+        fatalError("Cannot open rounds.txt")
+    }
+    defer { fclose(file) }
+    if fscanf(file, "%llu", &rounds) != 1 {
+        fatalError("Cannot parse rounds.txt")
+    }
+    return rounds
+}
+
+var rounds = readRounds()
 
 var pi: Double = 1.0
 
@@ -25,4 +36,4 @@ for _ in 0..<roundsRemainder {
 }
 
 pi *= 4.0
-print(String(format: "%.16f", pi))
+printf("%.16f\n", pi)
