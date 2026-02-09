@@ -47,12 +47,12 @@ detect_missing_targets() {
   local check_log
   check_log="$(mktemp)"
 
-  # check_images.py reads GITHUB_TOKEN for auth; reuse GHCR_TOKEN when available.
-  if [[ -n "${GHCR_TOKEN:-}" && -z "${GITHUB_TOKEN:-}" ]]; then
+  # check_images.py reads GITHUB_TOKEN for GHCR auth.
+  if [[ "$REGISTRY" == ghcr.io/* && -n "${GHCR_TOKEN:-}" && -z "${GITHUB_TOKEN:-}" ]]; then
     export GITHUB_TOKEN="$GHCR_TOKEN"
   fi
 
-  if ! missing_output="$(uv run python check_images.py "${LANG_ARRAY[@]}" 2>"$check_log")"; then
+  if ! missing_output="$(env REGISTRY="$REGISTRY" uv run python check_images.py "${LANG_ARRAY[@]}" 2>"$check_log")"; then
     echo "Unable to pre-check registry images; continuing without local fallback planning."
     tail -n 20 "$check_log" || true
     rm -f "$check_log"
@@ -72,7 +72,14 @@ detect_missing_targets() {
 }
 
 LANGUAGES="${LANGUAGES:-rust bun deno lua ocaml racket sbcl julia}"
-REGISTRY="${REGISTRY:-ghcr.io/niklas-heer/speed-comparison}"
+REGISTRY_REPOSITORY="${REGISTRY_REPOSITORY:-${BUILDKITE_PIPELINE_SLUG:-speed-comparison}}"
+if [[ -z "${REGISTRY:-}" ]]; then
+  if [[ -n "${BUILDKITE_HOSTED_REGISTRY_URL:-}" ]]; then
+    REGISTRY="${BUILDKITE_HOSTED_REGISTRY_URL%/}/${REGISTRY_REPOSITORY}"
+  else
+    REGISTRY="ghcr.io/niklas-heer/speed-comparison"
+  fi
+fi
 BUILD_ONLY="$(norm_bool "${BUILD_ONLY:-false}")"
 BENCHMARK_ONLY="$(norm_bool "${BENCHMARK_ONLY:-false}")"
 PUSH_IMAGES="$(norm_bool "${PUSH_IMAGES:-false}")"
@@ -100,18 +107,22 @@ echo "  DRY_RUN=$DRY_RUN"
 . "$ROOT_DIR/.buildkite/scripts/bootstrap.sh"
 
 login_failed="false"
-if [[ -n "${GHCR_TOKEN:-}" ]]; then
-  GHCR_USER="${GHCR_USER:-buildkite}"
-  if ! docker_login_with_token "$GHCR_USER" "$GHCR_TOKEN" 2; then
-    login_failed="true"
-  fi
-elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
-  GHCR_USER="${GHCR_USER:-buildkite}"
-  if ! docker_login_with_token "$GHCR_USER" "$GITHUB_TOKEN" 2; then
-    login_failed="true"
+if [[ "$REGISTRY" == ghcr.io/* ]]; then
+  if [[ -n "${GHCR_TOKEN:-}" ]]; then
+    GHCR_USER="${GHCR_USER:-buildkite}"
+    if ! docker_login_with_token "$GHCR_USER" "$GHCR_TOKEN" 2; then
+      login_failed="true"
+    fi
+  elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    GHCR_USER="${GHCR_USER:-buildkite}"
+    if ! docker_login_with_token "$GHCR_USER" "$GITHUB_TOKEN" 2; then
+      login_failed="true"
+    fi
+  else
+    echo "GHCR_TOKEN/GITHUB_TOKEN not set; continuing without docker login."
   fi
 else
-  echo "GHCR_TOKEN/GITHUB_TOKEN not set; continuing without docker login."
+  echo "Registry is not GHCR; skipping docker login."
 fi
 
 if [[ "$login_failed" == "true" ]]; then
