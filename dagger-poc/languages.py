@@ -338,9 +338,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift": Language(
         name="Swift",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#swift",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
         ),
         file="leibniz.swift",
         compile=(
@@ -354,9 +354,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#swift",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
         ),
         file="leibniz-simd.swift",
         compile=(
@@ -370,9 +370,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (relaxed)",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#swift",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
         ),
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
@@ -813,7 +813,10 @@ LANGUAGES: dict[str, Language] = {
     ),
     "haxe": Language(
         name="Haxe",
-        nixpkgs=("haxe@4.3.6", "gcc@14.2.0"),
+        nix_flakes=(
+            "github:NixOS/nixpkgs/nixos-24.05#haxe",
+            "github:NixOS/nixpkgs/nixos-24.05#gcc",
+        ),
         nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib && haxelib install hxcpp",
         file="Leibniz.hx",
         compile="haxe -main Leibniz -cpp out",
