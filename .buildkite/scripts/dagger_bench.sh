@@ -27,6 +27,21 @@ retry() {
   done
 }
 
+docker_login_with_token() {
+  local user="$1"
+  local token="$2"
+  local attempts="${3:-2}"
+  local n=1
+  until printf '%s' "$token" | docker login ghcr.io -u "$user" --password-stdin; do
+    if [[ "$n" -ge "$attempts" ]]; then
+      return 1
+    fi
+    echo "Docker login failed (attempt $n/$attempts)."
+    sleep $((n * 10))
+    n=$((n + 1))
+  done
+}
+
 detect_missing_targets() {
   local missing_output
   local check_log
@@ -84,14 +99,27 @@ echo "  DRY_RUN=$DRY_RUN"
 
 . "$ROOT_DIR/.buildkite/scripts/bootstrap.sh"
 
+login_failed="false"
 if [[ -n "${GHCR_TOKEN:-}" ]]; then
   GHCR_USER="${GHCR_USER:-buildkite}"
-  echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+  if ! docker_login_with_token "$GHCR_USER" "$GHCR_TOKEN" 2; then
+    login_failed="true"
+  fi
 elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
   GHCR_USER="${GHCR_USER:-buildkite}"
-  echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+  if ! docker_login_with_token "$GHCR_USER" "$GITHUB_TOKEN" 2; then
+    login_failed="true"
+  fi
 else
   echo "GHCR_TOKEN/GITHUB_TOKEN not set; continuing without docker login."
+fi
+
+if [[ "$login_failed" == "true" ]]; then
+  if [[ "$PUSH_IMAGES" == "true" || "$BUILD_ONLY" == "true" ]]; then
+    echo "Docker login to ghcr.io failed and this run needs authenticated image operations."
+    exit 1
+  fi
+  echo "Docker login to ghcr.io failed; continuing without login for benchmark-only/no-push run."
 fi
 
 if [[ "$DRY_RUN" == "true" ]]; then
