@@ -780,7 +780,7 @@ LANGUAGES: dict[str, Language] = {
         file="leibniz.jl",
         compile=(
             "julia -e 'using Pkg; Pkg.activate(\".\"); Pkg.update(); Pkg.Apps.add([\"JuliaC\"])' && "
-            "\"$JULIA_DEPOT_PATH\"/bin/juliac --output-exe leibniz --trim --experimental "
+            "/tmp/bench-julia-depot/bin/juliac --output-exe leibniz --trim --experimental "
             "--bundle bun --project . leibniz.jl"
         ),
         run="bun/bin/leibniz",
