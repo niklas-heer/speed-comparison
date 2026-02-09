@@ -71,7 +71,7 @@ detect_missing_targets() {
   echo "Missing registry images for selected targets: ${missing_output}"
 }
 
-LANGUAGES="${LANGUAGES:-rust bun deno lua ocaml racket sbcl julia}"
+LANGUAGES="${LANGUAGES:-all}"
 REGISTRY_REPOSITORY="${REGISTRY_REPOSITORY:-${BUILDKITE_PIPELINE_SLUG:-speed-comparison}}"
 if [[ -z "${REGISTRY:-}" ]]; then
   if [[ -n "${BUILDKITE_HOSTED_REGISTRY_URL:-}" ]]; then
@@ -89,20 +89,6 @@ if [[ "$BUILD_ONLY" == "true" && "$BENCHMARK_ONLY" == "true" ]]; then
   echo "BUILD_ONLY=true and BENCHMARK_ONLY=true cannot both be set."
   exit 1
 fi
-
-IFS=' ' read -r -a LANG_ARRAY <<< "$LANGUAGES"
-if [[ "${#LANG_ARRAY[@]}" -eq 0 ]]; then
-  echo "No languages specified."
-  exit 1
-fi
-
-echo "Buildkite Dagger benchmark config:"
-echo "  REGISTRY=$REGISTRY"
-echo "  LANGUAGES=${LANG_ARRAY[*]}"
-echo "  BUILD_ONLY=$BUILD_ONLY"
-echo "  BENCHMARK_ONLY=$BENCHMARK_ONLY"
-echo "  PUSH_IMAGES=$PUSH_IMAGES"
-echo "  DRY_RUN=$DRY_RUN"
 
 . "$ROOT_DIR/.buildkite/scripts/bootstrap.sh"
 
@@ -140,6 +126,31 @@ fi
 
 cd "$ROOT_DIR/dagger-poc"
 uv sync --quiet
+
+if [[ "${LANGUAGES,,}" == "all" ]]; then
+  mapfile -t LANG_ARRAY < <(uv run python - <<'PY'
+from languages import LANGUAGES
+for key in LANGUAGES:
+    print(key)
+PY
+)
+else
+  IFS=' ' read -r -a LANG_ARRAY <<< "$LANGUAGES"
+fi
+
+if [[ "${#LANG_ARRAY[@]}" -eq 0 ]]; then
+  echo "No languages specified."
+  exit 1
+fi
+
+echo "Buildkite Dagger benchmark config:"
+echo "  REGISTRY=$REGISTRY"
+echo "  LANGUAGES=${LANG_ARRAY[*]}"
+echo "  LANG_COUNT=${#LANG_ARRAY[@]}"
+echo "  BUILD_ONLY=$BUILD_ONLY"
+echo "  BENCHMARK_ONLY=$BENCHMARK_ONLY"
+echo "  PUSH_IMAGES=$PUSH_IMAGES"
+echo "  DRY_RUN=$DRY_RUN"
 
 if [[ "$BENCHMARK_ONLY" != "true" ]]; then
   if [[ "$PUSH_IMAGES" == "true" || "$BUILD_ONLY" == "true" ]]; then

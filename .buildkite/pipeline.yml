@@ -40,6 +40,13 @@ steps:
             --key name \
             --show-missing \
             --top 20 \
+            --tie-epsilon-pct "${PARITY_TIE_EPSILON_PCT:-5}" \
+            --top-k "${PARITY_TOP_K:-20}" \
+            --max-inversion-rate-pct "${PARITY_MAX_INVERSION_RATE_PCT:-2.5}" \
+            --min-kendall-tau "${PARITY_MIN_KENDALL_TAU:-0.96}" \
+            --max-topk-mean-displacement "${PARITY_MAX_TOPK_MEAN_DISPLACEMENT:-4}" \
+            --min-topk-overlap-pct "${PARITY_MIN_TOPK_OVERLAP_PCT:-80}" \
+            --max-tolerant-rank-changes "${PARITY_MAX_TOLERANT_RANK_CHANGES:-20}" \
             --summary-json test_output/buildkite/parity-summary.json \
             | tee test_output/buildkite/parity-report.txt
         else

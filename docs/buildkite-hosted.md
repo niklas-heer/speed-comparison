@@ -37,12 +37,22 @@ Recommended:
 All toggles are optional and can be passed per build:
 
 - `LANGUAGES`: space-separated list, default:
-`rust bun deno lua ocaml racket sbcl julia`
+`all` (all languages from `dagger-poc/languages.py`, currently 60)
 - `BUILD_ONLY`: `true` or `false` (default `false`)
 - `BENCHMARK_ONLY`: `true` or `false` (default `false`)
 - `PUSH_IMAGES`: `true` or `false` (default `false`)
 - `QUICK_TEST_ROUNDS`: e.g. `10000`
 - `DRY_RUN`: `true` or `false` (default `false`)
+
+Parity gate thresholds (all optional; defaults are enforced in pipeline):
+
+- `PARITY_TIE_EPSILON_PCT` (default `5`)
+- `PARITY_TOP_K` (default `20`)
+- `PARITY_MAX_INVERSION_RATE_PCT` (default `2.5`)
+- `PARITY_MIN_KENDALL_TAU` (default `0.96`)
+- `PARITY_MAX_TOPK_MEAN_DISPLACEMENT` (default `4`)
+- `PARITY_MIN_TOPK_OVERLAP_PCT` (default `80`)
+- `PARITY_MAX_TOLERANT_RANK_CHANGES` (default `20`)
 
 Notes:
 - With `PUSH_IMAGES=false` (default), the benchmark step skips registry prebuild/push.
