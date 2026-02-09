@@ -289,7 +289,7 @@ odin:
       cd /opt/odin && ./build_odin.sh release
   ENV PATH="/opt/odin:${PATH}"
   DO +ADD_FILES --src="leibniz.odin"
-  RUN --no-cache odin build . -file -o:speed -out:leibniz
+  RUN --no-cache odin build . -file -o:speed -no-bounds-check -disable-assert -out:leibniz
   DO +BENCH --name="odin" --lang="Odin" --version="odin version 2>&1 | grep -oE '[0-9]+-[0-9]+' | head -1" --cmd="./leibniz"
 
 rust:
