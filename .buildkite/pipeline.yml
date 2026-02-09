@@ -1,0 +1,49 @@
+steps:
+  - label: ":white_check_mark: Dagger config checks"
+    key: "dagger-checks"
+    agents:
+      queue: "default"
+    command:
+      - ".buildkite/scripts/bootstrap.sh"
+      - "cd dagger-poc"
+      - "uv run pytest -q test_languages.py"
+
+  - wait
+
+  - label: ":rocket: Dagger benchmark"
+    key: "dagger-benchmark"
+    agents:
+      queue: "default"
+    timeout_in_minutes: 240
+    command:
+      - ".buildkite/scripts/dagger_bench.sh"
+    artifact_paths:
+      - "results/*.json"
+      - "test_output/buildkite/**/*"
+
+  - label: ":bar_chart: Parity summary"
+    key: "dagger-parity-summary"
+    depends_on: "dagger-benchmark"
+    agents:
+      queue: "default"
+    command:
+      - ".buildkite/scripts/bootstrap.sh"
+      - "mkdir -p results test_output/buildkite"
+      - "buildkite-agent artifact download \"results/*.json\" results/ || true"
+      - |
+        if ls results/*.json >/dev/null 2>&1; then
+          python3 scripts/compare_results.py \
+            --baseline docs/history/latest/combined_results.json \
+            --candidate results \
+            --key name \
+            --show-missing \
+            --top 20 \
+            --summary-json test_output/buildkite/parity-summary.json \
+            | tee test_output/buildkite/parity-report.txt
+        else
+          echo "No benchmark results found. BUILD_ONLY may be true or benchmarks failed before output." \
+            | tee test_output/buildkite/parity-report.txt
+        fi
+    artifact_paths:
+      - "test_output/buildkite/parity-summary.json"
+      - "test_output/buildkite/parity-report.txt"
