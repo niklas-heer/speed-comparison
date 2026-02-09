@@ -18,9 +18,11 @@ This directory contains an experimental Dagger-based pipeline to replace the exi
 
 2. **Nix/Devbox for packages**: Reproducible, pinned versions across all languages. Easy version updates via `languages.py`.
 
-3. **Python pipeline**: Easier to maintain, test, and extend than Earthfile DSL.
+3. **Deterministic image identity**: Image tags include a config fingerprint (packages + setup + tool versions + Devbox base image digest), reducing accidental cache collisions.
 
-4. **MicroPython for scmeta**: Lightweight (~908KB) metadata tool that runs in containers without needing a full Python runtime.
+4. **Python pipeline**: Easier to maintain, test, and extend than Earthfile DSL.
+
+5. **MicroPython for scmeta**: Lightweight (~908KB) metadata tool that runs in containers without needing a full Python runtime.
 
 ## Directory Structure
 
@@ -72,6 +74,17 @@ just bench-registry rust  # Use pre-built images from registry
 just build rust go      # Build images locally
 just push rust go       # Build and push to registry
 just build-dry-run      # Show what would be built
+```
+
+You can override the default pinned Devbox base image for experiments:
+```bash
+DEVBOX_IMAGE=jetpackio/devbox:0.16.0 uv run dagger run python build_images.py rust
+```
+
+Native CPU flags are enabled by default on x86_64 runners and disabled on non-x86_64.
+You can override manually if you want fully generic binaries:
+```bash
+ALLOW_NATIVE_FLAGS=0 uv run dagger run python benchmark.py rust
 ```
 
 **Version Management:**

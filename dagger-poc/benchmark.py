@@ -10,10 +10,9 @@ Image Layers:
 1. Base image (from registry): Language + hyperfine (cached, rarely changes)
 2. Runtime additions: Source code + scmeta + rounds.txt (added each run)
 
-Smart Image Detection:
-- By default, tries to pull from registry first
-- If image doesn't exist, automatically builds locally
-- Optionally pushes newly built images to registry (AUTO_PUSH_IMAGES=1)
+Image Source:
+- Default: pull pre-built image from registry
+- Optional: build locally with USE_LOCAL_IMAGES=1
 
 Usage:
     # Run all benchmarks
@@ -28,8 +27,6 @@ Usage:
     # Force local images only (skip registry pull attempts)
     USE_LOCAL_IMAGES=1 dagger run python benchmark.py rust
 
-    # Auto-push built images to registry (when image was missing)
-    AUTO_PUSH_IMAGES=1 dagger run python benchmark.py rust
 """
 
 from __future__ import annotations
@@ -37,12 +34,23 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import platform
 import sys
 from pathlib import Path
 
 import dagger
 
-from languages import LANGUAGES, Language, get_base_image_name, get_language
+from languages import (
+    HYPERFINE_VERSION,
+    MICROPYTHON_VERSION,
+    LANGUAGES,
+    Language,
+    get_base_image_name,
+    get_devbox_image,
+    get_language,
+    language_image_fingerprint,
+    language_image_version_tag,
+)
 
 # =============================================================================
 # Configuration
@@ -52,14 +60,15 @@ from languages import LANGUAGES, Language, get_base_image_name, get_language
 WARMUP_RUNS = 2
 BENCHMARK_RUNS = 3
 TIME_UNIT = "second"
+# Keep native optimization flags enabled by default on x86_64 for parity with legacy benchmarks.
+HOST_ARCH = platform.machine().lower()
+DEFAULT_ALLOW_NATIVE_FLAGS = HOST_ARCH in ("x86_64", "amd64")
+ALLOW_NATIVE_FLAGS = os.environ.get(
+    "ALLOW_NATIVE_FLAGS", "1" if DEFAULT_ALLOW_NATIVE_FLAGS else "0"
+).lower() in ("1", "true", "yes")
 
 # Registry (same as build_images.py)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
-
-# Base image for local builds
-DEVBOX_IMAGE = "jetpackio/devbox:latest"
-HYPERFINE_VERSION = "1.18.0"
-MICROPYTHON_VERSION = "1.24.1"
 
 # Paths (relative to repo root - benchmark.py lives in dagger-poc/)
 REPO_ROOT = Path(__file__).parent.parent
@@ -89,7 +98,12 @@ def get_image_tag(registry: str, target: str, lang: Language) -> str:
     E.g., swift-simd uses the "swift" image.
     """
     base_name = get_base_image_name(target)
-    version = lang.primary_version.replace("+", "-")
+    version = language_image_version_tag(
+        lang,
+        devbox_image=get_devbox_image(),
+        hyperfine_version=HYPERFINE_VERSION,
+        micropython_version=MICROPYTHON_VERSION,
+    )
     return f"{registry}/{base_name}:{version}"
 
 
@@ -110,7 +124,7 @@ async def build_local_devbox_container(
     lang: Language,
 ) -> dagger.Container:
     """Build a Devbox container locally (for development/testing)."""
-    container = client.container().from_(DEVBOX_IMAGE)
+    container = client.container().from_(get_devbox_image())
 
     packages = list(lang.nixpkgs) + [
         f"hyperfine@{HYPERFINE_VERSION}",
@@ -155,7 +169,8 @@ async def exec_cmd(
     All containers (registry or local) use Devbox, so we always need
     to run commands through 'devbox run' to get packages in PATH.
     """
-    return container.with_exec(["devbox", "run", "--", "sh", "-c", cmd])
+    wrapped_cmd = f"unset NIX_ENFORCE_NO_NATIVE; {cmd}" if ALLOW_NATIVE_FLAGS else cmd
+    return container.with_exec(["devbox", "run", "--", "sh", "-c", wrapped_cmd])
 
 
 def ensure_app_writable(container: dagger.Container) -> dagger.Container:
@@ -322,6 +337,16 @@ async def run_benchmark(
         result["Nixpkgs"] = list(lang.nixpkgs)
         result["NixFlakes"] = list(lang.nix_flakes)
         result["Category"] = lang.category
+        result["ImageTag"] = get_image_tag(registry, target, lang)
+        result["ImageFingerprint"] = language_image_fingerprint(
+            lang,
+            devbox_image=get_devbox_image(),
+            hyperfine_version=HYPERFINE_VERSION,
+            micropython_version=MICROPYTHON_VERSION,
+        )
+        result["DevboxImage"] = get_devbox_image()
+        result["BuildSource"] = "local" if use_local else "registry"
+        result["AllowNativeFlags"] = ALLOW_NATIVE_FLAGS
 
         print(f"  Result: {result.get('Min', 'N/A')} (min)")
         print(f"  Accuracy: {result.get('Accuracy', 'N/A')}")
@@ -354,6 +379,7 @@ async def main(targets: list[str] | None = None) -> int:
 
     if quick_rounds:
         print(f"Quick test mode: {quick_rounds} rounds")
+    print(f"Allow native flags: {ALLOW_NATIVE_FLAGS}")
     if use_local:
         print("Using local image builds (not pulling from registry)")
     else:

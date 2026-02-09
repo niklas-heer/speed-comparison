@@ -18,6 +18,9 @@ To add a new language:
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
 import re
 from dataclasses import dataclass
 from typing import Optional
@@ -32,6 +35,14 @@ MARCH_NATIVE = "-march=native"
 SWIFT_C_INCLUDE_PATH = (
     "C_INCLUDE_PATH=$(gcc -print-file-name=include)${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
 )
+
+# Shared tooling versions used for image builds
+HYPERFINE_VERSION = "1.18.0"
+MICROPYTHON_VERSION = "1.24.1"
+
+# Pinned Devbox base image for reproducibility.
+# Can be overridden by DEVBOX_IMAGE for experiments.
+DEFAULT_DEVBOX_IMAGE = "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd"
 
 # =============================================================================
 # Language Configuration
@@ -544,7 +555,7 @@ LANGUAGES: dict[str, Language] = {
         name="Ruby",
         nixpkgs=("ruby@3.4.7",),
         file="leibniz.rb",
-        run="ruby leibniz.rb",
+        run="ruby --yjit leibniz.rb",
         version_cmd="ruby --version",
         base="ruby",
         category="interpreted",
@@ -562,7 +573,7 @@ LANGUAGES: dict[str, Language] = {
         name="Javascript (bun)",
         nixpkgs=("bun@1.3.3",),
         file="leibniz.js",
-        run="bun leibniz.js",
+        run="bun run leibniz.js",
         version_cmd="bun --version",
         base="bun",
         category="interpreted",
@@ -736,7 +747,7 @@ LANGUAGES: dict[str, Language] = {
         name="Dart",
         nixpkgs=("dart@3.9.4",),
         file="leibniz.dart",
-        run="dart leibniz.dart",
+        run="dart run leibniz.dart",
         version_cmd="dart --version",
         base="dart",
         category="interpreted",
@@ -834,6 +845,53 @@ LANGUAGES: dict[str, Language] = {
 def get_all_versions() -> dict[str, str]:
     """Get all pinned versions for external tooling."""
     return {name: lang.primary_version for name, lang in LANGUAGES.items()}
+
+
+def get_devbox_image() -> str:
+    """Get the Devbox base image reference.
+
+    Defaults to a pinned image+digest for reproducibility.
+    """
+    return os.environ.get("DEVBOX_IMAGE", DEFAULT_DEVBOX_IMAGE)
+
+
+def language_image_fingerprint(
+    lang: Language,
+    *,
+    devbox_image: str | None = None,
+    hyperfine_version: str = HYPERFINE_VERSION,
+    micropython_version: str = MICROPYTHON_VERSION,
+) -> str:
+    """Build a deterministic fingerprint for language image inputs."""
+    payload = {
+        "allow_insecure": list(lang.allow_insecure),
+        "devbox_image": devbox_image or get_devbox_image(),
+        "hyperfine_version": hyperfine_version,
+        "micropython_version": micropython_version,
+        "nix_flakes": list(lang.nix_flakes),
+        "nix_setup": lang.nix_setup or "",
+        "nixpkgs": list(lang.nixpkgs),
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+
+
+def language_image_version_tag(
+    lang: Language,
+    *,
+    devbox_image: str | None = None,
+    hyperfine_version: str = HYPERFINE_VERSION,
+    micropython_version: str = MICROPYTHON_VERSION,
+) -> str:
+    """Return a Docker tag suffix encoding version + config fingerprint."""
+    version = lang.primary_version.replace("+", "-")
+    fingerprint = language_image_fingerprint(
+        lang,
+        devbox_image=devbox_image,
+        hyperfine_version=hyperfine_version,
+        micropython_version=micropython_version,
+    )
+    return f"{version}-{fingerprint}"
 
 
 def get_languages_by_category() -> dict[str, list[str]]:

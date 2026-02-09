@@ -525,10 +525,21 @@ jobs:
           # Get the source file for this language
           SOURCE_FILE=$(uv run python -c "from languages import get_language; print(get_language('${{ matrix.language }}').file)")
           EXTRA_FILES=$(uv run python -c "from languages import get_language; l=get_language('${{ matrix.language }}'); print(' '.join([f'../src/{p}' for p in l.extra_files]))")
+          IMAGE_TAG=$(uv run python -c "from build_images import get_image_tag; from languages import get_language; print(get_image_tag('${{ env.REGISTRY }}', '${{ matrix.language }}', get_language('${{ matrix.language }}')))")
+          ARCH=$(uname -m)
           echo "Source file for ${{ matrix.language }}: src/$SOURCE_FILE"
+          echo "Image tag for ${{ matrix.language }}: $IMAGE_TAG"
 
-          # Compute hash of: source file + extra files + languages.py + benchmark/scmeta + rounds.txt
-          HASH=$(cat "../src/$SOURCE_FILE" $EXTRA_FILES languages.py benchmark.py scmeta.py ../src/rounds.txt 2>/dev/null | sha256sum | cut -d' ' -f1 | head -c 16)
+          # Compute hash of benchmark-relevant inputs.
+          # Include image identity and architecture to isolate cache across toolchain/runtime changes.
+          HASH=$(cat \
+            "../src/$SOURCE_FILE" \
+            $EXTRA_FILES \
+            languages.py benchmark.py build_images.py scmeta.py detect_changes.py \
+            ../src/rounds.txt ../.github/workflows/dagger-ci.yml \
+            2>/dev/null | \
+            { cat; echo "image_tag=$IMAGE_TAG"; echo "arch=$ARCH"; echo "dagger_version=${{ env.DAGGER_VERSION }}"; } | \
+            sha256sum | cut -d' ' -f1 | head -c 16)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Cache key hash: $HASH"
 

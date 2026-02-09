@@ -528,6 +528,11 @@ def build_combined_results(raw_results: list[dict]) -> list[dict]:
                 "nixpkgs": result.get("Nixpkgs", []),
                 "nix_flakes": result.get("NixFlakes", []),
                 "category": result.get("Category", ""),
+                "image_tag": result.get("ImageTag", ""),
+                "image_fingerprint": result.get("ImageFingerprint", ""),
+                "devbox_image": result.get("DevboxImage", ""),
+                "build_source": result.get("BuildSource", ""),
+                "allow_native_flags": result.get("AllowNativeFlags", None),
             }
         )
 

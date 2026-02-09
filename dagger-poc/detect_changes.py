@@ -29,7 +29,12 @@ import os
 import subprocess
 import sys
 
-from languages import get_base_image_name
+from languages import (
+    DEFAULT_DEVBOX_IMAGE,
+    HYPERFINE_VERSION,
+    MICROPYTHON_VERSION,
+    get_base_image_name,
+)
 
 
 def targets_to_bases(targets: list[str]) -> list[str]:
@@ -56,6 +61,17 @@ def language_image_key(lang) -> str:
     )
 
 
+def get_toolchain_key(namespace: dict) -> str:
+    """Get key for global image toolchain inputs."""
+    return "|".join(
+        [
+            str(namespace.get("DEFAULT_DEVBOX_IMAGE", "")),
+            str(namespace.get("HYPERFINE_VERSION", "")),
+            str(namespace.get("MICROPYTHON_VERSION", "")),
+        ]
+    )
+
+
 def get_old_languages():
     """Get LANGUAGES dict from the previous commit."""
     result = subprocess.run(
@@ -72,26 +88,32 @@ def get_old_languages():
         exec_globals = {"__builtins__": __builtins__}
         exec(result.stdout, exec_globals)
         old_langs = exec_globals.get("LANGUAGES", {})
+        old_toolchain = get_toolchain_key(exec_globals)
         # Extract only image-relevant fields
-        return {k: language_image_key(v) for k, v in old_langs.items()}
+        return ({k: language_image_key(v) for k, v in old_langs.items()}, old_toolchain)
     except Exception:
         return None
 
 
 def get_changed_languages() -> list[str]:
     """Get list of languages that changed between HEAD~1 and HEAD."""
-    old_languages = get_old_languages()
+    old_data = get_old_languages()
 
-    if old_languages is None:
+    if old_data is None:
         # Can't get old version - rebuild all
         from languages import LANGUAGES
 
         return list(LANGUAGES.keys())
+    old_languages, old_toolchain = old_data
 
     # Get current languages
     from languages import LANGUAGES
 
     current_languages = {k: language_image_key(v) for k, v in LANGUAGES.items()}
+    current_toolchain = "|".join([DEFAULT_DEVBOX_IMAGE, HYPERFINE_VERSION, MICROPYTHON_VERSION])
+
+    if old_toolchain != current_toolchain:
+        return list(LANGUAGES.keys())
 
     # Find changed or new languages
     changed = []
