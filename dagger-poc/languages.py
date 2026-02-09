@@ -776,9 +776,14 @@ LANGUAGES: dict[str, Language] = {
     ),
     "julia": Language(
         name="Julia",
-        nixpkgs=("julia@1.12.1",),
+        nixpkgs=("julia@1.12.1", "gcc@15.2.0"),
         file="leibniz.jl",
-        run="julia leibniz.jl",
+        compile=(
+            "julia -e 'using Pkg; Pkg.activate(\".\"); Pkg.update(); Pkg.Apps.add([\"JuliaC\"])' && "
+            "~/.julia/bin/juliac --output-exe leibniz --trim --experimental "
+            "--bundle bun --project . leibniz.jl"
+        ),
+        run="bun/bin/leibniz",
         version_cmd="julia --version",
         base="julia",
         category="jit",
