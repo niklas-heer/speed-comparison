@@ -338,9 +338,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift": Language(
         name="Swift",
-        nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#swift",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
+        nixpkgs=(
+            "swift@5.10.1",
+            "gcc@14.3.0",
         ),
         file="leibniz.swift",
         compile=(
@@ -354,9 +354,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#swift",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
+        nixpkgs=(
+            "swift@5.10.1",
+            "gcc@14.3.0",
         ),
         file="leibniz-simd.swift",
         compile=(
@@ -370,9 +370,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (relaxed)",
-        nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#swift",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
+        nixpkgs=(
+            "swift@5.10.1",
+            "gcc@14.3.0",
         ),
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
@@ -697,7 +697,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "gleam": Language(
         name="Gleam",
-        nixpkgs=("gleam@1.13.0", "erlang@27.2"),
+        nixpkgs=("gleam@1.14.0", "erlang@27.2"),
         nix_setup="gleam new leibniz_app && cd leibniz_app && sed -i 's/\\[dependencies\\]/[dependencies]\\nsimplifile = \"~> 2.0\"/' gleam.toml && gleam deps download",
         file="leibniz.gleam",
         # Build in leibniz_app, then run with output to /app level

@@ -224,7 +224,16 @@ jobs:
           FAILED=""
           for lang in $LANGUAGES; do
             echo "::group::Benchmarking $lang"
-            if uv run dagger run python benchmark.py $lang; then
+            success=0
+            for attempt in 1 2 3; do
+              if uv run dagger run python benchmark.py "$lang"; then
+                success=1
+                break
+              fi
+              echo "Attempt $attempt for $lang failed, retrying..."
+              sleep $((attempt * 15))
+            done
+            if [ "$success" -eq 1 ]; then
               echo "Success: $lang"
             else
               FAILED="$FAILED $lang"
@@ -478,7 +487,15 @@ jobs:
           if [ "${{ inputs.dry_run }}" != "true" ]; then
             PUSH_FLAG="--push"
           fi
-          uv run dagger run python build_images.py ${{ matrix.language }} $PUSH_FLAG
+          for attempt in 1 2 3; do
+            if uv run dagger run python build_images.py ${{ matrix.language }} $PUSH_FLAG; then
+              exit 0
+            fi
+            echo "Build attempt $attempt for ${{ matrix.language }} failed, retrying..."
+            sleep $((attempt * 15))
+          done
+          echo "::error::Build failed after 3 attempts for ${{ matrix.language }}"
+          exit 1
 
   # Run benchmarks in parallel
   benchmark:
@@ -559,7 +576,15 @@ jobs:
           QUICK_TEST_ROUNDS: ${{ inputs.quick_test && '10000' || '' }}
         run: |
           uv sync --quiet
-          uv run dagger run python benchmark.py ${{ matrix.language }}
+          for attempt in 1 2 3; do
+            if uv run dagger run python benchmark.py ${{ matrix.language }}; then
+              exit 0
+            fi
+            echo "Benchmark attempt $attempt for ${{ matrix.language }} failed, retrying..."
+            sleep $((attempt * 15))
+          done
+          echo "::error::Benchmark failed after 3 attempts for ${{ matrix.language }}"
+          exit 1
 
       - name: Upload result
         uses: actions/upload-artifact@v4
