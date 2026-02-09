@@ -167,6 +167,8 @@ collect-data:
   BUILD +lua
   BUILD +luajit
   BUILD +mypyc
+  BUILD +octave
+  BUILD +octave-vectorised
   BUILD +perl
   BUILD +php
   BUILD +pypy
@@ -488,7 +490,7 @@ sbcl-simd:
   DO +BENCH --name="sbcl-simd" --lang="Common Lisp (SBCL SIMD)" --version="sbcl --version" --cmd="./out-sbcl-simd"
 
 # ============================================================================
-# SCRIPTING LANGUAGES (Python, Ruby, Perl, PHP, Lua, R)
+# SCRIPTING LANGUAGES (Python, Ruby, Perl, PHP, Lua, R, Octave)
 # ============================================================================
 
 cpython:
@@ -531,6 +533,16 @@ mypyc:
   DO +ADD_FILES --src="leibniz_mypyc.py"
   RUN mypyc leibniz_mypyc.py
   DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="mypy --version" --cmd="python3 -c 'import leibniz_mypyc'"
+
+octave:
+  FROM +alpine --src="leibniz_octave.m"
+  RUN apk add --no-cache octave
+  DO +BENCH --name="octave" --lang="Octave" --version="octave -v" --cmd="octave leibniz_octave.m"
+
+octave-vectorised:
+  FROM +alpine --src="leibniz_octave_vectorised.m"
+  RUN apk add --no-cache octave
+  DO +BENCH --name="octave-vectorised" --lang="Octave (Vectorised)" --version="octave -v" --cmd="octave leibniz_octave_vectorised.m"
 
 perl:
   FROM perl:5.42.0-slim
