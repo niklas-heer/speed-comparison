@@ -6,7 +6,7 @@ steps:
     command:
       - ". .buildkite/scripts/bootstrap.sh"
       - "cd dagger-poc"
-      - "uv run pytest -q test_languages.py"
+      - "uv run --with pytest pytest -q test_languages.py"
 
   - wait
 
