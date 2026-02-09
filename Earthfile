@@ -159,6 +159,7 @@ collect-data:
   BUILD +chezscheme
   BUILD +racket
   BUILD +sbcl
+  BUILD +sbcl-simd
   # Scripting languages
   BUILD +cpython
   BUILD +cpython-numpy
@@ -476,8 +477,14 @@ racket:
 sbcl:
   FROM +alpine --src="leibniz.lisp"
   RUN apk add --no-cache sbcl
-  RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz.lisp")' --quit
-  DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
+  RUN --no-cache sbcl --noinform --load leibniz.lisp --eval '(sb-ext:save-lisp-and-die "out-sbcl" :executable t :toplevel (quote cl-user::main) :purify t)'
+  DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="./out-sbcl"
+
+sbcl-simd:
+  FROM +alpine --src="leibniz-sbcl-simd.lisp"
+  RUN apk add --no-cache sbcl
+  RUN --no-cache sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die "out-sbcl-simd" :executable t :toplevel (quote cl-user::main) :purify t)'
+  DO +BENCH --name="sbcl-simd" --lang="Common Lisp (SBCL SIMD)" --version="sbcl --version" --cmd="./out-sbcl-simd"
 
 # ============================================================================
 # SCRIPTING LANGUAGES (Python, Ruby, Perl, PHP, Lua, R)
