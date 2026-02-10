@@ -43,6 +43,9 @@ All toggles are optional and can be passed per build:
 - `PUSH_IMAGES`: `true` or `false` (default `false`)
 - `QUICK_TEST_ROUNDS`: e.g. `10000`
 - `DRY_RUN`: `true` or `false` (default `false`)
+- `HYPERFINE_SHOW_OUTPUT`: `true` or `false` (default `false`)
+- `ALLOW_LOW_MEMORY_FULL_RUN`: `true` or `false` (default `false`)
+- `MIN_HEAVY_LANG_RAM_GIB`: minimum RAM guard for full `cpython-numpy`/`r` runs (default `12`)
 
 Parity gate thresholds (all optional; defaults are enforced in pipeline):
 
@@ -58,6 +61,7 @@ Notes:
 - With `PUSH_IMAGES=false` (default), the benchmark step skips registry prebuild/push.
 - If a selected target image is missing in the active registry, the step auto-falls back to `USE_LOCAL_IMAGES=1` for that target.
 - If a registry benchmark fails after pull retries, the step retries that target once with local image fallback.
+- Full-round `cpython-numpy` and `r` need significant memory (~7.5GiB each for vector allocations). The script now fails fast on low-memory agents unless you set `QUICK_TEST_ROUNDS` or explicitly bypass with `ALLOW_LOW_MEMORY_FULL_RUN=true`.
 
 ## Branch Test Run
 

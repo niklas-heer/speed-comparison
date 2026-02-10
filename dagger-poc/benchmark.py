@@ -60,6 +60,11 @@ from languages import (
 WARMUP_RUNS = 2
 BENCHMARK_RUNS = 3
 TIME_UNIT = "second"
+HYPERFINE_SHOW_OUTPUT = os.environ.get("HYPERFINE_SHOW_OUTPUT", "0").lower() in (
+    "1",
+    "true",
+    "yes",
+)
 # Keep native optimization flags enabled by default on x86_64 for parity with legacy benchmarks.
 HOST_ARCH = platform.machine().lower()
 DEFAULT_ALLOW_NATIVE_FLAGS = HOST_ARCH in ("x86_64", "amd64")
@@ -345,6 +350,7 @@ async def run_benchmark(
             f"--warmup {WARMUP_RUNS} "
             f"--runs {BENCHMARK_RUNS} "
             f"--time-unit {TIME_UNIT} "
+            f"{'--show-output ' if HYPERFINE_SHOW_OUTPUT else ''}"
             f"--export-json hyperfine.json "
             f"&& {lang.run} > pi.txt"
         )
@@ -389,6 +395,11 @@ async def run_benchmark(
 
     except Exception as e:
         print(f"  ERROR: {e}")
+        if isinstance(e, dagger.ExecError) and e.stderr:
+            stderr_tail = "\n".join(e.stderr.strip().splitlines()[-10:])
+            if stderr_tail:
+                print("  STDERR (tail):")
+                print(stderr_tail)
         return None
 
 

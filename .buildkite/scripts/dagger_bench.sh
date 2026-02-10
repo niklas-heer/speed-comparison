@@ -71,6 +71,66 @@ detect_missing_targets() {
   echo "Missing registry images for selected targets: ${missing_output}"
 }
 
+has_language_target() {
+  local needle="$1"
+  local lang
+  for lang in "${LANG_ARRAY[@]}"; do
+    if [[ "$lang" == "$needle" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+check_memory_constraints() {
+  local allow_low_memory
+  allow_low_memory="$(norm_bool "${ALLOW_LOW_MEMORY_FULL_RUN:-false}")"
+  if [[ "$allow_low_memory" == "true" ]]; then
+    return 0
+  fi
+
+  # QUICK_TEST_ROUNDS is intended for smoke tests and intentionally bypasses this guard.
+  if [[ -n "${QUICK_TEST_ROUNDS:-}" ]]; then
+    return 0
+  fi
+
+  # These two targets allocate ~7.5GiB vectors with full rounds.
+  if ! has_language_target "cpython-numpy" && ! has_language_target "r"; then
+    return 0
+  fi
+
+  if [[ ! -r /proc/meminfo ]]; then
+    echo "Warning: unable to read /proc/meminfo; skipping RAM preflight."
+    return 0
+  fi
+
+  local mem_kib
+  mem_kib="$(awk '/MemTotal:/{print $2}' /proc/meminfo)"
+  if [[ -z "${mem_kib:-}" ]]; then
+    echo "Warning: unable to parse MemTotal from /proc/meminfo; skipping RAM preflight."
+    return 0
+  fi
+
+  local mem_gib
+  mem_gib=$((mem_kib / 1024 / 1024))
+  local min_required_gib
+  min_required_gib="${MIN_HEAVY_LANG_RAM_GIB:-12}"
+  echo "Detected host RAM: ${mem_gib} GiB"
+
+  if (( mem_gib < min_required_gib )); then
+    echo "Insufficient RAM for full-round cpython-numpy/r benchmarks."
+    echo "Configured RAM: ${mem_gib} GiB, required: >= ${min_required_gib} GiB."
+    echo "Reasons:"
+    echo "  - cpython-numpy allocates ~7.45 GiB (1,000,000,000 int64 values)"
+    echo "  - r allocates ~7.5 GiB vectors"
+    echo "Options:"
+    echo "  1) Use a larger queue (recommended: 16 GiB+)"
+    echo "  2) Set QUICK_TEST_ROUNDS for smoke tests"
+    echo "  3) Set ALLOW_LOW_MEMORY_FULL_RUN=true to bypass this guard"
+    exit 1
+  fi
+}
+
 LANGUAGES="${LANGUAGES:-all}"
 REGISTRY_REPOSITORY="${REGISTRY_REPOSITORY:-${BUILDKITE_PIPELINE_SLUG:-speed-comparison}}"
 if [[ -z "${REGISTRY:-}" ]]; then
@@ -127,7 +187,7 @@ fi
 cd "$ROOT_DIR/dagger-poc"
 uv sync --quiet
 
-if [[ "${LANGUAGES,,}" == "all" ]]; then
+if [[ "$(printf '%s' "$LANGUAGES" | tr '[:upper:]' '[:lower:]')" == "all" ]]; then
   mapfile -t LANG_ARRAY < <(uv run python - <<'PY'
 from languages import LANGUAGES
 for key in LANGUAGES:
@@ -142,6 +202,8 @@ if [[ "${#LANG_ARRAY[@]}" -eq 0 ]]; then
   echo "No languages specified."
   exit 1
 fi
+
+check_memory_constraints
 
 echo "Buildkite Dagger benchmark config:"
 echo "  REGISTRY=$REGISTRY"

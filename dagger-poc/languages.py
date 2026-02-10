@@ -344,12 +344,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift": Language(
         name="Swift",
-        nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#swift",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
-        ),
+        nixpkgs=("swift@5.8", "gcc@15.2.0"),
         file="leibniz.swift",
-        compile="swiftc leibniz.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native",
+        compile="swiftc leibniz.swift -O -o leibniz -lto=llvm-full",
         run="./leibniz < rounds.txt",
         version_cmd="swift --version",
         base="swift",
@@ -357,12 +354,9 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#swift",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
-        ),
+        nixpkgs=("swift@5.8", "gcc@15.2.0"),
         file="leibniz-simd.swift",
-        compile="swiftc leibniz-simd.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native",
+        compile="swiftc leibniz-simd.swift -O -o leibniz -lto=llvm-full",
         run="./leibniz < rounds.txt",
         version_cmd="swift --version",
         base="swift",
@@ -370,13 +364,10 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift-relaxed": Language(
         name="Swift (relaxed)",
-        nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#swift",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
-        ),
+        nixpkgs=("swift@5.8", "gcc@15.2.0"),
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
-        compile="swiftc leibniz-relaxed.swift -O -o leibniz -target x86_64-unknown-linux-gnu -clang-target native -import-objc-header relaxed.h",
+        compile="swiftc leibniz-relaxed.swift -O -o leibniz -lto=llvm-full -import-objc-header relaxed.h",
         run="./leibniz < rounds.txt",
         version_cmd="swift --version",
         base="swift",
