@@ -160,7 +160,7 @@ CPP_FLAGS = (
     f"-O3 -s -flto {MARCH_NATIVE} -mtune=native -fomit-frame-pointer "
     "-fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17"
 )
-RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort"
+RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort -C target-cpu=native"
 
 
 # =============================================================================
