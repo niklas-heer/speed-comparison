@@ -160,7 +160,7 @@ CPP_FLAGS = (
     f"-O3 -s -flto {MARCH_NATIVE} -mtune=native -fomit-frame-pointer "
     "-fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17"
 )
-RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort"
+RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort -C target-cpu=native"
 
 
 # =============================================================================
@@ -196,6 +196,26 @@ LANGUAGES: dict[str, Language] = {
         nixpkgs=("rustc@1.91.1",),
         file="leibniz.rs",
         compile=f"rustc {RUST_FLAGS} -o leibniz leibniz.rs",
+        run="./leibniz",
+        version_cmd="rustc --version",
+        base="rust",
+        category="systems",
+    ),
+    "rust-fastmath": Language(
+        name="Rust (fast-math)",
+        nixpkgs=("rustc@1.91.1",),
+        file="leibniz.rs",
+        compile=f"rustc {RUST_FLAGS} -C llvm-args=-enable-unsafe-fp-math -o leibniz leibniz.rs",
+        run="./leibniz",
+        version_cmd="rustc --version",
+        base="rust",
+        category="systems",
+    ),
+    "rust-simd": Language(
+        name="Rust (SIMD)",
+        nixpkgs=("rustc@1.91.1",),
+        file="leibniz_simd.rs",
+        compile=f"rustc {RUST_FLAGS} -o leibniz leibniz_simd.rs",
         run="./leibniz",
         version_cmd="rustc --version",
         base="rust",

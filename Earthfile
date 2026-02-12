@@ -136,6 +136,8 @@ collect-data:
   BUILD +odin
   BUILD +rust
   BUILD +rust-nightly
+  BUILD +rust-fastmath
+  BUILD +rust-simd
   BUILD +v
   BUILD +zig
   # JVM languages
@@ -305,6 +307,20 @@ rust-nightly:
   DO +ADD_FILES --src="leibniz_nightly.rs"
   RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_nightly.rs
   DO +BENCH --name="rust-nightly" --lang="Rust (nightly)" --version="rustc --version" --cmd="./leibniz_nightly"
+
+rust-fastmath:
+  FROM rust:1.92-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz.rs"
+  RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -C llvm-args=-enable-unsafe-fp-math leibniz.rs
+  DO +BENCH --name="rust-fastmath" --lang="Rust (fast-math)" --version="rustc --version" --cmd="./leibniz"
+
+rust-simd:
+  FROM rust:1.92-alpine
+  DO +PREPARE_ALPINE
+  DO +ADD_FILES --src="leibniz_simd.rs"
+  RUN --no-cache rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_simd.rs -o leibniz
+  DO +BENCH --name="rust-simd" --lang="Rust (SIMD)" --version="rustc --version" --cmd="./leibniz"
 
 v:
   FROM ubuntu:latest
