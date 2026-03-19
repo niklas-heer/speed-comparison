@@ -8,13 +8,13 @@ defmodule Leibniz do
     IO.puts pi
   end
 
-  def calculate(x, pi, i, stop) when i <= stop do
+  defp calculate(x, pi, i, stop) when i <= stop do
     x_new = -x
     pi_new = pi + (x_new / (2 * i - 1))
     calculate(x_new, pi_new, i + 1, stop)
   end
 
-  def calculate(_x, pi, _i, _stop) do
+  defp calculate(_x, pi, _i, _stop) do
     pi * 4.0
   end
 end
