@@ -13,7 +13,7 @@ FROM earthly/dind:alpine
 # ============================================================================
 
 # Variables (global so they propagate to all targets)
-ARG --global iterations=3
+ARG --global iterations=6
 ARG --global warmups=2
 ARG --global timeas="second"
 
@@ -231,6 +231,7 @@ collect-data:
 systems:
   BUILD +build
   BUILD +c
+  BUILD +c-identity
   BUILD +c-clang
   BUILD +cpp
   BUILD +cpp-avx2
@@ -376,6 +377,13 @@ c:
   RUN apk add gcc build-base
   DO +SET_ARCH_FLAGS
   RUN gcc leibniz.c -o leibniz -O3 -s -static -flto $MARCH_FLAG -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
+  DO +BENCH --name="c" --lang="C (gcc)" --version="gcc --version" --cmd="./leibniz"
+
+c-identity:
+  FROM +alpine --src="leibniz_identity.c"
+  RUN apk add gcc build-base
+  DO +SET_ARCH_FLAGS
+  RUN gcc leibniz_identity.c -o leibniz -O3 -s -static -flto $MARCH_FLAG -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math
   DO +BENCH --name="c" --lang="C (gcc)" --version="gcc --version" --cmd="./leibniz"
 
 c-clang:
