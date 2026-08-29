@@ -20,7 +20,7 @@ pub fn main() !void {
     defer file.close(io);
     var buffer: [1024]u8 = undefined;
     const n = try file.readPositionalAll(io, &buffer, 0);
-    const rounds = try std.fmt.parseUnsigned(u64, std.mem.trim(u8, buffer[0..n], "\n"), 10);
+    const rounds = try std.fmt.parseInt(i64, std.mem.trim(u8, buffer[0..n], "\n"), 10);
 
     var i: usize = 0;
     var V_pi: Vf = @splat(0.0);
@@ -33,9 +33,9 @@ pub fn main() !void {
     var pi: f64 = 1.0 + @reduce(.Add, V_pi);
 
     // remaining iterations
-    for (i..rounds) |itr| {
-        const x: f64 = -1.0 + 2.0 * @as(f64, @floatFromInt(itr & 1));
-        pi += (x / @as(f64, @floatFromInt(2 * itr - 1)));
+    while (i < rounds) : (i += 1) {
+        const x: f64 = -1.0 + 2.0 * @as(f64, @floatFromInt(i & 1));
+        pi += (x / @as(f64, @floatFromInt(2 * i + 3)));
     }
     pi *= 4;
 
