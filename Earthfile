@@ -138,6 +138,7 @@ collect-data:
   BUILD +rust-nightly
   BUILD +v
   BUILD +zig
+  BUILD +zig-simd
   # JVM languages
   BUILD +clj
   BUILD +groovy
@@ -322,6 +323,13 @@ zig:
   DO +ADD_FILES --src="leibniz.zig"
   RUN --no-cache zig build-exe -OReleaseFast leibniz.zig
   DO +BENCH --name="zig" --lang="Zig" --version="zig version" --cmd="./leibniz"
+
+zig-simd:
+  FROM alpine:edge
+  RUN apk add --no-cache hyperfine zig --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
+  DO +ADD_FILES --src="leibniz-simd.zig"
+  RUN --no-cache zig build-exe -OReleaseFast leibniz-simd.zig
+  DO +BENCH --name="zig-simd" --lang="Zig" --version="zig version" --cmd="./leibniz-simd"
 
 # ============================================================================
 # JVM LANGUAGES (Java, Kotlin, Scala, Clojure, Groovy)

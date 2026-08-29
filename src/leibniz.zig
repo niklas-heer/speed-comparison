@@ -4,11 +4,15 @@ pub fn main() !void {
     // like C -ffast-math
     @setFloatMode(.optimized);
 
-    var file = try std.fs.cwd().openFile("rounds.txt", .{});
-    defer file.close();
+    // Zig 0.16+ Io interface - file access requires an Io implemention
+    var threaded = std.Io.Threaded.init_single_threaded;
+    const io = threaded.io();
+
+    var file = try std.Io.Dir.cwd().openFile(io, "rounds.txt", .{});
+    defer file.close(io);
     var buffer: [1024]u8 = undefined;
-    const n = try file.readAll(buffer[0..buffer.len]);
-    const rounds = try std.fmt.parseInt(i64, std.mem.trim(u8, buffer[0..n], "\n"), 10) + 2;
+    const n = try file.readPositionalAll(io, &buffer, 0);
+    const rounds = try std.fmt.parseUnsigned(u64, buffer[0..n], 10) + 2;
 
     var i: usize = 2;
     var pi: f64 = 1.0;
@@ -18,9 +22,9 @@ pub fn main() !void {
     }
     pi *= 4;
 
-    // Zig 0.15+ stdout API - use format to buffer, then write directly
     var output_buf: [64]u8 = undefined;
-    const output = std.fmt.bufPrint(&output_buf, "{d:.16}", .{pi}) catch unreachable;
-    const stdout = std.fs.File.stdout();
-    _ = try stdout.write(output);
+    var writer = std.Io.File.stdout().writer(io, &output_buf);
+
+    try writer.interface.print("{d:.16}", .{pi});
+    try writer.interface.flush();
 }
