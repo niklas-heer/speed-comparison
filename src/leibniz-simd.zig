@@ -20,7 +20,7 @@ pub fn main() !void {
     defer file.close(io);
     var buffer: [1024]u8 = undefined;
     const n = try file.readPositionalAll(io, &buffer, 0);
-    const rounds = try std.fmt.parseUnsigned(u64, buffer[0..n], 10);
+    const rounds = try std.fmt.parseUnsigned(u64, std.mem.trim(u8, buffer[0..n], "\n"), 10);
 
     var i: usize = 0;
     var V_pi: Vf = @splat(0.0);
