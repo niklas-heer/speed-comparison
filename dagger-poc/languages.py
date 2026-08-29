@@ -225,7 +225,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "zig": Language(
         name="Zig",
-        nixpkgs=("zig@0.15.2",),
+        nixpkgs=("zig@0.16.0",),
         file="leibniz.zig",
         compile="zig build-exe -OReleaseFast leibniz.zig -fno-stack-check",
         run="./leibniz",
