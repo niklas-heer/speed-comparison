@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "run_id": "a9acb7ca03ca41b697a219f8b978da36",
+  "status": "succeeded",
+  "source_revision": "3d0220e28f495d3feaca03f730a00b7259924848",
+  "source_kind": "git",
+  "publication_eligible": false,
+  "scope": "benchmark-only",
+  "prepare_jobs": 2,
+  "measurement_timeout_seconds": 60,
+  "rounds_override": 10000,
+  "driver_sha256": {
+    "benchmark.py": "4f8e23cdc17b1d57fc375705281c596bf4c670b31f332d688f0455b89911123e",
+    "suite.py": "b6459e18dc843ff6cdb1ba5369e549c8c5bda2dd67b158cb16b78edaef3e3cc1",
+    "measurement.py": "1041068d0d8ae97040ceb85efe9df49fb89fd4dbead56d10a84eda0babbcefc0",
+    "scmeta.py": "e6c2faac81a6af6c2ffb5402e941376675c381741cfd21186c2015420f65e1f3",
+    "result_metadata.py": "eb02714e3e722c7372f9fb6e17b2b7a2b7993388d2eca6c2691f63a3aac63ce7",
+    "languages.py": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+    "catalog_manifest.py": "ecfa174ea035c207cd2295aff4a84f73a17f8783abf734dbe0733eef7e5cb09f",
+    "catalog_resolver.py": "729a44a6d22c1a12f4e5317d59058de11608a997bf9aa18560f397f922bc3b91",
+    "catalog_export.py": "6f3b9ca6955cb5c04ac261d990e760fc3e54c80d1476f26116a2f3be7766a5d9"
+  },
+  "catalog_sha256": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+  "targets": [
+    "go",
+    "hare",
+    "python"
+  ],
+  "tooling": {
+    "devbox_image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+    "hyperfine": "1.18.0",
+    "micropython": "1.24.1"
+  },
+  "rounds": 10000,
+  "errors": {},
+  "target_phases": {
+    "go": {
+      "prepare_seconds": 0.24139870796352625,
+      "measure_seconds": 1.9948186670662835
+    },
+    "hare": {
+      "prepare_seconds": 0.25248979101888835,
+      "measure_seconds": 1.7355096669634804
+    },
+    "python": {
+      "prepare_seconds": 14.517564167035744,
+      "measure_seconds": 1.80677208409179
+    }
+  },
+  "preparation_wall_seconds": 14.759484791080467,
+  "total_wall_seconds": 20.296595958061516,
+  "completed_targets": [
+    "go",
+    "hare",
+    "python"
+  ]
+}

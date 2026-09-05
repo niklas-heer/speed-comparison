@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "run_id": "ca6180b8a7e542fda81ab5705f218711",
+  "status": "succeeded",
+  "source_revision": "3d0220e28f495d3feaca03f730a00b7259924848",
+  "source_kind": "git",
+  "publication_eligible": false,
+  "scope": "benchmark-only",
+  "prepare_jobs": 2,
+  "catalog_sha256": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+  "targets": [
+    "go",
+    "hare"
+  ],
+  "tooling": {
+    "devbox_image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+    "hyperfine": "1.18.0",
+    "micropython": "1.24.1"
+  },
+  "errors": {},
+  "target_phases": {
+    "hare": {
+      "prepare_seconds": 0.1557431659894064,
+      "measure_seconds": 0.8462737910449505
+    },
+    "go": {
+      "prepare_seconds": 0.16637912497390062,
+      "measure_seconds": 1.3478952499572188
+    }
+  },
+  "preparation_wall_seconds": 0.16666629200335592,
+  "total_wall_seconds": 2.360839750035666,
+  "completed_targets": [
+    "go",
+    "hare"
+  ]
+}

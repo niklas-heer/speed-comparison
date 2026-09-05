@@ -1,0 +1,229 @@
+{
+  "Mean": "0.001401970793333335s",
+  "Max": "0.002073054460000001s",
+  "Target": "go",
+  "Stddev": "0.0007399003221531487s",
+  "Version": "1.25.5",
+  "Language": "Go",
+  "UserTime": "0.0004236866666666667s",
+  "SystemTime": "0.001559893333333333s",
+  "Median": "0.001524345460000001s",
+  "Command": "./leibniz",
+  "TimesPerRun": [
+    0.002073054460000001,
+    0.001524345460000001,
+    0.000608512460000001
+  ],
+  "Accuracy": 4.497236723953859,
+  "Min": "0.0006085124600000011s",
+  "ExitCodesPerRun": [
+    0,
+    0,
+    0
+  ],
+  "CalculatedPi": "3.1414926735860353",
+  "MathMode": "compiler-default",
+  "ExplicitSIMD": false,
+  "Algorithm": "leibniz-series",
+  "Rounds": 10000,
+  "Compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+  "Run": "./leibniz",
+  "Nixpkgs": [
+    "go@1.25.5"
+  ],
+  "NixFlakes": [],
+  "Category": "systems",
+  "WarmupRuns": 2,
+  "MeasuredRuns": 3,
+  "OutputCapture": "first-warmup",
+  "MeasurementID": "e3b38710524a442b82b31e72c4f0ecad",
+  "Environment": {
+    "cpu_model": "",
+    "cpu_cores": "",
+    "cpu_threads": "6",
+    "cpu_flags": "",
+    "arch": "aarch64",
+    "kernel": "Linux 6.3.13-linuxkit",
+    "os_release": "Debian GNU/Linux 13 (trixie)",
+    "libc": "glibc 2.41"
+  },
+  "ImageTag": null,
+  "ImageFingerprint": "ae4ba875c7e9",
+  "DevboxImage": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+  "BuildSource": "local",
+  "AllowNativeFlags": false,
+  "DevboxLock": {
+    "lockfile_version": "1",
+    "packages": {
+      "github:NixOS/nixpkgs/nixpkgs-unstable": {
+        "last_modified": "2026-09-03T10:26:31Z",
+        "resolved": "github:NixOS/nixpkgs/9b9402b959a2276982ddd5ad3652a38b97f7c40b?lastModified=1788431191&narHash=sha256-MFClkboDeW56feBCAeAV3Z3J2quGSZFlAOXQ4JjIlIA%3D"
+      },
+      "go@1.25.5": {
+        "last_modified": "2026-01-23T17:20:52Z",
+        "resolved": "github:NixOS/nixpkgs/a1bab9e494f5f4939442a57a58d0449a109593fe#go",
+        "source": "devbox-search",
+        "version": "1.25.5",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/wh88zz6r1ihcp2mm7ys1f2anp8aga6n2-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/wh88zz6r1ihcp2mm7ys1f2anp8aga6n2-go-1.25.5"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/k3knzdi0v21bf2m7vcxpdy1jnqg1h0zk-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/k3knzdi0v21bf2m7vcxpdy1jnqg1h0zk-go-1.25.5"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/bwdahzajhqd5x14dbvkqww5f1wpsxif3-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/bwdahzajhqd5x14dbvkqww5f1wpsxif3-go-1.25.5"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zzvsjgylnphvhms3lgr2qlwdxmc68z66-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zzvsjgylnphvhms3lgr2qlwdxmc68z66-go-1.25.5"
+          }
+        }
+      },
+      "hyperfine@1.18.0": {
+        "last_modified": "2024-11-03T14:18:04Z",
+        "resolved": "github:NixOS/nixpkgs/4ae2e647537bcdbb82265469442713d066675275#hyperfine",
+        "source": "devbox-search",
+        "version": "1.18.0",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0"
+          }
+        }
+      },
+      "micropython@1.24.1": {
+        "last_modified": "2025-04-10T20:20:34Z",
+        "resolved": "github:NixOS/nixpkgs/d19cf9dfc633816a437204555afeb9e722386b76#micropython",
+        "source": "devbox-search",
+        "version": "1.24.1",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1"
+          }
+        }
+      }
+    }
+  },
+  "DevboxConfig": {
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+    "packages": [
+      "go@1.25.5",
+      "hyperfine@1.18.0",
+      "micropython@1.24.1"
+    ],
+    "shell": {
+      "init_hook": [
+        "echo 'Welcome to devbox!' > /dev/null"
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  },
+  "SourceRevision": "3d0220e28f495d3feaca03f730a00b7259924848",
+  "CatalogSHA256": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+  "SuiteRunID": "a9acb7ca03ca41b697a219f8b978da36"
+}
