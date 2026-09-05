@@ -127,19 +127,32 @@ def git(*args: str, required: bool = True) -> str | None:
     return result.stdout
 
 
+def plan_revisions(base_ref: str, head_ref: str) -> dict:
+    head = git('rev-parse', '--verify', '--end-of-options', head_ref + '^{commit}').strip()
+    base = git('rev-parse', '--verify', '--end-of-options', base_ref + '^{commit}', required=False) if base_ref else None
+    merge_base = git('merge-base', base.strip(), head, required=False) if base else None
+    if merge_base:
+        merge_base = merge_base.strip()
+        changes = git('diff', '--name-only', '--no-renames', '-z', merge_base, head).split('\0')
+        plan = affected(git('show', f'{merge_base}:{CATALOG}', required=False),
+                        git('show', f'{head}:{CATALOG}'), [p for p in changes if p])
+    else:
+        # A force push can make the previous commit unreachable even in a full
+        # checkout. Comparing only HEAD^ would silently miss earlier changes.
+        plan = affected(None, git('show', f'{head}:{CATALOG}'), [])
+        plan['report_check'] = True
+        plan['fallback_reason'] = 'Base commit unavailable or no common ancestor; full validation required'
+    plan.update(base_revision=merge_base, head_revision=head, requested_base_revision=base_ref)
+    return plan
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base', required=True)
     parser.add_argument('--head', default='HEAD')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
-    base = git('rev-parse', '--verify', '--end-of-options', args.base + '^{commit}').strip()
-    head = git('rev-parse', '--verify', '--end-of-options', args.head + '^{commit}').strip()
-    merge_base = git('merge-base', base, head).strip()
-    changes = git('diff', '--name-only', '--no-renames', '-z', merge_base, head).split('\0')
-    plan = affected(git('show', f'{merge_base}:{CATALOG}', required=False),
-                    git('show', f'{head}:{CATALOG}'), [p for p in changes if p])
-    plan.update(base_revision=merge_base, head_revision=head)
+    plan = plan_revisions(args.base, args.head)
     text = json.dumps(plan, indent=2) + '\n'
     if args.output:
         args.output.write_text(text)
