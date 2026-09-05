@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import stat
+from contextlib import ExitStack
 from dataclasses import dataclass, fields
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from languages import Language
 
@@ -145,3 +148,38 @@ def load_manifest(payload: str, *, source_revision: str, catalog_sha256: str) ->
             raise ValueError(f"{target}: version regex needs a capture group")
         languages[target] = Language(**config)
     return CatalogManifest(source_revision, catalog_sha256, dict(tooling), languages)
+
+
+def read_catalog_source(source_root: Path, relative: str) -> str:
+    """Read a regular UTF-8 file under a trusted root, without following PR symlinks."""
+    path = PurePosixPath(relative)
+    if (
+        not relative
+        or path.is_absolute()
+        or ".." in path.parts
+        or "\\" in relative
+        or path.as_posix() != relative
+        or relative == "."
+    ):
+        raise ValueError("Catalog must be a canonical path relative to the verified source root")
+    try:
+        with ExitStack() as stack:
+            directory = os.open(source_root, os.O_RDONLY | os.O_DIRECTORY)
+            stack.callback(os.close, directory)
+            for part in path.parts[:-1]:
+                directory = os.open(
+                    part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory
+                )
+                stack.callback(os.close, directory)
+            descriptor = os.open(
+                path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory
+            )
+            with os.fdopen(descriptor, "rb") as source:
+                if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
+                    raise ValueError("Catalog must be a regular file")
+                data = source.read(MAX_MANIFEST_BYTES + 1)
+    except OSError as error:
+        raise ValueError("Cannot read catalog without following source symlinks") from error
+    if len(data) > MAX_MANIFEST_BYTES:
+        raise ValueError("Catalog source exceeds the size limit")
+    return data.decode("utf-8")

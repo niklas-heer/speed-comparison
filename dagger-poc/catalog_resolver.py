@@ -19,7 +19,7 @@ from pathlib import Path
 
 import dagger
 
-from catalog_manifest import MAX_MANIFEST_BYTES, CatalogManifest, load_manifest
+from catalog_manifest import MAX_MANIFEST_BYTES, CatalogManifest, load_manifest, read_catalog_source
 
 RESOLVER_IMAGE = (
     "python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea"
@@ -83,14 +83,18 @@ def encode_manifest(manifest: CatalogManifest) -> str:
 
 async def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--catalog", type=Path, required=True)
+    parser.add_argument("--source-root", type=Path, required=True)
+    parser.add_argument("--catalog", default="dagger-poc/languages.py")
     parser.add_argument("--source-revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    contents = read_catalog_source(args.source_root, args.catalog)
     async with dagger.Connection(dagger.Config(log_output=sys.stderr)) as client:
         manifest = await resolve_catalog(
             client,
-            client.host().file(str(args.catalog.resolve())),
+            client.directory()
+            .with_new_file("languages.py", contents=contents)
+            .file("languages.py"),
             source_revision=args.source_revision,
         )
     args.output.write_text(encode_manifest(manifest))

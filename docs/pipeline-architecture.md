@@ -148,7 +148,7 @@ pod. This is a material preparation problem, independent of Python SDK overhead.
 The shared five-execution protocol and Dagger cache boundary are implemented.
 Two real local Dagger runs reused build layers and produced distinct fresh
 sample arrays/measurement IDs. The Python suite, including target-selection and
-measurement protocol tests, has 127 passing cases at this design revision.
+measurement protocol tests, has 129 passing cases at this design revision.
 
 ## Results, database and website
 

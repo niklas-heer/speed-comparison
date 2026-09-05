@@ -8,6 +8,10 @@ automatic dispatch and the isolated persistent homelab engine remain rollout gat
 
 ## Boundary and identity
 
+The local CLI reads a regular UTF-8 file beneath an explicit source root. Directory
+handles and no-follow opens reject symlinked files/parents before uploading data,
+including links that could otherwise expose files outside an unreviewed checkout.
+
 `catalog_resolver.py` uploads only the requested catalog file and the trusted
 `catalog_export.py` helper. It uses a digest-pinned Python 3.12 image, Python isolated
 mode, a 30-second export-process limit and a 120-second operation deadline. It does
@@ -47,7 +51,8 @@ From a trusted checkout, with an existing local Dagger-compatible runtime:
 
 ```sh
 uv run --locked --project dagger-poc python dagger-poc/catalog_resolver.py \
-  --catalog /path/to/verified-source/dagger-poc/languages.py \
+  --source-root /path/to/verified-source \
+  --catalog dagger-poc/languages.py \
   --source-revision FULL_VERIFIED_COMMIT_SHA \
   --output /tmp/catalog.json
 
@@ -65,4 +70,4 @@ boundary; it does not validate the future homelab deployment or run any benchmar
 
 The [recorded integration evidence](validation/2026-09-05-catalog-resolution.json)
 includes the source/catalog identity, driver hashes, resolver image, SDK version
-and observed checks. The complete Python suite has 127 passing tests.
+and observed checks. The complete Python suite has 129 passing tests.
