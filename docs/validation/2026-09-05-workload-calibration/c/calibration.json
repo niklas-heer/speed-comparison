@@ -1,0 +1,45 @@
+{
+  "target": "c",
+  "point_budget_seconds": 30,
+  "round_counts": [
+    100000,
+    1000000,
+    10000000,
+    100000000,
+    1000000000
+  ],
+  "publication_eligible": false,
+  "points": [
+    {
+      "rounds": 100000,
+      "status": "succeeded",
+      "result": "100000/c.json"
+    },
+    {
+      "rounds": 1000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 0.2648816676810384,
+      "result": "1000000/c.json"
+    },
+    {
+      "rounds": 10000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 0.31501136161386967,
+      "result": "10000000/c.json"
+    },
+    {
+      "rounds": 100000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 0.36530160438269377,
+      "result": "100000000/c.json"
+    },
+    {
+      "rounds": 1000000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 1.0670831426978111,
+      "result": "1000000000/c.json"
+    }
+  ],
+  "source_revision": "17c713da5af1ee187a73586831d2430911c832c1",
+  "initial_setup_and_measurement_seconds": 5.619968317449093
+}

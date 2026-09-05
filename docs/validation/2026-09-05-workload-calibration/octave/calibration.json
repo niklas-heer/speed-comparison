@@ -1,0 +1,42 @@
+{
+  "target": "octave",
+  "point_budget_seconds": 30,
+  "round_counts": [
+    100000,
+    1000000,
+    10000000,
+    100000000,
+    1000000000
+  ],
+  "publication_eligible": false,
+  "points": [
+    {
+      "rounds": 100000,
+      "status": "succeeded",
+      "result": "100000/octave.json"
+    },
+    {
+      "rounds": 1000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 5.932758542709053,
+      "result": "1000000/octave.json"
+    },
+    {
+      "rounds": 10000000,
+      "status": "timeout",
+      "measurement_wall_seconds": 30.00832714047283
+    },
+    {
+      "rounds": 100000000,
+      "status": "skipped",
+      "reason": "previous-point-exceeded-budget-or-failed"
+    },
+    {
+      "rounds": 1000000000,
+      "status": "skipped",
+      "reason": "previous-point-exceeded-budget-or-failed"
+    }
+  ],
+  "source_revision": "17c713da5af1ee187a73586831d2430911c832c1",
+  "initial_setup_and_measurement_seconds": 18.04794430360198
+}

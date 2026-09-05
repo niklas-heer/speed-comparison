@@ -92,6 +92,11 @@ per-target time budgets; mark skipped/timed-out points explicitly. Keep compilat
 outside measurement. Reuse compiled artifacts across input sizes where the declared
 build does not depend on the workload.
 
+The first [six-target scaling experiment](validation/2026-09-05-workload-calibration/README.md)
+is complete: it confirms small-command overhead in C/Go, substantial fixed cost in
+Java, and budget limits for the slow tail. It identifies 100m rounds as a candidate,
+with larger reporting-budget validation still needed on the isolated Dagger runner.
+
 The default profile should be chosen after this calibration, not from an unmeasured
 promise of a ten-minute suite. Candidate goals are a warm selected-language check
 in a few minutes and a normal published comparison in tens of minutes or less.

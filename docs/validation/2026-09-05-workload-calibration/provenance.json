@@ -1,0 +1,14 @@
+{
+  "workflow": "speed-comparison-calibration-wnpf2",
+  "phase": "Succeeded",
+  "source_revision": "17c713da5af1ee187a73586831d2430911c832c1",
+  "started_at": "2026-09-05T19:39:30Z",
+  "finished_at": "2026-09-05T19:50:37Z",
+  "wall_seconds": 667.0,
+  "worker": "slick-badger",
+  "publication_eligible": false,
+  "measured_runs": 3,
+  "warmup_runs": 2,
+  "experiment_sha256": "15548f17c8db308656dba92a43ee63bace9b1dce5c97f4b81fe2810d1635e481",
+  "artifact_key": "argo-workflows/speed-comparison/speed-comparison-calibration-wnpf2/speed-comparison-calibration-wnpf2-analyze-1357986704/benchmark-calibration.tgz"
+}

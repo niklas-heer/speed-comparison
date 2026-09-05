@@ -1,0 +1,360 @@
+{
+  "apiVersion": "argoproj.io/v1alpha1",
+  "kind": "Workflow",
+  "metadata": {
+    "generateName": "speed-comparison-calibration-",
+    "namespace": "speed-comparison",
+    "annotations": {
+      "speed-comparison/purpose": "Bounded six-target scaling experiment; separate from published rankings"
+    }
+  },
+  "spec": {
+    "entrypoint": "pipeline",
+    "serviceAccountName": "speed-comparison-workflow",
+    "arguments": {
+      "parameters": [
+        {
+          "name": "revision",
+          "value": "17c713da5af1ee187a73586831d2430911c832c1"
+        },
+        {
+          "name": "targets",
+          "value": "c go java python cpython-numpy octave"
+        },
+        {
+          "name": "rounds",
+          "value": "100000"
+        },
+        {
+          "name": "publish",
+          "value": "false"
+        }
+      ]
+    },
+    "synchronization": {
+      "mutexes": [
+        {
+          "name": "speed-comparison-benchmarks"
+        }
+      ]
+    },
+    "parallelism": 1,
+    "activeDeadlineSeconds": 3600,
+    "nodeSelector": {
+      "kubernetes.io/hostname": "slick-badger"
+    },
+    "securityContext": {
+      "runAsNonRoot": true,
+      "runAsUser": 1000,
+      "runAsGroup": 1000,
+      "fsGroup": 1000,
+      "seccompProfile": {
+        "type": "RuntimeDefault"
+      }
+    },
+    "ttlStrategy": {
+      "secondsAfterSuccess": 86400,
+      "secondsAfterFailure": 604800
+    },
+    "podGC": {
+      "strategy": "OnWorkflowCompletion"
+    },
+    "volumeClaimGC": {
+      "strategy": "OnWorkflowCompletion"
+    },
+    "volumeClaimTemplates": [
+      {
+        "metadata": {
+          "name": "workspace"
+        },
+        "spec": {
+          "accessModes": [
+            "ReadWriteOnce"
+          ],
+          "storageClassName": "hcloud-volumes",
+          "resources": {
+            "requests": {
+              "storage": "12Gi"
+            }
+          }
+        }
+      }
+    ],
+    "volumes": [
+      {
+        "name": "app",
+        "emptyDir": {}
+      }
+    ],
+    "templates": [
+      {
+        "name": "pipeline",
+        "steps": [
+          [
+            {
+              "name": "checkout",
+              "template": "checkout"
+            }
+          ],
+          [
+            {
+              "name": "prepare",
+              "template": "prepare"
+            }
+          ],
+          [
+            {
+              "name": "benchmark",
+              "template": "benchmark",
+              "arguments": {
+                "parameters": [
+                  {
+                    "name": "target",
+                    "value": "{{item}}"
+                  }
+                ]
+              },
+              "withParam": "{{steps.prepare.outputs.parameters.targets}}"
+            }
+          ],
+          [
+            {
+              "name": "analyze",
+              "template": "analyze"
+            }
+          ]
+        ]
+      },
+      {
+        "name": "checkout",
+        "container": {
+          "image": "alpine/git:2.49.1",
+          "command": [
+            "sh",
+            "-ec"
+          ],
+          "args": [
+            "test \"$REVISION\" = \"17c713da5af1ee187a73586831d2430911c832c1\"\ngit clone --no-checkout https://github.com/niklas-heer/speed-comparison.git /workspace/repo\ngit -C /workspace/repo checkout --detach \"$REVISION\"\ngit -C /workspace/repo rev-parse HEAD > /workspace/revision\n"
+          ],
+          "securityContext": {
+            "allowPrivilegeEscalation": false,
+            "capabilities": {
+              "drop": [
+                "ALL"
+              ]
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "workspace",
+              "mountPath": "/workspace"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "memory": "512Mi"
+            }
+          },
+          "env": [
+            {
+              "name": "REVISION",
+              "value": "{{workflow.parameters.revision}}"
+            },
+            {
+              "name": "HOME",
+              "value": "/tmp"
+            }
+          ]
+        }
+      },
+      {
+        "name": "prepare",
+        "container": {
+          "image": "python:3.12-slim",
+          "command": [
+            "sh",
+            "-ec"
+          ],
+          "args": [
+            "python - <<'CODE'\nimport json, os, sys\nfrom pathlib import Path\nsys.path.insert(0, '/workspace/repo/dagger-poc')\nfrom languages import LANGUAGES\nrequested=os.environ['TARGETS'].split()\ntargets=list(LANGUAGES) if requested == ['all'] else requested\nif not targets or set(targets)-set(LANGUAGES): raise SystemExit('Unknown benchmark targets')\nrounds=int(os.environ['ROUNDS'])\nif not 1 <= rounds <= 1000000000: raise SystemExit('Invalid round count')\nif os.environ['PUBLISH'] not in {'true', 'false'}: raise SystemExit('Invalid publish setting')\nif os.environ['PUBLISH'] == 'true' and (os.environ['REVISION'] != 'master' or requested != ['all'] or rounds != 1000000000): raise SystemExit('Publishing requires master, all targets, and one billion rounds')\n\nPath('/workspace/targets.json').write_text(json.dumps(list(dict.fromkeys(targets))))\nPath('/workspace/repo/src/rounds.txt').write_text(str(rounds))\nCODE\n"
+          ],
+          "securityContext": {
+            "allowPrivilegeEscalation": false,
+            "capabilities": {
+              "drop": [
+                "ALL"
+              ]
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "workspace",
+              "mountPath": "/workspace"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "memory": "512Mi"
+            }
+          },
+          "env": [
+            {
+              "name": "TARGETS",
+              "value": "{{workflow.parameters.targets}}"
+            },
+            {
+              "name": "ROUNDS",
+              "value": "{{workflow.parameters.rounds}}"
+            },
+            {
+              "name": "PUBLISH",
+              "value": "{{workflow.parameters.publish}}"
+            },
+            {
+              "name": "REVISION",
+              "value": "{{workflow.parameters.revision}}"
+            }
+          ]
+        },
+        "outputs": {
+          "parameters": [
+            {
+              "name": "targets",
+              "valueFrom": {
+                "path": "/workspace/targets.json"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "benchmark",
+        "inputs": {
+          "parameters": [
+            {
+              "name": "target"
+            }
+          ]
+        },
+        "container": {
+          "image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+          "command": [
+            "sh",
+            "-ec"
+          ],
+          "args": [
+            "mkdir -p /tmp/bootstrap\ncd /tmp/bootstrap\ndevbox init\ndevbox add python3@3.12.8\n# Bootstrap Python, then launch it outside that Devbox shell so each target\n# receives only its own compiler/runtime environment.\ndevbox run -- sh -c 'command -v python3' | tail -n1 > /tmp/python-path\ncat > /tmp/calibrate.py <<'CALIBRATION'\n\"\"\"Bounded diagnostic calibration on one prepared native target, never publication.\"\"\"\nimport json\nimport os\nfrom pathlib import Path\nimport shlex\nimport signal\nimport subprocess\nimport sys\nimport time\nimport uuid\n\nsys.path.insert(0, '/workspace/repo/dagger-poc')\nfrom languages import LANGUAGES\nfrom measurement import measurement_command, measurement_metadata\nimport native\nfrom result_metadata import enrich_result\n\nTARGET = os.environ['TARGET']\nPOINTS = [100_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000]\nBUDGET = 30\nWORK = Path('/app')\nOUT = Path('/workspace/calibration') / TARGET\nOUT.mkdir(parents=True, exist_ok=True)\nlang = LANGUAGES[TARGET]\nsummary = {'target': TARGET, 'point_budget_seconds': BUDGET, 'round_counts': POINTS,\n           'publication_eligible': False, 'points': [],\n           'source_revision': Path('/workspace/revision').read_text().strip()}\n\n\ndef checkpoint():\n    (OUT / 'calibration.json').write_text(json.dumps(summary, indent=2) + '\\n')\n\n\ndef shell(command, logfile, timeout):\n    script = WORK / '.calibration-command.sh'\n    script.write_text('unset NIX_ENFORCE_NO_NATIVE; ' + command + '\\n')\n    with logfile.open('w') as log:\n        process = subprocess.Popen(['devbox', 'run', '--', 'sh', '-e', str(script)],\n                                   cwd=WORK, stdout=log, stderr=subprocess.STDOUT,\n                                   start_new_session=True)\n        try:\n            code = process.wait(timeout=timeout)\n        except subprocess.TimeoutExpired:\n            os.killpg(process.pid, signal.SIGTERM)\n            try:\n                process.wait(timeout=2)\n            except subprocess.TimeoutExpired:\n                pass\n            try:\n                os.killpg(process.pid, signal.SIGKILL)\n            except ProcessLookupError:\n                pass\n            process.wait()\n            return 'timeout'\n        return 'succeeded' if code == 0 else f'failed-exit-{code}'\n\n\n# Prepare once and retain the resolved environment, compiled program and first result.\nstart = time.monotonic()\nnative.run(TARGET, Path('/workspace/repo/src'), WORK, OUT / str(POINTS[0]), POINTS[0])\nfirst = json.loads((OUT / str(POINTS[0]) / f'{TARGET}.json').read_text())\nsummary['initial_setup_and_measurement_seconds'] = time.monotonic() - start\nsummary['points'].append({'rounds': POINTS[0], 'status': 'succeeded',\n                          'result': f'{POINTS[0]}/{TARGET}.json'})\ncheckpoint()\nstopped = False\nfor rounds in POINTS[1:]:\n    if stopped:\n        summary['points'].append({'rounds': rounds, 'status': 'skipped',\n                                  'reason': 'previous-point-exceeded-budget-or-failed'})\n        checkpoint()\n        continue\n    point = OUT / str(rounds)\n    point.mkdir()\n    (WORK / 'rounds.txt').write_text(str(rounds) + '\\n')\n    for name in ['hyperfine.json', 'pi.txt', 'result.json']:\n        (WORK / name).unlink(missing_ok=True)\n    start = time.monotonic()\n    status = shell(measurement_command(lang.run), point / 'measurement.log', BUDGET)\n    entry = {'rounds': rounds, 'status': status,\n             'measurement_wall_seconds': time.monotonic() - start}\n    if status == 'succeeded':\n        args = ['micropython', 'scmeta.py', f'--lang-name={lang.name}',\n                f'--target-name={TARGET}', f'--lang-version={first[\"Version\"]}',\n                '--hyperfine=hyperfine.json', '--pi=pi.txt', '--output=result.json']\n        status = shell(shlex.join(args), point / 'metadata.log', 30)\n        if status == 'succeeded':\n            result = {**first, **json.loads((WORK / 'result.json').read_text())}\n            enrich_result(result, TARGET, lang, rounds)\n            result.update(measurement_metadata(), MeasurementID=uuid.uuid4().hex)\n            (point / f'{TARGET}.json').write_text(json.dumps(result, indent=2, allow_nan=False))\n            entry['result'] = f'{rounds}/{TARGET}.json'\n        else:\n            entry['status'] = 'metadata-' + status\n    stopped = entry['status'] != 'succeeded'\n    summary['points'].append(entry)\n    checkpoint()\nprint(json.dumps(summary, indent=2))\n\nCALIBRATION\nexec \"$(cat /tmp/python-path)\" /tmp/calibrate.py\n"
+          ],
+          "securityContext": {
+            "allowPrivilegeEscalation": false,
+            "capabilities": {
+              "drop": [
+                "ALL"
+              ]
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "workspace",
+              "mountPath": "/workspace"
+            },
+            {
+              "name": "app",
+              "mountPath": "/app"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "cpu": "1",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "memory": "3Gi"
+            }
+          },
+          "env": [
+            {
+              "name": "TARGET",
+              "value": "{{inputs.parameters.target}}"
+            },
+            {
+              "name": "ROUNDS",
+              "value": "{{workflow.parameters.rounds}}"
+            }
+          ]
+        },
+        "outputs": {
+          "artifacts": [
+            {
+              "name": "calibration-target",
+              "path": "/workspace/calibration/{{inputs.parameters.target}}"
+            }
+          ]
+        },
+        "activeDeadlineSeconds": 600
+      },
+      {
+        "name": "analyze",
+        "container": {
+          "image": "python:3.12-slim",
+          "command": [
+            "sh",
+            "-ec"
+          ],
+          "args": [
+            "cp /workspace/revision /workspace/calibration/source-revision.txt\n"
+          ],
+          "securityContext": {
+            "allowPrivilegeEscalation": false,
+            "capabilities": {
+              "drop": [
+                "ALL"
+              ]
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "workspace",
+              "mountPath": "/workspace"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "cpu": "500m",
+              "memory": "256Mi"
+            },
+            "limits": {
+              "memory": "2Gi"
+            }
+          },
+          "env": [
+            {
+              "name": "UV_CACHE_DIR",
+              "value": "/tmp/uv-cache"
+            },
+            {
+              "name": "MPLCONFIGDIR",
+              "value": "/tmp/matplotlib"
+            }
+          ]
+        },
+        "outputs": {
+          "artifacts": [
+            {
+              "name": "benchmark-calibration",
+              "path": "/workspace/calibration"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "target": "java",
+  "point_budget_seconds": 30,
+  "round_counts": [
+    100000,
+    1000000,
+    10000000,
+    100000000,
+    1000000000
+  ],
+  "publication_eligible": false,
+  "points": [
+    {
+      "rounds": 100000,
+      "status": "succeeded",
+      "result": "100000/java.json"
+    },
+    {
+      "rounds": 1000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 0.6657692417502403,
+      "result": "1000000/java.json"
+    },
+    {
+      "rounds": 10000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 0.7661016555503011,
+      "result": "10000000/java.json"
+    },
+    {
+      "rounds": 100000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 2.185234452597797,
+      "result": "100000000/java.json"
+    },
+    {
+      "rounds": 1000000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 15.406113619916141,
+      "result": "1000000000/java.json"
+    }
+  ],
+  "source_revision": "17c713da5af1ee187a73586831d2430911c832c1",
+  "initial_setup_and_measurement_seconds": 12.175230687484145
+}
