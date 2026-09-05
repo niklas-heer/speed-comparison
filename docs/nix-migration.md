@@ -1,6 +1,6 @@
 # Nix migration and repository overview
 
-Snapshot: 2026-09-05. Integration branch: `codex/complete-nix-migration`.
+Snapshot: 2026-09-05. Migration merged in [#315](https://github.com/niklas-heer/speed-comparison/pull/315).
 Base: `codex/dagger-parity-repro`, merged with `master` at `8917f3c`.
 
 ## Project map
@@ -10,7 +10,7 @@ Base: `codex/dagger-parity-repro`, merged with `master` at `8917f3c`.
 | `src/` | Single-threaded Leibniz implementations and separate optimized variants |
 | `dagger-poc/languages.py` | Nix/Devbox packages, setup, compile/run commands, variant names |
 | `dagger-poc/native.py` | Restricted-container execution for homelab Argo |
-| `dagger-poc/benchmark.py` | Optional portable Dagger/Docker execution |
+| `dagger-poc/benchmark.py` | Common portable Dagger execution; homelab integration is the next rollout gate |
 | `dagger-poc/scmeta.py`, `result_metadata.py` | Hyperfine output, accuracy, sanity checks, methodology metadata |
 | `analyze.py` | Combined CSV/JSON, chart, hardware metadata |
 | `publish.py` | Timestamped history, latest result links, manifest |
@@ -25,10 +25,10 @@ Those commits are integrated, preserving Swift improvements, Octave, Numba, Chez
 SBCL SIMD, and the CSV download button. The old bundled-updates branch is not used:
 its tree predates several of those changes.
 
-## Open PRs
+## Integrated contributor PRs
 
-Changes below are integrated locally; GitHub PRs remain open until review and
-validation are complete. Credit remains with the original contributors linked here.
+All twelve PRs below were integrated through #315 and closed. Credit remains with
+the original contributors linked here.
 
 | PR | Disposition |
 | --- | --- |
@@ -45,12 +45,12 @@ validation are complete. Credit remains with the original contributors linked he
 | [#306 idna](https://github.com/niklas-heer/speed-comparison/pull/306) | Lock updated to 3.15 |
 | [#314 Zig SIMD](https://github.com/niklas-heer/speed-comparison/pull/314) | Added distinct Nix target/display name, upgraded both targets to 0.16, fixed small-round underflow; native smoke passed |
 
-## Open issues
+## Issue resolutions
 
 | Issue | Work and remaining evidence |
 | --- | --- |
 | [#313 floating-point policy](https://github.com/niklas-heer/speed-comparison/issues/313) | Maintainer chose to retain optimized variants with explicit math/SIMD labels. Added metadata and convergence checks; bitwise equality is not the benchmark policy |
-| [#312 OCaml timing](https://github.com/niklas-heer/speed-comparison/issues/312) | Compile with `ocamlopt -O3`; native smoke passes. Fresh full timings on recorded hardware are still required; no fixed C/OCaml speed ratio is promised |
+| [#312 OCaml timing](https://github.com/niklas-heer/speed-comparison/issues/312) | Native full run and a matching-command control passed. OCaml/C median ratio is 1.53 with plain GCC `-O3`, versus 7.20 against the relaxed/native C entry; see the [control evidence](validation/2026-09-05-ocaml-control/README.md). No fixed speed ratio is promised |
 | [#308 activity](https://github.com/niklas-heer/speed-comparison/issues/308) | Migration and contribution documentation updated; a maintainer response can reference this work after review |
 | [#307 NASM](https://github.com/niklas-heer/speed-comparison/issues/307) | Added scalar Linux x86_64 target reading rounds.txt, respecting the ABI, printing 16 decimals; native smoke passed |
 | [#297 contribution questions](https://github.com/niklas-heer/speed-comparison/issues/297) | Compile commands are in languages.py; new transpilers need a reproducible compiler/runtime setup, not their own Docker image. Optimizations can be proposed under the published rules; no merge-time promise |
@@ -77,13 +77,29 @@ The first Argo workflow `speed-comparison-manual-vmv76` passed checkout, native
 Python execution, S3 upload, and analysis. Its combined archive was downloaded
 to verify retrieval. Local Dagger Python execution also passed after changing
 both adapters to use command files, preserving shell variable expansion.
-The current Python regression suite has 84 passing tests.
+The current Python regression suite has 96 passing tests. Two fresh Dagger runs
+verified build-cache reuse without reusing timing results.
 
 Homelab PRs [#34](https://github.com/niklas-heer/homelab/pull/34) and
 [#35](https://github.com/niklas-heer/homelab/pull/35) deployed the workflow,
 fixed the Argo controller's archive connection deadlock, and added guarded
 publication. The old Buildkite webhook is disabled. GitHub Actions now does
 lightweight validation, with optional manual Dagger execution.
+
+The full billion-round baseline completed all 75 targets and analysis in workflow
+`speed-comparison-manual-xj2px`. Publication failed because the container UID lacked
+an OpenSSH user entry; homelab #37 fixed the account and added artifact-only recovery.
+`speed-comparison-republish-lkllt` published the archived result without repeating
+benchmarks. [The complete report](history/2026-09-05T193245/combined_results.json)
+records source `c71e4cd81464b238172605982806c5bf827a70a1`, compiler flags, samples,
+math/SIMD labels and resolved environments. Source-linked publication commit:
+`151d287536218d2320a45dacf18c692fea4db2c2`.
+
+The baseline is validation evidence, not the permanent execution architecture.
+[The pipeline design](pipeline-architecture.md) keeps Python declarations and uses
+Argo to schedule persistent Dagger execution, selective PR checks, calibrated
+workloads and independently publishable results. Automatic homelab PR dispatch,
+the isolated persistent engine and the calibrated profile are still rollout work.
 
 ## Completion gates
 
@@ -93,10 +109,11 @@ lightweight validation, with optional manual Dagger execution.
 - [x] Test the first group of implementations on native homelab x86_64.
 - [x] Pass a native smoke test for every default target, including older toolchains.
 - [x] Validate Argo checkout, execution, artifact storage, and analysis end to end.
-- [ ] Finish reproducible result publication; quick/subset results must never replace latest.
-- [ ] Run a complete full-round benchmark on recorded homelab hardware.
-- [ ] Enable the weekly Argo schedule after successful validation.
-- [ ] Review/merge the integration and settle the linked GitHub PRs/issues.
+- [x] Finish source-linked full result publication; quick/subset results cannot replace latest.
+- [x] Run a complete full-round benchmark on recorded homelab hardware.
+- [ ] Validate persistent Dagger execution and calibrate the reporting profile before enabling a schedule.
+- [x] Review/merge the migration and integrate the linked contributor PRs.
+- [x] Resolve the remaining OCaml timing question with recorded control evidence.
 
 Rust's portable SIMD target is retained with an immutable Fenix commit and a
 scalar tail for short inputs. The old `pony-nightly` target actually used the

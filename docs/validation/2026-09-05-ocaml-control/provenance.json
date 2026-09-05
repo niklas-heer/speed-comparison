@@ -1,0 +1,26 @@
+{
+  "source_revision": "c71e4cd81464b238172605982806c5bf827a70a1",
+  "baseline_workflow": "speed-comparison-manual-xj2px",
+  "baseline_started_at": "2026-09-05T13:57:02Z",
+  "baseline_finished_at": "2026-09-05T19:15:48Z",
+  "baseline_phase": "Failed",
+  "baseline_failure": "All 75 benchmarks and analysis passed; original publication failed because OpenSSH could not resolve UID 1000.",
+  "republication_workflow": "speed-comparison-republish-lkllt",
+  "republication_phase": "Succeeded",
+  "publication_commit": "151d287536218d2320a45dacf18c692fea4db2c2",
+  "publication_run": "2026-09-05T193245",
+  "control_workflow": "speed-comparison-ocaml-control-zcf88",
+  "control_phase": "Succeeded",
+  "worker": "slick-badger",
+  "virtualized": true,
+  "rounds": 1000000000,
+  "warmup_runs": 2,
+  "measured_runs": 3,
+  "additional_output_execution": 1,
+  "control_override": {
+    "target": "c",
+    "compile": "gcc -O3 -o leibniz leibniz.c -lm"
+  },
+  "baseline_artifact_key": "argo-workflows/speed-comparison/speed-comparison-manual-xj2px/speed-comparison-manual-xj2px-analyze-3360498425/benchmark-results.tgz",
+  "control_artifact_key": "argo-workflows/speed-comparison/speed-comparison-ocaml-control-zcf88/speed-comparison-ocaml-control-zcf88-analyze-2454966256/benchmark-results.tgz"
+}

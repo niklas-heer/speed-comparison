@@ -25,7 +25,9 @@ Argo owns scheduling, queueing, deadlines, retries at safe boundaries and artifa
 handoff. Dagger owns environment preparation, compilation and benchmark execution,
 using the same code locally and in the homelab. Python `Language` declarations
 remain the authoring source. KDL and Go are independent possible later changes;
-neither is needed for selective checks or persistent build caching.
+neither is needed for selective checks or persistent build caching. The
+[SDK experiment](dagger-sdk-comparison.md) found seconds of orchestration savings,
+not evidence of a faster multi-hour workload.
 
 The production native path was selected to fit a restricted namespace without a
 privileged engine. It shares declarations and metadata, but duplicates execution
@@ -106,8 +108,8 @@ the presentation without rerunning the benchmark.
 
 The historical billion-round view remains available and separately labelled.
 Occasional full runs can verify scaling and historical continuity. Their completion
-must not gate ordinary PR checks or site-only changes. The currently running native
-full suite can provide migration baseline evidence without becoming the permanent
+must not gate ordinary PR checks or site-only changes. The completed native
+full suite provides migration baseline evidence without becoming the permanent
 weekly pipeline policy.
 
 ## Reduce avoidable work first
@@ -130,8 +132,8 @@ pod. This is a material preparation problem, independent of Python SDK overhead.
 - Retry artifact upload/index/site build independently where idempotent. Preserve
   completed target results if a later target fails instead of discarding all work.
 
-The shared five-execution protocol and Dagger cache boundary are implemented in this
-branch. Two real local Dagger runs reused build layers and produced distinct fresh
+The shared five-execution protocol and Dagger cache boundary are implemented.
+Two real local Dagger runs reused build layers and produced distinct fresh
 sample arrays/measurement IDs. The Python suite, including target-selection and
 measurement protocol tests, has 96 passing cases at this design revision.
 
