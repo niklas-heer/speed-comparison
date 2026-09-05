@@ -1,5 +1,13 @@
 const std = @import("std");
 
+// Vector length 8 for 512 bit wide target cpus
+const Vf = @Vector(8, f64);
+const Vu = @Vector(8, u64);
+
+const signs: Vf = .{ -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 };
+const offset: Vu = .{ 3, 5, 7, 9, 11, 13, 15, 17 };
+const v_2: Vu = @splat(2);
+
 pub fn main() !void {
     // like C -ffast-math
     @setFloatMode(.optimized);
@@ -12,13 +20,22 @@ pub fn main() !void {
     defer file.close(io);
     var buffer: [1024]u8 = undefined;
     const n = try file.readPositionalAll(io, &buffer, 0);
-    const rounds = try std.fmt.parseInt(i64, std.mem.trim(u8, buffer[0..n], "\n"), 10) + 2;
+    const rounds = try std.fmt.parseInt(usize, std.mem.trim(u8, buffer[0..n], " \r\n\t"), 10);
 
-    var i: usize = 2;
-    var pi: f64 = 1.0;
+    var i: usize = 0;
+    var V_pi: Vf = @splat(0.0);
+    while (rounds - i >= 8) : (i += 8) {
+        const div: Vu = v_2 * @as(Vu, @splat(i)) + offset;
+
+        V_pi += signs / @as(Vf, @floatFromInt(div));
+    }
+
+    var pi: f64 = 1.0 + @reduce(.Add, V_pi);
+
+    // remaining iterations
     while (i < rounds) : (i += 1) {
         const x: f64 = -1.0 + 2.0 * @as(f64, @floatFromInt(i & 1));
-        pi += (x / @as(f64, @floatFromInt(2 * i - 1)));
+        pi += (x / @as(f64, @floatFromInt(2 * i + 3)));
     }
     pi *= 4;
 

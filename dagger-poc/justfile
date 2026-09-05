@@ -64,15 +64,15 @@ check-versions-unstable *langs:
 
 # Run all tests
 tests:
-    uv run pytest -v
+    uv run --extra dev pytest -v
 
 # Run tests with coverage
 tests-cov:
-    uv run pytest -v --cov=. --cov-report=term-missing
+    uv run --extra dev pytest -v --cov=. --cov-report=term-missing
 
 # Install dependencies
 install:
-    uv sync
+    uv sync --extra dev
 
 # Update dependencies
 update:

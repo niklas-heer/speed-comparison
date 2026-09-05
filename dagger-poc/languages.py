@@ -66,7 +66,7 @@ class Language:
         nixpkgs: List of Devbox packages ["pkg@version", ...]
         nix_flakes: List of Nix flake refs for packages not available in Devbox
                     or that need a specific nixpkgs channel for binary cache hits.
-                    Format: ("github:NixOS/nixpkgs/nixos-24.05#swift",)
+                    Format: ("github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",)
         nix_setup: Optional shell commands to run after packages are installed
     """
 
@@ -82,7 +82,7 @@ class Language:
 
     # Devbox packages: ("go@1.23.4", "gcc@14.2.0")
     nixpkgs: tuple[str, ...] = ()
-    # Nix flake refs for binary cache hits: ("github:NixOS/nixpkgs/nixos-24.05#swift",)
+    # Nix flake refs for binary cache hits: ("github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",)
     nix_flakes: tuple[str, ...] = ()
     nix_setup: Optional[str] = None  # Post-install setup commands
 
@@ -107,7 +107,7 @@ class Language:
 
         # Validate nixpkgs have versions
         for pkg in self.nixpkgs:
-            if "@" not in pkg:
+            if "@" not in pkg or not re.fullmatch(r"[0-9][0-9A-Za-z.+_-]*", pkg.rsplit("@", 1)[1]):
                 raise ValueError(f"Package '{pkg}' must have version (e.g., '{pkg}@1.0.0')")
 
     @property
@@ -123,7 +123,7 @@ class Language:
         if self.nixpkgs:
             return self.nixpkgs[0].split("@")[0]
         elif self.nix_flakes:
-            # Extract package from flake ref: "github:NixOS/nixpkgs/nixos-24.05#swift" -> "swift"
+            # Extract package from flake ref: "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift" -> "swift"
             return self.nix_flakes[0].split("#")[-1]
         return "unknown"
 
@@ -133,7 +133,7 @@ class Language:
         if self.nixpkgs:
             return self.nixpkgs[0].split("@")[1]
         elif self.nix_flakes:
-            # Extract channel from flake ref: "github:NixOS/nixpkgs/nixos-24.05#swift" -> "24.05"
+            # Extract channel from flake ref: "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift" -> "24.05"
             ref = self.nix_flakes[0]
             # Try to extract version from channel name (e.g., nixos-24.05 -> 24.05)
             if "nixos-" in ref:
@@ -209,6 +209,65 @@ LANGUAGES: dict[str, Language] = {
         base="rust",
         category="systems",
     ),
+    "rust-fastmath": Language(
+        name="Rust (fast-math)",
+        nixpkgs=("rustc@1.92.0",),
+        file="leibniz.rs",
+        compile=f"rustc {RUST_FLAGS} -C llvm-args=-enable-unsafe-fp-math -o leibniz leibniz.rs",
+        run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
+    ),
+    "rust-simd": Language(
+        name="Rust (SIMD)",
+        nixpkgs=("rustc@1.92.0",),
+        file="leibniz_simd.rs",
+        compile=f"rustc {RUST_FLAGS} -o leibniz leibniz_simd.rs",
+        run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
+    ),
+    "zig-simd": Language(
+        name="Zig (SIMD)", nixpkgs=("zig@0.16.0",), file="leibniz-simd.zig",
+        compile="zig build-exe -OReleaseFast leibniz-simd.zig -fno-stack-check -femit-bin=leibniz",
+        run="./leibniz", version_cmd="zig version", base="zig", category="systems",
+    ),
+    "hare": Language(
+        name="Hare", nixpkgs=("hare@0.26.0",), file="leibniz.ha",
+        compile="hare build -R -o leibniz leibniz.ha", run="./leibniz",
+        version_cmd="hare version", base="hare", category="systems",
+    ),
+    "chezscheme": Language(
+        name="Chez Scheme", nixpkgs=("chez@10.3.0",), file="leibniz.ss",
+        compile="echo '(compile-program \"leibniz.ss\")' | scheme --optimize-level 3",
+        run="scheme --program leibniz.so", version_cmd="scheme --version",
+        base="lisp", category="functional",
+    ),
+    "janet": Language(
+        name="Janet", nixpkgs=("janet@1.40.1",), file="leibniz.janet",
+        run="janet leibniz.janet", version_cmd="janet --version", base="janet", category="interpreted",
+    ),
+    "sbcl-simd": Language(
+        name="Common Lisp (SBCL SIMD)", nixpkgs=("sbcl@2.5.10",), file="leibniz-sbcl-simd.lisp",
+        compile="sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die \"leibniz\" :executable t :toplevel (quote cl-user::main) :purify t)'",
+        run="./leibniz", version_cmd="sbcl --version", base="lisp", category="functional",
+    ),
+    "cpython-numba": Language(
+        name="Python (Numba)", nixpkgs=("python3@3.12.8", "python312Packages.numba@0.61.0"),
+        file="leibniz_numba.py", run="python3 leibniz_numba.py",
+        version_cmd="python3 --version", base="python", category="jit",
+    ),
+    "nasm": Language(
+        name="Assembly (NASM x64)", nixpkgs=("nasm@2.16.03", "gcc@15.2.0"),
+        file="leibniz.asm", compile="nasm -f elf64 leibniz.asm -o leibniz.o && gcc -o leibniz leibniz.o",
+        run="./leibniz", version_cmd="nasm -v", base="default", category="systems",
+    ),
+    "fsharp-simd": Language(
+        name="F# (SIMD)", nixpkgs=("dotnet-sdk@8.0.416",), file="fs-simd/Program.fs",
+        compile="dotnet publish fs-simd/leibniz.fsproj -c Release -o out",
+        run="dotnet ./out/leibniz.dll", version_cmd="dotnet --version", base="fsharp", category="dotnet",
+    ),
+    "kotlin-native": Language(
+        name="Kotlin (Native)", nixpkgs=("kotlin-native@2.2.21",), file="leibniz-native.kt",
+        compile="kotlinc-native leibniz-native.kt -opt -Xauto-cache-dir=/tmp/kotlin-cache -o leibniz",
+        run="./leibniz.kexe", version_cmd="kotlinc-native -version", base="kotlin", category="compiled",
+    ),
     "go": Language(
         name="Go",
         nixpkgs=("go@1.25.5",),
@@ -224,7 +283,7 @@ LANGUAGES: dict[str, Language] = {
         name="Odin",
         nixpkgs=("odin@2025-11",),
         file="leibniz.odin",
-        compile="odin build . -file -o:speed -out:leibniz",
+        compile="odin build leibniz.odin -file -o:speed -no-bounds-check -disable-assert -out:leibniz",
         run="./leibniz",
         version_cmd="odin version",
         base="odin",
@@ -233,7 +292,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "zig": Language(
         name="Zig",
-        nixpkgs=("zig@0.15.2",),
+        nixpkgs=("zig@0.16.0",),
         file="leibniz.zig",
         compile="zig build-exe -OReleaseFast leibniz.zig -fno-stack-check",
         run="./leibniz",
@@ -510,7 +569,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpython-numpy": Language(
         name="Python (NumPy)",
-        nixpkgs=("python312@3.12.3", "python312Packages.numpy@2.2.2"),
+        nixpkgs=("python3@3.12.8", "python312Packages.numpy@2.2.2"),
         file="leibniz_np.py",
         run="python3 leibniz_np.py",
         version_cmd="python3 --version",
@@ -599,7 +658,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "octave": Language(
         name="Octave",
-        nixpkgs=("octave@10.3.0-r2",),
+        nixpkgs=("octave@10.3.0",),
         file="leibniz_octave.m",
         run="octave leibniz_octave.m",
         version_cmd="octave -v",
@@ -608,7 +667,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "octave-vectorised": Language(
         name="Octave (Vectorised)",
-        nixpkgs=("octave@10.3.0-r2",),
+        nixpkgs=("octave@10.3.0",),
         file="leibniz_octave_vectorised.m",
         run="octave leibniz_octave_vectorised.m",
         version_cmd="octave -v",
@@ -660,7 +719,7 @@ LANGUAGES: dict[str, Language] = {
         name="OCaml",
         nixpkgs=("ocaml@5.3.0",),
         file="leibniz.ml",
-        compile="ocamlopt -O2 -o leibniz leibniz.ml",
+        compile="ocamlopt -O3 -o leibniz leibniz.ml",
         run="./leibniz",
         version_cmd="ocamlopt -version",
         base="ocaml",
@@ -835,8 +894,8 @@ LANGUAGES: dict[str, Language] = {
     "haxe": Language(
         name="Haxe",
         nix_flakes=(
-            "github:NixOS/nixpkgs/nixos-24.05#haxe",
-            "github:NixOS/nixpkgs/nixos-24.05#gcc",
+            "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#haxe",
+            "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#gcc",
         ),
         nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib && haxelib install hxcpp",
         file="Leibniz.hx",

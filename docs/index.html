@@ -1002,6 +1002,10 @@
                 if (env.os_release) details.push(`OS: ${env.os_release}`);
                 if (env.libc) details.push(`libc: ${env.libc}`);
                 if (env.cpu_flags) details.push(`CPU Flags: ${env.cpu_flags}`);
+                if (row.math_mode) details.push(`Math: ${row.math_mode}`);
+                if (row.explicit_simd !== undefined) details.push(`Explicit SIMD: ${row.explicit_simd}`);
+                if (row.algorithm) details.push(`Algorithm: ${row.algorithm}`);
+                if (row.rounds) details.push(`Rounds: ${row.rounds}`);
                 if (row.compile) details.push(`Compile: ${row.compile}`);
                 if (row.run) details.push(`Run: ${row.run}`);
                 if (row.nixpkgs && row.nixpkgs.length > 0) {

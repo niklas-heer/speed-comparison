@@ -40,6 +40,8 @@ from pathlib import Path
 
 import dagger
 
+from result_metadata import enrich_result
+
 from languages import (
     HYPERFINE_VERSION,
     MICROPYTHON_VERSION,
@@ -371,6 +373,8 @@ async def run_benchmark(
         # Extract result
         result_content = await container.file("/app/result.json").contents()
         result = json.loads(result_content)
+        rounds = int(quick_rounds or (SRC_DIR / "rounds.txt").read_text().strip())
+        enrich_result(result, target, lang, rounds)
         result["Environment"] = env_info
         result["Compile"] = lang.compile or ""
         result["Run"] = lang.run
