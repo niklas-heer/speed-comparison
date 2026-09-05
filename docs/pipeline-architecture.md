@@ -79,7 +79,10 @@ for dispatch and status. Keep publishing/database credentials out of test execut
 Fork PR execution must be explicitly authorized for its current head revision, and
 the driver itself must come from trusted code. Do not run a PR's replacement runner
 on a credentialed Argo client. Source and declarative configuration can be evaluated
-inside the isolated execution boundary. Superseded queued PR revisions can be
+inside the isolated execution boundary. The [catalog resolver](catalog-resolution.md)
+now provides a tested Python-to-JSON boundary through Dagger, preserving the current
+authoring format. Wiring its output into benchmark execution and trusted dispatch
+remains a separate step. Superseded queued PR revisions can be
 cancelled; preserve completed evidence.
 
 ## Choose workload sizes from evidence
@@ -145,7 +148,7 @@ pod. This is a material preparation problem, independent of Python SDK overhead.
 The shared five-execution protocol and Dagger cache boundary are implemented.
 Two real local Dagger runs reused build layers and produced distinct fresh
 sample arrays/measurement IDs. The Python suite, including target-selection and
-measurement protocol tests, has 99 passing cases at this design revision.
+measurement protocol tests, has 129 passing cases at this design revision.
 
 ## Results, database and website
 

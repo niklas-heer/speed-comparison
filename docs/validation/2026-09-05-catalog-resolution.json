@@ -1,0 +1,24 @@
+{
+  "source_revision": "e3c80348b89925e70be604f33bca998368133ba4",
+  "resolver_image": "python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+  "dagger_sdk": "0.19.8",
+  "targets_round_tripped": 75,
+  "catalog_sha256": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+  "client_environment_not_forwarded": true,
+  "container_side_effect_absent_on_client": true,
+  "non_json_stdout_ignored": true,
+  "exported_path_escape_rejected": true,
+  "scope": "Catalog resolution only; no benchmarks or homelab deployment",
+  "checked_at": "2026-09-05T21:47:31.099714+00:00",
+  "client_platform": "Darwin arm64",
+  "driver_files_sha256": {
+    "catalog_export.py": "6f3b9ca6955cb5c04ac261d990e760fc3e54c80d1476f26116a2f3be7766a5d9",
+    "catalog_manifest.py": "ecfa174ea035c207cd2295aff4a84f73a17f8783abf734dbe0733eef7e5cb09f",
+    "catalog_resolver.py": "729a44a6d22c1a12f4e5317d59058de11608a997bf9aa18560f397f922bc3b91",
+    "check_catalog_resolver.py": "e08870e1adc9fe07265ab3fcd74a8aa1dafef49ebd8601478fd78690514b9ac7"
+  },
+  "local_cli_regular_file_check_passed": true,
+  "unit_tests_passed": 129,
+  "explicit_fake_proxy_credentials_cleared": true,
+  "standard_proxy_environment_empty": true
+}

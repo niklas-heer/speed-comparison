@@ -40,6 +40,11 @@ The directory keeps its original name to preserve scripts and dependency update
 paths. Use `just` inside this directory for convenience commands. `uv sync --extra
 dev` installs pytest and the development tooling.
 
+The optional [catalog resolver](../docs/catalog-resolution.md) preserves these
+Python declarations while exporting validated data through a Dagger container. It
+is a prerequisite for future authorized PR execution; it does not change the active
+benchmark adapter or enable automatic dispatch.
+
 For a new language, add a `Language` entry and its source, run the tests, then run
 a native smoke test. Validate small odd/even round counts and SIMD tail handling.
 Variants need distinct display names. Keep package versions explicit; flake inputs
