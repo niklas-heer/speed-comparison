@@ -1,0 +1,73 @@
+from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+from affected_targets import affected
+
+CATALOG = '''
+FLAGS = "-O2"
+SWIFT_FLAGS = "-O"
+HYPERFINE_VERSION = "1.18.0"
+LANGUAGES = {
+ "c": Language(name="C", file="leibniz.c", compile=f"gcc {FLAGS}"),
+ "c-clang": Language(name="Clang", file="leibniz.c", compile=f"clang {FLAGS}"),
+ "swift": Language(name="Swift", file="leibniz.swift", compile=f"swift {SWIFT_FLAGS}"),
+ "fs": Language(name="F#", file="fs/Program.fs", extra_files=("shared.fs",)),
+}
+'''
+
+
+def test_shared_source_selects_all_its_variants():
+    assert affected(CATALOG, CATALOG, ['src/leibniz.c'])['targets'] == ['c', 'c-clang']
+
+
+def test_directory_and_extra_files_select_the_owner():
+    for path in ['src/fs/project.fsproj', 'src/shared.fs']:
+        assert affected(CATALOG, CATALOG, [path])['targets'] == ['fs']
+
+
+def test_transitive_flags_select_only_dependents():
+    old = CATALOG.replace('FLAGS = "-O2"', 'OPT = "-O2"\nFLAGS = OPT')
+    new = old.replace('OPT = "-O2"', 'OPT = "-O3"')
+    assert affected(old, new, ['dagger-poc/languages.py'])['targets'] == ['c', 'c-clang']
+
+
+def test_definition_edit_selects_only_changed_language():
+    new = CATALOG.replace('name="Swift"', 'name="Swift 6"')
+    assert affected(CATALOG, new, ['dagger-poc/languages.py'])['targets'] == ['swift']
+
+
+def test_shared_runner_and_tooling_changes_select_everything():
+    all_targets = ['c', 'c-clang', 'fs', 'swift']
+    assert affected(CATALOG, CATALOG, ['dagger-poc/measurement.py'])['targets'] == all_targets
+    new = CATALOG.replace('1.18.0', '1.19.0')
+    assert affected(CATALOG, new, ['dagger-poc/languages.py'])['targets'] == all_targets
+
+
+def test_docs_and_comments_do_not_trigger_benchmarks():
+    assert affected(CATALOG, CATALOG + '\n# explanation\n', ['README.md', 'dagger-poc/languages.py'])['targets'] == []
+
+
+def test_source_rename_and_removed_target_are_reported():
+    new = CATALOG.replace('file="leibniz.swift"', 'file="leibniz-new.swift"')
+    assert affected(CATALOG, new, ['src/leibniz.swift', 'src/leibniz-new.swift'])['targets'] == ['swift']
+    new = '\n'.join(line for line in CATALOG.splitlines() if '"swift":' not in line)
+    result = affected(CATALOG, new, ['src/leibniz.swift'])
+    assert result['targets'] == []
+    assert result['removed_targets'] == ['swift']
+
+
+def test_planning_never_executes_catalog_code(tmp_path):
+    marker = tmp_path / 'executed'
+    source = f'open({str(marker)!r}, "w").write("bad")\n' + CATALOG
+    affected(source, source, ['src/leibniz.c'])
+    assert not marker.exists()
+
+
+def test_unmapped_source_falls_back_to_full_validation():
+    assert len(affected(CATALOG, CATALOG, ['src/unknown-runtime.lock'])['targets']) == 4
+
+
+def test_no_base_catalog_validates_all_new_targets():
+    result = affected(None, CATALOG, [])
+    assert len(result['targets']) == 4
+    assert result['publication_eligible'] is False
