@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { latest } from "../src/lib/results.mjs";
 test("filter, sort, inspect provenance and download original evidence", async ({
   page,
 }) => {
@@ -6,6 +7,8 @@ test("filter, sort, inspect provenance and download original evidence", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.locator("h1")).toContainText("One calculation.");
+  await expect(page.locator("#result-rows tr:visible")).toHaveCount(latest.languages);
+  await page.goto("/runs/2026-09-05T193245/");
   await expect(page.locator("#result-rows tr:visible")).toHaveCount(75);
   await page.getByRole("searchbox").fill("go@1.25.5");
   await expect(page.locator("#result-rows tr:visible")).toHaveCount(1);

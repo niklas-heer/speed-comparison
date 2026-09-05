@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import {
-  current,
   runs,
   runData,
   historyDir,
   seconds,
 } from "../src/lib/results.mjs";
+const current = runData("2026-09-05T193245");
+
 test("raw seconds stay unrounded and original evidence remains intact", () => {
   assert.equal(current.results.length, 75);
   for (const r of current.results) {
