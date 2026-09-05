@@ -16,7 +16,7 @@ from tempfile import TemporaryDirectory
 
 import dagger
 
-from catalog_resolver import RESOLVER_IMAGE, resolve_catalog
+from catalog_resolver import PROXY_ENV_NAMES, RESOLVER_IMAGE, resolve_catalog
 from languages import LANGUAGES
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,11 +52,45 @@ async def check() -> dict:
                     'LANGUAGES = {"go": replace(LANGUAGES["go"], '
                     f'name=os.environ.get({environment_key!r}, "not-forwarded"))}}\n'
                 )
+                text += (
+                    f"\nassert all(os.environ.get(name) == '' for name in {PROXY_ENV_NAMES!r})\n"
+                )
                 fixture.write_text(text)
                 result = await resolve_catalog(
                     client, client.host().file(str(fixture)), source_revision=revision
                 )
                 assert result.languages["go"].name == "not-forwarded"
+
+                class ProxyConfiguredContainer:
+                    def from_(self, image):
+                        container = client.container().from_(image)
+                        for name in PROXY_ENV_NAMES:
+                            container = container.with_env_variable(
+                                name, "http://fake-user:fake-password@127.0.0.1:9"
+                            )
+                        return container
+
+                class ProxyConfiguredClient:
+                    """Seed fake proxy configuration after image configuration is loaded."""
+
+                    def container(self):
+                        return ProxyConfiguredContainer()
+
+                seeded = ProxyConfiguredContainer().from_(RESOLVER_IMAGE)
+                await seeded.with_exec([
+                    "python", "-c",
+                    "import os; "
+                    f"assert all(os.environ.get(n) == "
+                    f"'http://fake-user:fake-password@127.0.0.1:9' for n in {PROXY_ENV_NAMES!r})",
+                ]).sync()
+                proxy_result = await resolve_catalog(
+                    ProxyConfiguredClient(),
+                    client.host().file(str(fixture)),
+                    source_revision=revision,
+                )
+                assert proxy_result.languages == result.languages
+                evidence["explicit_fake_proxy_credentials_cleared"] = True
+                evidence["standard_proxy_environment_empty"] = True
                 assert not marker.exists(), "Catalog code wrote to the client filesystem"
                 evidence["client_environment_not_forwarded"] = True
                 evidence["container_side_effect_absent_on_client"] = True

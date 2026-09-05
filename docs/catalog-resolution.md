@@ -18,6 +18,10 @@ mode, a 30-second export-process limit and a 120-second operation deadline. It d
 not mount a host directory, Docker socket, caller environment or secret into the
 export container. Python source is evaluated there; the calling process reads the
 output file as data. Catalog stdout is not used as the JSON transport.
+Both uppercase and lowercase standard proxy variables are explicitly set empty
+before execution: Dagger otherwise inherits proxy settings from its engine, which
+may include credentials. Explicit values suppress that inheritance in
+[Dagger 0.19.8](https://github.com/dagger/dagger/blob/v0.19.8/engine/buildkit/executor_spec.go#L851).
 
 `catalog_manifest.py` checks the returned identity against the caller's source SHA
 and the independently computed hash of the supplied catalog. It rejects duplicate
@@ -65,7 +69,10 @@ math/SIMD labels, plus invalid identities, schemas, paths and pins. It does not 
 Docker. The optional real-Dagger check verifies the full catalog and uses an authored
 fixture with a file side effect, client-environment probe and non-JSON stdout. It
 checks that the side effect stays off the client filesystem, the client value is not
-forwarded, and invalid exported paths are rejected. This exercises the implemented
+forwarded, and invalid exported paths are rejected. A second container starts with
+fake credentialed proxy values and verifies that the resolver clears every standard
+proxy variable. This checks explicit overrides without modifying the shared engine's
+configuration; it does not simulate a separately configured proxy engine. This exercises the implemented
 boundary; it does not validate the future homelab deployment or run any benchmarks.
 
 The [recorded integration evidence](validation/2026-09-05-catalog-resolution.json)

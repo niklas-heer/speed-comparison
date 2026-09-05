@@ -25,6 +25,13 @@ RESOLVER_IMAGE = (
     "python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea"
 )
 EXPORTER = Path(__file__).with_name("catalog_export.py")
+# Explicit empty values suppress Dagger's engine-proxy inheritance. Removing these
+# variables would re-enable inheritance at exec time (Dagger 0.19.8 setProxyEnvs).
+PROXY_ENV_NAMES = tuple(
+    name
+    for upper in ("HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "ALL_PROXY", "FTP_PROXY")
+    for name in (upper, upper.lower())
+)
 
 
 async def resolve_catalog(
@@ -51,7 +58,11 @@ async def resolve_catalog(
             .from_(RESOLVER_IMAGE)
             .with_file("/input/languages.py", catalog)
             .with_new_file("/tools/export.py", contents=EXPORTER.read_text())
-            .with_exec(["mkdir", "-p", "/out"])
+        )
+        for name in PROXY_ENV_NAMES:
+            container = container.with_env_variable(name, "")
+        container = (
+            container.with_exec(["mkdir", "-p", "/out"])
             .with_exec(
                 [
                     "timeout",
