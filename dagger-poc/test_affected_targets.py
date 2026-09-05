@@ -94,3 +94,41 @@ def test_execution_lock_still_selects_all_targets():
     plan = affected(CATALOG, CATALOG, ['dagger-poc/uv.lock'])
     assert len(plan['targets']) == 4
     assert plan['report_check'] is False
+
+
+def test_revision_planning_handles_missing_history(tmp_path, monkeypatch):
+    import subprocess
+    from affected_targets import plan_revisions
+
+    def git(*args):
+        return subprocess.check_output(['git', *args], cwd=tmp_path, text=True).strip()
+
+    git('init', '-q')
+    git('config', 'user.name', 'Planner Test')
+    git('config', 'user.email', 'planner@example.invalid')
+    (tmp_path / 'dagger-poc').mkdir()
+    (tmp_path / 'dagger-poc/languages.py').write_text(CATALOG)
+    git('add', '.')
+    git('commit', '-qm', 'Initial catalog')
+    first = git('rev-parse', 'HEAD')
+    monkeypatch.chdir(tmp_path)
+    for base in ('', '0' * 40, 'f' * 40):
+        plan = plan_revisions(base, first)
+        assert plan['targets'] == ['c', 'c-clang', 'fs', 'swift']
+        assert plan['report_check'] is True
+        assert plan['base_revision'] is None
+        assert plan['head_revision'] == first
+        assert plan['requested_base_revision'] == base
+        assert plan['publication_eligible'] is False
+        assert 'full validation' in plan['fallback_reason']
+    (tmp_path / 'src').mkdir()
+    (tmp_path / 'src/leibniz.c').write_text('/* changed */')
+    git('add', '.')
+    git('commit', '-qm', 'C source')
+    selective = plan_revisions(first, 'HEAD')
+    assert selective['targets'] == ['c', 'c-clang']
+    assert selective['report_check'] is False
+    git('checkout', '--orphan', 'unrelated')
+    git('commit', '-qm', 'Unrelated catalog')
+    assert plan_revisions(first, 'HEAD')['base_revision'] is None
+    assert len(plan_revisions(first, 'HEAD')['targets']) == 4

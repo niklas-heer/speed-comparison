@@ -4,6 +4,9 @@ Both runs used source `c71e4cd81464b238172605982806c5bf827a70a1`, one billion
 rounds and the same homelab worker (`slick-badger`, virtualized AMD EPYC-Genoa,
 Talos kernel 6.18.38). GCC was 15.2.0 and OCaml 5.3.0. Each target had two warmups,
 three measured executions and a separate output execution. Timing was serial.
+This historical six-execution protocol belongs to the recorded source revision;
+the five-execution protocol introduced later in #316 does not retroactively change
+these measurements.
 
 | Configuration | Median seconds | Math policy |
 | --- | ---: | --- |

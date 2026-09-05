@@ -148,7 +148,7 @@ pod. This is a material preparation problem, independent of Python SDK overhead.
 The shared five-execution protocol and Dagger cache boundary are implemented.
 Two real local Dagger runs reused build layers and produced distinct fresh
 sample arrays/measurement IDs. The Python suite, including target-selection and
-measurement protocol tests, has 129 passing cases at this design revision.
+measurement protocol tests, has 130 passing cases at this design revision.
 
 ## Results, database and website
 
@@ -204,7 +204,11 @@ Do not automatically enable the native weekly full-suite schedule simply because
 migration baseline finishes. The maintainer's clarified architecture and calibration
 requirements supersede that earlier rollout gate.
 
-References: [Dagger on Kubernetes](https://docs.dagger.io/reference/deployment/kubernetes/),
-[Dagger engine requirements](https://docs.dagger.io/0.20/reference/configuration/engine/),
+References: [Dagger Kubernetes guidance (newer release)](https://docs.dagger.io/reference/deployment/kubernetes/),
+[Dagger engine requirements](https://docs.dagger.io/0.19/reference/configuration/engine/),
 [Hyperfine timing and warmup behavior](https://github.com/sharkdp/hyperfine), and
 [pyperf guidance on assessing unstable results](https://pyperf.readthedocs.io/en/latest/analyze.html).
+
+The Kubernetes deployment page tracks newer Dagger releases; it is forward-looking
+guidance, not a validated deployment recipe for the tested 0.19.8 engine. The engine
+configuration reference is pinned to the 0.19 documentation series.
