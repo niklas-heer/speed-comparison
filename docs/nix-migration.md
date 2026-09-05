@@ -77,7 +77,7 @@ The first Argo workflow `speed-comparison-manual-vmv76` passed checkout, native
 Python execution, S3 upload, and analysis. Its combined archive was downloaded
 to verify retrieval. Local Dagger Python execution also passed after changing
 both adapters to use command files, preserving shell variable expansion.
-The current Python regression suite has 96 passing tests. Two fresh Dagger runs
+The current Python regression suite has 99 passing tests. Two fresh Dagger runs
 verified build-cache reuse without reusing timing results.
 
 Homelab PRs [#34](https://github.com/niklas-heer/homelab/pull/34) and
@@ -92,7 +92,8 @@ an OpenSSH user entry; homelab #37 fixed the account and added artifact-only rec
 `speed-comparison-republish-lkllt` published the archived result without repeating
 benchmarks. [The complete report](history/2026-09-05T193245/combined_results.json)
 records source `c71e4cd81464b238172605982806c5bf827a70a1`, compiler flags, samples,
-math/SIMD labels and resolved environments. Source-linked publication commit:
+math/SIMD labels and resolved environments. The [raw target files](history/2026-09-05T193245/raw/README.md)
+preserve the original samples and file hashes independently of Argo retention. Source-linked publication commit:
 `151d287536218d2320a45dacf18c692fea4db2c2`.
 
 The baseline is validation evidence, not the permanent execution architecture.

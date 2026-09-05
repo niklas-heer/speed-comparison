@@ -1,0 +1,354 @@
+{
+  "Mean": "1.142413010253333s",
+  "Max": "1.15944060592s",
+  "Target": "scala",
+  "Stddev": "0.01476920994720671s",
+  "Version": "3.7.4",
+  "Language": "Scala",
+  "UserTime": "1.133267706666666s",
+  "SystemTime": "0.007244673333333333s",
+  "Median": "1.13472097992s",
+  "Command": "./leibniz",
+  "TimesPerRun": [
+    1.15944060592,
+    1.13307744492,
+    1.13472097992
+  ],
+  "Accuracy": 9.49790739436573,
+  "Min": "1.13307744492s",
+  "ExitCodesPerRun": [
+    0,
+    0,
+    0
+  ],
+  "CalculatedPi": "3.1415926545880506",
+  "Environment": {
+    "arch": "x86_64",
+    "kernel": "6.18.38-talos",
+    "cpu_model": "AMD EPYC-Genoa Processor",
+    "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl xtopology cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core pti ssbd ibrs ibpb stibp ibrs_enhanced vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx512_bf16 clzero xsaveerptr wbnoinvd arat avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq la57 rdpid fsrm",
+    "cpu_threads": "4",
+    "runner": "homelab-argo"
+  },
+  "BuildSource": "native-devbox",
+  "DevboxImage": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+  "AllowNativeFlags": true,
+  "MathMode": "compiler-default",
+  "ExplicitSIMD": false,
+  "Algorithm": "leibniz-series",
+  "Rounds": 1000000000,
+  "Compile": "scala-cli package leibniz.scala -o leibniz --native --native-mode release-full --power",
+  "Run": "./leibniz",
+  "Nixpkgs": [
+    "scala-cli@1.10.1",
+    "clang@21.1.2",
+    "gcc@14.2.0"
+  ],
+  "NixFlakes": [],
+  "Category": "jvm",
+  "DevboxLock": {
+    "lockfile_version": "1",
+    "packages": {
+      "clang@21.1.2": {
+        "last_modified": "2025-11-23T21:50:36Z",
+        "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#clang",
+        "source": "devbox-search",
+        "version": "21.1.2",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/qk20nysrc2170f1mal5k6r0axqn6jmfj-clang-wrapper-21.1.2",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/qk20nysrc2170f1mal5k6r0axqn6jmfj-clang-wrapper-21.1.2"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/wkcizi40n6zh5yiq0kvhyzw3yxrvlg2z-clang-wrapper-21.1.2",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/wkcizi40n6zh5yiq0kvhyzw3yxrvlg2z-clang-wrapper-21.1.2"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/fvj17s7clsf2n4rhyq0qqcrqhzybdqrz-clang-wrapper-21.1.2",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/fvj17s7clsf2n4rhyq0qqcrqhzybdqrz-clang-wrapper-21.1.2"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/sqlnjj8c3n3si3sjnadhdbcwgrk97g2w-clang-wrapper-21.1.2",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/sqlnjj8c3n3si3sjnadhdbcwgrk97g2w-clang-wrapper-21.1.2"
+          }
+        }
+      },
+      "gcc@14.2.0": {
+        "last_modified": "2024-12-03T12:40:06Z",
+        "resolved": "github:NixOS/nixpkgs/566e53c2ad750c84f6d31f9ccb9d00f823165550#gcc14",
+        "source": "devbox-search",
+        "version": "14.2.0",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/jmq8cai7bnd282yqz3h7whsc69b6c58f-gcc-wrapper-14.2.0",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/j39hch7ass3ilah6yi71brbdkavw5w69-gcc-wrapper-14.2.0-man",
+                "default": true
+              },
+              {
+                "name": "info",
+                "path": "/nix/store/dg88z7d24pn47zmigilhdkqcav11nqm9-gcc-wrapper-14.2.0-info"
+              }
+            ],
+            "store_path": "/nix/store/jmq8cai7bnd282yqz3h7whsc69b6c58f-gcc-wrapper-14.2.0"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7bkp147k65lfgsd340n8gxav81vd17r9-gcc-wrapper-14.2.0",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/19mzdkbq3vsjasp0griibr930n6mqx7q-gcc-wrapper-14.2.0-man",
+                "default": true
+              },
+              {
+                "name": "info",
+                "path": "/nix/store/i65b4jh4xgyks6gqdns012ajj4bfi579-gcc-wrapper-14.2.0-info"
+              }
+            ],
+            "store_path": "/nix/store/7bkp147k65lfgsd340n8gxav81vd17r9-gcc-wrapper-14.2.0"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/6zrlrhnn0p0mw3m1d0z51ycrxiw11ai8-gcc-wrapper-14.2.0",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/5ww6b59m7nz71gvqc3w0sxzyv285sppi-gcc-wrapper-14.2.0-man",
+                "default": true
+              },
+              {
+                "name": "info",
+                "path": "/nix/store/jl8rczjax0c3dxvcb84r1sb7a1nciw2f-gcc-wrapper-14.2.0-info"
+              }
+            ],
+            "store_path": "/nix/store/6zrlrhnn0p0mw3m1d0z51ycrxiw11ai8-gcc-wrapper-14.2.0"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/1ciadcliylyyi9vx21id9vi1p1mayjn8-gcc-wrapper-14.2.0",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/v03c65r3qp69wim7897yf130igs1swrx-gcc-wrapper-14.2.0-man",
+                "default": true
+              },
+              {
+                "name": "info",
+                "path": "/nix/store/wc7d9x75bf64lis2j7mhdq93210c464z-gcc-wrapper-14.2.0-info"
+              }
+            ],
+            "store_path": "/nix/store/1ciadcliylyyi9vx21id9vi1p1mayjn8-gcc-wrapper-14.2.0"
+          }
+        }
+      },
+      "github:NixOS/nixpkgs/nixpkgs-unstable": {
+        "last_modified": "2026-09-03T10:26:31Z",
+        "resolved": "github:NixOS/nixpkgs/9b9402b959a2276982ddd5ad3652a38b97f7c40b?lastModified=1788431191&narHash=sha256-MFClkboDeW56feBCAeAV3Z3J2quGSZFlAOXQ4JjIlIA%3D"
+      },
+      "hyperfine@1.18.0": {
+        "last_modified": "2024-11-03T14:18:04Z",
+        "resolved": "github:NixOS/nixpkgs/4ae2e647537bcdbb82265469442713d066675275#hyperfine",
+        "source": "devbox-search",
+        "version": "1.18.0",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0"
+          }
+        }
+      },
+      "micropython@1.24.1": {
+        "last_modified": "2025-04-10T20:20:34Z",
+        "resolved": "github:NixOS/nixpkgs/d19cf9dfc633816a437204555afeb9e722386b76#micropython",
+        "source": "devbox-search",
+        "version": "1.24.1",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1"
+          }
+        }
+      },
+      "scala-cli@1.10.1": {
+        "last_modified": "2025-11-23T21:50:36Z",
+        "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#scala-cli",
+        "source": "devbox-search",
+        "version": "1.10.1",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7yxb7d6y9ram2h5qllzy0flm93mhy34p-scala-cli-1.10.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/7yxb7d6y9ram2h5qllzy0flm93mhy34p-scala-cli-1.10.1"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/859ign9s3sv74ksnbpbrkgzpm4y036n3-scala-cli-1.10.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/859ign9s3sv74ksnbpbrkgzpm4y036n3-scala-cli-1.10.1"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/42sj7p5qwmm6n5b3cdgjxl87lbxpa5ab-scala-cli-1.10.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/42sj7p5qwmm6n5b3cdgjxl87lbxpa5ab-scala-cli-1.10.1"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/dgn3ch0v61rfb23lyxxq7sagp89nq6hv-scala-cli-1.10.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/dgn3ch0v61rfb23lyxxq7sagp89nq6hv-scala-cli-1.10.1"
+          }
+        }
+      }
+    }
+  },
+  "DevboxConfig": {
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+    "packages": [
+      "scala-cli@1.10.1",
+      "clang@21.1.2",
+      "gcc@14.2.0",
+      "hyperfine@1.18.0",
+      "micropython@1.24.1"
+    ],
+    "shell": {
+      "init_hook": [
+        "echo 'Welcome to devbox!' > /dev/null"
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  }
+}
