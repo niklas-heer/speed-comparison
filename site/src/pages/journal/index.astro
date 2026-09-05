@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const posts = Object.entries(
+  import.meta.glob("../../content/journal/*.md", { eager: true }),
+)
+  .map(([path, post]) => ({
+    ...post.frontmatter,
+    slug: path.split("/").pop().replace(".md", ""),
+  }))
+  .sort((a, b) => b.date.localeCompare(a.date));
+---
+
+<Layout title="Project journal"
+  ><div class="page-heading">
+    <p class="eyebrow">The project journal</p><h1>
+      An open record<br /><em>of getting better.</em>
+    </h1><p class="lead">
+      What changed, why it changed, and what remains uncertain. The reasoning
+      belongs next to the results.
+    </p>
+  </div><div class="journal-grid">
+    {
+      posts.map((p) => (
+        <a class="journal-card" href={`/journal/${p.slug}/`}>
+          <>
+            <div class="journal-card-top">
+              <>
+                <span class="badge">{p.category}</span>
+                <time>{p.date}</time>
+              </>
+            </div>
+            <h2>{p.title}</h2>
+            <p>{p.summary}</p>
+            <span class="text-link">Read the update ↗</span>
+          </>
+        </a>
+      ))
+    }
+  </div></Layout
+>

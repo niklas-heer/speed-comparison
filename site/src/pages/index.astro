@@ -1,0 +1,130 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ResultTable from "../components/ResultTable.astro";
+import { current, latest, timing } from "../lib/results.mjs";
+const first = current.results[0];
+const environment = first?.raw?.Environment ?? {};
+const virtualized = environment.cpu_flags?.split(" ").includes("hypervisor");
+const dateLabel = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+}).format(new Date(latest.id.slice(0, 10) + "T12:00:00Z"));
+const workload = first?.rounds;
+const examples = ["rust-simd", "c", "go", "java", "python"]
+  .map((t) => current.results.find((r) => r.target === t))
+  .filter(Boolean);
+---
+
+<Layout title="One calculation. Many ways to get there.">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">
+        <span class="status-dot"></span> An open programming language experiment
+      </p><h1>One calculation.<br />Many ways to<br /><em>get there.</em></h1><p
+        class="hero-description"
+      >
+        How do different implementations compute π? Explore the timings, the
+        tradeoffs, and every recorded detail behind the numbers.
+      </p><div class="hero-actions">
+        <a class="button" href="#results">Explore the results <span>↓</span></a
+        ><a class="text-link" href="/methodology/"
+          >Understand the experiment ↗</a>
+      </div>
+    </div><aside
+      class="hero-figure"
+      aria-label="Selected implementation timings"
+    >
+      <div class="figure-top">
+        <span>FIELD NOTES / 001</span><span>π ≈ 3.1415926535</span>
+      </div><div class="formula">
+        π = 4<span class="sigma">∑</span><span class="fraction"
+          ><span>(−1)<sup>k</sup></span><span>2k + 1</span></span>
+      </div><p class="figure-caption">
+        {workload?.toLocaleString("en-US")} terms. A spectrum of approaches.
+      </p><div class="mini-chart">
+        {
+          examples.map((r) => (
+            <a href={`/results/${latest.id}/${r.target}/`}>
+              <>
+                <span>{r.name}</span>
+                <i
+                  style={`width:${Math.max(5, (Math.log10(1 + r.median * 1000) / 5) * 100)}%`}
+                />
+                <b>{timing(r.median)}</b>
+              </>
+            </a>
+          ))
+        }
+      </div><div class="figure-bottom">
+        <span>SELECTED VARIANTS · LOG SCALE</span><span
+          >Inspect the conditions ↗</span>
+      </div>
+    </aside>
+  </section>
+  <div class="run-strip">
+    <div>
+      <span class="eyebrow">Latest published snapshot</span><strong
+        >{dateLabel}</strong>
+    </div><div>
+      <span class="eyebrow">Implementations</span><strong
+        >{current.results.length}<small>
+          across multiple variants</small
+        ></strong>
+    </div><div>
+      <span class="eyebrow">Workload</span><strong
+        >{
+          workload === 1_000_000_000
+            ? "1 billion"
+            : (workload?.toLocaleString("en-US") ?? "Not recorded")
+        }<small> terms per execution</small></strong>
+    </div><div>
+      <span class="eyebrow">Environment</span><strong
+        >{environment.arch ?? "Not recorded"}<small
+          >{
+            virtualized ? "Virtualized runner" : "See recorded environment"
+          }</small
+        ></strong>
+    </div><a href={`/runs/${latest.id}/`}>Run details ↗</a>
+  </div>
+  <section class="reading-note">
+    <span class="note-icon">i</span><p>
+      <strong>A benchmark is a set of conditions.</strong> These are timings for specific
+      implementations, not a universal language ranking. Optimized math and SIMD are
+      labeled; {
+        latest.id === "2026-09-05T193245"
+          ? "the current snapshot was measured on a shared virtual machine."
+          : "each snapshot has its own hardware and protocol."
+      } Small differences may be noise.
+    </p><a href="/methodology/">Read the limitations ↗</a>
+  </section>
+  <section id="results" class="section">
+    <div class="section-title">
+      <div>
+        <p class="eyebrow">01 / The measurements</p><h2>Follow the numbers.</h2>
+      </div><p>
+        Choose an implementation to inspect its samples,<br class="desktop" /> build
+        commands, packages and environment.
+      </p>
+    </div><ResultTable results={current.results} runId={latest.id} />
+  </section>
+  <section class="journal-preview">
+    <div>
+      <p class="eyebrow">02 / Behind the experiment</p><h2>
+        The benchmark<br />is evolving, too.
+      </h2><p>
+        Decisions, improvements, and the reasons behind them. An open record of
+        how this project changes.
+      </p><a class="text-link" href="/journal/">Read the journal ↗</a>
+    </div><a class="journal-card" href="/journal/a-more-inspectable-benchmark/"
+      ><div class="journal-card-top">
+        <span class="badge">Project update</span><span>06 SEP 2026</span>
+      </div><h3>
+        From a table of timings<br />to an inspectable experiment.
+      </h3><p>
+        Nix environments, one Dagger pipeline, and a clearer distinction between
+        fast feedback and published evidence.
+      </p><span class="text-link">What changed, and why ↗</span></a>
+  </section>
+</Layout>

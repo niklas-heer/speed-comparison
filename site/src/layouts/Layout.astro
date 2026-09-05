@@ -1,0 +1,70 @@
+---
+import "../styles/global.css";
+const {
+  title = "Speed comparison",
+  description = "An open benchmark of programming language implementations. Explore measurements, package versions and the environment behind every result.",
+} = Astro.props;
+const route = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head
+    ><meta charset="UTF-8" /><meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    /><meta name="description" content={description} /><meta
+      name="theme-color"
+      content="#f5f4ee"
+    /><title>{title} · Speed comparison</title><link
+      rel="icon"
+      href="/favicon.svg"
+      type="image/svg+xml"
+    /></head
+  >
+  <body
+    ><a class="skip" href="#main">Skip to content</a><header
+      class="site-header"
+    >
+      <a class="brand" href="/" aria-label="Speed comparison home"
+        ><span class="brand-mark">s<span>c</span></span><span
+          >speed<br />comparison<span class="brand-dot">.</span></span
+        ></a
+      ><nav aria-label="Main navigation">
+        {
+          [
+            ["/", "Results"],
+            ["/methodology/", "Methodology"],
+            ["/runs/", "Archive"],
+            ["/journal/", "Journal"],
+          ].map(([url, label]) => (
+            <a
+              href={url}
+              aria-current={
+                (url === "/" ? route === "/" : route.startsWith(url))
+                  ? "page"
+                  : undefined
+              }
+            >
+              {label}
+            </a>
+          ))
+        }
+      </nav><a
+        class="github-link"
+        href="https://github.com/niklas-heer/speed-comparison">View source ↗</a>
+    </header>
+    <main id="main"><slot /></main><footer>
+      <div class="footer-title">Measurements worth questioning.</div><div
+        class="footer-bottom"
+      >
+        <span
+          >An open experiment by <a href="https://nheer.com">Niklas Heer</a> & contributors.</span
+        ><span
+          ><a href="/methodology/">How to read the results</a> · <a
+            href="https://github.com/niklas-heer/speed-comparison/blob/master/LICENSE"
+            >MIT licensed</a
+          ></span>
+      </div>
+    </footer></body>
+</html>

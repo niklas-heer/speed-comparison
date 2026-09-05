@@ -1,0 +1,81 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ResultTable from "../../components/ResultTable.astro";
+import Metadata from "../../components/Metadata.astro";
+import { runs, runData, repo } from "../../lib/results.mjs";
+export function getStaticPaths() {
+  return runs.map((run) => ({
+    params: { id: run.id },
+    props: { run, data: runData(run.id) },
+  }));
+}
+const { run, data } = Astro.props;
+---
+
+<Layout title={`Run ${run.id}`}
+  ><div class="page-heading">
+    <a class="breadcrumb" href="/runs/">← All published runs</a><p
+      class="eyebrow"
+    >
+      Published snapshot
+    </p><h1>{run.date.split(" ")[0]}</h1><p class="lead">
+      {run.languages} implementations · Publication timestamp {run.date}. The
+      source revision identifies what was measured; the later publication commit
+      may differ.
+    </p>
+  </div><section class="detail-section">
+    <div>
+      <h2>Run identity.</h2><p>
+        Downloads retain their original paths and content. Unknown historical
+        metadata has not been filled from today’s defaults.
+      </p>{
+        data.revision && (
+          <a href={`${repo}/tree/${data.revision}`} class="text-link">
+            Measured source ↗
+          </a>
+        )
+      }
+    </div><div>
+      <Metadata
+        values={{
+          "Run ID": run.id,
+          "Source revision": data.revision,
+          ...data.metadata,
+        }}
+      /><div class="downloads">
+        {
+          data.files.map((file) => (
+            <a href={`/history/${run.id}/${file}`} download>
+              {file} ↓
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>{
+    data.results.length ? (
+      <section class="section">
+        <>
+          <h2>Measurements in this snapshot.</h2>
+          <ResultTable results={data.results} runId={run.id} />
+        </>
+      </section>
+    ) : (
+      <section class="section">
+        <>
+          <h2>Historical report.</h2>
+          <p>
+            This run predates structured result metadata. Its original CSV and
+            chart remain available.
+          </p>
+          <img
+            class="historical-chart"
+            src={`/history/${run.id}/combined_results.png`}
+            alt={`Historical benchmark chart for ${run.date}`}
+            loading="lazy"
+          />
+        </>
+      </section>
+    )
+  }</Layout
+>
