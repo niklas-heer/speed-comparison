@@ -70,6 +70,12 @@ uv run --directory dagger-poc python -c \
   "from languages import LANGUAGES; print('\\n'.join(LANGUAGES))"
 ```
 
+Each suite writes a new `results/RUN_ID/` evidence bundle (`--output` selects a new
+directory). Target JSON and actual rounds are under `targets/`; run status and the
+resolved catalog sit alongside it. `--revision FULL_SHA` binds declarations and
+sources to an authorized commit; `--base BASE_SHA` selects affected targets.
+See the [consolidation plan](docs/pipeline-consolidation.md) for execution stages.
+
 The Dagger Python SDK provisions its CLI/engine. Docker must be running.
 Some targets require x86_64 and specific CPU instructions (AVX2 or AVX-512).
 Use native Linux for performance measurements; emulated runs only test functionality.

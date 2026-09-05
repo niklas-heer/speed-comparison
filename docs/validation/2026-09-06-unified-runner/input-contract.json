@@ -1,0 +1,7 @@
+{
+  "provided_source_rounds": 17,
+  "display_name_preserved": true,
+  "new_target_ran": "new-go",
+  "manifest_tooling_used": true,
+  "scope": "Local integration checks, not performance measurements"
+}

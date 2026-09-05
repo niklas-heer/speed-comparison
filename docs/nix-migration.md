@@ -77,7 +77,7 @@ The first Argo workflow `speed-comparison-manual-vmv76` passed checkout, native
 Python execution, S3 upload, and analysis. Its combined archive was downloaded
 to verify retrieval. Local Dagger Python execution also passed after changing
 both adapters to use command files, preserving shell variable expansion.
-The current Python regression suite has 130 passing tests. Two fresh Dagger runs
+The current Python regression suite has 137 passing tests. Two fresh Dagger runs
 verified build-cache reuse without reusing timing results.
 
 Homelab PRs [#34](https://github.com/niklas-heer/homelab/pull/34) and

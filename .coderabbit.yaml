@@ -27,14 +27,27 @@ reviews:
 
     - path: "Earthfile"
       instructions: |
-        This is an Earthly build file defining benchmark targets.
-        Review for:
-        - Prefer Alpine over Debian for smaller images
-        - Avoid Fedora (hyperfine download is arch-specific)
-        - Version commands that output to stderr may need workarounds
-        - Version format requires at least one decimal point
-        - Docker image tags should be verified to exist
-        - New language targets should follow existing patterns
+        This is a retained legacy reference, not the active execution path.
+        New language/toolchain changes belong in dagger-poc/languages.py; do not
+        require duplicate Earthly implementations as a migration prerequisite.
+
+    - path: "dagger-poc/**"
+      instructions: |
+        Python Language declarations are the source of truth for Nix/Devbox tooling.
+        The common Dagger runner prepares builds with bounded concurrency, awaits
+        a materialization barrier, and then measures serially with fresh IDs.
+        Review source/revision binding, complete tooling propagation, build-cache
+        reuse without cached timings, failure retention, and metadata correctness.
+        Automatic PR execution needs authorization for the exact head revision and
+        an isolated engine. A catalog manifest alone does not authorize execution.
+
+    - path: "docs/validation/**"
+      instructions: |
+        These are historical diagnostic records, including generated catalog and
+        toolchain snapshots. Check provenance and internal consistency. Do not
+        rewrite recorded rounds, source revisions or execution protocols to match
+        newer code, or treat captured catalog JSON as an active second configuration.
+        Measured source and later artifact-publication commits can correctly differ.
 
     - path: "*.py"
       instructions: |
@@ -47,9 +60,11 @@ reviews:
       instructions: |
         GitHub Actions workflows for CI/CD.
         Review for:
-        - Correct Earthly version usage
-        - Proper caching strategies
-        - Matrix build configuration
+        - Trusted driver code and authorization bound to the exact source revision
+        - One Dagger engine session per suite, bounded builds and serial timings
+        - Lightweight affected-target/report checks instead of full-suite PR runs
+        - Retain partial evidence on failure and keep publication separate
+        - Keep client credentials out of unreviewed execution
 
 chat:
   auto_reply: true

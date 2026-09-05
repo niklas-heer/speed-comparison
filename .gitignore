@@ -31,3 +31,6 @@ dagger-poc/__pycache__/
 dagger-poc/.pytest_cache/
 dagger-poc/results/
 dagger-poc/_nix_cache/
+
+# Isolated Dagger suite evidence bundles
+results/*/

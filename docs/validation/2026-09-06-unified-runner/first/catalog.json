@@ -1,0 +1,1328 @@
+{
+  "catalog_sha256": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+  "languages": {
+    "ada": {
+      "allow_insecure": [],
+      "base": "ada",
+      "category": "systems",
+      "compile": "gnatmake -O3 -march=native -gnatp leibniz.adb -o leibniz",
+      "extra_files": [],
+      "file": "leibniz.adb",
+      "name": "Ada (gnat-gcc)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gnat@13.4.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "gnat --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "bun": {
+      "allow_insecure": [],
+      "base": "bun",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.js",
+      "name": "Javascript (bun)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "bun@1.3.4"
+      ],
+      "run": "bun run leibniz.js",
+      "version_cmd": "bun --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "c": {
+      "allow_insecure": [],
+      "base": "c",
+      "category": "systems",
+      "compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+      "extra_files": [],
+      "file": "leibniz.c",
+      "name": "C (gcc)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gcc@15.2.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "gcc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "c-clang": {
+      "allow_insecure": [],
+      "base": "c",
+      "category": "systems",
+      "compile": "clang -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+      "extra_files": [],
+      "file": "leibniz.c",
+      "name": "C (clang)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "clang@21.1.2"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "clang --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "chezscheme": {
+      "allow_insecure": [],
+      "base": "lisp",
+      "category": "functional",
+      "compile": "echo '(compile-program \"leibniz.ss\")' | scheme --optimize-level 3",
+      "extra_files": [],
+      "file": "leibniz.ss",
+      "name": "Chez Scheme",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "chez@10.3.0"
+      ],
+      "run": "scheme --program leibniz.so",
+      "version_cmd": "scheme --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "clojure": {
+      "allow_insecure": [],
+      "base": "clojure",
+      "category": "jvm",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.clj",
+      "name": "Clojure",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "clojure@1.12.0.1530",
+        "jdk@21.0.9"
+      ],
+      "run": "clj leibniz.clj",
+      "version_cmd": "clj --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "cpp": {
+      "allow_insecure": [],
+      "base": "cplusplus",
+      "category": "systems",
+      "compile": "g++ leibniz.cpp -o leibniz -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17",
+      "extra_files": [],
+      "file": "leibniz.cpp",
+      "name": "C++ (g++)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gcc@15.2.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "g++ --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "cpp-avx2": {
+      "allow_insecure": [],
+      "base": "cplusplus",
+      "category": "systems",
+      "compile": "g++ leibniz_avx2.cpp -o leibniz_avx2 -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17 -mavx2",
+      "extra_files": [],
+      "file": "leibniz_avx2.cpp",
+      "name": "C++ (AVX2)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gcc@15.2.0"
+      ],
+      "run": "./leibniz_avx2",
+      "version_cmd": "g++ --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "cpp-clang": {
+      "allow_insecure": [],
+      "base": "cplusplus",
+      "category": "systems",
+      "compile": "clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17 -Wl,-rpath,$(dirname $(gcc -print-file-name=libstdc++.so.6)) -Wl,-rpath,$(dirname $(gcc -print-file-name=libgcc_s.so.1))",
+      "extra_files": [],
+      "file": "leibniz.cpp",
+      "name": "C++ (clang++)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "clang@21.1.2",
+        "lld@21.1.2",
+        "gcc@15.2.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "clang++ --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "cpython-numba": {
+      "allow_insecure": [],
+      "base": "python",
+      "category": "jit",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz_numba.py",
+      "name": "Python (Numba)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "python3@3.12.8",
+        "python312Packages.numba@0.61.0"
+      ],
+      "run": "python3 leibniz_numba.py",
+      "version_cmd": "python3 --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "cpython-numpy": {
+      "allow_insecure": [],
+      "base": "cpython-numpy",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz_np.py",
+      "name": "Python (NumPy)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "python3@3.12.8",
+        "python312Packages.numpy@2.2.2"
+      ],
+      "run": "python3 leibniz_np.py",
+      "version_cmd": "python3 --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "crystal": {
+      "allow_insecure": [],
+      "base": "crystal",
+      "category": "systems",
+      "compile": "crystal build leibniz.cr --release",
+      "extra_files": [],
+      "file": "leibniz.cr",
+      "name": "Crystal",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "crystal@1.18.2"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "crystal -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "csharp": {
+      "allow_insecure": [],
+      "base": "csharp",
+      "category": "dotnet",
+      "compile": "dotnet new console -n leibniz -o _build --force && cp leibniz.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
+      "extra_files": [],
+      "file": "leibniz.cs",
+      "name": "C#",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "dotnet-sdk@8.0.416"
+      ],
+      "run": "./out/leibniz",
+      "version_cmd": "dotnet --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "csharp-simd": {
+      "allow_insecure": [],
+      "base": "csharp",
+      "category": "dotnet",
+      "compile": "dotnet new console -n leibniz -o _build --force && cp leibniz-simd.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
+      "extra_files": [],
+      "file": "leibniz-simd.cs",
+      "name": "C# (SIMD)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "dotnet-sdk@8.0.416"
+      ],
+      "run": "./out/leibniz",
+      "version_cmd": "dotnet --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "d": {
+      "allow_insecure": [],
+      "base": "d",
+      "category": "systems",
+      "compile": "gdc leibniz.d -o leibniz -O3 -frelease -flto -ffast-math -march=native",
+      "extra_files": [],
+      "file": "leibniz.d",
+      "name": "D (GDC)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gdc@11.5.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "gdc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "d-ldc": {
+      "allow_insecure": [],
+      "base": "d",
+      "category": "systems",
+      "compile": "ldc2 leibniz.d -of=leibniz -O3 -release -flto=thin -ffast-math",
+      "extra_files": [],
+      "file": "leibniz.d",
+      "name": "D (LDC)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "ldc@1.41.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "ldc2 --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "dart": {
+      "allow_insecure": [],
+      "base": "dart",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.dart",
+      "name": "Dart",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "dart@3.9.4"
+      ],
+      "run": "dart run leibniz.dart",
+      "version_cmd": "dart --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "dart-aot": {
+      "allow_insecure": [],
+      "base": "dart",
+      "category": "compiled",
+      "compile": "dart compile exe leibniz.dart -o leibniz",
+      "extra_files": [],
+      "file": "leibniz.dart",
+      "name": "Dart (AOT)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "dart@3.9.4"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "dart --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "deno": {
+      "allow_insecure": [],
+      "base": "deno",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.ts",
+      "name": "Deno (TypeScript)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "deno@2.6.6"
+      ],
+      "run": "deno run --allow-read leibniz.ts",
+      "version_cmd": "deno --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "elixir": {
+      "allow_insecure": [],
+      "base": "elixir",
+      "category": "functional",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.ex",
+      "name": "Elixir",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "elixir@1.18.1"
+      ],
+      "run": "elixir leibniz.ex",
+      "version_cmd": "elixir --version",
+      "version_regex": "Elixir (\\d+\\.\\d+\\.\\d+)"
+    },
+    "erlang": {
+      "allow_insecure": [],
+      "base": "erlang",
+      "category": "functional",
+      "compile": "erlc leibniz.erl",
+      "extra_files": [],
+      "file": "leibniz.erl",
+      "name": "Erlang",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "erlang@27.2"
+      ],
+      "run": "erl -noshell -s leibniz main -s init stop",
+      "version_cmd": "erl -eval 'io:format(\"~s~n\", [erlang:system_info(otp_release)]), halt().' -noshell",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "fortran": {
+      "allow_insecure": [],
+      "base": "fortran",
+      "category": "systems",
+      "compile": "gfortran leibniz.f90 -o leibniz -Ofast -flto -ffast-math -march=native -mtune=native",
+      "extra_files": [],
+      "file": "leibniz.f90",
+      "name": "Fortran 90",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gfortran@14.3.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "gfortran --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "fsharp": {
+      "allow_insecure": [],
+      "base": "fsharp",
+      "category": "dotnet",
+      "compile": "dotnet publish fs/leibniz.fsproj -c Release -o out",
+      "extra_files": [],
+      "file": "fs/Program.fs",
+      "name": "F#",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "dotnet-sdk@8.0.416"
+      ],
+      "run": "dotnet ./out/leibniz.dll",
+      "version_cmd": "dotnet --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "fsharp-simd": {
+      "allow_insecure": [],
+      "base": "fsharp",
+      "category": "dotnet",
+      "compile": "dotnet publish fs-simd/leibniz.fsproj -c Release -o out",
+      "extra_files": [],
+      "file": "fs-simd/Program.fs",
+      "name": "F# (SIMD)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "dotnet-sdk@8.0.416"
+      ],
+      "run": "dotnet ./out/leibniz.dll",
+      "version_cmd": "dotnet --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "gleam": {
+      "allow_insecure": [],
+      "base": "gleam",
+      "category": "functional",
+      "compile": "cp leibniz.gleam leibniz_app/src/leibniz_app.gleam && cp rounds.txt leibniz_app/ && cd leibniz_app && gleam build",
+      "extra_files": [],
+      "file": "leibniz.gleam",
+      "name": "Gleam",
+      "nix_flakes": [],
+      "nix_setup": "gleam new leibniz_app && cd leibniz_app && sed -i 's/\\[dependencies\\]/[dependencies]\\nsimplifile = \"~> 2.0\"/' gleam.toml && gleam deps download",
+      "nixpkgs": [
+        "gleam@1.14.0",
+        "erlang@27.2"
+      ],
+      "run": "(cd leibniz_app && gleam run)",
+      "version_cmd": "gleam --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "go": {
+      "allow_insecure": [],
+      "base": "go",
+      "category": "systems",
+      "compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+      "extra_files": [],
+      "file": "leibniz.go",
+      "name": "Go",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "go@1.25.5"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "go version",
+      "version_regex": "go(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "groovy": {
+      "allow_insecure": [],
+      "base": "groovy",
+      "category": "jvm",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.groovy",
+      "name": "Groovy",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "groovy@4.0.26",
+        "jdk@21.0.9"
+      ],
+      "run": "groovy leibniz.groovy",
+      "version_cmd": "groovy --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "hare": {
+      "allow_insecure": [],
+      "base": "hare",
+      "category": "systems",
+      "compile": "hare build -R -o leibniz leibniz.ha",
+      "extra_files": [],
+      "file": "leibniz.ha",
+      "name": "Hare",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "hare@0.26.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "hare version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "haskell": {
+      "allow_insecure": [],
+      "base": "haskell",
+      "category": "functional",
+      "compile": "ghc -O2 -o leibniz leibniz.hs",
+      "extra_files": [],
+      "file": "leibniz.hs",
+      "name": "Haskell (GHC)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "ghc@9.10.3"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "ghc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "haxe": {
+      "allow_insecure": [
+        "mbedtls-2.28.10"
+      ],
+      "base": "haxe",
+      "category": "compiled",
+      "compile": "haxe -main Leibniz -cpp out",
+      "extra_files": [],
+      "file": "Leibniz.hx",
+      "name": "Haxe",
+      "nix_flakes": [
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#haxe",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#gcc"
+      ],
+      "nix_setup": "mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib && haxelib install hxcpp 4.3.2",
+      "nixpkgs": [],
+      "run": "./out/Leibniz",
+      "version_cmd": "haxe --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "janet": {
+      "allow_insecure": [],
+      "base": "janet",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.janet",
+      "name": "Janet",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "janet@1.40.1"
+      ],
+      "run": "janet leibniz.janet",
+      "version_cmd": "janet --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "janet-compiled": {
+      "allow_insecure": [],
+      "base": "janet",
+      "category": "compiled",
+      "compile": "mkdir -p /tmp/janet-modules && JANET_PATH=/tmp/janet-modules /tmp/jpm-prefix/bin/jpm quickbin leibniz_compiled.janet leibniz",
+      "extra_files": [],
+      "file": "leibniz_compiled.janet",
+      "name": "Janet (compiled)",
+      "nix_flakes": [],
+      "nix_setup": "rm -rf /tmp/jpm /tmp/janet-modules /tmp/jpm-prefix && mkdir -p /tmp/janet-modules /tmp/jpm-prefix && git clone https://github.com/janet-lang/jpm.git /tmp/jpm && git -C /tmp/jpm checkout --detach 2430dec269f485473502bcdc2049ee332bc63908 && cd /tmp/jpm && JANET_PATH=/tmp/janet-modules JANET_PREFIX=/tmp/jpm-prefix janet bootstrap.janet && mkdir -p /tmp/jpm-prefix/bin /tmp/jpm-prefix/lib /tmp/jpm-prefix/include && cp -r \"$(dirname $(readlink -f $(command -v janet)))/../include/\"* /tmp/jpm-prefix/include/ && ln -sf \"$(command -v janet)\" /tmp/jpm-prefix/bin/janet && ln -sf \"$(dirname $(command -v janet))/../lib/libjanet.a\" /tmp/jpm-prefix/lib/libjanet.a",
+      "nixpkgs": [
+        "janet@1.39.1",
+        "git@2.47.1",
+        "gcc@14.2.0",
+        "gnumake@4.4.1"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "janet -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "java": {
+      "allow_insecure": [],
+      "base": "java",
+      "category": "jvm",
+      "compile": "javac leibniz.java",
+      "extra_files": [],
+      "file": "leibniz.java",
+      "name": "Java",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "jdk@21.0.9"
+      ],
+      "run": "java leibniz",
+      "version_cmd": "java --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "java-graalvm": {
+      "allow_insecure": [],
+      "base": "java-graalvm",
+      "category": "jvm",
+      "compile": "javac leibniz.java && native-image leibniz -o leibniz-native",
+      "extra_files": [],
+      "file": "leibniz.java",
+      "name": "Java (GraalVM)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "graalvm-ce@23.0.1"
+      ],
+      "run": "./leibniz-native",
+      "version_cmd": "java --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "java-vecops": {
+      "allow_insecure": [],
+      "base": "java-vecops",
+      "category": "jvm",
+      "compile": "javac --add-modules jdk.incubator.vector leibnizVecOps.java",
+      "extra_files": [],
+      "file": "leibnizVecOps.java",
+      "name": "Java (Vec Ops)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "jdk@23.0.2"
+      ],
+      "run": "java --add-modules jdk.incubator.vector leibnizVecOps",
+      "version_cmd": "java -version 2>&1 | head -1",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "julia": {
+      "allow_insecure": [],
+      "base": "julia",
+      "category": "jit",
+      "compile": "julia -e 'using Pkg; Pkg.activate(\"julia\"); Pkg.instantiate(); isempty(Pkg.Registry.reachable_registries()) && Pkg.Registry.add(\"General\"); Pkg.Apps.add(PackageSpec(name=\"JuliaC\", version=\"0.3.10\"))' && /tmp/bench-julia-depot/bin/juliac --output-exe leibniz --trim --experimental --bundle bun julia",
+      "extra_files": [],
+      "file": "julia/src/LeibnizApp.jl",
+      "name": "Julia",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "julia@1.12.1",
+        "gcc@15.2.0"
+      ],
+      "run": "bun/bin/leibniz",
+      "version_cmd": "julia --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "kotlin": {
+      "allow_insecure": [],
+      "base": "kotlin",
+      "category": "jvm",
+      "compile": "kotlinc leibniz.kt -include-runtime -d leibniz.jar",
+      "extra_files": [],
+      "file": "leibniz.kt",
+      "name": "Kotlin",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "kotlin@2.1.0",
+        "jdk@21.0.9"
+      ],
+      "run": "java -jar leibniz.jar",
+      "version_cmd": "kotlin -version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "kotlin-native": {
+      "allow_insecure": [],
+      "base": "kotlin",
+      "category": "compiled",
+      "compile": "LD_PRELOAD=/tmp/libffi-3.2.1-2-linux-x86-64/lib/libffi.so.7 kotlinc-native leibniz-native.kt -opt -Dkonan.home=/tmp/kotlin-home -o leibniz",
+      "extra_files": [],
+      "file": "leibniz-native.kt",
+      "name": "Kotlin (Native)",
+      "nix_flakes": [],
+      "nix_setup": "curl --fail --location --retry 3 https://download.jetbrains.com/kotlin/native/libffi-3.2.1-2-linux-x86-64.tar.gz -o /tmp/kotlin-libffi.tar.gz; echo '9d817bbca098a2fa0f1d5a8b9e57674c30d100bb4c6aeceff18d8acc5b9f382c  /tmp/kotlin-libffi.tar.gz' | sha256sum -c -; tar -xf /tmp/kotlin-libffi.tar.gz -C /tmp; KOTLIN_ROOT=$(dirname $(readlink -f $(command -v kotlinc-native)))/..; mkdir -p /tmp/kotlin-home/klib/cache; for kotlin_entry in \"$KOTLIN_ROOT\"/*; do test \"$(basename $kotlin_entry)\" = klib || ln -sf \"$kotlin_entry\" /tmp/kotlin-home/; done; for kotlin_entry in \"$KOTLIN_ROOT\"/klib/*; do test \"$(basename $kotlin_entry)\" = cache || ln -sf \"$kotlin_entry\" /tmp/kotlin-home/klib/; done",
+      "nixpkgs": [
+        "kotlin-native@2.2.21",
+        "curl@8.11.1"
+      ],
+      "run": "./leibniz.kexe",
+      "version_cmd": "kotlinc-native -version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "lua": {
+      "allow_insecure": [],
+      "base": "lua",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.lua",
+      "name": "Lua",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "lua5_4@5.4.4"
+      ],
+      "run": "lua leibniz.lua",
+      "version_cmd": "lua -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "luajit": {
+      "allow_insecure": [],
+      "base": "lua",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.lua",
+      "name": "LuaJIT",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "luajit@2.1.1741730670"
+      ],
+      "run": "luajit leibniz.lua",
+      "version_cmd": "luajit -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "micropython": {
+      "allow_insecure": [],
+      "base": "micropython",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.py",
+      "name": "MicroPython",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "micropython@1.24.1"
+      ],
+      "run": "micropython leibniz.py",
+      "version_cmd": "micropython --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "mojo": {
+      "allow_insecure": [],
+      "base": "mojo",
+      "category": "compiled",
+      "compile": "uv venv /app/.mojo && uv pip install --python /app/.mojo/bin/python --require-hashes -r mojo-requirements.txt && /app/.mojo/bin/mojo build -O3 leibniz.mojo -o leibniz && patchelf --force-rpath --set-interpreter \"$(cat $NIX_CC/nix-support/dynamic-linker)\" --set-rpath \"$(patchelf --print-rpath leibniz):$(dirname $(g++ -print-file-name=libstdc++.so.6))\" leibniz",
+      "extra_files": [
+        "mojo-requirements.txt"
+      ],
+      "file": "leibniz.mojo",
+      "name": "Mojo",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "python3@3.12.8",
+        "uv@0.5.11",
+        "gcc@15.2.0",
+        "patchelf@0.15.2"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "/app/.mojo/bin/mojo --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "mypyc": {
+      "allow_insecure": [],
+      "base": "python",
+      "category": "compiled",
+      "compile": ". /app/.venv/bin/activate && CFLAGS='-O3 -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math' mypyc leibniz_mypyc.py && python -c \"import leibniz_mypyc\"",
+      "extra_files": [],
+      "file": "leibniz_mypyc.py",
+      "name": "Python (mypyc)",
+      "nix_flakes": [],
+      "nix_setup": "uv venv /app/.venv && . /app/.venv/bin/activate && uv pip install mypy==2.3.1 setuptools==84.0.0 ast-serialize==0.9.0 librt==0.15.0 mypy-extensions==1.1.0 pathspec==1.1.1 typing-extensions==4.16.0",
+      "nixpkgs": [
+        "python3@3.12.8",
+        "gcc@14.2.0",
+        "uv@0.5.11"
+      ],
+      "run": ". /app/.venv/bin/activate && python -c \"import leibniz_mypyc\"",
+      "version_cmd": "python --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "nasm": {
+      "allow_insecure": [],
+      "base": "default",
+      "category": "systems",
+      "compile": "nasm -f elf64 leibniz.asm -o leibniz.o && gcc -o leibniz leibniz.o",
+      "extra_files": [],
+      "file": "leibniz.asm",
+      "name": "Assembly (NASM x64)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "nasm@2.16.03",
+        "gcc@15.2.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "nasm -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "nim": {
+      "allow_insecure": [],
+      "base": "nim",
+      "category": "systems",
+      "compile": "nim c --verbosity:0 -d:danger -d:lto --gc:arc --passC:'-march=native -fno-signed-zeros -fno-trapping-math -fassociative-math' --passL:'-s' -o:leibniz leibniz.nim",
+      "extra_files": [],
+      "file": "leibniz.nim",
+      "name": "Nim",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "nim@2.2.4"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "nim --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "nodejs": {
+      "allow_insecure": [],
+      "base": "nodejs",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.js",
+      "name": "Javascript (nodejs)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "nodejs@25.2.1"
+      ],
+      "run": "node leibniz.js",
+      "version_cmd": "node --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "objc": {
+      "allow_insecure": [],
+      "base": "objectivec",
+      "category": "systems",
+      "compile": "clang -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math $(gnustep-config --objc-flags) $(gnustep-config --base-libs) -o leibniz leibniz.m",
+      "extra_files": [],
+      "file": "leibniz.m",
+      "name": "Objective-C",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "clang@18.1.8",
+        "gnustep-base@1.29.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "clang --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "ocaml": {
+      "allow_insecure": [],
+      "base": "ocaml",
+      "category": "functional",
+      "compile": "ocamlopt -O3 -o leibniz leibniz.ml",
+      "extra_files": [],
+      "file": "leibniz.ml",
+      "name": "OCaml",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "ocaml@5.3.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "ocamlopt -version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "octave": {
+      "allow_insecure": [],
+      "base": "octave",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz_octave.m",
+      "name": "Octave",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "octave@10.3.0"
+      ],
+      "run": "octave leibniz_octave.m",
+      "version_cmd": "octave -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "octave-vectorised": {
+      "allow_insecure": [],
+      "base": "octave",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz_octave_vectorised.m",
+      "name": "Octave (Vectorised)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "octave@10.3.0"
+      ],
+      "run": "octave leibniz_octave_vectorised.m",
+      "version_cmd": "octave -v",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "odin": {
+      "allow_insecure": [],
+      "base": "odin",
+      "category": "systems",
+      "compile": "odin build leibniz.odin -file -o:speed -no-bounds-check -disable-assert -out:leibniz",
+      "extra_files": [],
+      "file": "leibniz.odin",
+      "name": "Odin",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "odin@2025-11"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "odin version",
+      "version_regex": "dev-(\\d{4}-\\d+[a-z]?)"
+    },
+    "pascal": {
+      "allow_insecure": [],
+      "base": "pascal",
+      "category": "systems",
+      "compile": "fpc -O3 -XX -Xs leibniz.pas",
+      "extra_files": [],
+      "file": "leibniz.pas",
+      "name": "Pascal (FPC)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "fpc@3.2.2"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "fpc -iV",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "perl": {
+      "allow_insecure": [],
+      "base": "perl",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.pl",
+      "name": "Perl",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "perl@5.40.0"
+      ],
+      "run": "perl leibniz.pl",
+      "version_cmd": "perl -v",
+      "version_regex": "v(\\d+\\.\\d+\\.\\d+)"
+    },
+    "php": {
+      "allow_insecure": [],
+      "base": "php",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.php",
+      "name": "PHP",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "php@8.4.15"
+      ],
+      "run": "php -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php",
+      "version_cmd": "php --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "pony": {
+      "allow_insecure": [],
+      "base": "pony",
+      "category": "compiled",
+      "compile": "ponyc ./ -o=out --bin-name=leibniz",
+      "extra_files": [],
+      "file": "leibniz.pony",
+      "name": "Pony",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "ponyc@0.60.4"
+      ],
+      "run": "./out/leibniz",
+      "version_cmd": "ponyc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "pypy": {
+      "allow_insecure": [],
+      "base": "python",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.py",
+      "name": "Python (PyPy)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "pypy3@7.3.20"
+      ],
+      "run": "pypy3 leibniz.py",
+      "version_cmd": "pypy3 --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "python": {
+      "allow_insecure": [],
+      "base": "python",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.py",
+      "name": "Python (CPython)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "python3@3.12.8"
+      ],
+      "run": "python leibniz.py",
+      "version_cmd": "python --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "r": {
+      "allow_insecure": [],
+      "base": "r",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.r",
+      "name": "R",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "R@4.5.2"
+      ],
+      "run": "Rscript leibniz.r",
+      "version_cmd": "R --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "racket": {
+      "allow_insecure": [],
+      "base": "racket",
+      "category": "functional",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.rkt",
+      "name": "Racket",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "racket@9.0"
+      ],
+      "run": "racket leibniz.rkt",
+      "version_cmd": "racket --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "raku": {
+      "allow_insecure": [],
+      "base": "raku",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.raku",
+      "name": "Raku",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "rakudo@2025.06.1"
+      ],
+      "run": "raku leibniz.raku",
+      "version_cmd": "raku --version",
+      "version_regex": "v(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "ruby": {
+      "allow_insecure": [],
+      "base": "ruby",
+      "category": "interpreted",
+      "compile": null,
+      "extra_files": [],
+      "file": "leibniz.rb",
+      "name": "Ruby",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "ruby@3.4.7"
+      ],
+      "run": "ruby --yjit leibniz.rb",
+      "version_cmd": "ruby --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "rust": {
+      "allow_insecure": [],
+      "base": "rust",
+      "category": "systems",
+      "compile": "rustc -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -o leibniz leibniz.rs",
+      "extra_files": [],
+      "file": "leibniz.rs",
+      "name": "Rust",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "rustc@1.92.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "rustc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "rust-fastmath": {
+      "allow_insecure": [],
+      "base": "rust",
+      "category": "systems",
+      "compile": "rustc -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -C llvm-args=-enable-unsafe-fp-math -o leibniz leibniz.rs",
+      "extra_files": [],
+      "file": "leibniz.rs",
+      "name": "Rust (fast-math)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "rustc@1.92.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "rustc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "rust-nightly": {
+      "allow_insecure": [],
+      "base": "rust",
+      "category": "systems",
+      "compile": "rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_nightly.rs -o leibniz",
+      "extra_files": [],
+      "file": "leibniz_nightly.rs",
+      "name": "Rust (nightly SIMD)",
+      "nix_flakes": [
+        "github:nix-community/fenix/03864c059200a8a96f2ee6bb050c69eae96f57ca#minimal.toolchain"
+      ],
+      "nix_setup": null,
+      "nixpkgs": [
+        "gcc@15.2.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "rustc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "rust-simd": {
+      "allow_insecure": [],
+      "base": "rust",
+      "category": "systems",
+      "compile": "rustc -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -o leibniz leibniz_simd.rs",
+      "extra_files": [],
+      "file": "leibniz_simd.rs",
+      "name": "Rust (SIMD)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "rustc@1.92.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "rustc --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "sbcl": {
+      "allow_insecure": [],
+      "base": "lisp",
+      "category": "functional",
+      "compile": "sbcl --noinform --eval '(compile-file \"leibniz.lisp\")' --quit",
+      "extra_files": [],
+      "file": "leibniz.lisp",
+      "name": "Common Lisp (SBCL)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "sbcl@2.5.10"
+      ],
+      "run": "sbcl --noinform --load leibniz.fasl --eval '(main)' --quit",
+      "version_cmd": "sbcl --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "sbcl-simd": {
+      "allow_insecure": [],
+      "base": "lisp",
+      "category": "functional",
+      "compile": "sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die \"leibniz\" :executable t :toplevel (quote cl-user::main) :purify t)'",
+      "extra_files": [],
+      "file": "leibniz-sbcl-simd.lisp",
+      "name": "Common Lisp (SBCL SIMD)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "sbcl@2.5.10"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "sbcl --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "scala": {
+      "allow_insecure": [],
+      "base": "scala",
+      "category": "jvm",
+      "compile": "scala-cli package leibniz.scala -o leibniz --native --native-mode release-full --power",
+      "extra_files": [],
+      "file": "leibniz.scala",
+      "name": "Scala",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "scala-cli@1.10.1",
+        "clang@21.1.2",
+        "gcc@14.2.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "scala-cli version --scala",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "swift": {
+      "allow_insecure": [],
+      "base": "swift",
+      "category": "systems",
+      "compile": "env -u NIX_CC swiftc -tools-directory \"$(dirname $(command -v clang))\" -target x86_64-unknown-linux-gnu -O -o leibniz leibniz.swift",
+      "extra_files": [],
+      "file": "leibniz.swift",
+      "name": "Swift",
+      "nix_flakes": [
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#gcc",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#llvmPackages_15.clang",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swiftPackages.Dispatch"
+      ],
+      "nix_setup": "printf 'export LD_LIBRARY_PATH=%s\\n' \"$(nix --extra-experimental-features 'nix-command flakes' eval --raw github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swiftPackages.Dispatch.outPath)/lib\" > .swift-env",
+      "nixpkgs": [],
+      "run": ". ./.swift-env && ./leibniz < rounds.txt",
+      "version_cmd": "swift --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "swift-relaxed": {
+      "allow_insecure": [],
+      "base": "swift",
+      "category": "systems",
+      "compile": "env -u NIX_CC swiftc -tools-directory \"$(dirname $(command -v clang))\" -target x86_64-unknown-linux-gnu -O -o leibniz leibniz-relaxed.swift -import-objc-header relaxed.h",
+      "extra_files": [
+        "relaxed.h"
+      ],
+      "file": "leibniz-relaxed.swift",
+      "name": "Swift (relaxed)",
+      "nix_flakes": [
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#gcc",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#llvmPackages_15.clang",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swiftPackages.Dispatch"
+      ],
+      "nix_setup": "printf 'export LD_LIBRARY_PATH=%s\\n' \"$(nix --extra-experimental-features 'nix-command flakes' eval --raw github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swiftPackages.Dispatch.outPath)/lib\" > .swift-env",
+      "nixpkgs": [],
+      "run": ". ./.swift-env && ./leibniz < rounds.txt",
+      "version_cmd": "swift --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "swift-simd": {
+      "allow_insecure": [],
+      "base": "swift",
+      "category": "systems",
+      "compile": "env -u NIX_CC swiftc -tools-directory \"$(dirname $(command -v clang))\" -target x86_64-unknown-linux-gnu -O -o leibniz leibniz-simd.swift",
+      "extra_files": [],
+      "file": "leibniz-simd.swift",
+      "name": "Swift (SIMD)",
+      "nix_flakes": [
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#gcc",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#llvmPackages_15.clang",
+        "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swiftPackages.Dispatch"
+      ],
+      "nix_setup": "printf 'export LD_LIBRARY_PATH=%s\\n' \"$(nix --extra-experimental-features 'nix-command flakes' eval --raw github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swiftPackages.Dispatch.outPath)/lib\" > .swift-env",
+      "nixpkgs": [],
+      "run": ". ./.swift-env && ./leibniz < rounds.txt",
+      "version_cmd": "swift --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "v": {
+      "allow_insecure": [],
+      "base": "v",
+      "category": "systems",
+      "compile": "v -prod -o leibniz leibniz.v",
+      "extra_files": [],
+      "file": "leibniz.v",
+      "name": "V",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "vlang@0.4.11"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "v version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "wasm": {
+      "allow_insecure": [],
+      "base": "wasm",
+      "category": "compiled",
+      "compile": "/tmp/wasi-sdk/bin/clang -O3 -o leibniz.wasm leibniz.c",
+      "extra_files": [],
+      "file": "leibniz.c",
+      "name": "WASM (C via Wasmtime)",
+      "nix_flakes": [],
+      "nix_setup": "wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-x86_64-linux.tar.gz && tar -xf wasi-sdk-25.0-x86_64-linux.tar.gz && mv wasi-sdk-25.0-x86_64-linux /tmp/wasi-sdk && rm wasi-sdk-25.0-x86_64-linux.tar.gz",
+      "nixpkgs": [
+        "wasmtime@29.0.1",
+        "wget@1.25.0"
+      ],
+      "run": "wasmtime --dir=. leibniz.wasm",
+      "version_cmd": "wasmtime --version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "zig": {
+      "allow_insecure": [],
+      "base": "zig",
+      "category": "systems",
+      "compile": "zig build-exe -OReleaseFast leibniz.zig -fno-stack-check",
+      "extra_files": [],
+      "file": "leibniz.zig",
+      "name": "Zig",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "zig@0.16.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "zig version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    },
+    "zig-simd": {
+      "allow_insecure": [],
+      "base": "zig",
+      "category": "systems",
+      "compile": "zig build-exe -OReleaseFast leibniz-simd.zig -fno-stack-check -femit-bin=leibniz",
+      "extra_files": [],
+      "file": "leibniz-simd.zig",
+      "name": "Zig (SIMD)",
+      "nix_flakes": [],
+      "nix_setup": null,
+      "nixpkgs": [
+        "zig@0.16.0"
+      ],
+      "run": "./leibniz",
+      "version_cmd": "zig version",
+      "version_regex": "(\\d+\\.\\d+\\.?\\d*)"
+    }
+  },
+  "schema_version": 1,
+  "source_revision": "3d0220e28f495d3feaca03f730a00b7259924848",
+  "tooling": {
+    "devbox_image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+    "hyperfine": "1.18.0",
+    "micropython": "1.24.1"
+  }
+}
