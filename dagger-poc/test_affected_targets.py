@@ -44,7 +44,7 @@ def test_shared_runner_and_tooling_changes_select_everything():
 
 
 def test_docs_and_comments_do_not_trigger_benchmarks():
-    assert affected(CATALOG, CATALOG + '\n# explanation\n', ['README.md', 'dagger-poc/languages.py'])['targets'] == []
+    assert affected(CATALOG, CATALOG + '\n# explanation\n', ['README.md', 'dagger-poc/README.md', 'scripts/README.rst', 'dagger-poc/languages.py'])['targets'] == []
 
 
 def test_source_rename_and_removed_target_are_reported():
