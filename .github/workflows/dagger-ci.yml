@@ -1,4 +1,4 @@
-# Optional portable adapter. Normal benchmarks run on homelab Argo Workflows.
+# Manual fallback using the same suite entry point intended for homelab Argo.
 name: '[Dagger] Manual benchmark'
 
 on:
@@ -17,39 +17,9 @@ permissions:
   contents: read
 
 jobs:
-  prepare:
-    runs-on: ubuntu-24.04
-    outputs:
-      targets: ${{ steps.targets.outputs.targets }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Validate requested targets
-        id: targets
-        env:
-          REQUESTED_TARGETS: ${{ inputs.languages }}
-        run: |
-          python3 - <<'PY'
-          import json, os, sys
-          sys.path.insert(0, 'dagger-poc')
-          from languages import LANGUAGES
-          requested = os.environ['REQUESTED_TARGETS'].split()
-          targets = list(LANGUAGES) if requested == ['all'] else requested
-          if not targets or set(targets) - set(LANGUAGES):
-              raise SystemExit('Specify known targets from dagger-poc/languages.py')
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-              output.write('targets=' + json.dumps(list(dict.fromkeys(targets))) + '\n')
-          PY
   benchmark:
-    needs: prepare
     runs-on: ubuntu-24.04
     timeout-minutes: 180
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        target: ${{ fromJson(needs.prepare.outputs.targets) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,14 +27,26 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
-      - name: Run benchmark
+      - name: Prepare selected builds, then measure serially
         env:
-          USE_LOCAL_IMAGES: '1'
           QUICK_TEST_ROUNDS: ${{ inputs.quick_test && '10000' || '' }}
-          TARGET: ${{ matrix.target }}
-        run: uv run --locked --project dagger-poc python dagger-poc/benchmark.py "$TARGET"
+          REQUESTED_TARGETS: ${{ inputs.languages }}
+          SOURCE_REVISION: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          targets = os.environ['REQUESTED_TARGETS'].split()
+          if not targets:
+              raise SystemExit('Specify targets or all')
+          subprocess.run([
+              'uv', 'run', '--locked', '--project', 'dagger-poc', 'python',
+              'dagger-poc/benchmark.py', '--revision', os.environ['SOURCE_REVISION'],
+              '--output', 'results/manual', '--prepare-jobs', '2', '--', *targets,
+          ], check=True)
+          PY
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: result-${{ matrix.target }}
-          path: results/${{ matrix.target }}.json
-          if-no-files-found: error
+          name: benchmark-evidence
+          path: results/manual/
+          if-no-files-found: warn

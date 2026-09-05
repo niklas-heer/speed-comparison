@@ -6,6 +6,9 @@ own affected languages, and publication should balance useful measurements with
 short turnaround. The native Argo adapter is a migration bootstrap, not the target
 architecture.
 
+The [consolidation decision](pipeline-consolidation.md) records the measured runtime
+breakdown, the unified runner implementation and the next acceptance gates.
+
 ## Responsibilities
 
 ```mermaid
@@ -81,8 +84,8 @@ the driver itself must come from trusted code. Do not run a PR's replacement run
 on a credentialed Argo client. Source and declarative configuration can be evaluated
 inside the isolated execution boundary. The [catalog resolver](catalog-resolution.md)
 now provides a tested Python-to-JSON boundary through Dagger, preserving the current
-authoring format. Wiring its output into benchmark execution and trusted dispatch
-remains a separate step. Superseded queued PR revisions can be
+authoring format. The existing benchmark entry point now consumes it with `--revision`, including
+its tooling and source binding; trusted event dispatch remains a separate step. Superseded queued PR revisions can be
 cancelled; preserve completed evidence.
 
 ## Choose workload sizes from evidence
@@ -148,7 +151,7 @@ pod. This is a material preparation problem, independent of Python SDK overhead.
 The shared five-execution protocol and Dagger cache boundary are implemented.
 Two real local Dagger runs reused build layers and produced distinct fresh
 sample arrays/measurement IDs. The Python suite, including target-selection and
-measurement protocol tests, has 130 passing cases at this design revision.
+measurement protocol tests, has 137 passing cases at this design revision.
 
 ## Results, database and website
 

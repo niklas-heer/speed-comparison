@@ -2,9 +2,10 @@
 
 Contributors keep editing `dagger-poc/languages.py`. A trusted driver can now resolve
 that Python file inside a Dagger container and consume a validated JSON manifest.
-There is no second manually maintained catalog and no change to the current
-benchmark execution path. This is preparation for authorized selective PR execution;
-automatic dispatch and the isolated persistent homelab engine remain rollout gates.
+There is no second manually maintained catalog. `benchmark.py --revision FULL_SHA`
+now resolves and consumes this manifest, including tooling, using sources from the
+same immutable Git tree. Automatic PR authorization/dispatch and the isolated
+persistent homelab engine remain rollout gates.
 
 ## Boundary and identity
 
@@ -46,8 +47,10 @@ additional local helper modules would require an explicit input contract.
 
 Commands in the manifest remain executable build/run instructions for the isolated
 engine. The engine isolation and revision-authorization requirements still apply.
-The benchmark runner is not yet wired to consume this manifest, so tooling overrides
-and selected-source binding must be implemented before that cutover.
+Revision-bound benchmark runs consume this manifest and its tooling directly.
+Registry image names are reserved for trusted local-catalog runs; proposed revisions
+build from the resolved tooling through the Dagger cache. See the
+[common runner](pipeline-consolidation.md) for source binding and execution stages.
 
 ## Local use and checks
 

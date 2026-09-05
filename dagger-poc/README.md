@@ -40,10 +40,27 @@ The directory keeps its original name to preserve scripts and dependency update
 paths. Use `just` inside this directory for convenience commands. `uv sync --extra
 dev` installs pytest and the development tooling.
 
-The optional [catalog resolver](../docs/catalog-resolution.md) preserves these
-Python declarations while exporting validated data through a Dagger container. It
-is a prerequisite for future authorized PR execution; it does not change the active
-benchmark adapter or enable automatic dispatch.
+The [catalog resolver](../docs/catalog-resolution.md) is integrated into
+`benchmark.py --revision FULL_SHA`. This mode uses declarations and sources from
+the same Git commit and retains the resolved manifest/tooling. Add `--base BASE_SHA`
+to recompute the affected targets (both commits must be available locally for planning).
+This is an entry point for an already authorized revision, not automatic PR dispatch.
+
+A suite prepares with bounded concurrency, waits for every build, then measures
+serially. `--prepare-jobs` defaults to two. `--measurement-timeout` can bound a
+target's combined warmups and samples. Results now go into a new `results/RUN_ID/`
+bundle; `--output NEW_DIRECTORY` chooses its location. `run.json` records phase
+costs and failures, and successful target files are saved under `targets/` as they
+finish. Existing
+single-target `run_benchmark()` callers remain supported.
+
+```bash
+QUICK_TEST_ROUNDS=10000 uv run --locked --project dagger-poc python \
+  dagger-poc/benchmark.py --revision FULL_AUTHORIZED_SHA --output /tmp/new-run go
+```
+
+The [consolidation plan](../docs/pipeline-consolidation.md) explains the bottlenecks,
+implemented execution stages and remaining homelab cutover gates.
 
 For a new language, add a `Language` entry and its source, run the tests, then run
 a native smoke test. Validate small odd/even round counts and SIMD tail handling.
