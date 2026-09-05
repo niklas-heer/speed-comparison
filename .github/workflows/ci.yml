@@ -18,10 +18,31 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
       - name: Test pipeline and language definitions
         run: uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
+      - name: Plan affected language checks
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA=$(git rev-parse "$HEAD_SHA^")
+          fi
+          python scripts/affected_targets.py --base "$BASE_SHA" --head "$HEAD_SHA" --output benchmark-plan.json
+          python - <<'PY'
+          import json, os
+          plan = json.load(open('benchmark-plan.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('Affected benchmark targets: ' + (', '.join(plan['targets']) or 'none') + '\n')
+              summary.write('This plan selects validation work; it is not a published performance report.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-plan
+          path: benchmark-plan.json
       - name: Check Python syntax and undefined names
         run: uv run --locked --project dagger-poc --extra dev ruff check --select F821,F822,F823 dagger-poc

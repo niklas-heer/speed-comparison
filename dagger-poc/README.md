@@ -12,6 +12,19 @@ measurement. `result_metadata.py` validates finite, plausible Leibniz output and
 adds actual rounds and math/SIMD labels. Native results retain the resolved
 `devbox.lock`, including transitive Nix inputs.
 
+Both adapters perform two warmups and three measured executions. The first warmup
+also captures the output for validation, avoiding an extra execution solely for
+metadata. Dagger retains setup/build caches but adds a fresh measurement ID before
+warmup so requested timings cannot come from an earlier cached run.
+
+`python scripts/affected_targets.py --base origin/master --head HEAD` (from the
+repository root) selects affected targets, including shared sources, source
+directories, extra files and referenced compiler settings. It parses both catalogs
+without executing their Python code. Shared runner/tooling changes select the full
+suite; documentation changes do not. GitHub CI uploads this plan. Submission to
+the homelab must recompute it against the exact authorized revision rather than
+trusting a PR-produced artifact.
+
 ```bash
 # From the repository root:
 uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
