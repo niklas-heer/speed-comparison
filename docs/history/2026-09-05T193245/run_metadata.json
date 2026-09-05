@@ -1,0 +1,15 @@
+{
+  "environment": {
+    "cpu_model": "AMD EPYC-Genoa Processor",
+    "cpu_cores": "",
+    "cpu_threads": "4",
+    "arch": "x86_64",
+    "kernel": "6.18.38-talos",
+    "os_release": "",
+    "libc": ""
+  },
+  "environment_variants": 1,
+  "languages": 75,
+  "source_revision": "c71e4cd81464b238172605982806c5bf827a70a1",
+  "generated": "2026-09-05 19:32"
+}
