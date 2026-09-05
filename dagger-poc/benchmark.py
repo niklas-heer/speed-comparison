@@ -10,10 +10,9 @@ Image Layers:
 1. Base image (from registry): Language + hyperfine (cached, rarely changes)
 2. Runtime additions: Source code + scmeta + rounds.txt (added each run)
 
-Smart Image Detection:
-- By default, tries to pull from registry first
-- If image doesn't exist, automatically builds locally
-- Optionally pushes newly built images to registry (AUTO_PUSH_IMAGES=1)
+Image Source:
+- Default: pull pre-built image from registry
+- Optional: build locally with USE_LOCAL_IMAGES=1
 
 Usage:
     # Run all benchmarks
@@ -28,8 +27,6 @@ Usage:
     # Force local images only (skip registry pull attempts)
     USE_LOCAL_IMAGES=1 dagger run python benchmark.py rust
 
-    # Auto-push built images to registry (when image was missing)
-    AUTO_PUSH_IMAGES=1 dagger run python benchmark.py rust
 """
 
 from __future__ import annotations
@@ -37,12 +34,25 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import platform
 import sys
 from pathlib import Path
 
 import dagger
 
-from languages import LANGUAGES, Language, get_base_image_name, get_language
+from result_metadata import enrich_result
+
+from languages import (
+    HYPERFINE_VERSION,
+    MICROPYTHON_VERSION,
+    LANGUAGES,
+    Language,
+    get_base_image_name,
+    get_devbox_image,
+    get_language,
+    language_image_fingerprint,
+    language_image_version_tag,
+)
 
 # =============================================================================
 # Configuration
@@ -52,14 +62,24 @@ from languages import LANGUAGES, Language, get_base_image_name, get_language
 WARMUP_RUNS = 2
 BENCHMARK_RUNS = 3
 TIME_UNIT = "second"
+HYPERFINE_SHOW_OUTPUT = os.environ.get("HYPERFINE_SHOW_OUTPUT", "0").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+# Keep native optimization flags enabled by default on x86_64 for parity with legacy benchmarks.
+HOST_ARCH = platform.machine().lower()
+DEFAULT_ALLOW_NATIVE_FLAGS = HOST_ARCH in ("x86_64", "amd64")
+ALLOW_NATIVE_FLAGS = os.environ.get(
+    "ALLOW_NATIVE_FLAGS", "1" if DEFAULT_ALLOW_NATIVE_FLAGS else "0"
+).lower() in ("1", "true", "yes")
+# Isolate runtime caches for benchmark reproducibility.
+BENCH_XDG_CACHE_HOME = "/tmp/bench-xdg-cache"
+BENCH_XDG_CONFIG_HOME = "/tmp/bench-xdg-config"
+BENCH_JULIA_DEPOT_PATH = "/tmp/bench-julia-depot"
 
 # Registry (same as build_images.py)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
-
-# Base image for local builds
-DEVBOX_IMAGE = "jetpackio/devbox:latest"
-HYPERFINE_VERSION = "1.18.0"
-MICROPYTHON_VERSION = "1.24.1"
 
 # Paths (relative to repo root - benchmark.py lives in dagger-poc/)
 REPO_ROOT = Path(__file__).parent.parent
@@ -89,7 +109,12 @@ def get_image_tag(registry: str, target: str, lang: Language) -> str:
     E.g., swift-simd uses the "swift" image.
     """
     base_name = get_base_image_name(target)
-    version = lang.primary_version.replace("+", "-")
+    version = language_image_version_tag(
+        lang,
+        devbox_image=get_devbox_image(),
+        hyperfine_version=HYPERFINE_VERSION,
+        micropython_version=MICROPYTHON_VERSION,
+    )
     return f"{registry}/{base_name}:{version}"
 
 
@@ -110,22 +135,40 @@ async def build_local_devbox_container(
     lang: Language,
 ) -> dagger.Container:
     """Build a Devbox container locally (for development/testing)."""
-    container = client.container().from_(DEVBOX_IMAGE)
+    container = client.container().from_(get_devbox_image())
+
+    if lang.allow_insecure:
+        container = container.with_env_variable("NIXPKGS_ALLOW_INSECURE", "1")
+        insecure_list = " ".join(lang.allow_insecure)
+        container = container.with_env_variable(
+            "NIX_CONFIG", f"extra-allowed-insecure-packages = {insecure_list}"
+        )
 
     packages = list(lang.nixpkgs) + [
         f"hyperfine@{HYPERFINE_VERSION}",
         f"micropython@{MICROPYTHON_VERSION}",
     ]
-    packages_str = " ".join(packages)
+    container = container.with_workdir("/app").with_exec(["devbox", "init"])
 
-    container = (
-        container.with_workdir("/app")
-        .with_exec(["devbox", "init"])
-        .with_exec(["sh", "-c", f"devbox add {packages_str}"])
-    )
+    if packages:
+        packages_str = " ".join(packages)
+        if lang.allow_insecure:
+            insecure_flags = " ".join(
+                f"--allow-insecure={pkg}" for pkg in lang.allow_insecure
+            )
+            container = container.with_exec(
+                ["sh", "-c", f"devbox add {packages_str} {insecure_flags}"]
+            )
+        else:
+            container = container.with_exec(["sh", "-c", f"devbox add {packages_str}"])
+
+    for flake_ref in lang.nix_flakes:
+        container = container.with_exec(["devbox", "add", flake_ref])
 
     if lang.nix_setup:
-        container = container.with_exec(["devbox", "run", "--", "sh", "-c", lang.nix_setup])
+        container = container.with_new_file("/app/.benchmark-setup.sh", contents=lang.nix_setup).with_exec(
+            ["devbox", "run", "--", "sh", "-e", "/app/.benchmark-setup.sh"]
+        )
 
     return container
 
@@ -155,7 +198,17 @@ async def exec_cmd(
     All containers (registry or local) use Devbox, so we always need
     to run commands through 'devbox run' to get packages in PATH.
     """
-    return container.with_exec(["devbox", "run", "--", "sh", "-c", cmd])
+    env_prefix = (
+        "export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1; "
+        f"export XDG_CACHE_HOME={BENCH_XDG_CACHE_HOME}; "
+        f"export XDG_CONFIG_HOME={BENCH_XDG_CONFIG_HOME}; "
+        f"export JULIA_DEPOT_PATH={BENCH_JULIA_DEPOT_PATH}; "
+    )
+    native_prefix = "unset NIX_ENFORCE_NO_NATIVE; " if ALLOW_NATIVE_FLAGS else ""
+    wrapped_cmd = f"{env_prefix}{native_prefix}{cmd}"
+    return container.with_new_file("/app/.benchmark-command.sh", contents=wrapped_cmd).with_exec(
+        ["devbox", "run", "--", "sh", "-e", "/app/.benchmark-command.sh"]
+    )
 
 
 def ensure_app_writable(container: dagger.Container) -> dagger.Container:
@@ -266,6 +319,14 @@ async def run_benchmark(
 
         # Ensure the devbox user can write to /app (CI uses non-root user)
         container = ensure_app_writable(container)
+        container = await exec_cmd(
+            container,
+            lang,
+            "rm -rf "
+            f"{BENCH_XDG_CACHE_HOME} {BENCH_XDG_CONFIG_HOME} {BENCH_JULIA_DEPOT_PATH} "
+            "&& mkdir -p "
+            f"{BENCH_XDG_CACHE_HOME} {BENCH_XDG_CONFIG_HOME} {BENCH_JULIA_DEPOT_PATH}",
+        )
         env_info = await collect_environment(container)
 
         # Compile if needed
@@ -296,6 +357,7 @@ async def run_benchmark(
             f"--warmup {WARMUP_RUNS} "
             f"--runs {BENCHMARK_RUNS} "
             f"--time-unit {TIME_UNIT} "
+            f"{'--show-output ' if HYPERFINE_SHOW_OUTPUT else ''}"
             f"--export-json hyperfine.json "
             f"&& {lang.run} > pi.txt"
         )
@@ -316,12 +378,26 @@ async def run_benchmark(
         # Extract result
         result_content = await container.file("/app/result.json").contents()
         result = json.loads(result_content)
+        rounds = int(quick_rounds or (SRC_DIR / "rounds.txt").read_text().strip())
+        enrich_result(result, target, lang, rounds)
         result["Environment"] = env_info
         result["Compile"] = lang.compile or ""
         result["Run"] = lang.run
         result["Nixpkgs"] = list(lang.nixpkgs)
         result["NixFlakes"] = list(lang.nix_flakes)
         result["Category"] = lang.category
+        result["ImageTag"] = get_image_tag(registry, target, lang)
+        result["ImageFingerprint"] = language_image_fingerprint(
+            lang,
+            devbox_image=get_devbox_image(),
+            hyperfine_version=HYPERFINE_VERSION,
+            micropython_version=MICROPYTHON_VERSION,
+        )
+        result["DevboxImage"] = get_devbox_image()
+        result["BuildSource"] = "local" if use_local else "registry"
+        result["AllowNativeFlags"] = ALLOW_NATIVE_FLAGS
+        result["DevboxLock"] = json.loads(await container.file("/app/devbox.lock").contents())
+        result["DevboxConfig"] = json.loads(await container.file("/app/devbox.json").contents())
 
         print(f"  Result: {result.get('Min', 'N/A')} (min)")
         print(f"  Accuracy: {result.get('Accuracy', 'N/A')}")
@@ -330,6 +406,11 @@ async def run_benchmark(
 
     except Exception as e:
         print(f"  ERROR: {e}")
+        if isinstance(e, dagger.ExecError) and e.stderr:
+            stderr_tail = "\n".join(e.stderr.strip().splitlines()[-10:])
+            if stderr_tail:
+                print("  STDERR (tail):")
+                print(stderr_tail)
         return None
 
 
@@ -354,6 +435,7 @@ async def main(targets: list[str] | None = None) -> int:
 
     if quick_rounds:
         print(f"Quick test mode: {quick_rounds} rounds")
+    print(f"Allow native flags: {ALLOW_NATIVE_FLAGS}")
     if use_local:
         print("Using local image builds (not pulling from registry)")
     else:

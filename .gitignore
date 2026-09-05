@@ -21,6 +21,7 @@ scmeta-bin/
 test_output/
 .venv/
 .env
+__pycache__/
 build-output.txt
 version-info/
 

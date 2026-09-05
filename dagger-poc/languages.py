@@ -18,6 +18,9 @@ To add a new language:
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
 import re
 from dataclasses import dataclass
 from typing import Optional
@@ -27,10 +30,29 @@ from typing import Optional
 # =============================================================================
 
 # Compiler optimization flags for x86_64 targets
-# Note: All builds run on x86_64 Linux (either CI or Fly.io remote builder)
+# Note: All builds run on x86_64 Linux (homelab Argo or the optional Dagger adapter)
 MARCH_NATIVE = "-march=native"
-SWIFT_C_INCLUDE_PATH = (
-    "C_INCLUDE_PATH=$(gcc -print-file-name=include)${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+
+# Shared tooling versions used for image builds
+HYPERFINE_VERSION = "1.18.0"
+MICROPYTHON_VERSION = "1.24.1"
+
+# Pinned Devbox base image for reproducibility.
+# Can be overridden by DEVBOX_IMAGE for experiments.
+DEFAULT_DEVBOX_IMAGE = "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd"
+
+# Swift 5.8 has cached binaries at this immutable Nixpkgs revision.
+SWIFT_NIXPKGS = "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798"
+SWIFT_PACKAGES = tuple(f"{SWIFT_NIXPKGS}#{package}" for package in
+                       ("swift", "gcc", "llvmPackages_15.clang", "swiftPackages.Dispatch"))
+# Dispatch is a transitive runtime dependency outside Devbox's default outputs.
+SWIFT_SETUP = (
+    "printf 'export LD_LIBRARY_PATH=%s\\n' "
+    f"\"$(nix --extra-experimental-features 'nix-command flakes' eval --raw {SWIFT_NIXPKGS}#swiftPackages.Dispatch.outPath)/lib\" > .swift-env"
+)
+SWIFT_COMPILER = (
+    'env -u NIX_CC swiftc -tools-directory "$(dirname $(command -v clang))" '
+    "-target x86_64-unknown-linux-gnu -O -o leibniz "
 )
 
 # =============================================================================
@@ -58,7 +80,7 @@ class Language:
         nixpkgs: List of Devbox packages ["pkg@version", ...]
         nix_flakes: List of Nix flake refs for packages not available in Devbox
                     or that need a specific nixpkgs channel for binary cache hits.
-                    Format: ("github:NixOS/nixpkgs/nixos-24.05#swift",)
+                    Format: ("github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",)
         nix_setup: Optional shell commands to run after packages are installed
     """
 
@@ -74,7 +96,7 @@ class Language:
 
     # Devbox packages: ("go@1.23.4", "gcc@14.2.0")
     nixpkgs: tuple[str, ...] = ()
-    # Nix flake refs for binary cache hits: ("github:NixOS/nixpkgs/nixos-24.05#swift",)
+    # Nix flake refs for binary cache hits: ("github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",)
     nix_flakes: tuple[str, ...] = ()
     nix_setup: Optional[str] = None  # Post-install setup commands
 
@@ -99,8 +121,12 @@ class Language:
 
         # Validate nixpkgs have versions
         for pkg in self.nixpkgs:
-            if "@" not in pkg:
+            if "@" not in pkg or not re.fullmatch(r"[0-9][0-9A-Za-z.+_-]*", pkg.rsplit("@", 1)[1]):
                 raise ValueError(f"Package '{pkg}' must have version (e.g., '{pkg}@1.0.0')")
+
+        for ref in self.nix_flakes:
+            if not re.fullmatch(r"github:[\w.-]+/[\w.-]+/[0-9a-f]{40}#[\w.^+-]+", ref):
+                raise ValueError(f"Flake '{ref}' must use an immutable 40-character commit")
 
     @property
     def icon_key(self) -> str:
@@ -115,7 +141,7 @@ class Language:
         if self.nixpkgs:
             return self.nixpkgs[0].split("@")[0]
         elif self.nix_flakes:
-            # Extract package from flake ref: "github:NixOS/nixpkgs/nixos-24.05#swift" -> "swift"
+            # Extract package from flake ref: "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift" -> "swift"
             return self.nix_flakes[0].split("#")[-1]
         return "unknown"
 
@@ -125,12 +151,8 @@ class Language:
         if self.nixpkgs:
             return self.nixpkgs[0].split("@")[1]
         elif self.nix_flakes:
-            # Extract channel from flake ref: "github:NixOS/nixpkgs/nixos-24.05#swift" -> "24.05"
+            # Flake image versions use the immutable source revision.
             ref = self.nix_flakes[0]
-            # Try to extract version from channel name (e.g., nixos-24.05 -> 24.05)
-            if "nixos-" in ref:
-                return ref.split("nixos-")[1].split("#")[0]
-            # Fallback to full ref
             return ref.split("/")[-1].split("#")[0]
         return "unknown"
 
@@ -160,7 +182,7 @@ CPP_FLAGS = (
     f"-O3 -s -flto {MARCH_NATIVE} -mtune=native -fomit-frame-pointer "
     "-fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17"
 )
-RUST_FLAGS = "-C opt-level=3 -C lto=fat -C codegen-units=1 -C panic=abort"
+RUST_FLAGS = "-C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort"
 
 
 # =============================================================================
@@ -193,7 +215,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "rust": Language(
         name="Rust",
-        nixpkgs=("rustc@1.91.1",),
+        nixpkgs=("rustc@1.92.0",),
         file="leibniz.rs",
         compile=f"rustc {RUST_FLAGS} -o leibniz leibniz.rs",
         run="./leibniz",
@@ -201,9 +223,91 @@ LANGUAGES: dict[str, Language] = {
         base="rust",
         category="systems",
     ),
+    "rust-nightly": Language(
+        name="Rust (nightly SIMD)",
+        nixpkgs=("gcc@15.2.0",),
+        nix_flakes=("github:nix-community/fenix/03864c059200a8a96f2ee6bb050c69eae96f57ca#minimal.toolchain",),
+        file="leibniz_nightly.rs",
+        compile="rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_nightly.rs -o leibniz",
+        run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
+    ),
+    "rust-fastmath": Language(
+        name="Rust (fast-math)",
+        nixpkgs=("rustc@1.92.0",),
+        file="leibniz.rs",
+        compile=f"rustc {RUST_FLAGS} -C llvm-args=-enable-unsafe-fp-math -o leibniz leibniz.rs",
+        run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
+    ),
+    "rust-simd": Language(
+        name="Rust (SIMD)",
+        nixpkgs=("rustc@1.92.0",),
+        file="leibniz_simd.rs",
+        compile=f"rustc {RUST_FLAGS} -o leibniz leibniz_simd.rs",
+        run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
+    ),
+    "zig-simd": Language(
+        name="Zig (SIMD)", nixpkgs=("zig@0.16.0",), file="leibniz-simd.zig",
+        compile="zig build-exe -OReleaseFast leibniz-simd.zig -fno-stack-check -femit-bin=leibniz",
+        run="./leibniz", version_cmd="zig version", base="zig", category="systems",
+    ),
+    "hare": Language(
+        name="Hare", nixpkgs=("hare@0.26.0",), file="leibniz.ha",
+        compile="hare build -R -o leibniz leibniz.ha", run="./leibniz",
+        version_cmd="hare version", base="hare", category="systems",
+    ),
+    "chezscheme": Language(
+        name="Chez Scheme", nixpkgs=("chez@10.3.0",), file="leibniz.ss",
+        compile="echo '(compile-program \"leibniz.ss\")' | scheme --optimize-level 3",
+        run="scheme --program leibniz.so", version_cmd="scheme --version",
+        base="lisp", category="functional",
+    ),
+    "janet": Language(
+        name="Janet", nixpkgs=("janet@1.40.1",), file="leibniz.janet",
+        run="janet leibniz.janet", version_cmd="janet --version", base="janet", category="interpreted",
+    ),
+    "sbcl-simd": Language(
+        name="Common Lisp (SBCL SIMD)", nixpkgs=("sbcl@2.5.10",), file="leibniz-sbcl-simd.lisp",
+        compile="sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die \"leibniz\" :executable t :toplevel (quote cl-user::main) :purify t)'",
+        run="./leibniz", version_cmd="sbcl --version", base="lisp", category="functional",
+    ),
+    "cpython-numba": Language(
+        name="Python (Numba)", nixpkgs=("python3@3.12.8", "python312Packages.numba@0.61.0"),
+        file="leibniz_numba.py", run="python3 leibniz_numba.py",
+        version_cmd="python3 --version", base="python", category="jit",
+    ),
+    "mojo": Language(
+        name="Mojo", nixpkgs=("python3@3.12.8", "uv@0.5.11", "gcc@15.2.0", "patchelf@0.15.2"),
+        file="leibniz.mojo", extra_files=("mojo-requirements.txt",),
+        compile="uv venv /app/.mojo && uv pip install --python /app/.mojo/bin/python --require-hashes -r mojo-requirements.txt && /app/.mojo/bin/mojo build -O3 leibniz.mojo -o leibniz && patchelf --force-rpath --set-interpreter \"$(cat $NIX_CC/nix-support/dynamic-linker)\" --set-rpath \"$(patchelf --print-rpath leibniz):$(dirname $(g++ -print-file-name=libstdc++.so.6))\" leibniz",
+        run="./leibniz", version_cmd="/app/.mojo/bin/mojo --version",
+        base="mojo", category="compiled",
+    ),
+    "nasm": Language(
+        name="Assembly (NASM x64)", nixpkgs=("nasm@2.16.03", "gcc@15.2.0"),
+        file="leibniz.asm", compile="nasm -f elf64 leibniz.asm -o leibniz.o && gcc -o leibniz leibniz.o",
+        run="./leibniz", version_cmd="nasm -v", base="default", category="systems",
+    ),
+    "fsharp-simd": Language(
+        name="F# (SIMD)", nixpkgs=("dotnet-sdk@8.0.416",), file="fs-simd/Program.fs",
+        compile="dotnet publish fs-simd/leibniz.fsproj -c Release -o out",
+        run="dotnet ./out/leibniz.dll", version_cmd="dotnet --version", base="fsharp", category="dotnet",
+    ),
+    "kotlin-native": Language(
+        name="Kotlin (Native)", nixpkgs=("kotlin-native@2.2.21", "curl@8.11.1"), file="leibniz-native.kt",
+        nix_setup=(
+            "curl --fail --location --retry 3 https://download.jetbrains.com/kotlin/native/libffi-3.2.1-2-linux-x86-64.tar.gz -o /tmp/kotlin-libffi.tar.gz; "
+            "echo '9d817bbca098a2fa0f1d5a8b9e57674c30d100bb4c6aeceff18d8acc5b9f382c  /tmp/kotlin-libffi.tar.gz' | sha256sum -c -; tar -xf /tmp/kotlin-libffi.tar.gz -C /tmp; "
+            "KOTLIN_ROOT=$(dirname $(readlink -f $(command -v kotlinc-native)))/..; "
+            "mkdir -p /tmp/kotlin-home/klib/cache; "
+            "for kotlin_entry in \"$KOTLIN_ROOT\"/*; do test \"$(basename $kotlin_entry)\" = klib || ln -sf \"$kotlin_entry\" /tmp/kotlin-home/; done; "
+            "for kotlin_entry in \"$KOTLIN_ROOT\"/klib/*; do test \"$(basename $kotlin_entry)\" = cache || ln -sf \"$kotlin_entry\" /tmp/kotlin-home/klib/; done"
+        ),
+        compile="LD_PRELOAD=/tmp/libffi-3.2.1-2-linux-x86-64/lib/libffi.so.7 kotlinc-native leibniz-native.kt -opt -Dkonan.home=/tmp/kotlin-home -o leibniz",
+        run="./leibniz.kexe", version_cmd="kotlinc-native -version", base="kotlin", category="compiled",
+    ),
     "go": Language(
         name="Go",
-        nixpkgs=("go@1.25.4",),
+        nixpkgs=("go@1.25.5",),
         file="leibniz.go",
         compile="go build -ldflags='-s -w' -o leibniz leibniz.go",
         run="./leibniz",
@@ -216,7 +320,7 @@ LANGUAGES: dict[str, Language] = {
         name="Odin",
         nixpkgs=("odin@2025-11",),
         file="leibniz.odin",
-        compile="odin build . -file -o:speed -out:leibniz",
+        compile="odin build leibniz.odin -file -o:speed -no-bounds-check -disable-assert -out:leibniz",
         run="./leibniz",
         version_cmd="odin version",
         base="odin",
@@ -225,7 +329,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "zig": Language(
         name="Zig",
-        nixpkgs=("zig@0.15.2",),
+        nixpkgs=("zig@0.16.0",),
         file="leibniz.zig",
         compile="zig build-exe -OReleaseFast leibniz.zig -fno-stack-check",
         run="./leibniz",
@@ -237,7 +341,11 @@ LANGUAGES: dict[str, Language] = {
         name="Nim",
         nixpkgs=("nim@2.2.4",),
         file="leibniz.nim",
-        compile=f"nim c -d:release --opt:speed --passC:'{MARCH_NATIVE}' -o:leibniz leibniz.nim",
+        compile=(
+            "nim c --verbosity:0 -d:danger -d:lto --gc:arc "
+            f"--passC:'{MARCH_NATIVE} -fno-signed-zeros -fno-trapping-math -fassociative-math' "
+            "--passL:'-s' -o:leibniz leibniz.nim"
+        ),
         run="./leibniz",
         version_cmd="nim --version",
         base="nim",
@@ -267,7 +375,12 @@ LANGUAGES: dict[str, Language] = {
         name="D (LDC)",
         nixpkgs=("ldc@1.41.0",),
         file="leibniz.d",
-        compile="ldc2 leibniz.d -of=leibniz -O3 -release -flto=thin -ffast-math",
+        compile=(
+            # Avoid static link mode in nixpkgs hosted environments where libc static
+            # artifacts are not available by default.
+            # Keep codegen flags deterministic across hosts (no native CPU probing).
+            "ldc2 leibniz.d -of=leibniz -O3 -release -flto=thin -ffast-math"
+        ),
         run="./leibniz",
         version_cmd="ldc2 --version",
         base="d",
@@ -327,50 +440,34 @@ LANGUAGES: dict[str, Language] = {
     ),
     "swift": Language(
         name="Swift",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
-        ),
+        nix_flakes=SWIFT_PACKAGES,
+        nix_setup=SWIFT_SETUP,
         file="leibniz.swift",
-        compile=(
-            SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz.swift -O -o leibniz -clang-target native -lto=llvm-full"
-        ),
-        run="./leibniz",
+        compile=SWIFT_COMPILER + "leibniz.swift",
+        run=". ./.swift-env && ./leibniz < rounds.txt",
         version_cmd="swift --version",
         base="swift",
         category="systems",
     ),
     "swift-simd": Language(
         name="Swift (SIMD)",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
-        ),
+        nix_flakes=SWIFT_PACKAGES,
+        nix_setup=SWIFT_SETUP,
         file="leibniz-simd.swift",
-        compile=(
-            SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz-simd.swift -O -o leibniz -clang-target native -lto=llvm-full"
-        ),
-        run="./leibniz",
+        compile=SWIFT_COMPILER + "leibniz-simd.swift",
+        run=". ./.swift-env && ./leibniz < rounds.txt",
         version_cmd="swift --version",
         base="swift",
         category="systems",
     ),
     "swift-relaxed": Language(
         name="Swift (relaxed)",
-        nixpkgs=(
-            "swift@5.10.1",
-            "gcc@14.3.0",
-        ),
+        nix_flakes=SWIFT_PACKAGES,
+        nix_setup=SWIFT_SETUP,
         file="leibniz-relaxed.swift",
         extra_files=("relaxed.h",),
-        compile=(
-            SWIFT_C_INCLUDE_PATH
-            + " swiftc leibniz-relaxed.swift -O -o leibniz -clang-target native "
-            "-lto=llvm-full -import-objc-header relaxed.h"
-        ),
-        run="./leibniz",
+        compile=SWIFT_COMPILER + "leibniz-relaxed.swift -import-objc-header relaxed.h",
+        run=". ./.swift-env && ./leibniz < rounds.txt",
         version_cmd="swift --version",
         base="swift",
         category="systems",
@@ -512,7 +609,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpython-numpy": Language(
         name="Python (NumPy)",
-        nixpkgs=("python312@3.12.3", "python312Packages.numpy@2.2.2"),
+        nixpkgs=("python3@3.12.8", "python312Packages.numpy@2.2.2"),
         file="leibniz_np.py",
         run="python3 leibniz_np.py",
         version_cmd="python3 --version",
@@ -522,11 +619,16 @@ LANGUAGES: dict[str, Language] = {
     "mypyc": Language(
         name="Python (mypyc)",
         nixpkgs=("python3@3.12.8", "gcc@14.2.0", "uv@0.5.11"),
-        nix_setup="uv venv /app/.venv && . /app/.venv/bin/activate && uv pip install mypy setuptools",
-        file="leibniz.py",
-        compile='. /app/.venv/bin/activate && mypyc leibniz.py && python -c "import leibniz"',
+        nix_setup="uv venv /app/.venv && . /app/.venv/bin/activate && uv pip install mypy==2.3.1 setuptools==84.0.0 ast-serialize==0.9.0 librt==0.15.0 mypy-extensions==1.1.0 pathspec==1.1.1 typing-extensions==4.16.0",
+        file="leibniz_mypyc.py",
+        compile=(
+            '. /app/.venv/bin/activate && '
+            "CFLAGS='-O3 -march=native -mtune=native -fomit-frame-pointer "
+            "-fno-signed-zeros -fno-trapping-math -fassociative-math' "
+            'mypyc leibniz_mypyc.py && python -c "import leibniz_mypyc"'
+        ),
         # Use double quotes to avoid conflict with hyperfine's single quotes
-        run='. /app/.venv/bin/activate && python -c "import leibniz"',
+        run='. /app/.venv/bin/activate && python -c "import leibniz_mypyc"',
         version_cmd="python --version",
         base="python",
         category="compiled",
@@ -544,7 +646,7 @@ LANGUAGES: dict[str, Language] = {
         name="Ruby",
         nixpkgs=("ruby@3.4.7",),
         file="leibniz.rb",
-        run="ruby leibniz.rb",
+        run="ruby --yjit leibniz.rb",
         version_cmd="ruby --version",
         base="ruby",
         category="interpreted",
@@ -560,16 +662,16 @@ LANGUAGES: dict[str, Language] = {
     ),
     "bun": Language(
         name="Javascript (bun)",
-        nixpkgs=("bun@1.3.3",),
+        nixpkgs=("bun@1.3.4",),
         file="leibniz.js",
-        run="bun leibniz.js",
+        run="bun run leibniz.js",
         version_cmd="bun --version",
         base="bun",
         category="interpreted",
     ),
     "deno": Language(
         name="Deno (TypeScript)",
-        nixpkgs=("deno@2.5.6",),
+        nixpkgs=("deno@2.6.6",),
         file="leibniz.ts",
         run="deno run --allow-read leibniz.ts",
         version_cmd="deno --version",
@@ -596,7 +698,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "octave": Language(
         name="Octave",
-        nixpkgs=("octave@10.3.0-r2",),
+        nixpkgs=("octave@10.3.0",),
         file="leibniz_octave.m",
         run="octave leibniz_octave.m",
         version_cmd="octave -v",
@@ -605,7 +707,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "octave-vectorised": Language(
         name="Octave (Vectorised)",
-        nixpkgs=("octave@10.3.0-r2",),
+        nixpkgs=("octave@10.3.0",),
         file="leibniz_octave_vectorised.m",
         run="octave leibniz_octave_vectorised.m",
         version_cmd="octave -v",
@@ -657,7 +759,7 @@ LANGUAGES: dict[str, Language] = {
         name="OCaml",
         nixpkgs=("ocaml@5.3.0",),
         file="leibniz.ml",
-        compile="ocamlopt -O2 -o leibniz leibniz.ml",
+        compile="ocamlopt -O3 -o leibniz leibniz.ml",
         run="./leibniz",
         version_cmd="ocamlopt -version",
         base="ocaml",
@@ -685,7 +787,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "racket": Language(
         name="Racket",
-        nixpkgs=("racket@8.18",),
+        nixpkgs=("racket@9.0",),
         file="leibniz.rkt",
         run="racket leibniz.rkt",
         version_cmd="racket --version",
@@ -696,14 +798,15 @@ LANGUAGES: dict[str, Language] = {
         name="Common Lisp (SBCL)",
         nixpkgs=("sbcl@2.5.10",),
         file="leibniz.lisp",
-        run="sbcl --script leibniz.lisp",
+        compile="sbcl --noinform --eval '(compile-file \"leibniz.lisp\")' --quit",
+        run="sbcl --noinform --load leibniz.fasl --eval '(main)' --quit",
         version_cmd="sbcl --version",
         base="lisp",
         category="functional",
     ),
     "gleam": Language(
         name="Gleam",
-        nixpkgs=("gleam@1.13.0", "erlang@27.2"),
+        nixpkgs=("gleam@1.14.0", "erlang@27.2"),
         nix_setup="gleam new leibniz_app && cd leibniz_app && sed -i 's/\\[dependencies\\]/[dependencies]\\nsimplifile = \"~> 2.0\"/' gleam.toml && gleam deps download",
         file="leibniz.gleam",
         # Build in leibniz_app, then run with output to /app level
@@ -721,7 +824,7 @@ LANGUAGES: dict[str, Language] = {
         name="Fortran 90",
         nixpkgs=("gfortran@14.3.0",),
         file="leibniz.f90",
-        compile=f"gfortran leibniz.f90 -o leibniz -O3 -flto {MARCH_NATIVE}",
+        compile=f"gfortran leibniz.f90 -o leibniz -Ofast -flto -ffast-math {MARCH_NATIVE} -mtune=native",
         run="./leibniz",
         version_cmd="gfortran --version",
         base="fortran",
@@ -754,7 +857,7 @@ LANGUAGES: dict[str, Language] = {
         name="Dart",
         nixpkgs=("dart@3.9.4",),
         file="leibniz.dart",
-        run="dart leibniz.dart",
+        run="dart run leibniz.dart",
         version_cmd="dart --version",
         base="dart",
         category="interpreted",
@@ -769,23 +872,41 @@ LANGUAGES: dict[str, Language] = {
         base="dart",
         category="compiled",
     ),
-    # Note: janet-compiled in Earthfile uses jpm quickbin for native compilation
-    # which requires complex setup (janet-dev, janet-static, git clone jpm, etc.)
-    # For now, we use interpreted Janet as a baseline. Native compilation needs more work.
     "janet-compiled": Language(
         name="Janet (compiled)",
-        nixpkgs=("janet@1.39.1",),
-        file="leibniz.janet",
-        run="janet leibniz.janet",
+        nixpkgs=("janet@1.39.1", "git@2.47.1", "gcc@14.2.0", "gnumake@4.4.1"),
+        nix_setup=(
+            "rm -rf /tmp/jpm /tmp/janet-modules /tmp/jpm-prefix && "
+            "mkdir -p /tmp/janet-modules /tmp/jpm-prefix && "
+            "git clone https://github.com/janet-lang/jpm.git /tmp/jpm && git -C /tmp/jpm checkout --detach 2430dec269f485473502bcdc2049ee332bc63908 && "
+            "cd /tmp/jpm && JANET_PATH=/tmp/janet-modules JANET_PREFIX=/tmp/jpm-prefix janet bootstrap.janet && "
+            "mkdir -p /tmp/jpm-prefix/bin /tmp/jpm-prefix/lib /tmp/jpm-prefix/include && "
+            "cp -r \"$(dirname $(readlink -f $(command -v janet)))/../include/\"* /tmp/jpm-prefix/include/ && ln -sf \"$(command -v janet)\" /tmp/jpm-prefix/bin/janet && "
+            "ln -sf \"$(dirname $(command -v janet))/../lib/libjanet.a\" /tmp/jpm-prefix/lib/libjanet.a"
+        ),
+        file="leibniz_compiled.janet",
+        # Keep Janet manifests/modules in writable storage (not /nix/store).
+        compile=(
+            "mkdir -p /tmp/janet-modules && "
+            "JANET_PATH=/tmp/janet-modules /tmp/jpm-prefix/bin/jpm quickbin leibniz_compiled.janet leibniz"
+        ),
+        run="./leibniz",
         version_cmd="janet -v",
         base="janet",
-        category="interpreted",  # Actually interpreted until jpm setup is added
+        category="compiled",
     ),
     "julia": Language(
         name="Julia",
-        nixpkgs=("julia@1.12.1",),
-        file="leibniz.jl",
-        run="julia leibniz.jl",
+        nixpkgs=("julia@1.12.1", "gcc@15.2.0"),
+        file="julia/src/LeibnizApp.jl",
+        compile=(
+            "julia -e 'using Pkg; Pkg.activate(\"julia\"); Pkg.instantiate(); "
+            "isempty(Pkg.Registry.reachable_registries()) && Pkg.Registry.add(\"General\"); "
+            "Pkg.Apps.add(PackageSpec(name=\"JuliaC\", version=\"0.3.10\"))' && "
+            "/tmp/bench-julia-depot/bin/juliac --output-exe leibniz --trim --experimental "
+            "--bundle bun julia"
+        ),
+        run="bun/bin/leibniz",
         version_cmd="julia --version",
         base="julia",
         category="jit",
@@ -812,8 +933,11 @@ LANGUAGES: dict[str, Language] = {
     ),
     "haxe": Language(
         name="Haxe",
-        nixpkgs=("haxe@4.3.6", "gcc@14.2.0"),
-        nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib && haxelib install hxcpp",
+        nix_flakes=(
+            "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#haxe",
+            "github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#gcc",
+        ),
+        nix_setup="mkdir -p /tmp/haxelib && haxelib setup /tmp/haxelib && haxelib install hxcpp 4.3.2",
         file="Leibniz.hx",
         compile="haxe -main Leibniz -cpp out",
         run="./out/Leibniz",
@@ -852,6 +976,53 @@ LANGUAGES: dict[str, Language] = {
 def get_all_versions() -> dict[str, str]:
     """Get all pinned versions for external tooling."""
     return {name: lang.primary_version for name, lang in LANGUAGES.items()}
+
+
+def get_devbox_image() -> str:
+    """Get the Devbox base image reference.
+
+    Defaults to a pinned image+digest for reproducibility.
+    """
+    return os.environ.get("DEVBOX_IMAGE", DEFAULT_DEVBOX_IMAGE)
+
+
+def language_image_fingerprint(
+    lang: Language,
+    *,
+    devbox_image: str | None = None,
+    hyperfine_version: str = HYPERFINE_VERSION,
+    micropython_version: str = MICROPYTHON_VERSION,
+) -> str:
+    """Build a deterministic fingerprint for language image inputs."""
+    payload = {
+        "allow_insecure": list(lang.allow_insecure),
+        "devbox_image": devbox_image or get_devbox_image(),
+        "hyperfine_version": hyperfine_version,
+        "micropython_version": micropython_version,
+        "nix_flakes": list(lang.nix_flakes),
+        "nix_setup": lang.nix_setup or "",
+        "nixpkgs": list(lang.nixpkgs),
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+
+
+def language_image_version_tag(
+    lang: Language,
+    *,
+    devbox_image: str | None = None,
+    hyperfine_version: str = HYPERFINE_VERSION,
+    micropython_version: str = MICROPYTHON_VERSION,
+) -> str:
+    """Return a Docker tag suffix encoding version + config fingerprint."""
+    version = lang.primary_version.replace("+", "-")
+    fingerprint = language_image_fingerprint(
+        lang,
+        devbox_image=devbox_image,
+        hyperfine_version=hyperfine_version,
+        micropython_version=micropython_version,
+    )
+    return f"{version}-{fingerprint}"
 
 
 def get_languages_by_category() -> dict[str, list[str]]:

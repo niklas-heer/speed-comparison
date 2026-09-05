@@ -1,6 +1,5 @@
-import Foundation
-let text = try! String(contentsOfFile: "rounds.txt").split(separator: "\n")[0]
-let rounds = Int(text)!
+// Read stdin so the Nix Swift toolchain does not need Foundation headers.
+let rounds = Int(readLine()!)!
 
 var remainingIterations = rounds + 1
 var d = 3.0
@@ -48,4 +47,4 @@ if remainingIterations > 0 {
 
 pi *= 4.0
 
-print(String(format: "%.16f", pi))
+print(pi)

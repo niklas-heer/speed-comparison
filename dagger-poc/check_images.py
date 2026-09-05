@@ -34,7 +34,16 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from languages import LANGUAGES, Language, get_base_image_name, get_language
+from languages import (
+    HYPERFINE_VERSION,
+    MICROPYTHON_VERSION,
+    LANGUAGES,
+    Language,
+    get_base_image_name,
+    get_devbox_image,
+    get_language,
+    language_image_version_tag,
+)
 
 # Default registry
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
@@ -46,7 +55,12 @@ def get_image_tag(registry: str, target: str, lang: Language) -> str:
     Uses the base image name for languages that share a base.
     """
     base_name = get_base_image_name(target)
-    version = lang.primary_version.replace("+", "-")
+    version = language_image_version_tag(
+        lang,
+        devbox_image=get_devbox_image(),
+        hyperfine_version=HYPERFINE_VERSION,
+        micropython_version=MICROPYTHON_VERSION,
+    )
     return f"{registry}/{base_name}:{version}"
 
 

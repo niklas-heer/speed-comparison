@@ -41,11 +41,15 @@ from pathlib import Path
 import dagger
 
 from languages import (
+    HYPERFINE_VERSION,
+    MICROPYTHON_VERSION,
     LANGUAGES,
     Language,
+    get_devbox_image,
     get_base_image_name,
     get_base_languages,
     get_language,
+    language_image_version_tag,
     resolve_targets_to_bases,
 )
 
@@ -55,16 +59,6 @@ from languages import (
 
 # Default registry (can be overridden via REGISTRY env var)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
-
-# Base image
-DEVBOX_IMAGE = "jetpackio/devbox:latest"
-
-# Hyperfine version to include in all images
-HYPERFINE_VERSION = "1.18.0"
-
-# MicroPython for scmeta (much smaller than full Python)
-MICROPYTHON_VERSION = "1.24.1"
-
 
 # =============================================================================
 # Image Building
@@ -84,7 +78,7 @@ async def build_devbox_image(
 
     Both can be combined in the same language definition.
     """
-    container = client.container().from_(DEVBOX_IMAGE)
+    container = client.container().from_(get_devbox_image())
 
     # Allow insecure packages if needed (e.g., haxe depends on mbedtls)
     if lang.allow_insecure:
@@ -122,7 +116,9 @@ async def build_devbox_image(
 
     # Run any post-install setup
     if lang.nix_setup:
-        container = container.with_exec(["devbox", "run", "--", "sh", "-c", lang.nix_setup])
+        container = container.with_new_file("/app/.benchmark-setup.sh", contents=lang.nix_setup).with_exec(
+            ["devbox", "run", "--", "sh", "-e", "/app/.benchmark-setup.sh"]
+        )
 
     # Create a shell script that activates devbox environment
     # This makes it easy to run commands in the container
@@ -152,9 +148,12 @@ def get_image_tag(registry: str, target: str, lang: Language) -> str:
     E.g., swift-simd uses the "swift" image.
     """
     base_name = get_base_image_name(target)
-    version = lang.primary_version
-    # Sanitize version for Docker tag (replace invalid chars)
-    version = version.replace("+", "-")
+    version = language_image_version_tag(
+        lang,
+        devbox_image=get_devbox_image(),
+        hyperfine_version=HYPERFINE_VERSION,
+        micropython_version=MICROPYTHON_VERSION,
+    )
     return f"{registry}/{base_name}:{version}"
 
 

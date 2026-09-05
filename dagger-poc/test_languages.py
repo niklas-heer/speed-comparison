@@ -11,9 +11,12 @@ import pytest
 from languages import (
     LANGUAGES,
     Language,
+    get_devbox_image,
     get_all_versions,
     get_languages_by_category,
     get_variants,
+    language_image_fingerprint,
+    language_image_version_tag,
 )
 
 # Path to source files (relative to repo root, not dagger-poc)
@@ -176,12 +179,12 @@ class TestLanguageDataclass:
         """primary_package should extract from nix_flakes if no nixpkgs."""
         lang = Language(
             name="Swift",
-            nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
+            nix_flakes=("github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",),
             file="leibniz.swift",
             run="./test",
         )
         assert lang.primary_package == "swift"
-        assert lang.primary_version == "24.05"
+        assert lang.primary_version == "b134951a4c9f3c995fd7be05f3243f8ecd65d798"
 
 
 class TestCategoryGrouping:
@@ -235,3 +238,49 @@ class TestVersionUtilities:
             assert version, f"{target}: version is empty"
             # Version should not contain @ (that's the package format)
             assert "@" not in version, f"{target}: version contains @"
+
+
+class TestImageReproducibility:
+    """Test image identity helpers."""
+
+    def test_devbox_image_default_is_pinned(self):
+        """Default Devbox image should be pinned by digest."""
+        assert "@sha256:" in get_devbox_image()
+
+    def test_image_fingerprint_is_deterministic(self):
+        """Fingerprint should be stable for identical config."""
+        lang = Language(
+            name="Test",
+            nixpkgs=("rustc@1.91.1",),
+            file="leibniz.rs",
+            run="./test",
+        )
+        assert language_image_fingerprint(lang) == language_image_fingerprint(lang)
+
+    def test_image_fingerprint_changes_with_inputs(self):
+        """Fingerprint should change if image-relevant inputs change."""
+        lang1 = Language(
+            name="Test",
+            nixpkgs=("rustc@1.91.1",),
+            file="leibniz.rs",
+            run="./test",
+        )
+        lang2 = Language(
+            name="Test",
+            nixpkgs=("rustc@1.92.0",),
+            file="leibniz.rs",
+            run="./test",
+        )
+        assert language_image_fingerprint(lang1) != language_image_fingerprint(lang2)
+
+    def test_image_version_tag_contains_version_and_fingerprint(self):
+        """Version tag should include primary version and config fingerprint."""
+        lang = Language(
+            name="Test",
+            nixpkgs=("rustc@1.91.1",),
+            file="leibniz.rs",
+            run="./test",
+        )
+        tag = language_image_version_tag(lang)
+        assert tag.startswith("1.91.1-")
+        assert len(tag.split("-")[-1]) == 12

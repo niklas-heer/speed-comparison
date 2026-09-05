@@ -42,117 +42,92 @@ The benchmark measures **single-threaded computational performance**. To keep co
 
 [<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ") -->
 
-## Used hardware
-
-The benchmarks run on Ubicloud standard-4 runners:
-
-    CPU: 4 vCPUs (2 physical cores) on AMD EPYC 9454P processors
-    RAM: 16 GB
-    Storage: NVMe SSDs
-    OS: Ubuntu 24.04
-
-See [Ubicloud Runner Types](https://www.ubicloud.com/docs/github-actions-integration/runner-types) for more details.
-
 ## Run it yourself
 
-Everything is run by a Docker container and a bash script which envokes the programs.
+The benchmark toolchains are installed with **Nix through Devbox**. Language
+versions, compilation flags, source files, and execution commands live in
+[`dagger-poc/languages.py`](dagger-poc/languages.py). The directory name is retained
+for compatibility. Hyperfine measures execution; `scmeta.py` records the output,
+timings, and accuracy. Compilation is outside the timed command.
 
-To measure the execution time a [python package](https://pypi.python.org/pypi/lauda/1.2.0) is used.
+### Local testing with Dagger
 
-### Requirements
-- `Docker`
-- [earthly](https://earthly.dev/)
+Install Docker and [uv](https://docs.astral.sh/uv/), then run:
 
-### Run everything
-Earthly allows to run everything with a single command:
 ```bash
-earthly +all
-```
-This will run all tasks to collect all measurements and then run the analysis.
+# Configuration and metadata regression tests
+uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
 
-### Collect data
-To collect data for all languages run:
+# Quick end-to-end test (10,000 rounds)
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
+  uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust go python
+
+# Full benchmark: omit QUICK_TEST_ROUNDS
+USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust
+
+# List targets and their exact commands
+uv run --directory dagger-poc python -c \
+  "from languages import LANGUAGES; print('\\n'.join(LANGUAGES))"
+```
+
+The Dagger Python SDK provisions its CLI/engine. Docker must be running.
+Some targets require x86_64 and specific CPU instructions (AVX2 or AVX-512).
+Use native Linux for performance measurements; emulated runs only test functionality.
+
+### Homelab benchmarks with Argo
+
+Argo Workflows is the primary scheduled/manual execution path. Its native adapter
+uses the same definitions and measurement tools as Dagger, inside restricted
+Devbox containers. It runs one target at a time and archives raw JSON, charts,
+CSV, compiler commands, hardware information, and the resolved Devbox lock.
+No registry write credentials or Docker socket are needed for benchmarks.
+
+With the cluster kubeconfig configured:
+
 ```bash
-earthly +collect-data
+python scripts/argo_bench.py --targets "c rust go python" --rounds 10000
+python scripts/argo_bench.py --targets all --rounds 1000000000
+kubectl -n speed-comparison get workflows,pods
 ```
 
-To collect data for a single language run:
+The manifests and operator commands are maintained in the homelab repository.
+The weekly schedule stays suspended until migration validation is complete.
+See [the migration tracker](docs/nix-migration.md) for rollout and issue status.
+
+### Analyze results
+
 ```bash
-earthly +rust    # or any other language target
+uv run --locked analyze.py --folder ./results --out ./results --rounds ./src/rounds.txt
 ```
 
-### Available language targets
-Language targets are auto-discovered from the Earthfile. You can list them with:
-```bash
-./scripts/discover-languages.sh
-```
+Use the `rounds.txt` from the corresponding run. Quick-test timings are not suitable
+for ranking languages and must never replace the public full-benchmark results.
 
-### Analyse results
-To generate the combined CSV and chart from all results:
-```bash
-earthly +analysis
-```
+## CI/CD and versions
 
-### Fast check (subset)
-For quick testing, run only a subset of fast languages:
-```bash
-earthly +fast-check   # runs: c, go, rust, cpython
-```
+GitHub Actions runs configuration and metadata tests on hosted Ubuntu. Expensive
+Ubicloud builds are removed from the normal path. The optional Dagger workflow is
+manual; normal benchmarks run in Argo. The former `/bench` and `/dagger-bench`
+comment commands are replaced by the Argo submission command above.
 
-## CI/CD
+The weekly Nix version checker proposes explicit package updates in draft PRs.
+Configuration tests validate those proposals; affected targets still need a native
+smoke test before merging. Flake packages use immutable nixpkgs revisions and are
+reviewed separately. The Earthfile and its manually triggered version workflow
+remain as migration references.
 
-The project uses GitHub Actions with a **parallel matrix build**:
+## Hardware and interpretation
 
-1. **Auto-discovery**: Language targets are automatically detected from the Earthfile
-2. **Parallel execution**: All 43+ languages run simultaneously in separate jobs
-3. **Isolation**: Each language gets a fresh runner environment
-4. **Results collection**: All results are merged and analyzed together
-5. **Auto-publish**: Results are published to [GitHub Pages](https://niklas-heer.github.io/speed-comparison/)
+New homelab runs record their actual CPU and environment in result metadata. Older
+published results were collected on Ubicloud AMD EPYC 9454P runners. Do not compare
+absolute times across different hardware, compiler versions, or round counts.
 
-### PR Commands
-
-Repository maintainers can trigger benchmarks on PRs using comments:
-
-```
-/bench rust go c     # Run specific languages
-```
-
-### Labels
-
-- `enable-ci`: Trigger full benchmark suite on a PR
-- `skip-ci`: Skip the fast-check on a PR
-
-## Automated Version Updates
-
-This project uses an AI-powered CI workflow to keep all programming languages up to date automatically.
-
-### How It Works
-
-1. **Weekly Check**: A scheduled workflow runs every Monday at 6 AM UTC
-2. **Version Detection**: Checks for new versions via:
-   - Docker Hub Registry API (for official language images)
-   - GitHub Releases API (for languages like Zig, Nim, Gleam)
-   - Alpine package index (for Alpine-based packages)
-3. **Automated Updates**: Claude Code (via OpenRouter) updates the Earthfile with new versions
-4. **Validation**: Runs a quick benchmark to verify the update compiles and runs correctly
-5. **Breaking Changes**: If the build fails, Claude Code (Opus) researches and fixes breaking changes (up to 3 attempts)
-6. **PR Creation**: Creates a PR for review if successful, or an issue describing the failure if not
-
-### Manual Trigger
-
-You can manually trigger a version check:
-
-1. Go to **Actions** → **Version Check** → **Run workflow**
-2. Optionally specify a single language name to check only that one
-3. Enable "Dry run" to check versions without creating PRs
-
-### Configuration
-
-Version sources are defined in [`scripts/version-sources.json`](scripts/version-sources.json). Each language maps to:
-- `source`: Where to check for updates (docker, github, alpine, apt)
-- `image` or `repo`: The Docker image or GitHub repository
-- `earthfile_pattern`: Regex to extract current version from Earthfile
-- `source_file`: The source code file for this language
+Optimized variants remain allowed. Results label relaxed floating-point math,
+explicit SIMD/vectorized variants, and paired-term algebraic transformations.
+`compiler-default` describes the absence of explicitly requested relaxed math; it
+does not promise identical IEEE evaluation order across languages. Every result
+must be finite and pass a round-dependent Leibniz convergence check. This catches
+gross errors while allowing existing rounding and boundary-term differences.
 
 ## FAQ
 

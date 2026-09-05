@@ -99,6 +99,11 @@ def main():
     if meta_file.exists():
         shutil.copy(meta_file, latest_dir / "run_metadata.json")
 
+    source_revision = results_dir / "source-revision.txt"
+    if source_revision.exists():
+        shutil.copy(source_revision, run_dir / "source-revision.txt")
+        shutil.copy(source_revision, latest_dir / "source-revision.txt")
+
     # Update manifest
     lang_count = count_languages(csv_file)
     update_manifest(history_dir, run_id, lang_count)

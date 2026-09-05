@@ -2,10 +2,10 @@
 """
 Check for available package version updates in nixpkgs.
 
-This script queries nixhub.io API to find newer versions of packages
+This script queries the Devbox catalog JSON API to find newer versions of packages
 used in languages.py. It handles both:
 - Devbox packages (nixpkgs with @version syntax)
-- Nix flake packages (pinned to NIXPKGS_REV)
+- Nix flake packages (pinned to immutable commits)
 
 Usage:
     python check_versions.py              # Check all packages
@@ -20,11 +20,13 @@ import json
 import re
 import sys
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from urllib.parse import quote
 
-from languages import LANGUAGES, NIXPKGS_REV, Language
+from languages import LANGUAGES, Language
 
 
 @dataclass
@@ -91,10 +93,9 @@ def is_stable_version(version: str) -> bool:
     return True
 
 
+@lru_cache(maxsize=None)
 def get_nixhub_versions(package: str, stable_only: bool = True) -> list[str]:
-    """Query nixhub.io for available versions of a package.
-
-    Scrapes the HTML package page since there's no public JSON API.
+    """Query the public Devbox catalog for available package versions.
 
     Args:
         package: Package name (without version, e.g., "rustc", "go")
@@ -103,26 +104,21 @@ def get_nixhub_versions(package: str, stable_only: bool = True) -> list[str]:
     Returns:
         List of available version strings, newest first.
     """
-    url = f"https://www.nixhub.io/packages/{package}"
+    url = f"https://search.devbox.sh/v1/search?q={quote(package)}"
 
     try:
         request = Request(
             url,
             headers={
-                "Accept": "text/html",
+                "Accept": "application/json",
                 "User-Agent": "speed-comparison-version-checker/1.0",
             },
         )
         with urlopen(request, timeout=30) as response:
-            html = response.read().decode("utf-8")
-
-            # Version info is in list items with id="VERSION"
-            # Pattern: <li id="1.23.4" ...> or <li id="21.0.5" ...>
-            version_pattern = r'<li\s+id="([0-9][0-9a-zA-Z._-]*)"'
-            matches = re.findall(version_pattern, html)
-
-            # Filter to only valid-looking versions (must contain a digit)
-            versions = [v for v in matches if re.search(r"\d", v)]
+            data = json.load(response)
+            matches = [p for p in data.get("packages", []) if p.get("name") == package]
+            versions = [v["version"] for p in matches for v in p.get("versions", [])
+                        if v.get("version")]
 
             # Filter out unstable versions if requested
             if stable_only:
@@ -130,7 +126,8 @@ def get_nixhub_versions(package: str, stable_only: bool = True) -> list[str]:
 
             return versions
 
-    except (URLError, HTTPError) as e:
+    except (URLError, HTTPError, ValueError, KeyError) as e:
+        print(f"Version lookup failed for {package}: {e}", file=sys.stderr)
         return []
 
 
@@ -171,11 +168,17 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
     """
     package = lang.primary_package
     current = lang.primary_version
+    package_type = "flake" if lang.nix_flakes else "devbox"
 
-    # Get available versions from nixhub
+    # A flake revision is not a compiler version. Never compare its digits
+    # with a release number or automatically replace it with one.
+    if package_type == "flake":
+        return VersionInfo(target, package, current, None, False, package_type)
+
+    # Get available versions from the Devbox catalog
     versions = get_nixhub_versions(package, stable_only=stable_only)
 
-    latest = versions[0] if versions else None
+    latest = max(versions, key=parse_version) if versions else None
 
     # Determine if update is available
     update_available = False
@@ -243,9 +246,6 @@ def print_results(results: list[VersionInfo], as_json: bool = False) -> None:
     # Group by package type
     devbox_results = [r for r in results if r.package_type == "devbox"]
     flake_results = [r for r in results if r.package_type == "flake"]
-
-    print(f"Nixpkgs pin: {NIXPKGS_REV}")
-    print()
 
     # Print Devbox packages
     if devbox_results:
@@ -337,7 +337,7 @@ def main() -> int:
         print(f"Total: {len(updates)} update(s) available")
         print("\nTo update a Devbox package version:")
         print('  Edit languages.py: nixpkgs=("package@NEW_VERSION",)')
-        print("\nTo update Nix flake packages, update NIXPKGS_REV in languages.py")
+        print("\nReview and update immutable nix_flakes revisions in languages.py separately.")
 
     return 0
 

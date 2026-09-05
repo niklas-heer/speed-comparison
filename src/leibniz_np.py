@@ -9,7 +9,12 @@ def main():
         rounds = int(file.read())
 
     n = rounds
-    pi = 4 * (1 / np.arange(1 + (n % 2) * 2 - 2 * n, 2 * n + 1, 4)).sum()
+    # Keep vectorized summation below the runner's memory limit at one billion terms.
+    total = 0.0
+    start = 1 + (n % 2) * 2 - 2 * n
+    for first in range(start, 2 * n + 1, 4 * 1_000_000):
+        total += (1 / np.arange(first, min(first + 4 * 1_000_000, 2 * n + 1), 4)).sum()
+    pi = 4 * total
 
     print("{:.16f}".format(pi))
 

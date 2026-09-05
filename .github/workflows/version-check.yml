@@ -1,9 +1,6 @@
-name: Version Check
+name: Legacy Earthly Version Check (manual)
 
 on:
-  schedule:
-    # Run weekly on Mondays at 6 AM UTC
-    - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
       language:
@@ -22,7 +19,7 @@ env:
 jobs:
   # Discover all language targets from Earthfile
   discover:
-    runs-on: ubicloud-standard-2
+    runs-on: ubuntu-24.04
     outputs:
       languages: ${{ steps.discover.outputs.languages }}
     steps:
@@ -43,7 +40,7 @@ jobs:
   # Check for version updates
   check-versions:
     needs: discover
-    runs-on: ubicloud-standard-2
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         language: ${{ fromJson(needs.discover.outputs.languages) }}
@@ -92,7 +89,7 @@ jobs:
   # Aggregate results and trigger updates
   process-updates:
     needs: check-versions
-    runs-on: ubicloud-standard-2
+    runs-on: ubuntu-24.04
     if: ${{ !inputs.dry_run }}
     outputs:
       languages_to_update: ${{ steps.aggregate.outputs.languages_to_update }}
@@ -142,7 +139,7 @@ jobs:
   update-bundle:
     needs: process-updates
     if: needs.process-updates.outputs.has_updates == 'true'
-    runs-on: ubicloud-standard-4
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -445,7 +442,7 @@ jobs:
   # Summary job
   summary:
     needs: [check-versions, process-updates]
-    runs-on: ubicloud-standard-2
+    runs-on: ubuntu-24.04
     if: always()
     steps:
       - uses: actions/checkout@v4

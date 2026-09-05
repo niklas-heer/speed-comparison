@@ -1,12 +1,14 @@
 import std.stdio;
 import std.file;
+import std.string;
+import std.conv;
 
 double pi = 1.0;
 uint rounds;
 
 void main() {
-    auto file = File("./rounds.txt", "r");
-    file.readf!"%d\n"(rounds);
+    auto roundsText = cast(string) read("./rounds.txt");
+    rounds = to!uint(strip(roundsText));
     rounds += 2u;
     foreach(i; 2u .. rounds) {
         double x = -1.0 + 2.0 * (i & 0x1);

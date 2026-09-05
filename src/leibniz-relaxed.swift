@@ -1,7 +1,4 @@
-import Foundation
-
-let text = try! String(contentsOfFile: "rounds.txt").split(separator: "\n")[0]
-let rounds = UInt64(text)! + 2
+let rounds = UInt64(readLine()!)! + 2
 var pi = 1.0
 
 var i: UInt64 = 2
@@ -14,4 +11,4 @@ while i < rounds {
 }
 
 pi *= 4.0
-print(String(format: "%.16f", pi))
+print(pi)

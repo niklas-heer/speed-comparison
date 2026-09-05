@@ -1,163 +1,40 @@
-# Dagger Pipeline (Proof of Concept)
+# Nix benchmark pipeline
 
-This directory contains an experimental Dagger-based pipeline to replace the existing Earthly build system. The goal is to improve build times, caching, and maintainability.
+`languages.py` is the source of truth for compiler packages, source files, setup,
+compilation, and benchmark commands. Two adapters use those definitions:
 
-## Why Dagger?
+- `native.py`: one target per restricted Devbox container, used by homelab Argo.
+- `benchmark.py`: portable Dagger adapter for local Docker testing and optional
+  manually dispatched GitHub benchmarks.
 
-| Aspect | Earthly | Dagger |
-|--------|---------|--------|
-| Language | Earthfile DSL | Python (or Go/TypeScript) |
-| Caching | Layer-based | Content-addressed, more granular |
-| Base images | Built each run | Pre-built, stored in registry |
-| Package management | Alpine/Debian packages | Nix/Devbox (reproducible) |
-| Parallelism | Limited | Native async |
-
-### Key Benefits
-
-1. **Pre-built container images**: Language runtimes are built once and pushed to GHCR, then pulled for benchmarks. No more rebuilding compilers every run.
-
-2. **Nix/Devbox for packages**: Reproducible, pinned versions across all languages. Easy version updates via `languages.py`.
-
-3. **Python pipeline**: Easier to maintain, test, and extend than Earthfile DSL.
-
-4. **MicroPython for scmeta**: Lightweight (~908KB) metadata tool that runs in containers without needing a full Python runtime.
-
-## Directory Structure
-
-```
-dagger-poc/
-├── languages.py        # Language definitions (59 languages)
-├── build_images.py     # Build and push container images
-├── benchmark.py        # Run benchmarks
-├── scmeta.py          # Metadata extraction (MicroPython-compatible)
-├── check_versions.py   # Check for version updates
-├── test_*.py          # Unit tests
-└── pyproject.toml     # Python dependencies
-```
-
-## Quick Start
-
-### Prerequisites
-
-- [just](https://github.com/casey/just) (command runner)
-- [uv](https://github.com/astral-sh/uv) (Python package manager)
-- [Dagger CLI](https://docs.dagger.io/cli)
-- Docker
-
-### Install dependencies
+Both use hyperfine and the MicroPython-compatible `scmeta.py`. Compilation precedes
+measurement. `result_metadata.py` validates finite, plausible Leibniz output and
+adds actual rounds and math/SIMD labels. Native results retain the resolved
+`devbox.lock`, including transitive Nix inputs.
 
 ```bash
-cd dagger-poc
-just install
+# From the repository root:
+uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \\
+  uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust go python
+python scripts/argo_bench.py --targets 'rust go python' --rounds 10000
 ```
 
-### Commands
+The directory keeps its original name to preserve scripts and dependency update
+paths. Use `just` inside this directory for convenience commands. `uv sync --extra
+dev` installs pytest and the development tooling.
 
-Run `just` to see all available commands:
+For a new language, add a `Language` entry and its source, run the tests, then run
+a native smoke test. Validate small odd/even round counts and SIMD tail handling.
+Variants need distinct display names. Keep package versions explicit; flake inputs
+must reference immutable commits. Capture actual compiler versions in the output.
 
-```bash
-just                    # Show all commands
-just help               # Show quick start guide
-```
+`check_versions.py --json` queries the Devbox catalog. `update_versions.py` applies
+only literal package-version changes, including shared variants, while leaving
+compile/setup commands intact. Proposed upgrades require native validation.
 
-**Benchmarking:**
-```bash
-just test rust go       # Quick test (10k iterations, local build)
-just bench rust         # Full benchmark (1B iterations, local build)
-just bench-registry rust  # Use pre-built images from registry
-```
+Registry image builds remain optional (`build_images.py`). Their tags fingerprint
+the package/setup/tool configuration. Registry access is not needed by Argo.
 
-**Container Images:**
-```bash
-just build rust go      # Build images locally
-just push rust go       # Build and push to registry
-just build-dry-run      # Show what would be built
-```
-
-**Version Management:**
-```bash
-just check-versions     # Check all languages for updates
-just check-versions rust  # Check specific language
-```
-
-**Development:**
-```bash
-just tests              # Run all tests
-just list-langs         # List all available languages
-just lang-info rust     # Show details for a language
-```
-
-## CI/CD Workflows
-
-Two GitHub Actions workflows are available:
-
-### `dagger-build-images.yml`
-
-Builds and pushes container images to GHCR.
-
-- **Triggers**: Push to `dagger-poc/languages.py` or `build_images.py`, manual dispatch
-- **Runners**: Ubicloud (standard-2 for prep, standard-4 for builds)
-
-### `dagger-benchmark.yml`
-
-Runs benchmarks using pre-built images.
-
-- **Triggers**: Push to `src/leibniz.*`, PR changes, manual dispatch
-- **Commands**: `/dagger-bench rust go` in PR comments
-- **Options**:
-  - `languages`: Specific languages to benchmark
-  - `quick_test`: Use 10k iterations
-  - `use_local_images`: Build locally instead of pulling
-  - `skip_cache`: Force fresh benchmarks
-
-## Adding a New Language
-
-1. Add entry to `languages.py`:
-
-```python
-"mylang": Language(
-    name="MyLang",
-    file="leibniz.ml",
-    nixpkgs=("mylang@1.2.3",),  # Devbox package
-    version_cmd="mylang --version",
-    compile="mylang build leibniz.ml",
-    run="./leibniz",
-),
-```
-
-2. Create source file: `src/leibniz.ml`
-
-3. Test locally:
-```bash
-QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py mylang
-```
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     GitHub Actions                          │
-├─────────────────────────────────────────────────────────────┤
-│  build-images.yml          │  benchmark.yml                 │
-│  ┌───────────────┐         │  ┌───────────────┐            │
-│  │ build_images  │──push──►│  │   benchmark   │            │
-│  │     .py       │         │  │      .py      │            │
-│  └───────────────┘         │  └───────────────┘            │
-│         │                  │         │                      │
-│         ▼                  │         ▼                      │
-│  ┌───────────────┐         │  ┌───────────────┐            │
-│  │     GHCR      │◄───pull─┤  │   scmeta.py   │            │
-│  │  (containers) │         │  │ (micropython) │            │
-│  └───────────────┘         │  └───────────────┘            │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                       ┌─────────────┐
-                       │   results/  │
-                       │  *.json     │
-                       └─────────────┘
-```
-
-## Feedback
-
-This is a proof of concept. Please share feedback in the tracking issue!
+See [the project README](../README.md) and [migration tracker](../docs/nix-migration.md)
+for hardware, execution commands, and remaining rollout gates.
