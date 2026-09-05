@@ -25,6 +25,7 @@ jobs:
       - name: Test pipeline and language definitions
         run: uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
       - name: Plan affected language checks
+        id: plan
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -36,10 +37,18 @@ jobs:
           python - <<'PY'
           import json, os
           plan = json.load(open('benchmark-plan.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('report_check=' + str(plan['report_check']).lower() + '\n')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
               summary.write('Affected benchmark targets: ' + (', '.join(plan['targets']) or 'none') + '\n')
+              summary.write('Report validation: ' + ('yes' if plan['report_check'] else 'no') + '\n')
               summary.write('This plan selects validation work; it is not a published performance report.\n')
           PY
+      - name: Validate report rendering and local publication
+        if: steps.plan.outputs.report_check == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          MPLBACKEND: Agg
+        run: uv run --locked python scripts/check_report.py
       - uses: actions/upload-artifact@v4
         with:
           name: benchmark-plan

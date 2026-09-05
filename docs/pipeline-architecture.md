@@ -53,7 +53,12 @@ planner compares the merge base with the exact proposed revision. It selects:
 - Every variant that consumes a changed source, source directory or extra file.
 - A changed language declaration and users of changed shared compiler settings.
 - All languages for shared execution/tooling changes or unknown source inputs.
-- No benchmark jobs for documentation-only changes.
+- No benchmark jobs for documentation-only or report-only changes.
+
+Root reporting dependencies and report scripts select a separate lightweight check.
+It renders recorded data and verifies local publication, raw samples, source metadata
+and icon conversion in a temporary directory. It does not run compilers/benchmarks
+or push results. The Dagger environment lock still selects all benchmark targets.
 
 The planner must not execute PR Python just to discover targets. `scripts/affected_targets.py`
 implements this using AST inspection. Its output contains source revisions,
@@ -140,7 +145,7 @@ pod. This is a material preparation problem, independent of Python SDK overhead.
 The shared five-execution protocol and Dagger cache boundary are implemented.
 Two real local Dagger runs reused build layers and produced distinct fresh
 sample arrays/measurement IDs. The Python suite, including target-selection and
-measurement protocol tests, has 96 passing cases at this design revision.
+measurement protocol tests, has 99 passing cases at this design revision.
 
 ## Results, database and website
 
