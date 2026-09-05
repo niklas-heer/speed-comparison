@@ -164,3 +164,9 @@ def test_manifest_size_limit_precedes_json_parsing():
         load_manifest(
             " " * (MAX_MANIFEST_BYTES + 1), source_revision=REVISION, catalog_sha256=DIGEST
         )
+
+
+def test_base_image_identifier_cannot_escape_its_namespace(document):
+    document["languages"]["go"]["base"] = "../another-image"
+    with pytest.raises(ValueError, match="base-image identifier"):
+        load(document)

@@ -121,6 +121,8 @@ def load_manifest(payload: str, *, source_revision: str, catalog_sha256: str) ->
         for key in ("name", "base", "category"):
             if config[key] is not None and any(ord(c) < 32 for c in config[key]):
                 raise ValueError(f"{target}.{key}: control characters are not allowed")
+        if config["base"] is not None and not re.fullmatch(TARGET_PATTERN, config["base"]):
+            raise ValueError(f"{target}: invalid base-image identifier")
         for key in LIST_FIELDS:
             if not isinstance(config[key], list) or len(config[key]) > 256:
                 raise ValueError(f"{target}.{key}: expected a bounded list")

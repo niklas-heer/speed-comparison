@@ -27,6 +27,7 @@ tooling and all normalized language definitions. It is **not an authorization to
 or proof that an arbitrary checkout matches its declared revision. The dispatcher
 must verify the exact commit snapshot, authorize that head revision, recompute the
 affected-target plan and retain the resolved manifest with the run evidence.
+Execution order belongs to the authorized run plan, not JSON object-key order.
 A Python catalog can be dynamic; recording only its source hash is insufficient.
 
 Use the driver and its dependencies from a trusted checkout, with the proposed
@@ -64,4 +65,4 @@ boundary; it does not validate the future homelab deployment or run any benchmar
 
 The [recorded integration evidence](validation/2026-09-05-catalog-resolution.json)
 includes the source/catalog identity, driver hashes, resolver image, SDK version
-and observed checks. The complete Python suite has 126 passing tests.
+and observed checks. The complete Python suite has 127 passing tests.
