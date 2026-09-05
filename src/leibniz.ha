@@ -5,8 +5,9 @@ use strings;
 use strconv;
 
 export fn main() void = {
-       const rounds = os::open("rounds.txt")!;
-       const rounds = io::drain(rounds)!;
+       const input = os::open("rounds.txt")!;
+       defer io::close(input)!;
+       const rounds = io::drain(input)!;
        const rounds = strings::fromutf8(rounds)!;
        const rounds = strconv::stou32(strings::trim(rounds))!;
 
