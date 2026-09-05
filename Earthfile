@@ -156,14 +156,19 @@ collect-data:
   BUILD +gleam
   BUILD +haskell
   BUILD +ocaml
+  BUILD +chezscheme
   BUILD +racket
   BUILD +sbcl
+  BUILD +sbcl-simd
   # Scripting languages
   BUILD +cpython
   BUILD +cpython-numpy
+  BUILD +cpython-numba
   BUILD +lua
   BUILD +luajit
   BUILD +mypyc
+  BUILD +octave
+  BUILD +octave-vectorised
   BUILD +perl
   BUILD +php
   BUILD +pypy
@@ -457,6 +462,14 @@ ocaml:
   RUN --no-cache ocamlopt -O2 -o leibniz leibniz.ml
   DO +BENCH --name="ocaml" --lang="OCaml" --version="ocamlopt -version" --cmd="./leibniz"
 
+chezscheme:
+  FROM alpine:edge
+  DO +PREPARE_ALPINE
+  RUN apk add --no-cache chez-scheme
+  DO +ADD_FILES --src="leibniz.ss"
+  RUN --no-cache echo '(compile-program "leibniz.ss")' | chez --optimize-level 3
+  DO +BENCH --name="chez" --lang="Chez Scheme" --version="chez --version" --cmd="chez --program leibniz.so"
+
 racket:
   FROM alpine:edge
   DO +PREPARE_ALPINE
@@ -467,11 +480,17 @@ racket:
 sbcl:
   FROM +alpine --src="leibniz.lisp"
   RUN apk add --no-cache sbcl
-  RUN --no-cache sbcl --noinform --eval '(compile-file "leibniz.lisp")' --quit
-  DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="sbcl --script leibniz.fasl"
+  RUN --no-cache sbcl --noinform --load leibniz.lisp --eval '(sb-ext:save-lisp-and-die "out-sbcl" :executable t :toplevel (quote cl-user::main) :purify t)'
+  DO +BENCH --name="sbcl" --lang="Common Lisp (SBCL)" --version="sbcl --version" --cmd="./out-sbcl"
+
+sbcl-simd:
+  FROM +alpine --src="leibniz-sbcl-simd.lisp"
+  RUN apk add --no-cache sbcl
+  RUN --no-cache sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die "out-sbcl-simd" :executable t :toplevel (quote cl-user::main) :purify t)'
+  DO +BENCH --name="sbcl-simd" --lang="Common Lisp (SBCL SIMD)" --version="sbcl --version" --cmd="./out-sbcl-simd"
 
 # ============================================================================
-# SCRIPTING LANGUAGES (Python, Ruby, Perl, PHP, Lua, R)
+# SCRIPTING LANGUAGES (Python, Ruby, Perl, PHP, Lua, R, Octave)
 # ============================================================================
 
 cpython:
@@ -487,6 +506,14 @@ cpython-numpy:
   RUN pip install numpy
   DO +ADD_FILES --src="leibniz_np.py"
   DO +BENCH --name="cpython-numpy" --lang="Python (NumPy)" --version="python3 --version" --cmd="python3 leibniz_np.py"
+
+cpython-numba:
+  FROM python:3.13-slim
+  DO +PREPARE_DEBIAN
+  RUN apt-get install -y gcc build-essential python3-dev
+  RUN pip install numba
+  DO +ADD_FILES --src="leibniz_numba.py"
+  DO +BENCH --name="cpython-numba" --lang="Python (Numba)" --version="python3 --version" --cmd="python3 leibniz_numba.py"
 
 lua:
   FROM +alpine --src="leibniz.lua"
@@ -506,6 +533,16 @@ mypyc:
   DO +ADD_FILES --src="leibniz_mypyc.py"
   RUN mypyc leibniz_mypyc.py
   DO +BENCH --name="mypyc" --lang="Python (MyPyC)" --version="mypy --version" --cmd="python3 -c 'import leibniz_mypyc'"
+
+octave:
+  FROM +alpine --src="leibniz_octave.m"
+  RUN apk add --no-cache octave
+  DO +BENCH --name="octave" --lang="Octave" --version="octave -v" --cmd="octave leibniz_octave.m"
+
+octave-vectorised:
+  FROM +alpine --src="leibniz_octave_vectorised.m"
+  RUN apk add --no-cache octave
+  DO +BENCH --name="octave-vectorised" --lang="Octave (Vectorised)" --version="octave -v" --cmd="octave leibniz_octave_vectorised.m"
 
 perl:
   FROM perl:5.42.0-slim
