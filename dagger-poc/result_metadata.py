@@ -28,7 +28,13 @@ def methodology(target: str, lang: Language) -> dict:
     return {
         "MathMode": "relaxed" if relaxed else "compiler-default",
         "ExplicitSIMD": target in EXPLICIT_SIMD,
-        "Algorithm": "paired-terms" if target == "swift" else "leibniz-series",
+        "Algorithm": (
+            "paired-terms"
+            if target == "swift"
+            else "bounded-vector-sum"
+            if target in {"cpython-numpy", "octave-vectorised", "r"}
+            else "leibniz-series"
+        ),
     }
 
 

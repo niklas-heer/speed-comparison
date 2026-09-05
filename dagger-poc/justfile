@@ -26,29 +26,29 @@ help:
 
 # Run a quick benchmark test (10k iterations, local build)
 test *langs:
-    QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py {{ langs }}
+    QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run python benchmark.py {{ langs }}
 
 # Run full benchmark (1 billion iterations, local build)
 bench *langs:
-    USE_LOCAL_IMAGES=1 uv run dagger run python benchmark.py {{ langs }}
+    USE_LOCAL_IMAGES=1 uv run python benchmark.py {{ langs }}
 
 # Run benchmark using pre-built registry images
 bench-registry *langs:
-    uv run dagger run python benchmark.py {{ langs }}
+    uv run python benchmark.py {{ langs }}
 
 # === Container Images ===
 
 # Build container images locally (don't push)
 build *langs:
-    uv run dagger run python build_images.py {{ langs }}
+    uv run python build_images.py {{ langs }}
 
 # Build and push images to registry
 push *langs:
-    uv run dagger run python build_images.py --push {{ langs }}
+    uv run python build_images.py --push {{ langs }}
 
 # Show what images would be built
 build-dry-run *langs:
-    uv run dagger run python build_images.py --dry-run {{ langs }}
+    uv run python build_images.py --dry-run {{ langs }}
 
 # === Version Management ===
 
@@ -195,7 +195,7 @@ remote-build *langs:
 
     APP="speed-comparison-builder"
     echo "Building images: {{ langs }}"
-    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv run dagger run python build_images.py {{ langs }}'"
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv run python build_images.py {{ langs }}'"
 
 # Run quick benchmark test on remote x86_64 machine
 remote-test *langs:
@@ -206,7 +206,7 @@ remote-test *langs:
 
     APP="speed-comparison-builder"
     echo "Running quick benchmark: {{ langs }}"
-    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && QUICK_TEST_ROUNDS=10000 uv run dagger run python benchmark.py {{ langs }}'"
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && QUICK_TEST_ROUNDS=10000 uv run python benchmark.py {{ langs }}'"
 
 # Run full benchmark on remote x86_64 machine
 remote-bench *langs:
@@ -217,4 +217,4 @@ remote-bench *langs:
 
     APP="speed-comparison-builder"
     echo "Running full benchmark: {{ langs }}"
-    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv run dagger run python benchmark.py {{ langs }}'"
+    flyctl ssh console -a "$APP" -C "bash -c 'cd /workspace/dagger-poc && uv run python benchmark.py {{ langs }}'"

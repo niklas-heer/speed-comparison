@@ -1,0 +1,607 @@
+{
+  "date": "2026-09-05",
+  "purpose": "Native smoke coverage during migration; these are not published performance rankings. Targets were tested incrementally while fixing the integration branch. The full run will record its exact source revision.",
+  "runner": "slick-badger / homelab-argo",
+  "targets": [
+    {
+      "Target": "ada",
+      "Language": "Ada (gnat-gcc)",
+      "Version": "13.4.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.0001766354800000008s"
+    },
+    {
+      "Target": "bun",
+      "Language": "Javascript (bun)",
+      "Version": "1.3.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.01519748434000001s"
+    },
+    {
+      "Target": "c-clang",
+      "Language": "C (clang)",
+      "Version": "21.1.2",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395425",
+      "Min": "0.0004793012599999996s"
+    },
+    {
+      "Target": "c",
+      "Language": "C (gcc)",
+      "Version": "15.2.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395420",
+      "Min": "0.0006272159800000009s"
+    },
+    {
+      "Target": "chezscheme",
+      "Language": "Chez Scheme",
+      "Version": "10.3.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.05882046076s"
+    },
+    {
+      "Target": "clojure",
+      "Language": "Clojure",
+      "Version": "1.12.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.7022079174000001s"
+    },
+    {
+      "Target": "cpp-avx2",
+      "Language": "C++ (AVX2)",
+      "Version": "15.2.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425896543390439",
+      "Min": "0.00130596526s"
+    },
+    {
+      "Target": "cpp-clang",
+      "Language": "C++ (clang++)",
+      "Version": "21.1.2",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395425",
+      "Min": "0.00153707974s"
+    },
+    {
+      "Target": "cpp",
+      "Language": "C++ (g++)",
+      "Version": "15.2.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395420",
+      "Min": "0.00103992394s"
+    },
+    {
+      "Target": "cpython-numba",
+      "Language": "Python (Numba)",
+      "Version": "3.12.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.40844539716s"
+    },
+    {
+      "Target": "cpython-numpy",
+      "Language": "Python (NumPy)",
+      "Version": "3.12.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397910",
+      "Min": "0.08339112258s"
+    },
+    {
+      "Target": "crystal",
+      "Language": "Crystal",
+      "Version": "1.18.2",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.00146572738s"
+    },
+    {
+      "Target": "csharp-simd",
+      "Language": "C# (SIMD)",
+      "Version": "8.0.416",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395385",
+      "Min": "0.04592064554s"
+    },
+    {
+      "Target": "csharp",
+      "Language": "C#",
+      "Version": "8.0.416",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.04686772508000001s"
+    },
+    {
+      "Target": "d-ldc",
+      "Language": "D (LDC)",
+      "Version": "1.41.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395469",
+      "Min": "0.001456727099999999s"
+    },
+    {
+      "Target": "d",
+      "Language": "D (GDC)",
+      "Version": "11.5.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395438",
+      "Min": "0.00119141016s"
+    },
+    {
+      "Target": "dart-aot",
+      "Language": "Dart (AOT)",
+      "Version": "3.9.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.00265091712s"
+    },
+    {
+      "Target": "dart",
+      "Language": "Dart",
+      "Version": "3.9.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.27832966508s"
+    },
+    {
+      "Target": "deno",
+      "Language": "Deno (TypeScript)",
+      "Version": "2.6.6",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.03104483832s"
+    },
+    {
+      "Target": "elixir",
+      "Language": "Elixir",
+      "Version": "1.18.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.385915761s"
+    },
+    {
+      "Target": "erlang",
+      "Language": "Erlang",
+      "Version": "27",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.19153660652s"
+    },
+    {
+      "Target": "fortran",
+      "Language": "Fortran 90",
+      "Version": "14.3.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.142591654340",
+      "Min": "0.00167075314s"
+    },
+    {
+      "Target": "fsharp-simd",
+      "Language": "F# (SIMD)",
+      "Version": "8.0.416",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395385",
+      "Min": "0.06114317170000001s"
+    },
+    {
+      "Target": "fsharp",
+      "Language": "F#",
+      "Version": "8.0.416",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.05470350850000001s"
+    },
+    {
+      "Target": "gleam",
+      "Language": "Gleam",
+      "Version": "1.14.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "1.24406109658s"
+    },
+    {
+      "Target": "go",
+      "Language": "Go",
+      "Version": "1.25.5",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.00157641172s"
+    },
+    {
+      "Target": "groovy",
+      "Language": "Groovy",
+      "Version": "4.0.26",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "1.32929322348s"
+    },
+    {
+      "Target": "hare",
+      "Language": "Hare",
+      "Version": "0.26.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.0001196238199999999s"
+    },
+    {
+      "Target": "haskell",
+      "Language": "Haskell (GHC)",
+      "Version": "9.10.3",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.00386306366s"
+    },
+    {
+      "Target": "haxe",
+      "Language": "Haxe",
+      "Version": "4.3.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.14059464984628",
+      "Min": "0.00161324446s"
+    },
+    {
+      "Target": "janet-compiled",
+      "Language": "Janet (compiled)",
+      "Version": "1.39.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.002841205200000001s"
+    },
+    {
+      "Target": "janet",
+      "Language": "Janet",
+      "Version": "1.40.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.00369799804s"
+    },
+    {
+      "Target": "java-graalvm",
+      "Language": "Java (GraalVM)",
+      "Version": "23.0.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140592653839794",
+      "Min": "0.00423818504s"
+    },
+    {
+      "Target": "java-vecops",
+      "Language": "Java (Vec Ops)",
+      "Version": "23.0.2",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397866",
+      "Min": "0.13810983482s"
+    },
+    {
+      "Target": "java",
+      "Language": "Java",
+      "Version": "21.0.9",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140592653839794",
+      "Min": "0.0787201132s"
+    },
+    {
+      "Target": "julia",
+      "Language": "Julia",
+      "Version": "1.12.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462822",
+      "Min": "0.02453398976s"
+    },
+    {
+      "Target": "kotlin-native",
+      "Language": "Kotlin (Native)",
+      "Version": "2.2.21",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.001606500660000001s"
+    },
+    {
+      "Target": "kotlin",
+      "Language": "Kotlin",
+      "Version": "2.1.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.08452762474s"
+    },
+    {
+      "Target": "lua",
+      "Language": "Lua",
+      "Version": "5.4.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.001169416480000001s"
+    },
+    {
+      "Target": "luajit",
+      "Language": "LuaJIT",
+      "Version": "2.1.1741730670",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.0009688944399999997s"
+    },
+    {
+      "Target": "micropython",
+      "Language": "MicroPython",
+      "Version": "1.24.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.0012028994s"
+    },
+    {
+      "Target": "mojo",
+      "Language": "Mojo",
+      "Version": "1.0.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397941",
+      "Min": "0.007944078700000001s"
+    },
+    {
+      "Target": "mypyc",
+      "Language": "Python (mypyc)",
+      "Version": "3.12.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.0225782688s"
+    },
+    {
+      "Target": "nasm",
+      "Language": "Assembly (NASM x64)",
+      "Version": "2.16.03",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.00045591466s"
+    },
+    {
+      "Target": "nim",
+      "Language": "Nim",
+      "Version": "2.2.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462818",
+      "Min": "0.0008212520199999993s"
+    },
+    {
+      "Target": "nodejs",
+      "Language": "Javascript (nodejs)",
+      "Version": "25.2.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.02945677874000001s"
+    },
+    {
+      "Target": "objc",
+      "Language": "Objective-C",
+      "Version": "18.1.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462827",
+      "Min": "0.0002416205200000002s"
+    },
+    {
+      "Target": "ocaml",
+      "Language": "OCaml",
+      "Version": "5.3.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397972",
+      "Min": "0.001043113140000001s"
+    },
+    {
+      "Target": "octave-vectorised",
+      "Language": "Octave (Vectorised)",
+      "Version": "10.3.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397972",
+      "Min": "0.15938753036s"
+    },
+    {
+      "Target": "octave",
+      "Language": "Octave",
+      "Version": "10.3.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397941",
+      "Min": "0.14744148766s"
+    },
+    {
+      "Target": "odin",
+      "Language": "Odin",
+      "Version": "2026-01",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.0007068548799999998s"
+    },
+    {
+      "Target": "pascal",
+      "Language": "Pascal (FPC)",
+      "Version": "3.2.2",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442E+000",
+      "Min": "0.0s"
+    },
+    {
+      "Target": "perl",
+      "Language": "Perl",
+      "Version": "5.40.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.00334900314s"
+    },
+    {
+      "Target": "php",
+      "Language": "PHP",
+      "Version": "8.4.15",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.04167317730000001s"
+    },
+    {
+      "Target": "pony",
+      "Language": "Pony",
+      "Version": "0.60.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.008241257260000001s"
+    },
+    {
+      "Target": "pypy",
+      "Language": "Python (PyPy)",
+      "Version": "3.11.13",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.0739861495s"
+    },
+    {
+      "Target": "python",
+      "Language": "Python (CPython)",
+      "Version": "3.12.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.01525351494s"
+    },
+    {
+      "Target": "r",
+      "Language": "R",
+      "Version": "4.5.2",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405926538397932",
+      "Min": "0.17280515474s"
+    },
+    {
+      "Target": "racket",
+      "Language": "Racket",
+      "Version": "9.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462840",
+      "Min": "0.13728952106s"
+    },
+    {
+      "Target": "raku",
+      "Language": "Raku",
+      "Version": "2025.06.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.19182464186s"
+    },
+    {
+      "Target": "ruby",
+      "Language": "Ruby",
+      "Version": "3.4.7",
+      "Rounds": 1000,
+      "CalculatedPi": "3.140594649846284",
+      "Min": "0.04837218399999999s"
+    },
+    {
+      "Target": "rust-fastmath",
+      "Language": "Rust (fast-math)",
+      "Version": "1.92.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.0005702625400000011s"
+    },
+    {
+      "Target": "rust-nightly",
+      "Language": "Rust (nightly SIMD)",
+      "Version": "1.100.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395447",
+      "Min": "0.0007019659399999999s"
+    },
+    {
+      "Target": "rust-simd",
+      "Language": "Rust (SIMD)",
+      "Version": "1.92.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395438",
+      "Min": "0.0006886058400000007s"
+    },
+    {
+      "Target": "rust",
+      "Language": "Rust",
+      "Version": "1.92.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.00055050948s"
+    },
+    {
+      "Target": "sbcl-simd",
+      "Language": "Common Lisp (SBCL SIMD)",
+      "Version": "2.5.10",
+      "Rounds": 1000,
+      "CalculatedPi": "3.142589654324315",
+      "Min": "0.009315558060000001s"
+    },
+    {
+      "Target": "sbcl",
+      "Language": "Common Lisp (SBCL)",
+      "Version": "2.5.10",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.01232028304s"
+    },
+    {
+      "Target": "scala",
+      "Language": "Scala",
+      "Version": "3.7.4",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.00212300776s"
+    },
+    {
+      "Target": "swift-relaxed",
+      "Language": "Swift (relaxed)",
+      "Version": "5.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.0047856004s"
+    },
+    {
+      "Target": "swift-simd",
+      "Language": "Swift (SIMD)",
+      "Version": "5.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395434",
+      "Min": "0.004980019780000001s"
+    },
+    {
+      "Target": "swift",
+      "Language": "Swift",
+      "Version": "5.8",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1405946498462836",
+      "Min": "0.004981339639999999s"
+    },
+    {
+      "Target": "v",
+      "Language": "V",
+      "Version": "0.4.11",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.0008670122199999994s"
+    },
+    {
+      "Target": "wasm",
+      "Language": "WASM (C via Wasmtime)",
+      "Version": "29.0.1",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395442",
+      "Min": "0.006614668440000003s"
+    },
+    {
+      "Target": "zig-simd",
+      "Language": "Zig (SIMD)",
+      "Version": "0.16.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395402",
+      "Min": "0.0002448650799999996s"
+    },
+    {
+      "Target": "zig",
+      "Language": "Zig",
+      "Version": "0.16.0",
+      "Rounds": 1000,
+      "CalculatedPi": "3.1425916543395385",
+      "Min": "2.15606399999995e-05s"
+    }
+  ]
+}

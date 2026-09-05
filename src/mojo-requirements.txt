@@ -1,0 +1,2 @@
+mojo-compiler==1.0.0 --hash=sha256:e9e60f9638e69ca0f4be7292468523fc98a143f58dbf9024f60ed68b874a867e
+mojo-compiler-mojo-libs==1.0.0 --hash=sha256:20a92e37ecbd19e2dbb1a525612a8de4c9f266f5536def55c5e2b0786320e8b3

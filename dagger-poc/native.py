@@ -50,14 +50,21 @@ def run(target: str, source: Path, workspace: Path, output: Path, rounds: int) -
 
     # Do not inherit a bootstrap Python package's module search path.
     os.environ.pop("PYTHONPATH", None)
-    os.environ.update(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
+    os.environ.update(
+        OMP_NUM_THREADS="1",
+        OPENBLAS_NUM_THREADS="1",
+        MKL_NUM_THREADS="1",
+        JULIA_DEPOT_PATH="/tmp/bench-julia-depot",
+    )
     allow_native = platform.machine().lower() in {"amd64", "x86_64"}
     prefix = "unset NIX_ENFORCE_NO_NATIVE; " if allow_native else ""
 
     def devbox(command: str, capture: bool = False) -> str:
-        return execute(
-            ["devbox", "run", "--", "sh", "-ec", prefix + command], workspace, capture=capture
-        )
+        # Devbox interpolates inline shell arguments. A file preserves command
+        # substitutions and variables until they run inside the target shell.
+        script = workspace / ".benchmark-command.sh"
+        script.write_text(prefix + command + "\n")
+        return execute(["devbox", "run", "--", "sh", "-e", str(script)], workspace, capture=capture)
 
     if lang.nix_setup:
         devbox(lang.nix_setup)
@@ -76,7 +83,7 @@ def run(target: str, source: Path, workspace: Path, output: Path, rounds: int) -
         devbox(lang.compile)
     version = lang.extract_version(devbox(f"{lang.version_cmd or 'echo unknown'} 2>&1", True))
     devbox(
-        f"hyperfine --warmup 2 --runs 3 --time-unit second --export-json hyperfine.json "
+        f"hyperfine --show-output --warmup 2 --runs 3 --time-unit second --export-json hyperfine.json "
         f"{shlex.quote(lang.run)} && {lang.run} > pi.txt"
     )
     args = [
@@ -113,6 +120,7 @@ def run(target: str, source: Path, workspace: Path, output: Path, rounds: int) -
     lock = workspace / "devbox.lock"
     if lock.exists():
         result["DevboxLock"] = json.loads(lock.read_text())
+        result["DevboxConfig"] = json.loads((workspace / "devbox.json").read_text())
     output.mkdir(parents=True, exist_ok=True)
     (output / f"{target}.json").write_text(json.dumps(result, indent=2, allow_nan=False))
     print(f"Completed {target}: {result['Min']}")

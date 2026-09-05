@@ -116,7 +116,9 @@ async def build_devbox_image(
 
     # Run any post-install setup
     if lang.nix_setup:
-        container = container.with_exec(["devbox", "run", "--", "sh", "-c", lang.nix_setup])
+        container = container.with_new_file("/app/.benchmark-setup.sh", contents=lang.nix_setup).with_exec(
+            ["devbox", "run", "--", "sh", "-e", "/app/.benchmark-setup.sh"]
+        )
 
     # Create a shell script that activates devbox environment
     # This makes it easy to run commands in the container

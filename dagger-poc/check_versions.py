@@ -2,10 +2,10 @@
 """
 Check for available package version updates in nixpkgs.
 
-This script queries nixhub.io API to find newer versions of packages
+This script queries the Devbox catalog JSON API to find newer versions of packages
 used in languages.py. It handles both:
 - Devbox packages (nixpkgs with @version syntax)
-- Nix flake packages (pinned to NIXPKGS_REV)
+- Nix flake packages (pinned to immutable commits)
 
 Usage:
     python check_versions.py              # Check all packages
@@ -95,9 +95,7 @@ def is_stable_version(version: str) -> bool:
 
 @lru_cache(maxsize=None)
 def get_nixhub_versions(package: str, stable_only: bool = True) -> list[str]:
-    """Query nixhub.io for available versions of a package.
-
-    Scrapes the HTML package page since there's no public JSON API.
+    """Query the public Devbox catalog for available package versions.
 
     Args:
         package: Package name (without version, e.g., "rustc", "go")
@@ -170,14 +168,14 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
     """
     package = lang.primary_package
     current = lang.primary_version
-    package_type = "devbox" if lang.nixpkgs else "flake"
+    package_type = "flake" if lang.nix_flakes else "devbox"
 
     # A flake revision is not a compiler version. Never compare its digits
     # with a release number or automatically replace it with one.
     if package_type == "flake":
         return VersionInfo(target, package, current, None, False, package_type)
 
-    # Get available versions from nixhub
+    # Get available versions from the Devbox catalog
     versions = get_nixhub_versions(package, stable_only=stable_only)
 
     latest = max(versions, key=parse_version) if versions else None

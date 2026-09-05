@@ -179,12 +179,12 @@ class TestLanguageDataclass:
         """primary_package should extract from nix_flakes if no nixpkgs."""
         lang = Language(
             name="Swift",
-            nix_flakes=("github:NixOS/nixpkgs/nixos-24.05#swift",),
+            nix_flakes=("github:NixOS/nixpkgs/b134951a4c9f3c995fd7be05f3243f8ecd65d798#swift",),
             file="leibniz.swift",
             run="./test",
         )
         assert lang.primary_package == "swift"
-        assert lang.primary_version == "24.05"
+        assert lang.primary_version == "b134951a4c9f3c995fd7be05f3243f8ecd65d798"
 
 
 class TestCategoryGrouping:

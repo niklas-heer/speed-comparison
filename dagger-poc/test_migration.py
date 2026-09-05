@@ -84,3 +84,67 @@ def test_new_and_recently_merged_targets_are_available():
         "chezscheme",
         "janet",
     } <= LANGUAGES.keys()
+
+
+def test_publication_rejects_a_quick_subset(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from validate_publish import validate
+
+    result = {"Target": "rust", "Rounds": 10000}
+    (tmp_path / "rust.json").write_text(json.dumps(result))
+    with pytest.raises(ValueError, match="full-round"):
+        validate(tmp_path)
+
+
+def test_publication_rejects_missing_targets(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from validate_publish import validate
+
+    with pytest.raises(ValueError, match="Incomplete suite"):
+        validate(tmp_path)
+
+
+def test_publication_accepts_complete_suite_and_rejects_mixed_hardware(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from validate_publish import validate
+
+    for target in LANGUAGES:
+        result = {
+            "Target": target,
+            "Rounds": 1000000000,
+            "CalculatedPi": str(math.pi),
+            "Min": "1s",
+            "Median": "2s",
+            "Max": "3s",
+            "Environment": {"cpu_model": "Test CPU", "arch": "x86_64", "runner": "homelab-argo"},
+        }
+        (tmp_path / f"{target}.json").write_text(json.dumps(result))
+    validate(tmp_path)
+    path = tmp_path / "rust.json"
+    result = json.loads(path.read_text())
+    result["Environment"]["cpu_model"] = "Different CPU"
+    path.write_text(json.dumps(result))
+    with pytest.raises(ValueError, match="mix different hardware"):
+        validate(tmp_path)
+
+
+def test_argo_rejects_publishing_unreviewed_or_partial_input():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from argo_bench import workflow
+
+    with pytest.raises(ValueError, match="Publishing requires"):
+        workflow("master", "rust", 1000000000, publish=True)
+    with pytest.raises(ValueError, match="Publishing requires"):
+        workflow("codex/review", "all", 1000000000, publish=True)
+    assert workflow("master", "all", 1000000000, publish=True)
+
+
+@pytest.mark.parametrize("revision", ["master", "nixos-24.05", "latest", "abc123"])
+def test_moving_flake_references_are_rejected(revision):
+    with pytest.raises(ValueError, match="immutable"):
+        Language(
+            name="Test",
+            file="leibniz.c",
+            run="./leibniz",
+            nix_flakes=(f"github:NixOS/nixpkgs/{revision}#gcc",),
+        )

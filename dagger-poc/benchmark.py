@@ -166,7 +166,9 @@ async def build_local_devbox_container(
         container = container.with_exec(["devbox", "add", flake_ref])
 
     if lang.nix_setup:
-        container = container.with_exec(["devbox", "run", "--", "sh", "-c", lang.nix_setup])
+        container = container.with_new_file("/app/.benchmark-setup.sh", contents=lang.nix_setup).with_exec(
+            ["devbox", "run", "--", "sh", "-e", "/app/.benchmark-setup.sh"]
+        )
 
     return container
 
@@ -197,13 +199,16 @@ async def exec_cmd(
     to run commands through 'devbox run' to get packages in PATH.
     """
     env_prefix = (
+        "export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1; "
         f"export XDG_CACHE_HOME={BENCH_XDG_CACHE_HOME}; "
         f"export XDG_CONFIG_HOME={BENCH_XDG_CONFIG_HOME}; "
         f"export JULIA_DEPOT_PATH={BENCH_JULIA_DEPOT_PATH}; "
     )
     native_prefix = "unset NIX_ENFORCE_NO_NATIVE; " if ALLOW_NATIVE_FLAGS else ""
     wrapped_cmd = f"{env_prefix}{native_prefix}{cmd}"
-    return container.with_exec(["devbox", "run", "--", "sh", "-c", wrapped_cmd])
+    return container.with_new_file("/app/.benchmark-command.sh", contents=wrapped_cmd).with_exec(
+        ["devbox", "run", "--", "sh", "-e", "/app/.benchmark-command.sh"]
+    )
 
 
 def ensure_app_writable(container: dagger.Container) -> dagger.Container:
@@ -391,6 +396,8 @@ async def run_benchmark(
         result["DevboxImage"] = get_devbox_image()
         result["BuildSource"] = "local" if use_local else "registry"
         result["AllowNativeFlags"] = ALLOW_NATIVE_FLAGS
+        result["DevboxLock"] = json.loads(await container.file("/app/devbox.lock").contents())
+        result["DevboxConfig"] = json.loads(await container.file("/app/devbox.json").contents())
 
         print(f"  Result: {result.get('Min', 'N/A')} (min)")
         print(f"  Accuracy: {result.get('Accuracy', 'N/A')}")

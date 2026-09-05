@@ -533,6 +533,7 @@ def build_combined_results(raw_results: list[dict]) -> list[dict]:
                 "explicit_simd": result.get("ExplicitSIMD"),
                 "algorithm": result.get("Algorithm", "unknown"),
                 "devbox_lock": result.get("DevboxLock", {}),
+                "devbox_config": result.get("DevboxConfig", {}),
                 "image_tag": result.get("ImageTag", ""),
                 "image_fingerprint": result.get("ImageFingerprint", ""),
                 "devbox_image": result.get("DevboxImage", ""),
@@ -588,6 +589,9 @@ def main():
         combined_json_path.write_text(json.dumps(combined_results, indent=2))
 
         if env_summary:
+            source_revision = Path(args.folder) / "source-revision.txt"
+            if source_revision.exists():
+                env_summary["source_revision"] = source_revision.read_text().strip()
             env_summary["generated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
             run_meta_path = output_dir / "run_metadata.json"
             run_meta_path.write_text(json.dumps(env_summary, indent=2))

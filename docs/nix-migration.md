@@ -34,7 +34,7 @@ validation are complete. Credit remains with the original contributors linked he
 | --- | --- |
 | [#295 Odin](https://github.com/niklas-heer/speed-comparison/pull/295) | Ported source and optimization flags; native cluster smoke passed |
 | [#296 Rust variants](https://github.com/niklas-heer/speed-comparison/pull/296) | Added fast-math and AVX-512 targets using the migration's Rust pin; hardware guard added; native smoke passed |
-| [#298 Gleam 1.14](https://github.com/niklas-heer/speed-comparison/pull/298) | Already present in migration configuration; native validation pending |
+| [#298 Gleam 1.14](https://github.com/niklas-heer/speed-comparison/pull/298) | Already present in migration configuration; native smoke passed |
 | [#299 V](https://github.com/niklas-heer/speed-comparison/pull/299) | Ported implementation; retained pinned toolchain instead of runtime latest-tag lookup; native smoke passed |
 | [#300 Elixir](https://github.com/niklas-heer/speed-comparison/pull/300) | Private helper functions ported; native smoke passed |
 | [#301 requests](https://github.com/niklas-heer/speed-comparison/pull/301) | Lock updated to 2.33.0 |
@@ -55,13 +55,35 @@ validation are complete. Credit remains with the original contributors linked he
 | [#307 NASM](https://github.com/niklas-heer/speed-comparison/issues/307) | Added scalar Linux x86_64 target reading rounds.txt, respecting the ABI, printing 16 decimals; native smoke passed |
 | [#297 contribution questions](https://github.com/niklas-heer/speed-comparison/issues/297) | Compile commands are in languages.py; new transpilers need a reproducible compiler/runtime setup, not their own Docker image. Optimizations can be proposed under the published rules; no merge-time promise |
 | [#261 Odin](https://github.com/niklas-heer/speed-comparison/issues/261) | Covered by the #295 port; native smoke passed |
-| [#260 Kotlin/Native](https://github.com/niklas-heer/speed-comparison/issues/260) | Added separate POSIX-based native implementation; correcting Nix read-only system-cache behavior before acceptance |
+| [#260 Kotlin/Native](https://github.com/niklas-heer/speed-comparison/issues/260) | Added separate POSIX implementation; writable compiler cache and hash-verified libffi compatibility fix; native smoke passed |
 | [#253 F# SIMD](https://github.com/niklas-heer/speed-comparison/issues/253) | Added separate Vector512 target with hardware guard and scalar tail; native smoke passed |
-| [#148 Mojo](https://github.com/niklas-heer/speed-comparison/issues/148) | No standalone Mojo compiler found in the Devbox catalog. Requires a pinned upstream toolchain and a complete file-reading/output implementation; original snippet is not a runnable benchmark |
+| [#148 Mojo](https://github.com/niklas-heer/speed-comparison/issues/148) | Added scalar Mojo 1.0.0 with complete file I/O and 16-decimal output. Compiler wheels and dependencies are SHA-256 locked; ELF interpreter/runtime use Nix libraries. Native smoke and seven-round check passed |
 
-Mojo's [official installation guide](https://mojolang.static.modular.com/docs/manual/get-started/)
-uses an upstream package channel. Adding it requires locking that additional source;
-it must not silently introduce an unpinned compiler into the Nix migration.
+Mojo's [official installation guide](https://mojolang.org/install/) supports Python
+packages. The compiler and Mojo libraries are pinned with wheel hashes in
+`src/mojo-requirements.txt`. Its scalar baseline uses division rather than the
+original issue snippet's approximate reciprocal instruction.
+
+## Validation evidence
+
+All **75 default targets** passed native 1,000-round smoke checks on the homelab
+worker. [The incremental smoke report](validation/2026-09-05-native-smoke.json)
+records outputs; these short timings are not rankings. Ten affected SIMD/native
+targets also passed seven-round boundary checks. NumPy, vectorized Octave, and R
+use bounded batches and passed 1,000,001-round checks; scalar Octave, MicroPython,
+Raku, Python, and Ruby passed the same pilot.
+
+The first Argo workflow `speed-comparison-manual-vmv76` passed checkout, native
+Python execution, S3 upload, and analysis. Its combined archive was downloaded
+to verify retrieval. Local Dagger Python execution also passed after changing
+both adapters to use command files, preserving shell variable expansion.
+The current Python regression suite has 84 passing tests.
+
+Homelab PRs [#34](https://github.com/niklas-heer/homelab/pull/34) and
+[#35](https://github.com/niklas-heer/homelab/pull/35) deployed the workflow,
+fixed the Argo controller's archive connection deadlock, and added guarded
+publication. The old Buildkite webhook is disabled. GitHub Actions now does
+lightweight validation, with optional manual Dagger execution.
 
 ## Completion gates
 
@@ -69,14 +91,16 @@ it must not silently introduce an unpinned compiler into the Nix migration.
 - [x] Replace automatic Ubicloud benchmark jobs with lightweight GitHub validation.
 - [x] Add restricted native Devbox execution and methodology/result checks.
 - [x] Test the first group of implementations on native homelab x86_64.
-- [ ] Pass a native smoke test for every default target, including older toolchains.
-- [ ] Validate Argo checkout, execution, artifact storage, and analysis end to end.
+- [x] Pass a native smoke test for every default target, including older toolchains.
+- [x] Validate Argo checkout, execution, artifact storage, and analysis end to end.
 - [ ] Finish reproducible result publication; quick/subset results must never replace latest.
 - [ ] Run a complete full-round benchmark on recorded homelab hardware.
 - [ ] Enable the weekly Argo schedule after successful validation.
 - [ ] Review/merge the integration and settle the linked GitHub PRs/issues.
 
-The legacy Rust/Pony nightly targets need separate immutable snapshot handling;
-a moving nightly image is not a reproducible Nix package pin. They are not silently
-relabelled as stable builds. Native smoke results validate operation, not published
-performance rankings.
+Rust's portable SIMD target is retained with an immutable Fenix commit and a
+scalar tail for short inputs. The old `pony-nightly` target actually used the
+moving `ponylang/ponyc:alpine` tag with the same source and flags as Pony. That
+duplicate moving-image target is retired; pinned `pony` covers the language.
+Historical results remain intact. Native smoke tests validate operation, not
+published performance rankings.
