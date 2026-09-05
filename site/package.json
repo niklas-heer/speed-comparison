@@ -1,0 +1,26 @@
+{
+  "name": "speed-comparison-site",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "node scripts/prepare-data.mjs && astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test",
+    "archive": "node scripts/archive.mjs"
+  },
+  "dependencies": {
+    "astro": "7.3.1",
+    "pg": "8.16.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.6",
+    "prettier-plugin-astro": "0.14.1"
+  }
+}

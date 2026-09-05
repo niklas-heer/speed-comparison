@@ -253,7 +253,12 @@ async def collect_environment(container: dagger.Container) -> dict[str, str]:
         'echo "arch=$arch"; '
         'echo "kernel=$kernel"; '
         'echo "os_release=$os_release"; '
-        'echo "libc=$libc"'
+        'echo "libc=$libc"; '
+        "for field in cpu.max memory.max pids.max cpuset.cpus.effective; do "
+        'key=$(echo "$field" | tr . _); '
+        'value=$(cat "/sys/fs/cgroup/$field" 2>/dev/null || true); '
+        'echo "$key=$value"; done; '
+        "echo \"process_limits=$(ulimit -a 2>/dev/null | tr '\\n' ';')\""
     )
     try:
         output = await container.with_exec(["sh", "-c", env_cmd]).stdout()
@@ -454,7 +459,14 @@ async def run_benchmark(
 
 
 async def main(
-    targets=None, *, revision=None, base=None, output=None, prepare_jobs=2, measurement_timeout=None
+    targets=None,
+    *,
+    revision=None,
+    base=None,
+    output=None,
+    prepare_jobs=2,
+    measurement_timeout=None,
+    runner_environment=None,
 ) -> int:
     """Run one selected suite in one engine session and retain a separate evidence bundle.
 
@@ -472,6 +484,10 @@ async def main(
         raise ValueError("Preparation concurrency must be between 1 and 8")
     if measurement_timeout is not None and measurement_timeout <= 0:
         raise ValueError("Measurement timeout must be positive")
+    if runner_environment is not None:
+        from runner_identity import validate_identity
+
+        validate_identity(runner_environment)
     quick_rounds = os.environ.get("QUICK_TEST_ROUNDS") or None
     if quick_rounds is not None and int(quick_rounds) <= 0:
         raise ValueError("Rounds must be positive")
@@ -494,6 +510,7 @@ async def main(
         "source_kind": "git" if revision else "working-tree",
         "publication_eligible": False,
         "scope": "benchmark-only",
+        "runner_environment": runner_environment,
         "prepare_jobs": prepare_jobs,
         "measurement_timeout_seconds": measurement_timeout,
         "rounds_override": int(quick_rounds) if quick_rounds is not None else None,
@@ -503,6 +520,7 @@ async def main(
                 "benchmark.py",
                 "suite.py",
                 "measurement.py",
+                "runner_identity.py",
                 "scmeta.py",
                 "result_metadata.py",
                 "languages.py",
@@ -585,7 +603,12 @@ async def main(
                     SourceRevision=revision,
                     CatalogSHA256=record.get("catalog_sha256"),
                     SuiteRunID=run_id,
+                    MeasurementTimeoutSeconds=measurement_timeout,
                 )
+                if runner_environment is not None:
+                    from runner_identity import bind_identity
+
+                    bind_identity(result, runner_environment, measurement_timeout)
                 return result
 
             def save(target, result):
@@ -618,6 +641,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--measurement-timeout", type=int, help="Total seconds per target's warmups/samples"
     )
+    parser.add_argument(
+        "--runner-environment", type=Path, help="Expected reporting environment JSON"
+    )
     args = parser.parse_args()
     sys.exit(
         asyncio.run(
@@ -628,6 +654,11 @@ if __name__ == "__main__":
                 output=args.output,
                 prepare_jobs=args.prepare_jobs,
                 measurement_timeout=args.measurement_timeout,
+                runner_environment=(
+                    json.loads(args.runner_environment.read_text())
+                    if args.runner_environment
+                    else None
+                ),
             )
         )
     )

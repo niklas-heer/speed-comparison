@@ -1,0 +1,14 @@
+*
+!site
+!site/**
+!docs
+!docs/history
+!docs/history/**
+!vercel.json
+site/node_modules
+site/dist
+site/.astro
+site/test-results
+site/playwright-report
+site/public/history
+**/.env*

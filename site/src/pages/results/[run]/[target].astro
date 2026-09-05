@@ -1,0 +1,265 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import Metadata from "../../../components/Metadata.astro";
+import Package from "../../../components/Package.astro";
+import { runs, runData, timing, repo } from "../../../lib/results.mjs";
+export function getStaticPaths() {
+  return runs.flatMap((run) => {
+    const data = runData(run.id);
+    return data.results.map((result) => ({
+      params: { run: run.id, target: result.target },
+      props: { data, result },
+    }));
+  });
+}
+const { data, result: r } = Astro.props;
+const raw = r.raw;
+const env = raw?.Environment ?? r.summary.environment ?? {};
+const packages =
+  raw?.DevboxLock?.packages ?? r.summary.devbox_lock?.packages ?? {};
+const fields = {
+  "Source revision": data.revision,
+  "Workload (terms)": r.rounds,
+  Algorithm: r.algorithm,
+  "Math mode": r.math,
+  "Explicit SIMD": r.simd,
+  "Native CPU flags allowed": raw?.AllowNativeFlags,
+  "Warmup executions": raw?.WarmupRuns,
+  "Measured executions": raw?.MeasuredRuns ?? raw?.TimesPerRun?.length,
+  "Output capture": raw?.OutputCapture,
+  "Build adapter": raw?.BuildSource,
+  "Container image": raw?.DevboxImage,
+  "Measurement profile": raw?.MeasurementProfile,
+  "Measurement timeout": raw?.MeasurementTimeoutSeconds,
+};
+const samples = raw?.TimesPerRun ?? [];
+const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
+---
+
+<Layout title={`${r.name} · ${r.target}`}
+  ><div class="page-heading">
+    <a class="breadcrumb" href={`/runs/${data.id}/`}>← Run {data.id}</a><p
+      class="eyebrow"
+    >
+      Implementation / {r.target}
+    </p><h1>{r.name}<span class="heading-version">{r.version}</span></h1><p
+      class="lead"
+    >
+      An inspectable measurement, with the exact build and environment evidence
+      retained from this run.
+    </p><div class="tags">
+      <span class="badge">{r.category}</span><span class="badge badge-orange"
+        >{r.math}</span
+      >{r.simd && <span class="badge">Explicit SIMD</span>}
+    </div>
+  </div>
+  <div class="detail-stats">
+    <div>
+      <span class="eyebrow">Median wall time</span><strong
+        >{timing(r.median)}</strong>
+    </div><div>
+      <span class="eyebrow">Fastest sample</span><strong
+        >{
+          raw ? timing(Number(raw.Min.replace("s", ""))) : "Not recorded"
+        }</strong>
+    </div><div>
+      <span class="eyebrow">Slowest sample</span><strong
+        >{
+          raw ? timing(Number(raw.Max.replace("s", ""))) : "Not recorded"
+        }</strong>
+    </div><div>
+      <span class="eyebrow">Samples retained</span><strong
+        >{samples.length || "Not recorded"}</strong>
+    </div>
+  </div>
+  <nav class="anchor-nav" aria-label="Result sections">
+    <a href="#samples">Measurements</a><a href="#build">Build & protocol</a><a
+      href="#packages">Packages</a
+    ><a href="#environment">Environment & limits</a><a href="#evidence"
+      >Raw evidence</a>
+  </nav>
+  <section id="samples" class="detail-section">
+    <div>
+      <p class="eyebrow">01 / Measurements</p><h2>Every sample matters.</h2><p>
+        Individual wall times in seconds. Three samples show observed spread;
+        they do not establish a statistically reliable winner between close
+        results.
+      </p>
+    </div><div>
+      {
+        samples.length ? (
+          <div class="sample-list">
+            {samples.map((n, i) => (
+              <div>
+                <span>Sample {i + 1}</span>
+                <span class="sample-track">
+                  <i style={`width:${(n / Math.max(...samples)) * 100}%`} />
+                </span>
+                <strong class="mono">{n.toFixed(9)} s</strong>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="notice">This historical run retained only its summary.</p>
+        )
+      }<Metadata
+        values={{
+          "Calculated π": raw?.CalculatedPi,
+          "Standard deviation": raw?.Stddev,
+          "Exit codes": raw?.ExitCodesPerRun,
+        }}
+      />
+    </div>
+  </section>
+  <section id="build" class="detail-section">
+    <div>
+      <p class="eyebrow">02 / Build & protocol</p><h2>How this was run.</h2><p>
+        Commands and settings are evidence from the measured revision. They can
+        differ from today’s implementation.
+      </p>{
+        data.revision && (
+          <a class="text-link" href={`${repo}/tree/${data.revision}/src`}>
+            Browse measured source ↗
+          </a>
+        )
+      }
+    </div><div>
+      <h3>
+        Compile
+      </h3><pre>{raw?.Compile || r.summary.compile || 'No compile command recorded (may be interpreted).'}</pre><h3
+      >
+        Execute
+      </h3><pre>{raw?.Run || r.summary.run || 'Not recorded'}</pre><Metadata
+        values={fields}
+      />{
+        data.id === "2026-09-05T193245" && !raw?.WarmupRuns && (
+          <p class="notice">
+            Warmup counts were not embedded in this result. The September 5
+            native baseline used two warmups, three measured runs, and a
+            separate output capture. This is separate from the new
+            four-execution protocol.
+          </p>
+        )
+      }
+    </div>
+  </section>
+  <section id="packages" class="detail-section">
+    <div>
+      <p class="eyebrow">03 / Package provenance</p><h2>
+        Beyond a version number.
+      </h2><p>
+        Resolved Nix revisions and store paths identify the packages in the
+        recorded Devbox lock. Other platforms listed by the resolver are
+        alternatives, not machines used in this run.
+      </p>
+    </div><div>
+      <Metadata
+        values={{
+          "Requested packages": raw?.Nixpkgs ?? r.summary.nixpkgs,
+          "Requested flakes": raw?.NixFlakes ?? r.summary.nix_flakes,
+        }}
+      />{
+        Object.entries(packages).map(([name, p]) => (
+          <Package name={name} info={p} environment={env} />
+        ))
+      }{
+        !Object.keys(packages).length && (
+          <p class="notice">
+            No resolved package lock was preserved for this historical result.
+          </p>
+        )
+      }{
+        raw?.DevboxConfig && (
+          <details class="package">
+            <>
+              <summary>Complete Devbox configuration</summary>
+              <pre>{JSON.stringify(raw.DevboxConfig, null, 2)}</pre>
+            </>
+          </details>
+        )
+      }
+    </div>
+  </section>
+  <section id="environment" class="detail-section">
+    <div>
+      <p class="eyebrow">04 / Environment & limits</p><h2>
+        The machine behind<br />the measurement.
+      </h2><p>
+        Container-visible resources are not necessarily dedicated resources.
+        Hypervisor CPU flags indicate virtualization; CPU counts do not prove
+        exclusive CPU allocation.
+      </p>
+    </div><div>
+      <Metadata
+        values={{
+          "CPU model": env.cpu_model,
+          Architecture: env.arch,
+          Kernel: env.kernel,
+          "Container OS release": env.os_release,
+          "C library": env.libc,
+          "Visible cores": env.cpu_cores,
+          "Visible threads": env.cpu_threads,
+          Runner: env.runner,
+          "CPU quota": env.cpu_max,
+          "CPU affinity / set": env.cpuset_cpus_effective,
+          "Memory limit": env.memory_max,
+          "Process limit": env.pids_max,
+          Virtualization: env.cpu_flags?.split(" ").includes("hypervisor")
+            ? "Hypervisor CPU flag present"
+            : undefined,
+          "CPU flags": env.cpu_flags,
+        }}
+      /><details class="package">
+        <summary>All recorded environment fields</summary
+        ><pre>{JSON.stringify(env,null,2)}</pre>
+      </details><p class="notice">
+        “Not recorded” means unknown, not unlimited. Historical data cannot
+        establish CPU isolation, host contention, thermal state or frequency
+        stability.
+      </p>
+    </div>
+  </section>
+  <section id="evidence" class="detail-section">
+    <div>
+      <p class="eyebrow">05 / Evidence</p><h2>Take the data with you.</h2><p>
+        Original bytes are preserved. The checksum below identifies this exact
+        raw JSON file.
+      </p>
+    </div><div>
+      {
+        raw ? (
+          <>
+            <>
+              <a
+                class="button"
+                href={`/history/${data.id}/raw/${r.target}.json`}
+                download
+              >
+                Download raw JSON ↓
+              </a>
+              <Metadata values={{ "SHA-256": r.sha256 }} />
+              <details class="package">
+                <>
+                  <summary>All other recorded result fields</summary>
+                  <pre>
+                    {JSON.stringify(
+                      Object.fromEntries(
+                        Object.entries(raw).filter(([k]) => !known.has(k)),
+                      ),
+                      null,
+                      2,
+                    )}
+                  </pre>
+                </>
+              </details>
+            </>
+          </>
+        ) : (
+          <a class="button" href={`/history/${data.id}/combined_results.csv`}>
+            Download historical CSV ↓
+          </a>
+        )
+      }
+    </div>
+  </section>
+</Layout>

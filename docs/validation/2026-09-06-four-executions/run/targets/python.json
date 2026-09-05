@@ -1,0 +1,244 @@
+{
+  "Mean": "0.02801304892s",
+  "Max": "0.03092445192s",
+  "Target": "python",
+  "Stddev": "0.005024197991568106s",
+  "Version": "3.12.8",
+  "Language": "Python (CPython)",
+  "UserTime": "0.02016706s",
+  "SystemTime": "0.006945306666666666s",
+  "Median": "0.03090307692s",
+  "Command": "python leibniz.py",
+  "TimesPerRun": [
+    0.03092445192,
+    0.03090307692,
+    0.02221161792
+  ],
+  "Accuracy": 4.497236723953859,
+  "Min": "0.02221161792s",
+  "ExitCodesPerRun": [
+    0,
+    0,
+    0
+  ],
+  "CalculatedPi": "3.1414926735860353",
+  "MathMode": "compiler-default",
+  "ExplicitSIMD": false,
+  "Algorithm": "leibniz-series",
+  "Rounds": 10000,
+  "Compile": "",
+  "Run": "python leibniz.py",
+  "Nixpkgs": [
+    "python3@3.12.8"
+  ],
+  "NixFlakes": [],
+  "Category": "interpreted",
+  "MeasurementProfile": "leibniz-1w-3m-v1",
+  "WarmupRuns": 1,
+  "MeasuredRuns": 3,
+  "OutputCapture": "first-warmup",
+  "MeasurementID": "36e0e03e52e84487b485d5b8a08378a3",
+  "Environment": {
+    "cpu_model": "",
+    "cpu_cores": "",
+    "cpu_threads": "6",
+    "cpu_flags": "",
+    "arch": "aarch64",
+    "kernel": "Linux 6.3.13-linuxkit",
+    "os_release": "Debian GNU/Linux 13 (trixie)",
+    "libc": "glibc 2.41",
+    "cpu_max": "max 100000",
+    "memory_max": "max",
+    "pids_max": "max",
+    "cpuset_cpus_effective": "0-5",
+    "process_limits": "time(seconds)        unlimited;file(blocks)         unlimited;data(kbytes)         unlimited;stack(kbytes)        8192;coredump(blocks)     0;memory(kbytes)       unlimited;locked memory(kbytes) 82000;process              unlimited;nofiles              1048576;vmemory(kbytes)      unlimited;locks                unlimited;rtprio               0;"
+  },
+  "ImageTag": null,
+  "ImageFingerprint": "7c359dce8404",
+  "DevboxImage": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+  "BuildSource": "local",
+  "AllowNativeFlags": false,
+  "DevboxLock": {
+    "lockfile_version": "1",
+    "packages": {
+      "github:NixOS/nixpkgs/nixpkgs-unstable": {
+        "last_modified": "2026-09-03T10:26:31Z",
+        "resolved": "github:NixOS/nixpkgs/9b9402b959a2276982ddd5ad3652a38b97f7c40b?lastModified=1788431191&narHash=sha256-MFClkboDeW56feBCAeAV3Z3J2quGSZFlAOXQ4JjIlIA%3D"
+      },
+      "hyperfine@1.18.0": {
+        "last_modified": "2024-11-03T14:18:04Z",
+        "resolved": "github:NixOS/nixpkgs/4ae2e647537bcdbb82265469442713d066675275#hyperfine",
+        "source": "devbox-search",
+        "version": "1.18.0",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0"
+          }
+        }
+      },
+      "micropython@1.24.1": {
+        "last_modified": "2025-04-10T20:20:34Z",
+        "resolved": "github:NixOS/nixpkgs/d19cf9dfc633816a437204555afeb9e722386b76#micropython",
+        "source": "devbox-search",
+        "version": "1.24.1",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1"
+          }
+        }
+      },
+      "python3@3.12.8": {
+        "last_modified": "2025-01-06T03:40:18Z",
+        "plugin_version": "0.0.4",
+        "resolved": "github:NixOS/nixpkgs/3df3c47c19dc90fec35359e89ffb52b34d2b0e94#python3",
+        "source": "devbox-search",
+        "version": "3.12.8",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/8zc3wcplydp8gsxms24scpzdca438dk5-python3-3.12.8",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/8zc3wcplydp8gsxms24scpzdca438dk5-python3-3.12.8"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/66pn6ysmvx675061xaq2vz93s9vdc5p4-python3-3.12.8",
+                "default": true
+              },
+              {
+                "name": "debug",
+                "path": "/nix/store/brcg3a34fi45ffky63g5pqd22sksvq13-python3-3.12.8-debug"
+              }
+            ],
+            "store_path": "/nix/store/66pn6ysmvx675061xaq2vz93s9vdc5p4-python3-3.12.8"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/fpmkmdzgd1q7kqadc7czcjdhjj7bsc0i-python3-3.12.8",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/fpmkmdzgd1q7kqadc7czcjdhjj7bsc0i-python3-3.12.8"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/c9m6yd8fg1flz2j5r4bif1ib5j20a0cy-python3-3.12.8",
+                "default": true
+              },
+              {
+                "name": "debug",
+                "path": "/nix/store/cicfrcjr8pky8qd0gxw0x84ynyviy6b5-python3-3.12.8-debug"
+              }
+            ],
+            "store_path": "/nix/store/c9m6yd8fg1flz2j5r4bif1ib5j20a0cy-python3-3.12.8"
+          }
+        }
+      }
+    }
+  },
+  "DevboxConfig": {
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+    "packages": [
+      "python3@3.12.8",
+      "hyperfine@1.18.0",
+      "micropython@1.24.1"
+    ],
+    "shell": {
+      "init_hook": [
+        "echo 'Welcome to devbox!' > /dev/null"
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  },
+  "SourceRevision": null,
+  "CatalogSHA256": null,
+  "SuiteRunID": "dac77f0bb90c44ffa263124640850f21"
+}

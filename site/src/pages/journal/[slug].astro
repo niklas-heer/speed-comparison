@@ -1,0 +1,25 @@
+---
+import Layout from "../../layouts/Layout.astro";
+export function getStaticPaths() {
+  return Object.entries(
+    import.meta.glob("../../content/journal/*.md", { eager: true }),
+  ).map(([path, post]) => ({
+    params: { slug: path.split("/").pop().replace(".md", "") },
+    props: { post },
+  }));
+}
+const { post } = Astro.props;
+const { Content, frontmatter: p } = post;
+---
+
+<Layout title={p.title} description={p.summary}
+  ><article class="journal-article">
+    <a class="breadcrumb" href="/journal/">← Project journal</a><p
+      class="eyebrow"
+    >
+      {p.category} / {p.date}
+    </p><h1>{p.title}</h1><p class="lead">{p.summary}</p><div class="prose">
+      <Content />
+    </div>
+  </article></Layout
+>

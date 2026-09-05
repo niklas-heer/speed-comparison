@@ -1,0 +1,10 @@
+---
+import Metadata from './Metadata.astro';
+const {name, info: p, environment: env} = Astro.props;
+---
+<details class="package">
+  <summary><strong>{name}</strong><span>{p.version ?? 'flake reference'} <span aria-hidden="true">＋</span></span></summary>
+  <Metadata values={{'Resolved reference':p.resolved,'Version':p.version,'Last modified':p.last_modified,'Source':p.source}}/>
+  {p.systems && Object.entries(p.systems).map(([system,info]) => <div class="platform"><h4>{system} {system === `${env.arch}-linux` && <span class="badge">Matching architecture / OS</span>}</h4><pre>{JSON.stringify(info,null,2)}</pre></div>)}
+  <details><summary>Complete package record</summary><pre>{JSON.stringify(p,null,2)}</pre></details>
+</details>

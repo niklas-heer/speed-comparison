@@ -34,3 +34,14 @@ dagger-poc/_nix_cache/
 
 # Isolated Dagger suite evidence bundles
 results/*/
+
+# Astro site
+site/node_modules/
+site/dist/
+site/.astro/
+site/public/history/
+site/test-results/
+site/playwright-report/
+.vercel/
+.vercel
+.env*

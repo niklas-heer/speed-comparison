@@ -1,0 +1,32 @@
+---
+const { values } = Astro.props;
+const display = (value) =>
+  value === undefined || value === null || value === ""
+    ? "Not recorded"
+    : typeof value === "boolean"
+      ? value
+        ? "Yes"
+        : "No"
+      : typeof value === "object"
+        ? JSON.stringify(value, null, 2)
+        : String(value);
+---
+
+<dl class="metadata">
+  {
+    Object.entries(values).map(([key, value]) => (
+      <div>
+        <>
+          <dt>{key}</dt>
+          <dd>
+            {typeof value === "object" && value !== null ? (
+              <pre>{display(value)}</pre>
+            ) : (
+              display(value)
+            )}
+          </dd>
+        </>
+      </div>
+    ))
+  }
+</dl>

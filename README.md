@@ -1,6 +1,6 @@
 [![CI](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml/badge.svg)](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml)
 
-![plot](https://niklas-heer.github.io/speed-comparison/history/latest/combined_results.png "Speed comparison of programming languages")
+![plot](https://speed-comparison.vercel.app/history/latest/combined_results.png "Speed comparison of programming languages")
 
 ---
 
@@ -11,7 +11,7 @@ In this project we don't really care about getting a precise calculation of pi. 
 It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison. <br />
 Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
 
-You can find the results here: https://niklas-heer.github.io/speed-comparison/
+You can find the results here: https://speed-comparison.vercel.app/
 
 ## Disclaimer
 
@@ -227,3 +227,11 @@ For creating [hyperfine](https://github.com/sharkdp/hyperfine) which is used for
 #### Thomas
 
 This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
+
+## Website and result archive
+
+The [Astro report](https://speed-comparison.vercel.app/) exposes per-implementation
+measurements, math/SIMD labels, resolved Nix packages, build commands and recorded
+resource limits. Historical evidence remains unchanged. The [project journal](https://speed-comparison.vercel.app/journal/)
+explains the changes and remaining limitations. See [site/README.md](site/README.md)
+for development and the private homelab PostgreSQL archive.

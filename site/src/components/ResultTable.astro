@@ -1,0 +1,178 @@
+---
+import { timing } from "../lib/results.mjs";
+const { results, runId, interactive = true } = Astro.props;
+const max = Math.max(...results.map((r) => r.median), 1);
+---
+
+{
+  interactive && (
+    <div class="filters">
+      <>
+        <label class="search-label">
+          <>
+            <span>⌕</span>
+            <input
+              id="search"
+              type="search"
+              placeholder="Find a language, variant or package…"
+              aria-label="Search results"
+            />
+          </>
+        </label>
+        <label>
+          <>
+            <span class="sr-only">Math behavior</span>
+            <select id="math">
+              <>
+                <option value="">All math modes</option>
+                <option value="compiler-default">Compiler default</option>
+                <option value="relaxed">Relaxed math</option>
+              </>
+            </select>
+          </>
+        </label>
+        <label>
+          <>
+            <span class="sr-only">Vectorization</span>
+            <select id="simd">
+              <>
+                <option value="">All implementations</option>
+                <option value="true">Explicit SIMD</option>
+                <option value="false">No explicit SIMD</option>
+              </>
+            </select>
+          </>
+        </label>
+        <label>
+          <>
+            <span class="sr-only">Sort results</span>
+            <select id="sort">
+              <>
+                <option value="speed">Fastest first</option>
+                <option value="slow">Slowest first</option>
+                <option value="name">Name A–Z</option>
+              </>
+            </select>
+          </>
+        </label>
+      </>
+    </div>
+  )
+}
+<div class="table-meta">
+  <span id="result-count" aria-live="polite"
+    >{results.length} implementations</span
+  ><span>Median wall time · lower is faster · bars use log scale</span>
+</div>
+<div class="table-scroll">
+  <table class="results-table">
+    <thead
+      ><tr
+        ><th scope="col">Implementation</th><th scope="col"
+          >Compiler / runtime</th
+        ><th scope="col">Math behavior</th><th scope="col">Median time</th><th
+          scope="col"><span class="sr-only">Inspect</span></th
+        ></tr
+      ></thead
+    ><tbody id="result-rows"
+      >{
+        results.map((r, i) => (
+          <tr
+            data-name={`${r.name} ${r.target} ${(r.raw?.Nixpkgs ?? []).join(" ")}`.toLowerCase()}
+            data-math={r.math}
+            data-simd={String(r.simd)}
+            data-time={r.median}
+          >
+            <>
+              <td>
+                <a class="result-link" href={`/results/${runId}/${r.target}/`}>
+                  <>
+                    <span class="row-num">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span class="language-symbol">{r.name.slice(0, 2)}</span>
+                    <span>
+                      <>
+                        <strong>{r.name}</strong>
+                        <small>{r.target}</small>
+                      </>
+                    </span>
+                  </>
+                </a>
+              </td>
+              <td>
+                <span class="mono">{r.version || "Not recorded"}</span>
+              </td>
+              <td>
+                <span
+                  class:list={["badge", r.math === "relaxed" && "badge-orange"]}
+                >
+                  {r.math === "compiler-default"
+                    ? "Default math"
+                    : r.math === "relaxed"
+                      ? "Relaxed math"
+                      : "Not recorded"}
+                </span>
+                {r.simd && <span class="simd">SIMD</span>}
+              </td>
+              <td class="time-cell">
+                <>
+                  <span class="mono">{timing(r.median)}</span>
+                  <span class="bar-track">
+                    <span
+                      style={`width:${Math.max(2, (Math.log10(1 + r.median * 1000) / Math.log10(1 + max * 1000)) * 100)}%`}
+                    />
+                  </span>
+                </>
+              </td>
+              <td>
+                <a
+                  class="inspect"
+                  href={`/results/${runId}/${r.target}/`}
+                  aria-label={`Inspect ${r.name}, ${r.target}`}
+                >
+                  ↗
+                </a>
+              </td>
+            </>
+          </tr>
+        ))
+      }</tbody>
+  </table>
+</div><p id="empty-results" hidden>
+  No implementations match these filters. Try a language name or reset the
+  filters.
+</p>
+<script>
+  const rows = document.querySelector<HTMLTableSectionElement>("#result-rows");
+  const search = document.querySelector<HTMLInputElement>("#search");
+  if (rows && search) {
+    const math = document.querySelector<HTMLSelectElement>("#math")!;
+    const simd = document.querySelector<HTMLSelectElement>("#simd")!;
+    const sort = document.querySelector<HTMLSelectElement>("#sort")!;
+    const update = () => {
+      const items = [...rows.querySelectorAll<HTMLTableRowElement>("tr")];
+      items.sort((a, b) =>
+        sort.value === "name"
+          ? a.dataset.name!.localeCompare(b.dataset.name!)
+          : (Number(a.dataset.time) - Number(b.dataset.time)) *
+            (sort.value === "slow" ? -1 : 1),
+      );
+      let count = 0;
+      for (const row of items) {
+        row.hidden =
+          !row.dataset.name!.includes(search.value.toLowerCase().trim()) ||
+          !!(math.value && row.dataset.math !== math.value) ||
+          !!(simd.value && row.dataset.simd !== simd.value);
+        if (!row.hidden) count++;
+        rows.append(row);
+      }
+      document.querySelector("#result-count")!.textContent =
+        `${count} implementations`;
+      document.querySelector<HTMLElement>("#empty-results")!.hidden =
+        count !== 0;
+    };
+    for (const input of [search, math, simd, sort])
+      input.addEventListener("input", update);
+  }
+</script>

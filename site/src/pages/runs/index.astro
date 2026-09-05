@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { runs, runData } from "../../lib/results.mjs";
+---
+
+<Layout title="Run archive"
+  ><div class="page-heading">
+    <p class="eyebrow">The archive</p><h1>
+      Keep the history.<br /><em>Keep the context.</em>
+    </h1><p class="lead">
+      {runs.length} published snapshots. Hardware, workloads and implementations change
+      over time, so these runs are separate cohorts—not a performance trend line.
+    </p>
+  </div><div class="archive-list">
+    {
+      runs.map((r, i) => {
+        const data = runData(r.id);
+        return (
+          <a href={`/runs/${r.id}/`}>
+            <>
+              <span class="row-num">{String(i + 1).padStart(2, "0")}</span>
+              <div>
+                <>
+                  <h3>{r.date}</h3>
+                  <span>
+                    {r.languages} implementations ·{" "}
+                    {data.results.some((x) => x.raw)
+                      ? "Raw measurements & package evidence"
+                      : "Historical summary"}
+                  </span>
+                </>
+              </div>
+              <span class="archive-arrow">↗</span>
+            </>
+          </a>
+        );
+      })
+    }
+  </div></Layout
+>

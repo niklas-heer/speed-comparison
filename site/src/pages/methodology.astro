@@ -1,0 +1,96 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Methodology"
+  ><div class="page-heading">
+    <p class="eyebrow">Read the experiment</p><h1>
+      The conditions<br /><em>are part of the result.</em>
+    </h1><p class="lead">
+      This project explores implementations of a π approximation using the
+      Leibniz series. It measures a specific numerical task, with visible
+      tradeoffs—not overall language quality.
+    </p>
+  </div>
+  <section class="detail-section">
+    <div>
+      <span class="eyebrow">01 / Interpret</span><h2>What the numbers mean.</h2>
+    </div><div class="prose">
+      <h3>Elapsed time, in context</h3><p>
+        The table shows median wall time for the selected run. Smaller is faster
+        for that implementation, workload and machine. Details preserve
+        individual samples, spread and the exact command. Three samples are a
+        practical starting point, not enough to declare every small difference
+        meaningful.
+      </p><h3>Math and vectorization</h3><p>
+        Relaxed math permits transformations such as reassociation that can
+        change floating-point results. “Compiler default” describes the declared
+        math policy; it does not guarantee identical instruction sequences or
+        bitwise output. “Explicit SIMD” labels implementations that explicitly
+        use vector operations; its absence does not rule out automatic
+        vectorization. Algorithm variants and native CPU flags are shown
+        separately.
+      </p><h3>Correctness</h3><p>
+        Results are checked against a convergence tolerance for the requested
+        number of terms. Passing that check is a numerical sanity check, not
+        proof of identical arithmetic, exact π or equivalent behavior on every
+        input.
+      </p><h3>The current baseline</h3><p>
+        The September 5, 2026 snapshot uses one billion terms and three measured
+        executions. It was collected by the native Devbox adapter on a shared
+        x86_64 virtual machine. Two warmups and a separate output capture made
+        six executions in that historical protocol. This site does not relabel
+        it as a Dagger run or as a result from dedicated hardware.
+      </p>
+    </div>
+  </section>
+  <section class="detail-section">
+    <div>
+      <span class="eyebrow">02 / Reproduce</span><h2>Follow the evidence.</h2>
+    </div><div class="prose">
+      <p>
+        Start with a run’s measured source revision, then inspect the target’s
+        build and run commands, requested packages, resolved Devbox lock,
+        container image, CPU flags and workload. Nix helps identify
+        dependencies; matching packages alone cannot recreate host load,
+        virtualization or processor behavior.
+      </p><p>
+        Some old fields were never collected. The site displays these as “Not
+        recorded,” while providing the untouched raw evidence. Other platforms
+        in a package lock describe resolver outputs, not additional benchmark
+        runs.
+      </p><p>
+        <a href="https://github.com/niklas-heer/speed-comparison#readme"
+          >Contributor setup and Dagger commands ↗</a>
+      </p>
+    </div>
+  </section>
+  <section class="detail-section">
+    <div>
+      <span class="eyebrow">03 / Improve</span><h2>
+        Fast feedback.<br />Deliberate reporting.
+      </h2>
+    </div><div class="prose">
+      <h3>Contribution checks</h3><p>
+        A source change selects all affected language variants, including shared
+        source dependencies. Shared execution or compiler settings broaden that
+        selection. Report and website changes validate the report without
+        scheduling benchmarks. Unavailable change history falls back to a full
+        check.
+      </p><h3>The next reporting protocol</h3><p>
+        The agreed starting point is one warmup plus three measured executions,
+        with output captured in the warmup. Full reports should run weekly only
+        when benchmark inputs, protocol or runner conditions changed since the
+        last successful publication. Close or noisy results need additional
+        investigation. The billion-term workload remains the published
+        reference; a shorter candidate still needs validation.
+      </p><h3>Rollout status</h3><p>
+        The unified Python Dagger runner prepares environments concurrently,
+        reuses cached builds, then measures targets sequentially with fresh
+        execution IDs. Production Argo integration and weekly scheduling await
+        an isolated benchmark runner. The shared homelab production workers are
+        not the intended Dagger execution host.
+      </p>
+    </div>
+  </section></Layout
+>
