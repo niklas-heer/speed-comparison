@@ -19,6 +19,7 @@ import subprocess
 
 from languages import LANGUAGES, HYPERFINE_VERSION, MICROPYTHON_VERSION, get_devbox_image
 from result_metadata import enrich_result
+from measurement import measurement_command, measurement_metadata
 
 
 def execute(command: list[str], cwd: Path, *, capture: bool = False) -> str:
@@ -82,10 +83,7 @@ def run(target: str, source: Path, workspace: Path, output: Path, rounds: int) -
     if lang.compile:
         devbox(lang.compile)
     version = lang.extract_version(devbox(f"{lang.version_cmd or 'echo unknown'} 2>&1", True))
-    devbox(
-        f"hyperfine --show-output --warmup 2 --runs 3 --time-unit second --export-json hyperfine.json "
-        f"{shlex.quote(lang.run)} && {lang.run} > pi.txt"
-    )
+    devbox(measurement_command(lang.run, show_output=True))
     args = [
         "micropython",
         "scmeta.py",
@@ -116,6 +114,7 @@ def run(target: str, source: Path, workspace: Path, output: Path, rounds: int) -
         AllowNativeFlags=allow_native,
     )
     enrich_result(result, target, lang, rounds)
+    result.update(measurement_metadata())
     # Preserve the actual resolved transitive Nix inputs for reproducing the run.
     lock = workspace / "devbox.lock"
     if lock.exists():

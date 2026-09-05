@@ -36,11 +36,13 @@ import json
 import os
 import platform
 import sys
+import uuid
 from pathlib import Path
 
 import dagger
 
 from result_metadata import enrich_result
+from measurement import measurement_command, measurement_metadata
 
 from languages import (
     HYPERFINE_VERSION,
@@ -59,9 +61,6 @@ from languages import (
 # =============================================================================
 
 # Benchmark settings
-WARMUP_RUNS = 2
-BENCHMARK_RUNS = 3
-TIME_UNIT = "second"
 HYPERFINE_SHOW_OUTPUT = os.environ.get("HYPERFINE_SHOW_OUTPUT", "0").lower() in (
     "1",
     "true",
@@ -352,15 +351,10 @@ async def run_benchmark(
 
         # Run benchmark with hyperfine
         print(f"  Running: {lang.run}")
-        hyperfine_cmd = (
-            f"hyperfine '{lang.run}' "
-            f"--warmup {WARMUP_RUNS} "
-            f"--runs {BENCHMARK_RUNS} "
-            f"--time-unit {TIME_UNIT} "
-            f"{'--show-output ' if HYPERFINE_SHOW_OUTPUT else ''}"
-            f"--export-json hyperfine.json "
-            f"&& {lang.run} > pi.txt"
-        )
+        # Keep toolchain and compilation caching, but never reuse timing results.
+        measurement_id = uuid.uuid4().hex
+        container = container.with_env_variable("BENCHMARK_MEASUREMENT_ID", measurement_id)
+        hyperfine_cmd = measurement_command(lang.run, show_output=HYPERFINE_SHOW_OUTPUT)
         container = await exec_cmd(container, lang, hyperfine_cmd)
 
         # Run scmeta.py with micropython to generate result JSON
@@ -380,6 +374,7 @@ async def run_benchmark(
         result = json.loads(result_content)
         rounds = int(quick_rounds or (SRC_DIR / "rounds.txt").read_text().strip())
         enrich_result(result, target, lang, rounds)
+        result.update(measurement_metadata(), MeasurementID=measurement_id)
         result["Environment"] = env_info
         result["Compile"] = lang.compile or ""
         result["Run"] = lang.run
