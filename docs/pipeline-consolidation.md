@@ -149,3 +149,39 @@ The manual commit entry point is not automatic PR authorization. Run the driver
 from reviewed code; never dispatch an unreviewed replacement driver with client
 credentials. `--base` needs those Git objects available in the trusted local checkout
 for AST planning; source execution itself uses the immutable Dagger Git tree.
+
+## Four executions and weekly eligibility (September 6)
+
+The shared protocol is now `leibniz-1w-3m-v1`: one warmup, three measured
+executions, with correctness output captured in the warmup. That removes one of
+five executions (20% of execution work), without reducing the measured sample
+count. This is a protocol change, not evidence that close results are stable.
+The historical billion-term reporting workload and raw baseline remain unchanged.
+
+`python scripts/weekly_plan.py --checkpoint STATE.json --environment RUNNER.json`
+compares the current source tree with the last **successfully published source**,
+not the later publication commit. Source/compiler/tooling/scmeta changes trigger a
+full weekly run; `site/` changes request a website check only. The environment JSON
+must include a stable `runner_id` and measurement `profile`, plus actual image,
+CPU/OS identity, limits, workload and isolation configuration. Any identity change
+invalidates the checkpoint. Missing history fails closed to a full run.
+
+After publishing, call the same command with `--published-revision FETCHED_SHA
+--run-id TIMESTAMP`. It checks the committed raw suite before atomically advancing
+state, requiring consistent `SourceRevision`, `MeasurementProfile` and
+`RunnerEnvironmentSHA256` evidence. A failed or incomplete run cannot advance it.
+The historical baseline lacks that identity and intentionally cannot seed a new
+runner checkpoint. The Argo adapter must supply and verify this identity and hold
+a global runner mutex; this CLI alone does not enable the suspended schedule.
+
+Vercel builds the separate Astro site from immutable published snapshots. The
+optional homelab Postgres archive indexes those snapshots for queries without
+putting a database request in the public page path. Publication, archive import
+and website deployment can each be retried without repeating measurements.
+
+Pass the same `RUNNER.json` with `benchmark.py --runner-environment RUNNER.json`.
+The runner checks required container-visible hardware/OS/cgroup fields, rounds,
+container image, profile and timeout against actual result metadata before attaching
+`RunnerEnvironmentSHA256`. A mismatch fails the suite. This observed contract
+complements host isolation and the Argo mutex; it cannot prove that a shared host
+was idle. `environment.cpuset_cpus_effective` records the effective cgroup CPU set.

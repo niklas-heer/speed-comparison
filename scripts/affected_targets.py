@@ -16,8 +16,9 @@ REPORT_INPUTS = {
     'pyproject.toml', 'uv.lock', 'analyze.py', 'publish.py', 'download_icons.py',
     'scripts/publish_results.py', 'scripts/validate_publish.py',
     'scripts/compare_results.py', 'scripts/check_report.py', '.github/workflows/ci.yml',
+    'vercel.json', '.vercelignore', '.github/workflows/site.yml',
 }
-REPORT_PREFIXES = ('icons/', 'docs/validation/2026-09-05-workload-calibration/')
+REPORT_PREFIXES = ('site/', 'icons/', 'docs/validation/2026-09-05-workload-calibration/')
 GLOBAL_CONSTANTS = {'HYPERFINE_VERSION', 'MICROPYTHON_VERSION', 'DEFAULT_DEVBOX_IMAGE', 'MARCH_NATIVE'}
 
 
@@ -96,7 +97,7 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
             continue
         if path.startswith(('dagger-poc/', 'scripts/')) and path.endswith(('.md', '.rst')):
             continue
-        if path in GLOBAL_INPUTS or path.startswith(('dagger-poc/', 'scripts/')):
+        if path in GLOBAL_INPUTS or path.startswith(('dagger-poc/', 'scripts/', 'scmeta/')):
             include(head, f'Shared pipeline input: {path}')
             continue
         if not path.startswith('src/'):

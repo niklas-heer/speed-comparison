@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "run_id": "dac77f0bb90c44ffa263124640850f21",
+  "status": "succeeded",
+  "source_revision": null,
+  "source_kind": "working-tree",
+  "publication_eligible": false,
+  "scope": "benchmark-only",
+  "prepare_jobs": 2,
+  "measurement_timeout_seconds": 60,
+  "rounds_override": 10000,
+  "driver_sha256": {
+    "benchmark.py": "8d113ab6d04921ce84466dd0a7849119b5968f7951b866454ce3ec4639d1763b",
+    "suite.py": "b6459e18dc843ff6cdb1ba5369e549c8c5bda2dd67b158cb16b78edaef3e3cc1",
+    "measurement.py": "d585c9e44161b29b30a2d4c2810a29b95676717fc6f0ae496824024d638d9701",
+    "scmeta.py": "e6c2faac81a6af6c2ffb5402e941376675c381741cfd21186c2015420f65e1f3",
+    "result_metadata.py": "eb02714e3e722c7372f9fb6e17b2b7a2b7993388d2eca6c2691f63a3aac63ce7",
+    "languages.py": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+    "catalog_manifest.py": "ecfa174ea035c207cd2295aff4a84f73a17f8783abf734dbe0733eef7e5cb09f",
+    "catalog_resolver.py": "729a44a6d22c1a12f4e5317d59058de11608a997bf9aa18560f397f922bc3b91",
+    "catalog_export.py": "6f3b9ca6955cb5c04ac261d990e760fc3e54c80d1476f26116a2f3be7766a5d9"
+  },
+  "targets": [
+    "go",
+    "python"
+  ],
+  "tooling": {
+    "devbox_image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+    "hyperfine": "1.18.0",
+    "micropython": "1.24.1"
+  },
+  "rounds": 10000,
+  "errors": {},
+  "target_phases": {
+    "python": {
+      "prepare_seconds": 23.39322429196909,
+      "measure_seconds": 1.6967802077997476
+    },
+    "go": {
+      "prepare_seconds": 25.029822959098965,
+      "measure_seconds": 0.7266285831574351
+    }
+  },
+  "preparation_wall_seconds": 25.029960042098537,
+  "total_wall_seconds": 27.453375667100772,
+  "completed_targets": [
+    "go",
+    "python"
+  ]
+}
