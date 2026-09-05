@@ -91,7 +91,7 @@ The full billion-round baseline completed all 75 targets and analysis in workflo
 an OpenSSH user entry; homelab #37 fixed the account and added artifact-only recovery.
 `speed-comparison-republish-lkllt` published the archived result without repeating
 benchmarks. [The complete report](history/2026-09-05T193245/combined_results.json)
-records source `c71e4cd81464b238172605982806c5bf827a70a1`, compiler flags, samples,
+records source `c71e4cd81464b238172605982806c5bf827a70a1`, compiler flags,
 math/SIMD labels and resolved environments. The [raw target files](history/2026-09-05T193245/raw/README.md)
 preserve the original samples and file hashes independently of Argo retention. Source-linked publication commit:
 `151d287536218d2320a45dacf18c692fea4db2c2`.
