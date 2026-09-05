@@ -1,0 +1,254 @@
+{
+  "Mean": "11.324726294s",
+  "Max": "11.359921241s",
+  "Target": "r",
+  "Stddev": "0.05667280339143982s",
+  "Version": "4.5.2",
+  "Language": "R",
+  "UserTime": "8.91370412s",
+  "SystemTime": "2.368035033333333s",
+  "Median": "11.354907408s",
+  "Command": "Rscript leibniz.r",
+  "TimesPerRun": [
+    11.359921241,
+    11.259350233,
+    11.354907408
+  ],
+  "Accuracy": 9.497148898644358,
+  "Min": "11.259350233s",
+  "ExitCodesPerRun": [
+    0,
+    0,
+    0
+  ],
+  "CalculatedPi": "3.1415926525897908",
+  "Environment": {
+    "arch": "x86_64",
+    "kernel": "6.18.38-talos",
+    "cpu_model": "AMD EPYC-Genoa Processor",
+    "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl xtopology cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core pti ssbd ibrs ibpb stibp ibrs_enhanced vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx512_bf16 clzero xsaveerptr wbnoinvd arat avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq la57 rdpid fsrm",
+    "cpu_threads": "4",
+    "runner": "homelab-argo"
+  },
+  "BuildSource": "native-devbox",
+  "DevboxImage": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+  "AllowNativeFlags": true,
+  "MathMode": "compiler-default",
+  "ExplicitSIMD": false,
+  "Algorithm": "bounded-vector-sum",
+  "Rounds": 1000000000,
+  "Compile": "",
+  "Run": "Rscript leibniz.r",
+  "Nixpkgs": [
+    "R@4.5.2"
+  ],
+  "NixFlakes": [],
+  "Category": "interpreted",
+  "DevboxLock": {
+    "lockfile_version": "1",
+    "packages": {
+      "R@4.5.2": {
+        "last_modified": "2026-03-21T07:29:51Z",
+        "resolved": "github:NixOS/nixpkgs/09061f748ee21f68a089cd5d91ec1859cd93d0be#R",
+        "source": "devbox-search",
+        "version": "4.5.2",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/via0gg8ij2by5x7c503inddym6r846s5-R-4.5.2",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/si1d0a9nb6m6l88wp54pwwjhckxjchlh-R-4.5.2-man",
+                "default": true
+              },
+              {
+                "name": "tex",
+                "path": "/nix/store/yn6nd2v5k4fhis8siag0byhgj3brc5dl-R-4.5.2-tex"
+              }
+            ],
+            "store_path": "/nix/store/via0gg8ij2by5x7c503inddym6r846s5-R-4.5.2"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/qazlwyhvjllchx62zqp1ypkg235n5jp1-R-4.5.2",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/ikwjzw0ilj1phxqgyr7l0690dj8w7mni-R-4.5.2-man",
+                "default": true
+              },
+              {
+                "name": "tex",
+                "path": "/nix/store/0y9s2ksgmnr3w9c5wdvhzlxnd59nnzad-R-4.5.2-tex"
+              }
+            ],
+            "store_path": "/nix/store/qazlwyhvjllchx62zqp1ypkg235n5jp1-R-4.5.2"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/3s136pak41wyrwyvnh7462n55ifwlk6l-R-4.5.2",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/4sr7dg8pv0wd8qvlilkzmx2nh3gg6h82-R-4.5.2-man",
+                "default": true
+              },
+              {
+                "name": "tex",
+                "path": "/nix/store/czrsxc3yfk3hxq82yc2jwdd6wa2lhhf6-R-4.5.2-tex"
+              }
+            ],
+            "store_path": "/nix/store/3s136pak41wyrwyvnh7462n55ifwlk6l-R-4.5.2"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zfiizrfy59g6hxyr8sb5yhrbnj7q1mm4-R-4.5.2",
+                "default": true
+              },
+              {
+                "name": "man",
+                "path": "/nix/store/y05g2rnr0hxycrmhaxls0isqx2cyxjj9-R-4.5.2-man",
+                "default": true
+              },
+              {
+                "name": "tex",
+                "path": "/nix/store/116f15ik9dc8wzpqx1hyv813dl3kcmni-R-4.5.2-tex"
+              }
+            ],
+            "store_path": "/nix/store/zfiizrfy59g6hxyr8sb5yhrbnj7q1mm4-R-4.5.2"
+          }
+        }
+      },
+      "github:NixOS/nixpkgs/nixpkgs-unstable": {
+        "last_modified": "2026-09-03T10:26:31Z",
+        "resolved": "github:NixOS/nixpkgs/9b9402b959a2276982ddd5ad3652a38b97f7c40b?lastModified=1788431191&narHash=sha256-MFClkboDeW56feBCAeAV3Z3J2quGSZFlAOXQ4JjIlIA%3D"
+      },
+      "hyperfine@1.18.0": {
+        "last_modified": "2024-11-03T14:18:04Z",
+        "resolved": "github:NixOS/nixpkgs/4ae2e647537bcdbb82265469442713d066675275#hyperfine",
+        "source": "devbox-search",
+        "version": "1.18.0",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0"
+          }
+        }
+      },
+      "micropython@1.24.1": {
+        "last_modified": "2025-04-10T20:20:34Z",
+        "resolved": "github:NixOS/nixpkgs/d19cf9dfc633816a437204555afeb9e722386b76#micropython",
+        "source": "devbox-search",
+        "version": "1.24.1",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1"
+          }
+        }
+      }
+    }
+  },
+  "DevboxConfig": {
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+    "packages": [
+      "R@4.5.2",
+      "hyperfine@1.18.0",
+      "micropython@1.24.1"
+    ],
+    "shell": {
+      "init_hook": [
+        "echo 'Welcome to devbox!' > /dev/null"
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  }
+}

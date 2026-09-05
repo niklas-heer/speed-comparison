@@ -71,3 +71,26 @@ def test_no_base_catalog_validates_all_new_targets():
     result = affected(None, CATALOG, [])
     assert len(result['targets']) == 4
     assert result['publication_eligible'] is False
+
+
+def test_report_dependencies_select_report_check_without_benchmarks():
+    paths = ['uv.lock', 'pyproject.toml', 'analyze.py', 'publish.py',
+             'scripts/publish_results.py', 'scripts/validate_publish.py',
+             'scripts/compare_results.py', 'scripts/check_report.py', 'icons/go.png',
+             'docs/validation/2026-09-05-workload-calibration/c/100000000/c.json']
+    for path in paths:
+        plan = affected(CATALOG, CATALOG, [path])
+        assert plan['targets'] == [], path
+        assert plan['report_check'] is True, path
+
+
+def test_mixed_report_and_source_changes_preserve_both_selections():
+    plan = affected(CATALOG, CATALOG, ['uv.lock', 'src/leibniz.c'])
+    assert plan['targets'] == ['c', 'c-clang']
+    assert plan['report_check'] is True
+
+
+def test_execution_lock_still_selects_all_targets():
+    plan = affected(CATALOG, CATALOG, ['dagger-poc/uv.lock'])
+    assert len(plan['targets']) == 4
+    assert plan['report_check'] is False

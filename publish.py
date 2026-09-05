@@ -99,6 +99,27 @@ def main():
     if meta_file.exists():
         shutil.copy(meta_file, latest_dir / "run_metadata.json")
 
+    # Keep the original per-target evidence independently of presentation/schema changes.
+    raw_results = []
+    for path in results_dir.glob("*.json"):
+        if path.name in {"combined_results.json", "run_metadata.json"}:
+            continue
+        data = json.loads(path.read_text())
+        if isinstance(data, dict) and data.get("Target"):
+            raw_results.append(path)
+    # Latest can point to a smaller or historical report: never retain stale raw files.
+    latest_raw = latest_dir / "raw"
+    if latest_raw.exists():
+        shutil.rmtree(latest_raw)
+    if raw_results:
+        for destination in (run_dir / "raw", latest_raw):
+            destination.mkdir(parents=True, exist_ok=True)
+            for path in raw_results:
+                shutil.copy(path, destination / path.name)
+            for name in ("source-revision.txt", "rounds.txt"):
+                if (results_dir / name).exists():
+                    shutil.copy(results_dir / name, destination / name)
+
     source_revision = results_dir / "source-revision.txt"
     if source_revision.exists():
         shutil.copy(source_revision, run_dir / "source-revision.txt")

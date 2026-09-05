@@ -21,7 +21,10 @@ warmup so requested timings cannot come from an earlier cached run.
 repository root) selects affected targets, including shared sources, source
 directories, extra files and referenced compiler settings. It parses both catalogs
 without executing their Python code. Shared runner/tooling changes select the full
-suite; documentation changes do not. GitHub CI uploads this plan. Submission to
+suite; documentation changes do not. Root reporting dependencies and report scripts
+select a separate report check, which renders recorded samples and publishes only
+to a temporary directory. They do not select benchmark execution. GitHub CI uploads
+this plan. Submission to
 the homelab must recompute it against the exact authorized revision rather than
 trusting a PR-produced artifact.
 

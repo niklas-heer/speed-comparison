@@ -522,6 +522,15 @@ def build_combined_results(raw_results: list[dict]) -> list[dict]:
                 "min": round(parse_time_value(result.get("Min", 0)) * 1000, 2),
                 "max": round(parse_time_value(result.get("Max", 0)) * 1000, 2),
                 "accuracy": round(float(result.get("Accuracy", 0)), 4),
+                # Preserve samples in their original seconds, without presentation rounding.
+                # None records missing historical metadata rather than inventing a protocol.
+                "times_per_run": result.get("TimesPerRun"),
+                "exit_codes_per_run": result.get("ExitCodesPerRun"),
+                "calculated_pi": result.get("CalculatedPi"),
+                "warmup_runs": result.get("WarmupRuns"),
+                "measured_runs": result.get("MeasuredRuns"),
+                "output_capture": result.get("OutputCapture"),
+                "measurement_id": result.get("MeasurementID"),
                 "environment": result.get("Environment", {}),
                 "compile": result.get("Compile", ""),
                 "run": result.get("Run", ""),

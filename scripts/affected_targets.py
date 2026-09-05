@@ -11,7 +11,13 @@ import re
 import subprocess
 
 CATALOG = 'dagger-poc/languages.py'
-GLOBAL_INPUTS = {'src/rounds.txt', 'pyproject.toml', 'uv.lock'}
+GLOBAL_INPUTS = {'src/rounds.txt'}
+REPORT_INPUTS = {
+    'pyproject.toml', 'uv.lock', 'analyze.py', 'publish.py', 'download_icons.py',
+    'scripts/publish_results.py', 'scripts/validate_publish.py',
+    'scripts/compare_results.py', 'scripts/check_report.py', '.github/workflows/ci.yml',
+}
+REPORT_PREFIXES = ('icons/', 'docs/validation/2026-09-05-workload-calibration/')
 GLOBAL_CONSTANTS = {'HYPERFINE_VERSION', 'MICROPYTHON_VERSION', 'DEFAULT_DEVBOX_IMAGE', 'MARCH_NATIVE'}
 
 
@@ -84,6 +90,8 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
             if target not in base or config != base[target]:
                 include([target], 'Language definition or shared compiler settings changed')
     for path in paths:
+        if path in REPORT_INPUTS:
+            continue
         if path == CATALOG:
             continue
         if path.startswith(('dagger-poc/', 'scripts/')) and path.endswith(('.md', '.rst')):
@@ -106,6 +114,7 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
     return {'schema_version': 1, 'targets': selected,
             'removed_targets': sorted(set(base) - set(head)),
             'reasons': {t: sorted(set(reasons[t])) for t in selected},
+            'report_check': any(path in REPORT_INPUTS or path.startswith(REPORT_PREFIXES) for path in paths),
             'publication_eligible': False}
 
 
