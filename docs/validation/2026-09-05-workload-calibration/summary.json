@@ -1,0 +1,464 @@
+[
+  {
+    "target": "c",
+    "rounds": 100000,
+    "status": "succeeded",
+    "median_seconds": 0.00109995014,
+    "min_seconds": 0.0004773811399999993,
+    "max_seconds": 0.001131563139999999,
+    "stddev_seconds": 0.0003689050534247714,
+    "samples_seconds": [
+      0.0004773811399999993,
+      0.001131563139999999,
+      0.00109995014
+    ],
+    "math_mode": "relaxed",
+    "version": "15.2.0",
+    "compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+    "run": "./leibniz"
+  },
+  {
+    "target": "c",
+    "rounds": 1000000,
+    "status": "succeeded",
+    "median_seconds": 0.0021257118,
+    "min_seconds": 0.0017282038,
+    "max_seconds": 0.0021407628,
+    "stddev_seconds": 0.0002339672595136622,
+    "samples_seconds": [
+      0.0021407628,
+      0.0017282038,
+      0.0021257118
+    ],
+    "math_mode": "relaxed",
+    "version": "15.2.0",
+    "compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+    "run": "./leibniz"
+  },
+  {
+    "target": "c",
+    "rounds": 10000000,
+    "status": "succeeded",
+    "median_seconds": 0.002325833020000001,
+    "min_seconds": 0.002298324020000001,
+    "max_seconds": 0.003138373020000001,
+    "stddev_seconds": 0.0004772595937715657,
+    "samples_seconds": [
+      0.002325833020000001,
+      0.003138373020000001,
+      0.002298324020000001
+    ],
+    "math_mode": "relaxed",
+    "version": "15.2.0",
+    "compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+    "run": "./leibniz"
+  },
+  {
+    "target": "c",
+    "rounds": 100000000,
+    "status": "succeeded",
+    "median_seconds": 0.0172058278,
+    "min_seconds": 0.0169464198,
+    "max_seconds": 0.0175865628,
+    "stddev_seconds": 0.0003219820676005624,
+    "samples_seconds": [
+      0.0172058278,
+      0.0169464198,
+      0.0175865628
+    ],
+    "math_mode": "relaxed",
+    "version": "15.2.0",
+    "compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+    "run": "./leibniz"
+  },
+  {
+    "target": "c",
+    "rounds": 1000000000,
+    "status": "succeeded",
+    "median_seconds": 0.16008150778,
+    "min_seconds": 0.15737639878,
+    "max_seconds": 0.16156990978,
+    "stddev_seconds": 0.002125969963828517,
+    "samples_seconds": [
+      0.16156990978,
+      0.15737639878,
+      0.16008150778
+    ],
+    "math_mode": "relaxed",
+    "version": "15.2.0",
+    "compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+    "run": "./leibniz"
+  },
+  {
+    "target": "cpython-numpy",
+    "rounds": 100000,
+    "status": "succeeded",
+    "median_seconds": 0.08179224996,
+    "min_seconds": 0.07170817696,
+    "max_seconds": 0.08231607296,
+    "stddev_seconds": 0.005978996241726447,
+    "samples_seconds": [
+      0.07170817696,
+      0.08231607296,
+      0.08179224996
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python3 leibniz_np.py"
+  },
+  {
+    "target": "cpython-numpy",
+    "rounds": 1000000,
+    "status": "succeeded",
+    "median_seconds": 0.09910401962,
+    "min_seconds": 0.09528584462,
+    "max_seconds": 0.10142750462,
+    "stddev_seconds": 0.003100995281933685,
+    "samples_seconds": [
+      0.10142750462,
+      0.09528584462,
+      0.09910401962
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python3 leibniz_np.py"
+  },
+  {
+    "target": "cpython-numpy",
+    "rounds": 10000000,
+    "status": "succeeded",
+    "median_seconds": 0.23242415346,
+    "min_seconds": 0.20646135046,
+    "max_seconds": 0.23398414546,
+    "stddev_seconds": 0.015459651566087,
+    "samples_seconds": [
+      0.20646135046,
+      0.23398414546,
+      0.23242415346
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python3 leibniz_np.py"
+  },
+  {
+    "target": "cpython-numpy",
+    "rounds": 100000000,
+    "status": "succeeded",
+    "median_seconds": 1.72375725404,
+    "min_seconds": 1.52878989204,
+    "max_seconds": 1.74218764104,
+    "stddev_seconds": 0.118244485909827,
+    "samples_seconds": [
+      1.52878989204,
+      1.72375725404,
+      1.74218764104
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python3 leibniz_np.py"
+  },
+  {
+    "target": "cpython-numpy",
+    "rounds": 1000000000,
+    "status": "timeout"
+  },
+  {
+    "target": "go",
+    "rounds": 100000,
+    "status": "succeeded",
+    "median_seconds": 0.00181302374,
+    "min_seconds": 0.00156600174,
+    "max_seconds": 0.002505307740000001,
+    "stddev_seconds": 0.0004869244922257797,
+    "samples_seconds": [
+      0.00181302374,
+      0.00156600174,
+      0.002505307740000001
+    ],
+    "math_mode": "compiler-default",
+    "version": "1.25.5",
+    "compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+    "run": "./leibniz"
+  },
+  {
+    "target": "go",
+    "rounds": 1000000,
+    "status": "succeeded",
+    "median_seconds": 0.002398286080000001,
+    "min_seconds": 0.002299909080000001,
+    "max_seconds": 0.00244319808,
+    "stddev_seconds": 7.328808383586863e-05,
+    "samples_seconds": [
+      0.002398286080000001,
+      0.00244319808,
+      0.002299909080000001
+    ],
+    "math_mode": "compiler-default",
+    "version": "1.25.5",
+    "compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+    "run": "./leibniz"
+  },
+  {
+    "target": "go",
+    "rounds": 10000000,
+    "status": "succeeded",
+    "median_seconds": 0.01400077894,
+    "min_seconds": 0.01349532194,
+    "max_seconds": 0.01406092094,
+    "stddev_seconds": 0.0003106461190846161,
+    "samples_seconds": [
+      0.01400077894,
+      0.01406092094,
+      0.01349532194
+    ],
+    "math_mode": "compiler-default",
+    "version": "1.25.5",
+    "compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+    "run": "./leibniz"
+  },
+  {
+    "target": "go",
+    "rounds": 100000000,
+    "status": "succeeded",
+    "median_seconds": 0.11404683688,
+    "min_seconds": 0.11338001788,
+    "max_seconds": 0.11730758088,
+    "stddev_seconds": 0.002101699714170496,
+    "samples_seconds": [
+      0.11730758088,
+      0.11338001788,
+      0.11404683688
+    ],
+    "math_mode": "compiler-default",
+    "version": "1.25.5",
+    "compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+    "run": "./leibniz"
+  },
+  {
+    "target": "go",
+    "rounds": 1000000000,
+    "status": "succeeded",
+    "median_seconds": 1.1677526206,
+    "min_seconds": 1.1544125886,
+    "max_seconds": 1.1847568926,
+    "stddev_seconds": 0.01520898038032915,
+    "samples_seconds": [
+      1.1677526206,
+      1.1847568926,
+      1.1544125886
+    ],
+    "math_mode": "compiler-default",
+    "version": "1.25.5",
+    "compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+    "run": "./leibniz"
+  },
+  {
+    "target": "java",
+    "rounds": 100000,
+    "status": "succeeded",
+    "median_seconds": 0.08450868814000001,
+    "min_seconds": 0.08370796414000001,
+    "max_seconds": 0.08586075314000002,
+    "stddev_seconds": 0.001088097664651632,
+    "samples_seconds": [
+      0.08370796414000001,
+      0.08586075314000002,
+      0.08450868814000001
+    ],
+    "math_mode": "compiler-default",
+    "version": "21.0.9",
+    "compile": "javac leibniz.java",
+    "run": "java leibniz"
+  },
+  {
+    "target": "java",
+    "rounds": 1000000,
+    "status": "succeeded",
+    "median_seconds": 0.08582824176,
+    "min_seconds": 0.08041110476,
+    "max_seconds": 0.08669198276000001,
+    "stddev_seconds": 0.003404429718340848,
+    "samples_seconds": [
+      0.08041110476,
+      0.08669198276000001,
+      0.08582824176
+    ],
+    "math_mode": "compiler-default",
+    "version": "21.0.9",
+    "compile": "javac leibniz.java",
+    "run": "java leibniz"
+  },
+  {
+    "target": "java",
+    "rounds": 10000000,
+    "status": "succeeded",
+    "median_seconds": 0.11021031186,
+    "min_seconds": 0.10443525086,
+    "max_seconds": 0.11033673686,
+    "stddev_seconds": 0.003371321448199552,
+    "samples_seconds": [
+      0.11033673686,
+      0.11021031186,
+      0.10443525086
+    ],
+    "math_mode": "compiler-default",
+    "version": "21.0.9",
+    "compile": "javac leibniz.java",
+    "run": "java leibniz"
+  },
+  {
+    "target": "java",
+    "rounds": 100000000,
+    "status": "succeeded",
+    "median_seconds": 0.38480488522,
+    "min_seconds": 0.36978417922,
+    "max_seconds": 0.38798622422,
+    "stddev_seconds": 0.009721599394761662,
+    "samples_seconds": [
+      0.38798622422,
+      0.36978417922,
+      0.38480488522
+    ],
+    "math_mode": "compiler-default",
+    "version": "21.0.9",
+    "compile": "javac leibniz.java",
+    "run": "java leibniz"
+  },
+  {
+    "target": "java",
+    "rounds": 1000000000,
+    "status": "succeeded",
+    "median_seconds": 3.02505809464,
+    "min_seconds": 3.01620448064,
+    "max_seconds": 3.04955099564,
+    "stddev_seconds": 0.01727367333498199,
+    "samples_seconds": [
+      3.04955099564,
+      3.01620448064,
+      3.02505809464
+    ],
+    "math_mode": "compiler-default",
+    "version": "21.0.9",
+    "compile": "javac leibniz.java",
+    "run": "java leibniz"
+  },
+  {
+    "target": "octave",
+    "rounds": 100000,
+    "status": "succeeded",
+    "median_seconds": 0.24969564034,
+    "min_seconds": 0.24182134434,
+    "max_seconds": 0.25196516934,
+    "stddev_seconds": 0.005323728095487267,
+    "samples_seconds": [
+      0.25196516934,
+      0.24969564034,
+      0.24182134434
+    ],
+    "math_mode": "compiler-default",
+    "version": "10.3.0",
+    "compile": "",
+    "run": "octave leibniz_octave.m"
+  },
+  {
+    "target": "octave",
+    "rounds": 1000000,
+    "status": "succeeded",
+    "median_seconds": 1.12695449312,
+    "min_seconds": 1.10058043212,
+    "max_seconds": 1.17031300812,
+    "stddev_seconds": 0.03520933605412238,
+    "samples_seconds": [
+      1.12695449312,
+      1.10058043212,
+      1.17031300812
+    ],
+    "math_mode": "compiler-default",
+    "version": "10.3.0",
+    "compile": "",
+    "run": "octave leibniz_octave.m"
+  },
+  {
+    "target": "octave",
+    "rounds": 10000000,
+    "status": "timeout"
+  },
+  {
+    "target": "octave",
+    "rounds": 100000000,
+    "status": "skipped"
+  },
+  {
+    "target": "octave",
+    "rounds": 1000000000,
+    "status": "skipped"
+  },
+  {
+    "target": "python",
+    "rounds": 100000,
+    "status": "succeeded",
+    "median_seconds": 0.02632575228,
+    "min_seconds": 0.02575167128,
+    "max_seconds": 0.03663308228000001,
+    "stddev_seconds": 0.006123394021760348,
+    "samples_seconds": [
+      0.03663308228000001,
+      0.02632575228,
+      0.02575167128
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python leibniz.py"
+  },
+  {
+    "target": "python",
+    "rounds": 1000000,
+    "status": "succeeded",
+    "median_seconds": 0.09279686238,
+    "min_seconds": 0.08954342838000001,
+    "max_seconds": 0.09631023638,
+    "stddev_seconds": 0.003384236008444052,
+    "samples_seconds": [
+      0.09631023638,
+      0.09279686238,
+      0.08954342838000001
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python leibniz.py"
+  },
+  {
+    "target": "python",
+    "rounds": 10000000,
+    "status": "succeeded",
+    "median_seconds": 0.7405616029800001,
+    "min_seconds": 0.7345123629800002,
+    "max_seconds": 0.8557881019800002,
+    "stddev_seconds": 0.06833928134239577,
+    "samples_seconds": [
+      0.7345123629800002,
+      0.7405616029800001,
+      0.8557881019800002
+    ],
+    "math_mode": "compiler-default",
+    "version": "3.12.8",
+    "compile": "",
+    "run": "python leibniz.py"
+  },
+  {
+    "target": "python",
+    "rounds": 100000000,
+    "status": "timeout"
+  },
+  {
+    "target": "python",
+    "rounds": 1000000000,
+    "status": "skipped"
+  }
+]

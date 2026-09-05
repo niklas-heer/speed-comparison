@@ -1,0 +1,44 @@
+{
+  "target": "cpython-numpy",
+  "point_budget_seconds": 30,
+  "round_counts": [
+    100000,
+    1000000,
+    10000000,
+    100000000,
+    1000000000
+  ],
+  "publication_eligible": false,
+  "points": [
+    {
+      "rounds": 100000,
+      "status": "succeeded",
+      "result": "100000/cpython-numpy.json"
+    },
+    {
+      "rounds": 1000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 0.8164213048294187,
+      "result": "1000000/cpython-numpy.json"
+    },
+    {
+      "rounds": 10000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 1.4683782206848264,
+      "result": "10000000/cpython-numpy.json"
+    },
+    {
+      "rounds": 100000000,
+      "status": "succeeded",
+      "measurement_wall_seconds": 8.542531833983958,
+      "result": "100000000/cpython-numpy.json"
+    },
+    {
+      "rounds": 1000000000,
+      "status": "timeout",
+      "measurement_wall_seconds": 30.00710558332503
+    }
+  ],
+  "source_revision": "17c713da5af1ee187a73586831d2430911c832c1",
+  "initial_setup_and_measurement_seconds": 7.90186816547066
+}
