@@ -50,6 +50,9 @@ The benchmark measures **single-threaded computational performance**. To keep co
 
 **Why no concurrency?** Concurrency results depend heavily on core count (4-core vs 64-core gives vastly different results), making comparisons meaningless. SIMD stays single-threaded - it just processes more data per instruction.
 
+For an example of parallel execution, see [François's Fortran OpenMP contribution](src/alt/README.md#fortran-with-openmp),
+preserved as a standalone example outside the ranked benchmark.
+
 <!-- TODO: Create a new video for hyperfine and scmeta -->
 <!-- ## Adding new languages
 
