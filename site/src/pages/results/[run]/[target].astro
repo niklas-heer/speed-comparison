@@ -2,7 +2,7 @@
 import Layout from "../../../layouts/Layout.astro";
 import Metadata from "../../../components/Metadata.astro";
 import Package from "../../../components/Package.astro";
-import { runs, runData, timing, repo } from "../../../lib/results.mjs";
+import { runs, runData, timing, recordedTiming, repo } from "../../../lib/results.mjs";
 export function getStaticPaths() {
   return runs.flatMap((run) => {
     const data = runData(run.id);
@@ -60,12 +60,12 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
     </div><div>
       <span class="eyebrow">Fastest sample</span><strong
         >{
-          raw ? timing(Number(raw.Min.replace("s", ""))) : "Not recorded"
+          recordedTiming(raw?.Min)
         }</strong>
     </div><div>
       <span class="eyebrow">Slowest sample</span><strong
         >{
-          raw ? timing(Number(raw.Max.replace("s", ""))) : "Not recorded"
+          recordedTiming(raw?.Max)
         }</strong>
     </div><div>
       <span class="eyebrow">Samples retained</span><strong

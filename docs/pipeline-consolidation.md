@@ -18,7 +18,7 @@ estimate, not measured workflow elapsed time:
 | Remaining 70 targets | 303.50 s | 18.0% |
 
 The five slowest targets account for 82% of this execution estimate. Even with
-zero setup overhead, the current five-execution protocol would project about
+zero setup overhead, the previous five-execution protocol would project about
 140 minutes at that workload, assuming similar durations. Caching cannot remove
 that computation. Conversely, the native run installed environments separately
 in disposable pods: C's roughly one second of executions occupied a 70-second
@@ -114,11 +114,12 @@ uv run --locked python analyze.py --folder /path/to/run/targets \
 
 This is local analysis, not authorization to promote a quick/subset report as latest.
 
-Postgres can later index those bundles, and Astro can provide workload selectors,
-methodology filters and history. Neither should become a dependency of benchmark
-execution. A website change must not run benchmarks. Implement indexing and the
-Astro view only after the common runner, event integration and calibrated profile
-are working; the existing report/history remains available throughout.
+The Astro report is now live on Vercel, building directly from committed published
+snapshots. A separate daily Argo job archives those same snapshots in private
+Postgres. Neither website builds nor archive retries repeat benchmarks. The
+maintainer requested this presentation/archive work while isolated runner selection
+remains pending; it does not replace the remaining Dagger dispatch/reporting gates.
+See [website operations](../site/README.md) for the independent build and importer.
 
 ## Current proof and next acceptance gates
 
@@ -143,7 +144,8 @@ Remaining acceptance gates, in order:
 3. Connect revision-specific PR authorization and GitHub checks. Demonstrate one Go
    change selecting only its dependent targets and a docs change selecting none.
 4. Validate/version the common reporting workload, then enable its schedule.
-5. Add the independent result index and Astro presentation, preserving history.
+The independent Postgres index and Astro presentation are complete: 110 historical
+snapshots remain available, with 75 detailed targets in the latest baseline.
 
 The manual commit entry point is not automatic PR authorization. Run the driver
 from reviewed code; never dispatch an unreviewed replacement driver with client
@@ -175,7 +177,7 @@ runner checkpoint. The Argo adapter must supply and verify this identity and hol
 a global runner mutex; this CLI alone does not enable the suspended schedule.
 
 Vercel builds the separate Astro site from immutable published snapshots. The
-optional homelab Postgres archive indexes those snapshots for queries without
+homelab Postgres archive indexes those snapshots for queries without
 putting a database request in the public page path. Publication, archive import
 and website deployment can each be retried without repeating measurements.
 

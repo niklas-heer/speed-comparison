@@ -37,6 +37,10 @@ def plan(checkpoint: dict | None, head_ref: str, environment: dict) -> dict:
         checkpoint.get("schema_version") != 1 or checkpoint.get("status") != "published"
     ):
         raise ValueError("Checkpoint must identify a successful published run")
+    if checkpoint and (
+        not isinstance(base, str) or not re.fullmatch(r"[0-9a-f]{40}", base)
+    ):
+        raise ValueError("Checkpoint must identify an immutable source revision")
     base_commit = (
         git(
             "rev-parse",

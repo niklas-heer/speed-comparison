@@ -21,6 +21,11 @@ export function timing(n) {
     ? `${(n * 1000).toFixed(2)} ms`
     : `${n.toFixed(n < 10 ? 3 : 2)} s`;
 }
+export function recordedTiming(value) {
+  return value === undefined || value === null || value === ""
+    ? "Not recorded"
+    : timing(seconds(value));
+}
 export function runData(id) {
   const dir = path.join(historyDir, validId(id));
   const file = path.join(dir, "combined_results.json");

@@ -82,3 +82,10 @@ def test_reverted_history_compares_published_tree_not_merge_base(repo):
     (root / "src/go.go").write_text("measured change")
     checkpoint["source_revision"] = commit()
     assert plan(checkpoint, base, ENV)["run_full_suite"]
+
+
+@pytest.mark.parametrize("source", ["HEAD", "master", "", "abc123", None, 123])
+def test_checkpoint_rejects_moving_refs_and_invalid_source_ids(repo, source):
+    *_, checkpoint = repo
+    with pytest.raises(ValueError, match="immutable source revision"):
+        plan({**checkpoint, "source_revision": source}, "HEAD", ENV)

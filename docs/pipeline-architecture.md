@@ -19,8 +19,9 @@ flowchart LR
     Dagger --> Cache[Persistent Nix and build cache]
     Dagger --> Samples[Fresh benchmark samples]
     Samples --> S3[Immutable result bundles in object storage]
-    S3 --> Index[Private Postgres run index]
-    Index --> Astro[Astro static build and browser checks]
+    S3 --> Published[Validated published Git snapshot]
+    Published --> Index[Private Postgres archive and run index]
+    Published --> Astro[Astro static build and browser checks]
     Astro --> Site[Public static site and downloadable data]
 ```
 
