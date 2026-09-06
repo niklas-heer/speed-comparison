@@ -8,19 +8,31 @@ const route = Astro.url.pathname;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head
     ><meta charset="UTF-8" /><meta
       name="viewport"
       content="width=device-width, initial-scale=1"
     /><meta name="description" content={description} /><meta
       name="theme-color"
-      content="#f5f4ee"
+      content="#111a17"
     /><title>{title} · Speed comparison</title><link
       rel="icon"
       href="/favicon.svg"
       type="image/svg+xml"
-    /></head
+    />
+    <script is:inline>
+      // Apply the saved preference before paint, independent of the OS theme.
+      try {
+        const preference = localStorage.getItem("speed-comparison-theme");
+        if (preference === "light" || preference === "dark") {
+          document.documentElement.dataset.theme = preference;
+        }
+      } catch { /* The default works even when storage is unavailable. */ }
+      document.querySelector('meta[name="theme-color"]').content =
+        document.documentElement.dataset.theme === "light" ? "#f5f4ee" : "#111a17";
+    </script>
+    </head
   >
   <body
     ><a class="skip" href="#main">Skip to content</a><header
@@ -50,10 +62,33 @@ const route = Astro.url.pathname;
             </a>
           ))
         }
-      </nav><a
+      </nav><div class="header-actions"><button
+        type="button" class="theme-toggle" aria-label="Switch to light theme" title="Switch to light theme" hidden
+      >
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20.6 14A8.5 8.5 0 0 1 10 3.4 8.5 8.5 0 1 0 20.6 14Z"/></svg>
+      </button><a
         class="github-link"
-        href="https://github.com/niklas-heer/speed-comparison">View source ↗</a>
+        href="https://github.com/niklas-heer/speed-comparison">View source ↗</a></div>
     </header>
+    <script is:inline>
+      const themeToggle = document.querySelector(".theme-toggle");
+      const updateThemeControl = () => {
+        const isDark = document.documentElement.dataset.theme !== "light";
+        const label = `Switch to ${isDark ? "light" : "dark"} theme`;
+        themeToggle.setAttribute("aria-label", label);
+        themeToggle.title = label;
+        document.querySelector('meta[name="theme-color"]').content = isDark ? "#111a17" : "#f5f4ee";
+      };
+      updateThemeControl();
+      themeToggle.hidden = false;
+      themeToggle.addEventListener("click", () => {
+        const theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+        try { localStorage.setItem("speed-comparison-theme", theme); } catch { /* Keep the current page usable. */ }
+        updateThemeControl();
+      });
+    </script>
     <main id="main"><slot /></main><footer>
       <div class="footer-title">Measurements worth questioning.</div><div
         class="footer-bottom"

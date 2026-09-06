@@ -33,7 +33,7 @@ const files = [...result.sources].sort((a,b) => a.name === result.sourcePrimary 
           <button type="button" class="copy-source">Copy code</button>
         </div>
         <!-- Astro removes one final newline; append one so the recorded text survives. -->
-        <Code code={file.content + '\n'} lang={result.target === 'objc' ? 'objective-c' : (languages[file.name.split('.').pop().toLowerCase()] ?? 'text')} theme="github-light" wrap={false} />
+        <Code code={file.content + '\n'} lang={result.target === 'objc' ? 'objective-c' : (languages[file.name.split('.').pop().toLowerCase()] ?? 'text')} themes={{ light: "github-light", dark: "github-dark" }} wrap={false} />
         <p class="source-checksum">SHA-256 · {file.sha256}</p>
       </details>
     ))}
