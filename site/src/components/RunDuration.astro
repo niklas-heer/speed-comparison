@@ -1,0 +1,13 @@
+---
+import { duration } from '../lib/results.mjs';
+const { data } = Astro.props;
+const execution = data.execution;
+---
+<div class="run-duration">
+  <div><p class="eyebrow">Whole-run elapsed time</p><strong>{duration(execution.elapsed_seconds)}</strong></div>
+  <div><p>{execution.elapsed_scope ?? 'No whole-run clock was retained for this historical snapshot. Individual target timings cannot reconstruct it.'}</p>
+    {execution.started_at && <p class="mono">{execution.started_at} → {execution.finished_at}</p>}
+    {execution.status && <p>{execution.status}</p>}
+    {execution.evidence && <a class="text-link" href={`/report-evidence/${data.id}/${execution.evidence}`}>Recorded workflow timestamps ↓</a>}
+  </div>
+</div>

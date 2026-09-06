@@ -1,6 +1,19 @@
 [![CI](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml/badge.svg)](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml)
 
-![plot](https://speed-comparison.vercel.app/history/latest/combined_results.png "Speed comparison of programming languages")
+![plot](https://speed-comparison.vercel.app/report-images/latest.png "Speed comparison of programming languages")
+
+<!-- latest-run:start -->
+**Latest full run: 5h 18m 46s · 75 implementations · 1 billion terms per execution.**
+
+[Inspect the run](https://speed-comparison.vercel.app/runs/2026-09-05T193245/) ·
+[Download the full-resolution image](https://speed-comparison.vercel.app/report-images/latest.png) ·
+[Why a billion terms and repeated measurements?](https://speed-comparison.vercel.app/journal/why-a-billion-terms/)
+
+This historical Argo clock includes checkout, setup, measurement, analysis and the failed
+publication attempt; it excludes the later publication-only retry. Its six-execution
+protocol is distinct from the new one-warmup/three-measurement protocol. The chart
+shows **median** times and observed sample ranges, with SIMD and relaxed math labeled.
+<!-- latest-run:end -->
 
 ---
 
@@ -72,7 +85,10 @@ uv run --directory dagger-poc python -c \
 
 Each suite writes a new `results/RUN_ID/` evidence bundle (`--output` selects a new
 directory). Target JSON and actual rounds are under `targets/`; run status and the
-resolved catalog sit alongside it. `--revision FULL_SHA` binds declarations and
+resolved catalog sit alongside it. `run.json` records UTC start/end and total elapsed
+time including engine connection, catalog resolution and teardown; per-target build
+and measurement costs are separate. New target results retain the implementation
+source and checksum, protocol, tooling, observed environment and resource limits. `--revision FULL_SHA` binds declarations and
 sources to an authorized commit; `--base BASE_SHA` selects affected targets.
 See the [consolidation plan](docs/pipeline-consolidation.md) for execution stages.
 

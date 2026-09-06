@@ -1,0 +1,740 @@
+{
+  "source_revision": "c71e4cd81464b238172605982806c5bf827a70a1",
+  "provenance": "Recovered from the measured Git revision; not embedded in the original raw results",
+  "catalog_sha256": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+  "targets": {
+    "objc": {
+      "primary": "src/leibniz.m",
+      "paths": [
+        "src/leibniz.m"
+      ]
+    },
+    "rust-simd": {
+      "primary": "src/leibniz_simd.rs",
+      "paths": [
+        "src/leibniz_simd.rs"
+      ]
+    },
+    "fortran": {
+      "primary": "src/leibniz.f90",
+      "paths": [
+        "src/leibniz.f90"
+      ]
+    },
+    "nim": {
+      "primary": "src/leibniz.nim",
+      "paths": [
+        "src/leibniz.nim"
+      ]
+    },
+    "cpp-clang": {
+      "primary": "src/leibniz.cpp",
+      "paths": [
+        "src/leibniz.cpp"
+      ]
+    },
+    "rust-nightly": {
+      "primary": "src/leibniz_nightly.rs",
+      "paths": [
+        "src/leibniz_nightly.rs"
+      ]
+    },
+    "c-clang": {
+      "primary": "src/leibniz.c",
+      "paths": [
+        "src/leibniz.c"
+      ]
+    },
+    "zig-simd": {
+      "primary": "src/leibniz-simd.zig",
+      "paths": [
+        "src/leibniz-simd.zig"
+      ]
+    },
+    "c": {
+      "primary": "src/leibniz.c",
+      "paths": [
+        "src/leibniz.c"
+      ]
+    },
+    "cpp": {
+      "primary": "src/leibniz.cpp",
+      "paths": [
+        "src/leibniz.cpp"
+      ]
+    },
+    "julia": {
+      "primary": "src/julia/src/LeibnizApp.jl",
+      "paths": [
+        "src/julia/Project.toml",
+        "src/julia/src/LeibnizApp.jl"
+      ]
+    },
+    "csharp-simd": {
+      "primary": "src/leibniz-simd.cs",
+      "paths": [
+        "src/leibniz-simd.cs"
+      ]
+    },
+    "fsharp-simd": {
+      "primary": "src/fs-simd/Program.fs",
+      "paths": [
+        "src/fs-simd/Program.fs",
+        "src/fs-simd/leibniz.fsproj"
+      ]
+    },
+    "swift": {
+      "primary": "src/leibniz.swift",
+      "paths": [
+        "src/leibniz.swift"
+      ]
+    },
+    "cpp-avx2": {
+      "primary": "src/leibniz_avx2.cpp",
+      "paths": [
+        "src/leibniz_avx2.cpp"
+      ]
+    },
+    "sbcl-simd": {
+      "primary": "src/leibniz-sbcl-simd.lisp",
+      "paths": [
+        "src/leibniz-sbcl-simd.lisp"
+      ]
+    },
+    "d": {
+      "primary": "src/leibniz.d",
+      "paths": [
+        "src/leibniz.d"
+      ]
+    },
+    "d-ldc": {
+      "primary": "src/leibniz.d",
+      "paths": [
+        "src/leibniz.d"
+      ]
+    },
+    "swift-simd": {
+      "primary": "src/leibniz-simd.swift",
+      "paths": [
+        "src/leibniz-simd.swift"
+      ]
+    },
+    "rust": {
+      "primary": "src/leibniz.rs",
+      "paths": [
+        "src/leibniz.rs"
+      ]
+    },
+    "rust-fastmath": {
+      "primary": "src/leibniz.rs",
+      "paths": [
+        "src/leibniz.rs"
+      ]
+    },
+    "ocaml": {
+      "primary": "src/leibniz.ml",
+      "paths": [
+        "src/leibniz.ml"
+      ]
+    },
+    "java-vecops": {
+      "primary": "src/leibnizVecOps.java",
+      "paths": [
+        "src/leibnizVecOps.java"
+      ]
+    },
+    "ada": {
+      "primary": "src/leibniz.adb",
+      "paths": [
+        "src/leibniz.adb"
+      ]
+    },
+    "pony": {
+      "primary": "src/leibniz.pony",
+      "paths": [
+        "src/leibniz.pony"
+      ]
+    },
+    "luajit": {
+      "primary": "src/leibniz.lua",
+      "paths": [
+        "src/leibniz.lua"
+      ]
+    },
+    "scala": {
+      "primary": "src/leibniz.scala",
+      "paths": [
+        "src/leibniz.scala"
+      ]
+    },
+    "zig": {
+      "primary": "src/leibniz.zig",
+      "paths": [
+        "src/leibniz.zig"
+      ]
+    },
+    "swift-relaxed": {
+      "primary": "src/leibniz-relaxed.swift",
+      "paths": [
+        "src/leibniz-relaxed.swift",
+        "src/relaxed.h"
+      ]
+    },
+    "odin": {
+      "primary": "src/leibniz.odin",
+      "paths": [
+        "src/leibniz.odin"
+      ]
+    },
+    "v": {
+      "primary": "src/leibniz.v",
+      "paths": [
+        "src/leibniz.v"
+      ]
+    },
+    "crystal": {
+      "primary": "src/leibniz.cr",
+      "paths": [
+        "src/leibniz.cr"
+      ]
+    },
+    "wasm": {
+      "primary": "src/leibniz.c",
+      "paths": [
+        "src/leibniz.c"
+      ]
+    },
+    "go": {
+      "primary": "src/leibniz.go",
+      "paths": [
+        "src/leibniz.go"
+      ]
+    },
+    "nasm": {
+      "primary": "src/leibniz.asm",
+      "paths": [
+        "src/leibniz.asm"
+      ]
+    },
+    "sbcl": {
+      "primary": "src/leibniz.lisp",
+      "paths": [
+        "src/leibniz.lisp"
+      ]
+    },
+    "hare": {
+      "primary": "src/leibniz.ha",
+      "paths": [
+        "src/leibniz.ha"
+      ]
+    },
+    "deno": {
+      "primary": "src/leibniz.ts",
+      "paths": [
+        "src/leibniz.ts"
+      ]
+    },
+    "java-graalvm": {
+      "primary": "src/leibniz.java",
+      "paths": [
+        "src/leibniz.java"
+      ]
+    },
+    "pascal": {
+      "primary": "src/leibniz.pas",
+      "paths": [
+        "src/leibniz.pas"
+      ]
+    },
+    "mojo": {
+      "primary": "src/leibniz.mojo",
+      "paths": [
+        "src/leibniz.mojo",
+        "src/mojo-requirements.txt"
+      ]
+    },
+    "haxe": {
+      "primary": "src/Leibniz.hx",
+      "paths": [
+        "src/Leibniz.hx"
+      ]
+    },
+    "dart-aot": {
+      "primary": "src/leibniz.dart",
+      "paths": [
+        "src/leibniz.dart"
+      ]
+    },
+    "fsharp": {
+      "primary": "src/fs/Program.fs",
+      "paths": [
+        "src/fs/Program.fs",
+        "src/fs/leibniz.fsproj"
+      ]
+    },
+    "nodejs": {
+      "primary": "src/leibniz.js",
+      "paths": [
+        "src/leibniz.js"
+      ]
+    },
+    "csharp": {
+      "primary": "src/leibniz.cs",
+      "paths": [
+        "src/leibniz.cs"
+      ]
+    },
+    "bun": {
+      "primary": "src/leibniz.js",
+      "paths": [
+        "src/leibniz.js"
+      ]
+    },
+    "kotlin": {
+      "primary": "src/leibniz.kt",
+      "paths": [
+        "src/leibniz.kt"
+      ]
+    },
+    "pypy": {
+      "primary": "src/leibniz.py",
+      "paths": [
+        "src/leibniz.py"
+      ]
+    },
+    "cpython-numba": {
+      "primary": "src/leibniz_numba.py",
+      "paths": [
+        "src/leibniz_numba.py"
+      ]
+    },
+    "chezscheme": {
+      "primary": "src/leibniz.ss",
+      "paths": [
+        "src/leibniz.ss"
+      ]
+    },
+    "racket": {
+      "primary": "src/leibniz.rkt",
+      "paths": [
+        "src/leibniz.rkt"
+      ]
+    },
+    "haskell": {
+      "primary": "src/leibniz.hs",
+      "paths": [
+        "src/leibniz.hs"
+      ]
+    },
+    "java": {
+      "primary": "src/leibniz.java",
+      "paths": [
+        "src/leibniz.java"
+      ]
+    },
+    "kotlin-native": {
+      "primary": "src/leibniz-native.kt",
+      "paths": [
+        "src/leibniz-native.kt"
+      ]
+    },
+    "mypyc": {
+      "primary": "src/leibniz_mypyc.py",
+      "paths": [
+        "src/leibniz_mypyc.py"
+      ]
+    },
+    "clojure": {
+      "primary": "src/leibniz.clj",
+      "paths": [
+        "src/leibniz.clj"
+      ]
+    },
+    "dart": {
+      "primary": "src/leibniz.dart",
+      "paths": [
+        "src/leibniz.dart"
+      ]
+    },
+    "groovy": {
+      "primary": "src/leibniz.groovy",
+      "paths": [
+        "src/leibniz.groovy"
+      ]
+    },
+    "php": {
+      "primary": "src/leibniz.php",
+      "paths": [
+        "src/leibniz.php"
+      ]
+    },
+    "lua": {
+      "primary": "src/leibniz.lua",
+      "paths": [
+        "src/leibniz.lua"
+      ]
+    },
+    "elixir": {
+      "primary": "src/leibniz.ex",
+      "paths": [
+        "src/leibniz.ex"
+      ]
+    },
+    "erlang": {
+      "primary": "src/leibniz.erl",
+      "paths": [
+        "src/leibniz.erl"
+      ]
+    },
+    "r": {
+      "primary": "src/leibniz.r",
+      "paths": [
+        "src/leibniz.r"
+      ]
+    },
+    "janet-compiled": {
+      "primary": "src/leibniz_compiled.janet",
+      "paths": [
+        "src/leibniz_compiled.janet"
+      ]
+    },
+    "octave-vectorised": {
+      "primary": "src/leibniz_octave_vectorised.m",
+      "paths": [
+        "src/leibniz_octave_vectorised.m"
+      ]
+    },
+    "cpython-numpy": {
+      "primary": "src/leibniz_np.py",
+      "paths": [
+        "src/leibniz_np.py"
+      ]
+    },
+    "gleam": {
+      "primary": "src/leibniz.gleam",
+      "paths": [
+        "src/leibniz.gleam"
+      ]
+    },
+    "ruby": {
+      "primary": "src/leibniz.rb",
+      "paths": [
+        "src/leibniz.rb"
+      ]
+    },
+    "janet": {
+      "primary": "src/leibniz.janet",
+      "paths": [
+        "src/leibniz.janet"
+      ]
+    },
+    "python": {
+      "primary": "src/leibniz.py",
+      "paths": [
+        "src/leibniz.py"
+      ]
+    },
+    "raku": {
+      "primary": "src/leibniz.raku",
+      "paths": [
+        "src/leibniz.raku"
+      ]
+    },
+    "perl": {
+      "primary": "src/leibniz.pl",
+      "paths": [
+        "src/leibniz.pl"
+      ]
+    },
+    "micropython": {
+      "primary": "src/leibniz.py",
+      "paths": [
+        "src/leibniz.py"
+      ]
+    },
+    "octave": {
+      "primary": "src/leibniz_octave.m",
+      "paths": [
+        "src/leibniz_octave.m"
+      ]
+    }
+  },
+  "files": {
+    "src/leibniz.m": {
+      "content": "#import <stdio.h>\n#import <stdlib.h>\n\nint main(int argc, const char * argv[]) {\n    FILE *file = fopen(\"rounds.txt\", \"r\");\n    if (!file) {\n        fprintf(stderr, \"Error: Cannot open rounds.txt\\n\");\n        return 1;\n    }\n\n    long rounds;\n    fscanf(file, \"%ld\", &rounds);\n    fclose(file);\n\n    double x = 1.0;\n    double pi = 1.0;\n\n    for (long i = 2; i <= rounds + 2; i++) {\n        x *= -1.0;\n        pi += x / (2.0 * i - 1.0);\n    }\n\n    pi *= 4.0;\n\n    printf(\"%.17g\", pi);\n    return 0;\n}\n",
+      "sha256": "5f50ca5803d063c2c1992b1a265f4afc482a8cbaf50f66dd78e35bfc019a548a"
+    },
+    "src/leibniz_simd.rs": {
+      "content": "use std::arch::x86_64::*;\nuse std::fs::File;\nuse std::io::prelude::*;\n\nfn main() {\n    let mut file = File::open(\"./rounds.txt\").expect(\"file not found\");\n    let mut contents = String::new();\n    file.read_to_string(&mut contents)\n        .expect(\"something went wrong reading the file\");\n\n    let rounds = contents.trim().parse::<u32>().unwrap() + 2;\n\n    assert!(is_x86_feature_detected!(\"avx512f\"), \"Rust SIMD requires AVX-512F\");\n    unsafe { run_benchmark(rounds) }\n}\n\n#[target_feature(enable = \"avx512f\")]\nunsafe fn run_benchmark(rounds: u32) {\n    let unroll: u32 = 8; // 512-bit = 8x f64\n\n    // Sign alternation vector: [-1, 1, -1, 1, -1, 1, -1, 1]\n    // Note: _mm512_set_pd takes arguments in reverse order (high to low)\n    let x = _mm512_set_pd(1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0);\n\n    // Constants\n    let inc = _mm512_set1_pd(32.0); // Increment by 32 (4 vectors * 8)\n    let two = _mm512_set1_pd(2.0);\n    let mone = _mm512_set1_pd(-1.0);\n\n    // Initial index vectors for 4 independent accumulators (reverse order for _mm512_set_pd)\n    let mut ivec0 = _mm512_set_pd(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0);\n    let mut ivec1 = _mm512_set_pd(17.0, 16.0, 15.0, 14.0, 13.0, 12.0, 11.0, 10.0);\n    let mut ivec2 = _mm512_set_pd(25.0, 24.0, 23.0, 22.0, 21.0, 20.0, 19.0, 18.0);\n    let mut ivec3 = _mm512_set_pd(33.0, 32.0, 31.0, 30.0, 29.0, 28.0, 27.0, 26.0);\n\n    // Use 4 accumulator vectors for instruction-level parallelism\n    let mut pivec0 = _mm512_setzero_pd();\n    let mut pivec1 = _mm512_setzero_pd();\n    let mut pivec2 = _mm512_setzero_pd();\n    let mut pivec3 = _mm512_setzero_pd();\n\n    let vec_end = rounds - (rounds - 2) % (unroll * 4);\n    let mut i = 2u32;\n\n    // Main loop: process 32 terms per iteration (4 x 8-wide vectors)\n    while i < vec_end {\n        // Compute denominators: 2*i - 1 (using FMA: fmadd(two, ivec, mone) would be 2*i + (-1))\n        let den0 = _mm512_fmadd_pd(two, ivec0, mone);\n        let den1 = _mm512_fmadd_pd(two, ivec1, mone);\n        let den2 = _mm512_fmadd_pd(two, ivec2, mone);\n        let den3 = _mm512_fmadd_pd(two, ivec3, mone);\n\n        // Accumulate: pivec += x / den\n        pivec0 = _mm512_add_pd(pivec0, _mm512_div_pd(x, den0));\n        pivec1 = _mm512_add_pd(pivec1, _mm512_div_pd(x, den1));\n        pivec2 = _mm512_add_pd(pivec2, _mm512_div_pd(x, den2));\n        pivec3 = _mm512_add_pd(pivec3, _mm512_div_pd(x, den3));\n\n        // Increment index vectors\n        ivec0 = _mm512_add_pd(ivec0, inc);\n        ivec1 = _mm512_add_pd(ivec1, inc);\n        ivec2 = _mm512_add_pd(ivec2, inc);\n        ivec3 = _mm512_add_pd(ivec3, inc);\n\n        i += unroll * 4;\n    }\n\n    // Combine all accumulator vectors\n    let pivec_sum = _mm512_add_pd(\n        _mm512_add_pd(pivec0, pivec1),\n        _mm512_add_pd(pivec2, pivec3)\n    );\n\n    // Horizontal sum of the vector\n    let mut pi = 1.0 + _mm512_reduce_add_pd(pivec_sum);\n\n    // Scalar cleanup loop for remaining terms\n    while i < rounds {\n        let xf = -1.0f64 + (2.0 * (i & 0x1) as f64);\n        pi += xf / (2 * i - 1) as f64;\n        i += 1;\n    }\n\n    println!(\"{:.16}\", pi * 4.0);\n}\n",
+      "sha256": "8a35d0b0fc07b596df6ccf5fd8f1a1a006ef01f669a272e992d32e703e4a7f9e"
+    },
+    "src/leibniz.f90": {
+      "content": "program Leibniz\n    use, intrinsic :: iso_fortran_env, only: output_unit, real64\n    implicit none\n    integer :: i, file_unit, rc, rounds\n    real(real64), parameter :: x = -1\n    real(real64) :: pi\n \n    open (action='read', file=\"rounds.txt\", iostat=rc, newunit=file_unit)\n    read (file_unit, '(i20)', iostat=rc) rounds\n    close (file_unit)\n    \n    pi = 1\n    do i=1, rounds, 4\n        pi = pi + x / (2 * i + 1) - x / (2 * i + 3) + x / (2 * i + 5) - x / (2 * i + 7)\n    enddo\n    pi = 4*pi\n    write(output_unit,'(f14.12)') pi\n end program Leibniz\n",
+      "sha256": "4623e21205910a8c2daa3e2707d2c48d021915b9fc00ca17019cc4bb6d2d9b5f"
+    },
+    "src/leibniz.nim": {
+      "content": "import strutils\n\nlet rounds = readFile(\"rounds.txt\").strip().parseInt()\nvar pi = 1.0\n\n# -fno-signed-zeros -fno-trapping-math -fassociative-math gcc options and 32bit int loop counter allows vectorizing this loop.\n# Use cuint type so that it uses the same unsigned int type used in leibniz.c.\nfor i in 2.cuint..(rounds.cuint + 2):\n    pi += (if i mod 2 == 0: -1.0 else: 1.0) / float(2 * i - 1)\n\npi *= 4.0\necho pi.formatFloat(ffDecimal, 16)\n",
+      "sha256": "b39f2a08cb1cd40a3d94015e82ff6512da439db1562c8712a0618562767242ff"
+    },
+    "src/leibniz.cpp": {
+      "content": "#include <cstdio>\n#include <cstdlib>\n\nunsigned rounds;\ndouble pi = 1.0;\n\nint main()\n{\n    auto infile = std::fopen(\"rounds.txt\", \"r\");    // open file\n    if (infile == NULL) {\n        perror(\"open file\");\n        return EXIT_FAILURE;\n    }\n    if (std::fscanf(infile, \"%u\", &rounds) != 1) {  // read from file\n        perror(\"read file\");\n        return EXIT_FAILURE;\n    }\n    std::fclose(infile);                            // close file\n    \n    rounds += 2u; // do this outside the loop\n    \n    for (unsigned i=2u ; i < rounds ; ++i) // use ++i instead of i++\n    {\n        double x = -1.0 + 2.0 * (i & 0x1); // allows vectorization\n        pi += (x / (2u * i - 1u)); // double / unsigned = double\n    }\n    \n    pi *= 4;\n    std::printf(\"%.16f\\n\", pi); // print 16 decimal digits of pi\n    return EXIT_SUCCESS;\n}\n",
+      "sha256": "8eae5347d7c509f79d15f4dd6c0548af24950c67dc66cfa2783c73e6109842c4"
+    },
+    "src/leibniz_nightly.rs": {
+      "content": "#![feature(portable_simd)]\nuse std::fs::File;\nuse std::io::prelude::*;\nuse std::simd::prelude::*;\n\nfn main() {\n    let mut file = File::open(\"./rounds.txt\").expect(\"file not found\");\n\n    let mut contents = String::new();\n    file.read_to_string(&mut contents)\n        .expect(\"something went wrong reading the file\");\n\n    let rounds = contents.trim().parse::<u32>().unwrap() + 2;\n\n    // We need to use f64 instead of f32 because otherwise the precision would be off\n\n    let x = f64x8::from_array([-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0]);\n    let pi = f64x8::from_array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);\n\n    let m2 = u32x8::splat(2);\n    let s2 = u32x8::splat(1);\n    let i2 = u32x8::from_array([0, 1, 2, 3, 4, 5, 6, 7]);\n\n    let mut accum = pi;\n    let mut i = 2;\n    while i + 8 <= rounds {\n        let ii = u32x8::splat(i);\n        accum += x / (m2 * (ii + i2) - s2).cast::<f64>();\n        i += 8;\n    }\n    let mut pi = accum.reduce_sum();\n    while i < rounds {\n        pi += (if i % 2 == 0 { -1.0 } else { 1.0 }) / (2 * i - 1) as f64;\n        i += 1;\n    }\n    pi *= 4.0;\n\n    println!(\"{:.16}\", pi);\n}\n",
+      "sha256": "3ebc3d51a3b7c94bffd8099622a56552ff63928e43cb210383520b320b92f251"
+    },
+    "src/leibniz.c": {
+      "content": "#include <stdio.h>\n#include <stdlib.h>\n\nunsigned rounds;\ndouble pi = 1.0;\n\nint main()\n{\n    FILE *infile = fopen(\"rounds.txt\", \"r\");   // open file\n    if (infile == NULL) {\n        perror(\"open file\");\n        return EXIT_FAILURE;\n    }\n    if (fscanf(infile, \"%u\", &rounds) != 1) {  // read from file\n        perror(\"read file\");\n        return EXIT_FAILURE;\n    }\n    fclose(infile);                            // close file\n\n    rounds += 2u; // do this outside the loop\n\n    for (unsigned i=2u; i < rounds; ++i) // use ++i instead of i++\n    {\n        double x = -1.0 + 2.0 * (i & 0x1); // allows vectorization\n        pi += (x / (2u * i - 1u)); // double / unsigned = double\n    }\n\n    pi *= 4;\n    printf(\"%.16f\\n\", pi); // print 16 decimal digits of pi\n    return EXIT_SUCCESS;\n}\n",
+      "sha256": "a5ec546191d01ff3217e6500ecab8843a4b50ac04d497f12382774d64f67b99e"
+    },
+    "src/leibniz-simd.zig": {
+      "content": "const std = @import(\"std\");\n\n// Vector length 8 for 512 bit wide target cpus\nconst Vf = @Vector(8, f64);\nconst Vu = @Vector(8, u64);\n\nconst signs: Vf = .{ -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 };\nconst offset: Vu = .{ 3, 5, 7, 9, 11, 13, 15, 17 };\nconst v_2: Vu = @splat(2);\n\npub fn main() !void {\n    // like C -ffast-math\n    @setFloatMode(.optimized);\n\n    // Zig 0.16+ Io interface - file access requires an Io implemention\n    var threaded = std.Io.Threaded.init_single_threaded;\n    const io = threaded.io();\n\n    var file = try std.Io.Dir.cwd().openFile(io, \"rounds.txt\", .{});\n    defer file.close(io);\n    var buffer: [1024]u8 = undefined;\n    const n = try file.readPositionalAll(io, &buffer, 0);\n    const rounds = try std.fmt.parseInt(usize, std.mem.trim(u8, buffer[0..n], \" \\r\\n\\t\"), 10);\n\n    var i: usize = 0;\n    var V_pi: Vf = @splat(0.0);\n    while (rounds - i >= 8) : (i += 8) {\n        const div: Vu = v_2 * @as(Vu, @splat(i)) + offset;\n\n        V_pi += signs / @as(Vf, @floatFromInt(div));\n    }\n\n    var pi: f64 = 1.0 + @reduce(.Add, V_pi);\n\n    // remaining iterations\n    while (i < rounds) : (i += 1) {\n        const x: f64 = -1.0 + 2.0 * @as(f64, @floatFromInt(i & 1));\n        pi += (x / @as(f64, @floatFromInt(2 * i + 3)));\n    }\n    pi *= 4;\n\n    var output_buf: [64]u8 = undefined;\n    var writer = std.Io.File.stdout().writer(io, &output_buf);\n\n    try writer.interface.print(\"{d:.16}\", .{pi});\n    try writer.interface.flush();\n}\n",
+      "sha256": "7df7ca4deaf22066ce4aaac19d7d1f9263b22814c9cd34854e41e31347ae4dc9"
+    },
+    "src/julia/Project.toml": {
+      "content": "name = \"LeibnizApp\"\nuuid = \"ab14bd82-214b-4c30-9ae1-ad862d155324\"\nversion = \"1.0.0\"\n",
+      "sha256": "c08b09414b8ccd2bf5453212a92948b4e6e88f7b1e2c161e760e1f5c28f3b8f0"
+    },
+    "src/julia/src/LeibnizApp.jl": {
+      "content": "module LeibnizApp\n\nfunction f(rounds)\n    pi = 1.0\n    @fastmath @simd for i in 2:(rounds + 2)\n        pi += (iseven(i) ? -1 : 1) / (2*i - 1)\n    end\n    return pi*4\nend\n\nfunction (@main)(ARGS)\n    rounds = parse(Int64, convert(String, readchomp(\"rounds.txt\")))\n    print(Core.stdout, f(rounds))\n    0\nend\n\nend\n",
+      "sha256": "df100ddf5c960e9a76beb935c5e244ccbac7ee89008810cb7b0bfd56101fce3a"
+    },
+    "src/leibniz-simd.cs": {
+      "content": "using System.Runtime.Intrinsics;\n\nvar rounds = uint.Parse(File.ReadAllText(\"rounds.txt\"));\nvar unroll = (uint)Vector512<double>.Count;\n\nvar den   = Vector512<double>.Zero;\nvar inc   = Vector512.Create((double)unroll);\nvar two   = Vector512.Create(2.0);\nvar mone  = Vector512.Create(-1.0);\nvar xvec  = Vector512.Create(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0);\nvar ivec  = Vector512.Create(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);\nvar pivec = Vector512<double>.Zero;\n\nrounds += 2;\nvar vend = rounds - ((rounds - 2) % unroll);\n\nfor (var i = 2u; i < vend; i += unroll) {\n    den   = (two * ivec) + mone;\n    ivec  += inc;\n    pivec += xvec / den;\n}\n\nvar x  = 1.0D;\nvar pi = 1.0D + Vector512.Sum(pivec);\n\nfor (var i = vend; i < rounds; ++i) {\n    x = -x;\n    pi += x / (2 * i - 1);\n}\n\npi *= 4;\nConsole.WriteLine(pi);\n",
+      "sha256": "7d5bc67ffad3b4f6f366808dad36baefb4c17e6f54e9445eac91de9e4ac67d29"
+    },
+    "src/fs-simd/Program.fs": {
+      "content": "open System.IO\nopen System.Runtime.Intrinsics\n\n[<EntryPoint>]\nlet main _ =\n    if not Vector512.IsHardwareAccelerated then\n        failwith \"F# SIMD requires hardware-accelerated Vector512\"\n    let rounds = File.ReadAllText(\"rounds.txt\").Trim() |> int\n    let signs = Vector512.Create(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0)\n    let mutable denominators = Vector512.Create(3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0)\n    let mutable sums = Vector512<float>.Zero\n    let mutable i = 0\n    while rounds - i >= 8 do\n        sums <- sums + signs / denominators\n        denominators <- denominators + Vector512.Create(16.0)\n        i <- i + 8\n    let mutable pi = 1.0 + Vector512.Sum(sums)\n    while i < rounds do\n        let sign = if i % 2 = 0 then -1.0 else 1.0\n        pi <- pi + sign / float (2 * i + 3)\n        i <- i + 1\n    printfn \"%.16f\" (4.0 * pi)\n    0\n",
+      "sha256": "fa612c7d3fc6015ba09711c88024e4ed3851f809247115ff8dfbebe738b5d8de"
+    },
+    "src/fs-simd/leibniz.fsproj": {
+      "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <Compile Include=\"Program.fs\" />\n  </ItemGroup>\n\n</Project>\n",
+      "sha256": "a214abdb96507c5419cb27ee6f332486e746ce00d1976312d407151d5fb33b63"
+    },
+    "src/leibniz.swift": {
+      "content": "// Read stdin so the Nix Swift toolchain does not need Foundation headers.\nlet rounds = Int(readLine()!)!\n\nvar remainingIterations = rounds + 1\nvar d = 3.0\n\n// Use 4 independent accumulators to break data dependency chains,\n// allowing the CPU pipeline to process calculations more efficiently.\nvar sum1 = 0.0\nvar sum2 = 0.0\nvar sum3 = 0.0\nvar sum4 = 0.0\n\n// Unroll the loop to process 8 pairs (16 terms) per iteration\n// Distributing work across accumulators keeps the CPU busy waiting for results.\nwhile remainingIterations >= 16 {\n    // Accumulator 1: pairs at d and d+4\n    sum1 += -2.0 / (d * (d + 2.0)) + -2.0 / ((d + 4.0) * (d + 6.0))\n\n    // Accumulator 2: pairs at d+8 and d+12\n    sum2 += -2.0 / ((d + 8.0) * (d + 10.0)) + -2.0 / ((d + 12.0) * (d + 14.0))\n\n    // Accumulator 3: pairs at d+16 and d+20\n    sum3 += -2.0 / ((d + 16.0) * (d + 18.0)) + -2.0 / ((d + 20.0) * (d + 22.0))\n\n    // Accumulator 4: pairs at d+24 and d+28\n    sum4 += -2.0 / ((d + 24.0) * (d + 26.0)) + -2.0 / ((d + 28.0) * (d + 30.0))\n\n    d += 32.0  // 8 pairs * 4 per pair\n    remainingIterations -= 16\n}\n\n// Combine the unrolled sums\nvar pi = 1.0 + sum1 + sum2 + sum3 + sum4\n\n// Cleanup: process remaining pairs sequentially\nwhile remainingIterations >= 2 {\n    pi -= 2.0 / (d * (d + 2.0))\n    d += 4.0\n    remainingIterations -= 2\n}\n\n// Final term if odd count\nif remainingIterations > 0 {\n    pi -= 1.0 / d\n}\n\npi *= 4.0\n\nprint(pi)\n",
+      "sha256": "9745176c9665fdb94e654caa5e682cdfbd995b7359983b9b9d6efe3917039533"
+    },
+    "src/leibniz_avx2.cpp": {
+      "content": "#include <cstdio>\n\n#include <immintrin.h>\n\n\ndouble _x = 1.0;\ndouble pi = 1.0;\n\n\nint main()\n{\n    unsigned rounds;\n    unsigned int unroll = 4;\n    auto infile = std::fopen(\"rounds.txt\", \"r\");  // open file\n    std::fscanf(infile, \"%u\", &rounds);           // read from file\n    std::fclose(infile);                          // close file\n    \n    __m256d x       = _mm256_set_pd(-1.0,1.0,-1.0,1.0);\n    __m256d den     = _mm256_set_pd(0.0,0.0,0.0,0.0);\n    __m256d inc     = _mm256_set_pd(4.0,4.0,4.0,4.0);\n    __m256d two     = _mm256_set_pd(2.0,2.0,2.0,2.0);\n    __m256d mone    = _mm256_set_pd(-1.0,-1.0,-1.0,-1.0);\n    __m256d one     = _mm256_set_pd(1.0,1.0,1.0,1.0);\n    __m256d ivec    = _mm256_set_pd(2.0,3.0,4.0,5.0);\n    __m256d pivec   = _mm256_set_pd(0.0,0.0,0.0,0.0);\n\n    rounds += 2u; // do this outside the loop\n    unsigned int vec_end = rounds - rounds % unroll;\n\n    for (unsigned i=2u ; i < vec_end ; i+=unroll) // use ++i instead of i++\n    {\n        //#x = -x; // some compilers optimize this better than x *= -1\n        // compute den = (2 * i - 1)\n        den     = _mm256_add_pd(_mm256_mul_pd(two,ivec),mone);\n\n        // increment ivec, so ivec += inc\n        ivec    = _mm256_add_pd(ivec,inc);\n\n        // compute partial sums\n        pivec   = _mm256_add_pd(pivec,_mm256_div_pd(x,den));\n    }\n\n    // gather the partial sums\n    double* pi_v = (double*)&pivec;\n    pi +=  pi_v[0] + pi_v[1] + pi_v[2] + pi_v[3];\n\n    // now the wind-down loop\n    for (unsigned i=vec_end ; i < rounds ; ++i) \n    {\n        _x = -_x;\n        pi += (_x / (2u * i - 1u));\n    }\n\n    pi *= 4;\n    std::printf(\"%.16f\\n\", pi); // print 16 decimal digits of pi\n}\n",
+      "sha256": "c2c50a83f4bf24c96f0c66c573390dc8a65d5c5d2b3e05a5a483367455e1143f"
+    },
+    "src/leibniz-sbcl-simd.lisp": {
+      "content": "#-sbcl (error \"SBCL only!\")\n\n(declaim (optimize (speed 3) (safety 0) (debug 0))) ; only speed matters\n\n(require 'sb-simd)\n\n;; adapted from leibniz_avx2.cpp.\n(defun leibniz (rounds)\n  (declare (optimize (speed 3) (safety 0) (debug 0))\n   (fixnum rounds))\n  (incf rounds 2) ; do this outside the loop\n  (let ((unroll 4)\n        (x (sb-simd-avx:make-f64.4 -1.0 1.0 -1.0 1.0))\n        (den (sb-simd-avx:make-f64.4 0.0 0.0 0.0 0.0))\n        (inc (sb-simd-avx:make-f64.4 4.0 4.0 4.0 4.0))\n        (two (sb-simd-avx:make-f64.4 2.0 2.0 2.0 2.0))\n        (mone (sb-simd-avx:make-f64.4 -1.0 -1.0 -1.0 -1.0))\n        (ivec (sb-simd-avx:make-f64.4 2.0 3.0 4.0 5.0))\n        (pivec (sb-simd-avx:make-f64.4 0.0 0.0 0.0 0.0)))\n    (let ((vec-end (- rounds (mod rounds unroll))))\n\n      (loop for i from 2 below vec-end by unroll do\n        ;; compute den = (2 * i - 1)\n        (setf den (sb-simd-avx:f64.4+ (sb-simd-avx:f64.4* two ivec) mone)\n              ;; increment ivec, so ivec +=inc\n              ivec (sb-simd-avx:f64.4+ ivec inc)\n              ;; compute partial sums\n              pivec (sb-simd-avx:f64.4+ pivec (sb-simd-avx:f64.4/ x den))))\n\n      ;; gather the partial sums\n      (let ((underscore-pi (+ 1.0d0 (sb-simd-avx:f64.4-horizontal+ pivec))))\n        ;; now the wind-down loop\n        (loop with underscore-x = 1.0d0 for i from vec-end below rounds do\n          (setf underscore-x (- underscore-x)\n                underscore-pi (+ underscore-pi (* underscore-x (/ (- (* 2.0 i) 1.0))))))\n        (* underscore-pi 4.0d0)))))\n\n(defun main ()\n  (with-open-file (in \"rounds.txt\")\n    (declare (optimize (speed 3) (safety 0) (debug 0)))\n    (let ((*read-default-float-format* 'double-float)\n          (n (parse-integer (read-line in))))\n      (princ (leibniz n))\n      (fresh-line))))\n",
+      "sha256": "bd2b874f06f55ccf2b0d49b896d6fece6b423fdae693186a28b77727f5f4a0f3"
+    },
+    "src/leibniz.d": {
+      "content": "import std.stdio;\nimport std.file;\nimport std.string;\nimport std.conv;\n\ndouble pi = 1.0;\nuint rounds;\n\nvoid main() {\n    auto roundsText = cast(string) read(\"./rounds.txt\");\n    rounds = to!uint(strip(roundsText));\n    rounds += 2u;\n    foreach(i; 2u .. rounds) {\n        double x = -1.0 + 2.0 * (i & 0x1);\n        pi += (x / (2u * i - 1u));\n    }\n    pi *= 4.0;\n    writefln(\"%.16f\", pi);\n}\n",
+      "sha256": "ba54a41a295fc499b65b32c0685ea0b2fdb56d40f45204b31f7c6cc464002395"
+    },
+    "src/leibniz-simd.swift": {
+      "content": "var rounds = UInt64(readLine()!)!\n\nvar pi: Double = 1.0\n\nlet roundsRemainder = rounds % 4\nrounds -= roundsRemainder\n\nrounds += 2 // do this outside the loop\n\nvar i: UInt = 2\nwhile i < rounds {\n    let xVec = SIMD4<Double>(-1.0, 1.0, -1.0, 1.0)\n    let iVec = SIMD4<Double>(Double(i) + 0, Double(i) + 1, Double(i) + 2, Double(i) + 3)\n    pi += (xVec / (2.0 * iVec - 1.0)).sum()\n    i += 4\n}\n\nfor _ in 0..<roundsRemainder {\n    let x = -1.0 + 2.0 * Double(i & 1)\n    pi += x / Double(2 * i - 1)\n    i += 1\n}\n\npi *= 4.0\nprint(pi)\n",
+      "sha256": "43b0bda63605134b949a0ce3583ad780174241dc24630b3fd2ae0bc1f91c2946"
+    },
+    "src/leibniz.rs": {
+      "content": "use std::fs::File;\nuse std::io::prelude::*;\n\nfn main() {\n    let mut file = File::open(\"./rounds.txt\").expect(\"file not found\");\n\n    let mut contents = String::new();\n    file.read_to_string(&mut contents)\n        .expect(\"something went wrong reading the file\");\n\n    let rounds = contents.trim().parse::<u32>().unwrap() + 2;\n\n    let mut pi: f64 = 1.0;\n    (2..rounds).for_each(|i| {\n        let x = -1.0f64 + (2.0 * (i & 0x1) as f64);\n        pi += x / (2 * i - 1) as f64;\n    });\n\n    println!(\"{:.16}\", pi * 4.0);\n}\n",
+      "sha256": "3db53dd8b09ae9fbd456daf478882518dc20b4b835fb41cfe98fa71d54688fce"
+    },
+    "src/leibniz.ml": {
+      "content": "let calc rounds =\n  let sum = ref 0. in\n  let double = 2 * rounds in\n  let curr = ref (1 - double) in\n  let upto = double + 1 in\n  while !curr < upto do\n    sum := !sum +. 1. /. float_of_int !curr;\n    curr := !curr + 4\n  done;\n  !sum\n\nlet () =\n  let rounds_txt = open_in_bin \"rounds.txt\" in\n  let rounds = int_of_string (input_line rounds_txt) in\n  close_in rounds_txt;\n\n  let pi = 4. *. calc rounds in\n  Printf.printf \"%.16f\\n\" pi\n\n",
+      "sha256": "a0b9565bbbbe152e81085e0242007fd520d115747047d5360b47d7e3b5df010e"
+    },
+    "src/leibnizVecOps.java": {
+      "content": "import java.nio.charset.Charset;\nimport java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\nimport java.nio.charset.StandardCharsets;\nimport jdk.incubator.vector.DoubleVector;\nimport jdk.incubator.vector.VectorOperators;\nimport jdk.incubator.vector.VectorSpecies;\nimport jdk.incubator.vector.VectorMask;\nimport jdk.incubator.vector.VectorShuffle;\n\n\n\npublic class leibnizVecOps {\n  static String readFile(String path, Charset encoding) throws IOException {\n    byte[] encoded = Files.readAllBytes(Paths.get(path));\n    return new String(encoded, encoding);\n  }\n\n  public static void main(String[] args) {\n    String data = \"\";\n\n    try {\n      data = readFile(\"rounds.txt\", StandardCharsets.UTF_8);\n    } catch (IOException err) {\n      System.out.println(\"Couldn't read file:\\n\" + err.getMessage());\n    }\n\n    int rounds = Integer.parseInt(data.replace(\"\\n\", \"\").replace(\"\\r\", \"\"));\n\n    final VectorSpecies<Double> species = DoubleVector.SPECIES_PREFERRED;\n    final int vecLen = species.length();\n    final int nVecGroups = rounds / vecLen;\n\n    final DoubleVector divConstants = DoubleVector.fromArray(species, new double[]{1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0},0);\n    final DoubleVector aones = DoubleVector.fromArray(species, new double[]{1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0},0);\n    final DoubleVector ones = DoubleVector.broadcast(species, 1.0);\n    DoubleVector sumTarget = DoubleVector.broadcast(species, 0.0);\n    final int dvecLen = vecLen*2;\n\n\n    for(int vidx = 0; vidx < nVecGroups; ++vidx) {\n      sumTarget = sumTarget.add(ones.div(divConstants.add(dvecLen*vidx).mul(aones)));\n    }\n\n    double pi = sumTarget.reduceLanes(VectorOperators.ADD);\n    for(int idx = nVecGroups * vecLen; idx < rounds; ++idx) {\n      final double x = 1.0 - (2.0 * (idx & 0x1));\n      pi += (x / (1 + (2*idx)));\n    }\n\n    pi *= 4;\n    System.out.println(pi);\n  }\n}\n",
+      "sha256": "ab2f575b9613f73a5caa946662a72e6123b98a35f4313437433240ffd3ff9f7a"
+    },
+    "src/leibniz.adb": {
+      "content": "with Ada.Text_IO; use Ada.Text_IO;\n\nprocedure Leibniz is\n\ttype Rounds is mod 2**32;\n\ttype Decimal is digits 15;\n\n\tfunction ComputePi (N: Rounds) return Decimal is\n\t\tFlip : Decimal := -1.0;\n\t\tPi : Decimal := 1.0;\n\tbegin\n\t\t-- Compute arctan(1) according to the Leibniz series approximation.\n\t\tfor K in 2 .. (N + 2) loop\n\t\t\tPi := Pi + Flip / (2.0 * Decimal(K) - 1.0);\n\t\t\tFlip := -Flip;\n\t\tend loop;\n\t\tPi := 4.0 * Pi;\n\t\treturn Pi;\n\tend ComputePi;\n\n\tpackage Rounds_IO is new Modular_IO (Rounds); use Rounds_IO;\n\tpackage Decimal_IO is new Float_IO (Decimal); use Decimal_IO;\n\n\tN : Rounds;\n\tPi : Decimal;\nbegin\n\tdeclare\n\t\tF : File_Type;\n\t\tFile_Name : constant String := \"rounds.txt\";\n\tbegin\n\t\tOpen (F, In_File, File_Name);\n\t\tGet (F, N);  -- Read in number of rounds.\n\t\tClose (F);\n\tend;\n\n\tPi := ComputePi (N);\n\tPut (Pi, Fore => 1, Aft => 16, Exp => 0);\nend Leibniz;\n",
+      "sha256": "479398f68b0aa400ea4d611a4dfc59674e715e9460e109ecde69151723ef4449"
+    },
+    "src/leibniz.pony": {
+      "content": "use \"files\"\nuse \"collections\"\nuse \"format\"\n\nactor Main\n  new create(env:Env) =>\n    let path = FilePath(\n        FileAuth(env.root),\"rounds.txt\")\n    \n    match OpenFile(path)\n    | let f :File =>\n        let lines = f.lines()\n        let line = try lines.next()? \n          else\n            env.err.print(\"'rounds.txt' reading failed\")\n            return\n          end\n        let rounds = try line.u32()? + 2\n          else\n            env.err.print(\"invalid format of rounds\")\n            return\n          end\n        var pi = F64(1)\n        var x = F64(1)\n        for i in Range[U32](2,rounds) do\n          x = x * -1.0\n          let tmp = x / ( ( F64.from[U32](i) * 2.0 ) - 1.0 )\n          pi = pi + tmp\n        end\n        pi = pi * 4.0\n        env.out.print(Format.float[F64](pi,FormatDefault,PrefixDefault,17))\n    else\n      env.err.print(\"'rounds.txt' open failed\")\n    end\n",
+      "sha256": "c1dd44b28ed6f2eedf4e626ca867d30cb97c3a5011ce3168679d57fd0ae05823"
+    },
+    "src/leibniz.lua": {
+      "content": "local f = assert(io.open(\"rounds.txt\", \"rb\"))\nlocal content = f:read(\"a\")\nf:close()\n\nlocal rounds = tonumber(content)\nlocal stop = rounds + 2\n\nlocal x = 1.0\nlocal pi = 1.0\n\nfor i = 2, stop do\n    x = -x\n    pi = pi + x / (2 * i - 1)\nend\n\npi = pi * 4.0\n\nprint(string.format(\"%03.16f\", pi))\n",
+      "sha256": "caf4ef038ed19b5d4db5163629ea108bc5065c68d640e63894aa02ee632028eb"
+    },
+    "src/leibniz.scala": {
+      "content": "@main\ndef main =\n  val rounds = scala.io.Source.fromFile(\"rounds.txt\").getLines.next.trim.toInt\n  var pi = 1.0\n\n  var i = 2\n  while(i < rounds + 2) {\n    val x = -1.0 + 2.0 * (i & 1)\n    pi += (x / (2 * i - 1))\n    i += 1\n  }\n  pi *= 4.0\n\n  println(pi)\n",
+      "sha256": "effb928b507d56054fbbd9b7f9b22889cbcf27754840e099e70fe10b75db9e94"
+    },
+    "src/leibniz.zig": {
+      "content": "const std = @import(\"std\");\n\npub fn main() !void {\n    // like C -ffast-math\n    @setFloatMode(.optimized);\n\n    // Zig 0.16+ Io interface - file access requires an Io implemention\n    var threaded = std.Io.Threaded.init_single_threaded;\n    const io = threaded.io();\n\n    var file = try std.Io.Dir.cwd().openFile(io, \"rounds.txt\", .{});\n    defer file.close(io);\n    var buffer: [1024]u8 = undefined;\n    const n = try file.readPositionalAll(io, &buffer, 0);\n    const rounds = try std.fmt.parseInt(i64, std.mem.trim(u8, buffer[0..n], \"\\n\"), 10) + 2;\n\n    var i: usize = 2;\n    var pi: f64 = 1.0;\n    while (i < rounds) : (i += 1) {\n        const x: f64 = -1.0 + 2.0 * @as(f64, @floatFromInt(i & 1));\n        pi += (x / @as(f64, @floatFromInt(2 * i - 1)));\n    }\n    pi *= 4;\n\n    var output_buf: [64]u8 = undefined;\n    var writer = std.Io.File.stdout().writer(io, &output_buf);\n\n    try writer.interface.print(\"{d:.16}\", .{pi});\n    try writer.interface.flush();\n}\n",
+      "sha256": "0e76d351060ef240fcefabd6f4bad897c36e7156b5fa961ccfdcbda1657e7a4c"
+    },
+    "src/leibniz-relaxed.swift": {
+      "content": "let rounds = UInt64(readLine()!)! + 2\nvar pi = 1.0\n\nvar i: UInt64 = 2\nwhile i < rounds {\n    pi = relaxed_add(pi, -1.0 / Double(i * 2 - 1))\n    i += 1\n\n    pi = relaxed_add(pi, 1.0 / Double(i * 2 - 1))\n    i += 1\n}\n\npi *= 4.0\nprint(pi)\n",
+      "sha256": "c976b3924a73604116ca6bfac710ca940baee64332be6d7cf7f1af44f1e10d32"
+    },
+    "src/relaxed.h": {
+      "content": "static inline double relaxed_add(double a, double b) {\n    _Pragma(\"clang fp reassociate(on) contract(fast)\")\n    return a + b;\n}\n",
+      "sha256": "c94191a8781a38516c7e8eef80666c8cd379f17072116bb4892f09dccd5a164e"
+    },
+    "src/leibniz.odin": {
+      "content": "package main\n\nimport \"core:fmt\"\nimport \"core:os\"\n\nparse_int :: proc(buf: []u8) -> int{\n    n := 0\n    for b in buf {\n        if b < '0' || b > '9' {\n            break\n        }\n        n = n*10 + int(b - '0')\n    }\n    return n\n}\n\nmain :: proc() {\n    data, ok := os.read_entire_file(\"rounds.txt\")\n    if !ok {\n        fmt.eprintln(\"Failed to read rounds.txt\")\n        return\n    }\n\n    rounds := parse_int(data)\n\n    pi: f64 = 1.0\n    x: f64 = 1.0\n\n    for i in 2 ..= rounds + 1 {\n\t\tx = -x\n\t\tpi += x / f64(2 * i - 1)\n\t}\n\n    pi *= 4.0\n\n    buf: [64]u8\n    s := fmt.bprintf(buf[:], \"%.16f\\n\", pi)\n    os.write(os.stdout, buf[:len(s)])\n}\n",
+      "sha256": "ee2a9f49f615ebd5835469fa0aee2eef1cd0f1231e0b9c74e210589c3e0ecace"
+    },
+    "src/leibniz.v": {
+      "content": "import os\n\ncontent := os.read_file('rounds.txt')!\nrounds := content.trim_space().u64()\n\nmut pi := 1.0\nfor i in 2 .. rounds + 2 {\n\tx := -1.0 + 2.0 * f64(i & 0x1)\n\tpi += x / (u64(2) * i - u64(1))\n}\npi *= 4.0\n\nprintln('${pi:.16f}')\n",
+      "sha256": "8d039082c50af291fe5a2b733f14d73253ab4e17818c097fdf78d6abaa8f036b"
+    },
+    "src/leibniz.cr": {
+      "content": "rounds = File.read(\"rounds.txt\").to_i\nstop = (rounds + 2).to_f64\n\nx = 1.0_f64\npi = 1.0_f64\ni = 2.0_f64\n\nwhile i <= stop\n  x = -x\n  pi += x / (2.0_f64 * i - 1.0_f64)\n  i += 1.0_f64\nend\n\npi *= 4.0_f64\nputs \"#{pi}\"\n",
+      "sha256": "9b23d04bc2e1219c29d4c2aeb35f0dc4e54a1c2cd6b26514606458408a197976"
+    },
+    "src/leibniz.go": {
+      "content": "package main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nfunc main() {\n\tfile, _ := os.ReadFile(\"rounds.txt\")\n\trounds, _ := strconv.Atoi(strings.TrimSpace(string(file)))\n\n\tx := 1.0\n\tpi := 1.0\n\tstop := float64(rounds + 2)\n\n\tfor i := 2.0; i <= stop; i++ {\n\t\tx = -x\n\t\tpi += x / (2.0*i - 1.0)\n\t}\n\n\tpi *= 4.0\n\tfmt.Println(pi)\n}\n",
+      "sha256": "cbd91139fe92220e3ee179f7e0ffc1e02ff9712729e34a930140372473c9098e"
+    },
+    "src/leibniz.asm": {
+      "content": "; NASM, Linux x86_64 System V ABI. Scalar double precision Leibniz series.\ndefault rel\nextern fopen, fscanf, fclose, printf\nglobal main\nsection .rodata\npath: db 'rounds.txt', 0\nmode: db 'r', 0\nscan_format: db '%lu', 0\nprint_format: db '%.16f', 10, 0\none: dq 1.0\nsection .text\nmain:\n    push rbp\n    mov rbp, rsp\n    sub rsp, 32\n    lea rdi, [path]\n    lea rsi, [mode]\n    call fopen wrt ..plt\n    test rax, rax\n    jz .error\n    mov [rbp-8], rax\n    mov rdi, rax\n    lea rsi, [scan_format]\n    lea rdx, [rbp-16]\n    xor eax, eax\n    call fscanf wrt ..plt\n    mov [rbp-24], eax\n    mov rdi, [rbp-8]\n    call fclose wrt ..plt\n    cmp dword [rbp-24], 1\n    jne .error\n    cmp qword [rbp-16], 1000000000\n    ja .error\n    movsd xmm2, [one]\n    xor ecx, ecx\n.loop:\n    cmp rcx, [rbp-16]\n    jae .print\n    mov eax, ecx\n    and eax, 1\n    lea rax, [rax*2-1]\n    cvtsi2sd xmm0, rax\n    lea rax, [rcx*2+3]\n    cvtsi2sd xmm1, rax\n    divsd xmm0, xmm1\n    addsd xmm2, xmm0\n    inc rcx\n    jmp .loop\n.print:\n    movsd xmm0, xmm2\n    addsd xmm0, xmm0\n    addsd xmm0, xmm0\n    lea rdi, [print_format]\n    mov eax, 1\n    call printf wrt ..plt\n    xor eax, eax\n    leave\n    ret\n.error:\n    mov eax, 1\n    leave\n    ret\nsection .note.GNU-stack noalloc noexec nowrite progbits\n",
+      "sha256": "23b56103d0878a94315df583aa617b68c894a4999a3396196fd30efbef93a949"
+    },
+    "src/leibniz.lisp": {
+      "content": "(declaim (optimize (speed 3) (safety 0) (debug 0)))\n\n(defun leibniz (rounds)\n  (declare (optimize (speed 3) (safety 0) (debug 0))\n           (fixnum rounds))\n  (let ((ans 1.0d0)\n        (sig 1.0d0)\n        (end (ash (1+ rounds) 1)))\n    (declare (double-float ans sig)\n             (fixnum end))\n    (loop for i of-type fixnum from 3 below end by 2\n          do (setf sig (- sig))\n             (incf ans (/ sig i)))\n    (* ans 4)))\n\n(defun main ()\n  (with-open-file (in \"rounds.txt\")\n    (declare (optimize (speed 3) (safety 0) (debug 0))) ; in the spirit of the thing..\n    (let ((*read-default-float-format* 'double-float)\n          (n (parse-integer (read-line in))))\n      (princ (leibniz n))\n      (fresh-line))))\n",
+      "sha256": "11e35be52e800e7eebd4e5518469b5de792b16e29cb4959389ce92634e31f4c1"
+    },
+    "src/leibniz.ha": {
+      "content": "use io;\nuse os;\nuse fmt;\nuse strings;\nuse strconv;\n\nexport fn main() void = {\n       const rounds = os::open(\"rounds.txt\")!;\n       const rounds = io::drain(rounds)!;\n       const rounds = strings::fromutf8(rounds)!;\n       const rounds = strconv::stou32(strings::trim(rounds))!;\n\n       let pi: f64 = 1.0;\n\n       for (let i = 2u32; i < rounds + 2u32; i += 1) {\n       \t   let x = -1.0f64 + (2.0 * (i & 0x1): f64);\n\t   pi += x / (2 * i - 1): f64;\n       };\n\n       pi *= 4.0;\n       fmt::printfln(\"{}\", pi)!;\n};\n",
+      "sha256": "4896ec014a4da58c56343b6d82d124ca0ceddfc0be98ed80eede24d9a5a7663a"
+    },
+    "src/leibniz.ts": {
+      "content": "const rounds = parseInt(Deno.readTextFileSync(\"rounds.txt\").trim());\n\nlet pi = 1.0;\nlet x = 1.0;\n\nfor (let i = 2; i <= rounds + 1; i++) {\n  x = -x;\n  pi += x / (2 * i - 1);\n}\n\npi *= 4.0;\nconsole.log(pi.toFixed(16));\n",
+      "sha256": "60eeefe9e58cbc23efc0e78370db6c151f663c8e605e33009681e126f082149d"
+    },
+    "src/leibniz.java": {
+      "content": "import java.util.Scanner;\nimport java.io.File;\nimport java.io.FileNotFoundException;\n\npublic class leibniz {\n    public static void main(String[] args) throws FileNotFoundException {\n        Scanner s = new Scanner(new File(\"rounds.txt\"));\n        long rounds = s.nextLong();\n        s.close();\n\n        double sum = 0.0;\n        double flip = -1.0;\n        for (long i = 1; i <= rounds; i++) {\n            flip *= -1.0;\n            sum += flip / (2 * i - 1);\n        }\n\n        System.out.println(sum * 4.0);\n    }\n}\n",
+      "sha256": "61f52444007fe14b55e1e0b1aabd2ffc732cf2bdb928189090647eea969bde66"
+    },
+    "src/leibniz.pas": {
+      "content": "program leibniz;\n\nvar\n  f: text;\n  line: string;\n  rounds, i: longint;\n  pi, x: double;\n\nbegin\n  assign(f, 'rounds.txt');\n  reset(f);\n  readln(f, line);\n  close(f);\n\n  val(line, rounds);\n\n  pi := 1.0;\n  x := 1.0;\n\n  for i := 2 to rounds + 1 do\n  begin\n    x := x * -1;\n    pi := pi + x / (2 * i - 1);\n  end;\n\n  pi := pi * 4;\n  writeln(pi);\nend.\n",
+      "sha256": "70dd293c75c59f0d3d34f493f7ee33f8159988d667c33e29d1344c4c5cdeafc2"
+    },
+    "src/leibniz.mojo": {
+      "content": "from std.io.file import open\nfrom std.ffi import external_call\n\ndef main() raises:\n    var file = open(\"rounds.txt\", \"r\")\n    var rounds = Int(file.read().strip())\n    var result = Float64(0)\n    var sign = Float64(1)\n    for i in range(rounds):\n        result += sign / Float64(2 * i + 1)\n        sign = -sign\n    var fmt = String(\"%.16f\\n\")\n    _ = external_call[\"printf\", Int32, num_fixed_args=1](\n        fmt.as_c_string_slice().unsafe_ptr(), result * 4\n    )\n",
+      "sha256": "bcb9ba7d6f6c49bfce7de4fae2b57b8094b519a3ff66ddb3802d1765fe6856e5"
+    },
+    "src/mojo-requirements.txt": {
+      "content": "mojo-compiler==1.0.0 --hash=sha256:e9e60f9638e69ca0f4be7292468523fc98a143f58dbf9024f60ed68b874a867e\nmojo-compiler-mojo-libs==1.0.0 --hash=sha256:20a92e37ecbd19e2dbb1a525612a8de4c9f266f5536def55c5e2b0786320e8b3\n",
+      "sha256": "6284efc53cc54ec667973eda3e837265c63cbe7fc9d52dda75e72794e3b19d3a"
+    },
+    "src/Leibniz.hx": {
+      "content": "import sys.io.File;\n\nclass Leibniz {\n    static function main() {\n        var content = File.getContent(\"rounds.txt\");\n        var rounds = Std.parseInt(StringTools.trim(content));\n        var stop:Float = rounds + 2.0;\n\n        var x:Float = 1.0;\n        var pi:Float = 1.0;\n\n        var i:Float = 2.0;\n        while (i <= stop) {\n            x = -x;\n            pi += x / (2.0 * i - 1.0);\n            i += 1.0;\n        }\n\n        pi *= 4.0;\n\n        Sys.print(pi);\n    }\n}\n",
+      "sha256": "7145e8d7d9960bec38e5208721e2a0653c9e1dcbf5efc2b3f14f3a1e09fcf4ee"
+    },
+    "src/leibniz.dart": {
+      "content": "import 'dart:io';\n\nvoid main() {\n  final rounds = int.parse(File('rounds.txt').readAsStringSync().trim());\n\n  double pi = 1.0;\n  double x = 1.0;\n\n  for (int i = 2; i <= rounds + 1; i++) {\n    x = -x;\n    pi += x / (2 * i - 1);\n  }\n\n  pi *= 4.0;\n  print(pi.toStringAsFixed(16));\n}\n",
+      "sha256": "33ee282968685a2ca88cc2adbf7a4dce008978ce585362b17f4d38cfc3637818"
+    },
+    "src/fs/Program.fs": {
+      "content": "open System.IO\n\n[<EntryPoint>]\nlet main _ =\n    let rounds = File.ReadAllText(\"rounds.txt\").Trim() |> int\n\n    let mutable pi = 1.0\n    let mutable x = 1.0\n\n    for i in 2..rounds + 1 do\n        x <- -x\n        pi <- pi + x / float (2 * i - 1)\n\n    pi <- pi * 4.0\n    printfn $\"{pi}\"\n    0\n",
+      "sha256": "563c86ddb432242c201f712716d1550a1d33ef31161f1922d0574bb00d42e8f0"
+    },
+    "src/fs/leibniz.fsproj": {
+      "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <Compile Include=\"Program.fs\" />\n  </ItemGroup>\n\n</Project>\n",
+      "sha256": "a214abdb96507c5419cb27ee6f332486e746ce00d1976312d407151d5fb33b63"
+    },
+    "src/leibniz.js": {
+      "content": "\"use strict\";\n\nlet fs = require(\"fs\");\nlet rounds = parseInt(fs.readFileSync(\"./rounds.txt\", \"utf8\"));\n\nlet x = 1.0;\nlet pi = 1.0;\n\nfor (let i = 2; i < rounds + 2; i++) {\n  x *= -1;\n  pi += x / (2 * i - 1);\n}\n\npi *= 4;\n\nconsole.log(pi);\n",
+      "sha256": "504bd88911eb600c5866ccc42bd6cca1196e486dc104ae7bb8cbc162216444f3"
+    },
+    "src/leibniz.cs": {
+      "content": "var rounds = int.Parse(File.ReadAllText(\"rounds.txt\"));\n\nvar pi = 1.0D;\nvar x = 1.0D;\n\nfor (var i = 2; i < rounds + 2; i++) {\n    x = -x;\n    pi += x / (2 * i - 1);\n}\n\npi *= 4;\nConsole.WriteLine(pi);\n",
+      "sha256": "e156e3ef6a4ba7dcfe082d734c78a541f7c0bdd17a00d6ede7143bfc9b739e12"
+    },
+    "src/leibniz.kt": {
+      "content": "import java.io.File\n\nfun main() {\n    val rounds = File(\"rounds.txt\").readText().trim().toInt()\n\n    var pi = 1.0\n    var x = 1.0\n\n    for (i in 2 until rounds + 2) {\n        x *= -1\n        pi += x / (2 * i - 1)\n    }\n\n    pi *= 4\n    println(pi)\n}\n",
+      "sha256": "d7e133fb288eca817fc7dfd7b4a79861b40658c4e29e5598aad5826fb7c7c9a8"
+    },
+    "src/leibniz.py": {
+      "content": "#!/usr/bin/env python\n# coding=utf-8\n\n\ndef main():\n    with open(\"rounds.txt\") as file:\n        rounds = int(file.read())\n\n    x = 1.0\n    pi = 1.0\n\n    for i in range(2, rounds + 3):\n        x = -x\n        pi += x / (2 * i - 1)\n\n    pi *= 4.0\n    print(\"{:.16f}\".format(pi))\n\n\nmain()\n",
+      "sha256": "d44a6eeabf2ffad9efb445a2b4dcb464e50cc3624b4b6ca718c8468dbf386666"
+    },
+    "src/leibniz_numba.py": {
+      "content": "#!/usr/bin/env python\n# coding=utf-8\n\nimport numba\n\n# The @numba.jit decorator with nopython=True compiles the function into machine code.\n# fastmath=True enables aggressive floating-point optimizations, including auto-vectorization (SIMD).\n# cache=True caches the compiled function to disk to avoid recompilation.\n@numba.jit(nopython=True, fastmath=True, cache=True)\ndef calculate_pi_single_threaded(num_terms):\n    pi_quarter = 0.0\n    sign = 1.0\n    for i in range(num_terms):\n        denominator = 2 * i + 1.0\n        pi_quarter += sign / denominator\n        sign = -sign\n    return pi_quarter * 4.0\n\n\ndef main():\n    with open(\"rounds.txt\") as file:\n        rounds = int(file.read())\n\n    # The original script at src/leibniz.py calculates `rounds + 2` terms of the series.\n    # We do the same here for a fair comparison.\n    num_terms = rounds + 2\n    pi = calculate_pi_single_threaded(num_terms)\n    print(\"{:.16f}\".format(pi))\n\n\nmain()\n",
+      "sha256": "700dc95a55e0e7658fd9d51980897763e0aade802e1014fe327b44d9861f795f"
+    },
+    "src/leibniz.ss": {
+      "content": "(import (chezscheme))\n\n(define rounds (with-input-from-file \"rounds.txt\" read))\n\n(let ([stop (fx+ rounds 2)])\n  (let loop ([i 2]\n             [x -1.0]\n             [pie 1.0])\n    (if (fx> i stop)\n        (display (format \"~,16f\\n\" (fl* pie 4.0)))\n        (loop (fx+ i 1)\n              (fl- 0.0 x)\n              (fl+ pie (fl/ x (fl- (fl* 2.0 (fixnum->flonum i)) 1.0)))))))\n",
+      "sha256": "7a4553776136230016835051d83d4dd1b7374c6258905a7366da1c7cffdfa006"
+    },
+    "src/leibniz.rkt": {
+      "content": "#lang racket/base\n\n(require racket/file\n         racket/flonum\n         racket/unsafe/ops)\n\n(define rounds (file->value \"rounds.txt\"))\n\n(let ([stop (unsafe-fx+ rounds 2)])\n  (let loop ([i 2]\n             [x -1.0]\n             [pie 1.0])\n    (if (unsafe-fx> i stop)\n        (displayln (real->decimal-string (unsafe-fl* pie 4.0) 16))\n        (loop (unsafe-fx+ i 1)\n              (unsafe-fl- 0.0 x)\n              (unsafe-fl+ pie (unsafe-fl/ x (unsafe-fl- (unsafe-fl* 2.0 (unsafe-fx->fl i)) 1.0)))))))\n",
+      "sha256": "074d343b25f7176aa997be396e1049d6eccfa47538e8c2a7ff99ebc70e77cea6"
+    },
+    "src/leibniz.hs": {
+      "content": "{-# LANGUAGE BangPatterns #-}\n\n{- | A more direct port of the C version. -}\nmodule Main where\n\n-- | Computes partial alternating series converging\n--   to \u03c0/4=arctan(1) up n terms.\nleibniz :: Int -> Double\nleibniz !n = partial 2 1.0 where\n  partial :: Int -> Double -> Double\n  partial !i !qpi\n    | i == n + 2 = qpi\n    | otherwise  = partial (i + 1) $ qpi - powNeg1 i * inv (2*i - 1)\n  inv = recip . fromIntegral\n  powNeg1 i = 1 - 2 * fromIntegral (i `mod` 2)\n\nmain :: IO ()\nmain = rounds >>= putStrLn . show . (4 * ) . leibniz\n  where rounds :: IO Int\n        rounds = read <$> readFile \"rounds.txt\"\n",
+      "sha256": "ad4580003ff4617ac67124ffa0ff76e7d8bcd0b1d01573431232314ff5b9f4b9"
+    },
+    "src/leibniz-native.kt": {
+      "content": "@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)\n\nimport kotlinx.cinterop.*\nimport platform.posix.*\n\nfun main(): Unit = memScoped {\n    val file = fopen(\"rounds.txt\", \"r\") ?: error(\"Cannot open rounds.txt\")\n    val buffer = allocArray<ByteVar>(64)\n    val text = try {\n        fgets(buffer, 64, file) ?: error(\"Cannot read rounds.txt\")\n        buffer.toKString().trim()\n    } finally {\n        fclose(file)\n    }\n    val rounds = text.toInt()\n    var pi = 1.0\n    var sign = 1.0\n    for (i in 2 until rounds + 2) {\n        sign = -sign\n        pi += sign / (2 * i - 1)\n    }\n    printf(\"%.16f\\n\", pi * 4.0)\n    Unit\n}\n",
+      "sha256": "4fa2d689b1e4638e2a0612ed4e7689f39714c05cbf6219e6bc08f45731de343e"
+    },
+    "src/leibniz_mypyc.py": {
+      "content": "#!/usr/bin/env python\n# coding=utf-8\n\n\ndef leibniz(rounds: int) -> float:\n    pi: float = 1.0\n    x: float = 1.0\n    for i in range(2, rounds + 2):\n        x = -x\n        pi += x / (2 * i - 1)\n    return pi * 4.0\n\n\ndef main() -> None:\n    with open(\"rounds.txt\") as file:\n        rounds = int(file.read())\n\n    pi = leibniz(rounds)\n    print(\"{:.16f}\".format(pi))\n\n\nmain()\n",
+      "sha256": "f51ef3ec5634f6d36434c380e5e4b4535147628718969e4b4a584864e2709c6b"
+    },
+    "src/leibniz.clj": {
+      "content": "(ns leibniz)\n\n(set! *unchecked-math* :warn-on-boxed)\n\n(defn calc-pi-leibniz\n  \"Translation of Java solution to Clojure - uses doubles throughout to avoid long/double mixing\"\n  ^double\n  [^long rounds]\n  (let [end (double (+ 2 rounds))]\n    (loop [i 2.0 x 1.0 pi 1.0]\n      (if (== i end)\n        (* 4.0 pi)\n        (let [x (- x)]\n          (recur (inc i) x (+ pi (/ x (dec (* 2.0 i))))))))))\n\n(defn parse-int [s]\n  (Integer/parseInt (re-find #\"\\A-?\\d+\" s)))\n\n(def rounds (parse-int (slurp \"rounds.txt\")))\n(println (calc-pi-leibniz rounds))\n",
+      "sha256": "a03bc400de5d117731cb6c4c9e8aad51bad6ecde422fe5d40772c396c17e3be0"
+    },
+    "src/leibniz.groovy": {
+      "content": "import groovy.transform.CompileStatic\n\n@CompileStatic\nclass Leibniz {\n    static void main(String[] args) {\n        int rounds = new File(\"rounds.txt\").text.trim().toInteger()\n\n        double x = 1.0d\n        double pi = 1.0d\n\n        for (int i = 2; i <= rounds + 2; i++) {\n            x = -x\n            pi += x / (2 * i - 1)\n        }\n\n        pi *= 4.0d\n\n        print pi\n    }\n}\n",
+      "sha256": "d644b368b776e85dad60929775340ba0fffa8add32834dd8d83fe5f1a06313ee"
+    },
+    "src/leibniz.php": {
+      "content": "<?php\nini_set(\"precision\", 17);\n$rounds = (int) file_get_contents(\"./rounds.txt\", true);\n$stop = $rounds + 2;\n\n$x = 1.0;\n$pi = 1.0;\n\nfor ($i = 2; $i <= $stop; $i++) {\n    $x = -$x;\n    $pi += $x / (2 * $i - 1);\n}\n\n$pi *= 4.0;\nprint $pi;\n",
+      "sha256": "7dfa84905991671612bc851d94e5a91b8bcd78eec7d8586b384eee65af553e6a"
+    },
+    "src/leibniz.ex": {
+      "content": "defmodule Leibniz do\n  def main() do\n    rounds = File.read!(\"rounds.txt\") |> String.trim |> String.to_integer()\n    stop = rounds + 2\n\n    pi = calculate(1.0, 1.0, 2, stop)\n\n    IO.puts pi\n  end\n\n  defp calculate(x, pi, i, stop) when i <= stop do\n    x_new = -x\n    pi_new = pi + (x_new / (2 * i - 1))\n    calculate(x_new, pi_new, i + 1, stop)\n  end\n\n  defp calculate(_x, pi, _i, _stop) do\n    pi * 4.0\n  end\nend\n\nLeibniz.main()\n",
+      "sha256": "015a15dc120d3b592fca190170ffd8c621fcde6de325956d664ec0f098858cdb"
+    },
+    "src/leibniz.erl": {
+      "content": "-module(leibniz).\n-export([main/0]).\n\nmain() ->\n    {ok, Binary} = file:read_file(\"rounds.txt\"),\n    Rounds = list_to_integer(string:trim(binary_to_list(Binary))),\n    Stop = Rounds + 2,\n    Pi = leibniz(Stop, 2, 1.0, 1.0),\n    io:format(\"~.16f~n\", [Pi * 4.0]),\n    halt(0).\n\nleibniz(Stop, I, _X, Pi) when I > Stop ->\n    Pi;\nleibniz(Stop, I, X, Pi) ->\n    NewX = -X,\n    NewPi = Pi + NewX / (2 * I - 1),\n    leibniz(Stop, I + 1, NewX, NewPi).\n",
+      "sha256": "526421089b0e31cdfdad9d3ffccca2f409280061e436f3101c4adcfc8a45bfe6"
+    },
+    "src/leibniz.r": {
+      "content": "rounds <- scan(\"rounds.txt\", what = integer(), quiet = TRUE)\n\n# Bound temporary vectors at the full benchmark size.\ntotal <- 0\nfor (first in seq(-2*rounds+1+(rounds%%2)*2, 2*rounds, by = 4e6)) {\n  total <- total + sum(4 / seq(first, min(first + 4*(1e6-1), 2*rounds), by = 4))\n}\npi <- total\n\ncat(sprintf(\"%.16f\\n\", pi))\n",
+      "sha256": "9358e53a11535b666fd9a2cc21401e4d2416686fe94b97fa8cfdf7630c2bfd7f"
+    },
+    "src/leibniz_compiled.janet": {
+      "content": "(defn main [&]\n  (def rounds (-> (slurp \"rounds.txt\") string/trim scan-number))\n  (def stop (+ rounds 2))\n  (var pi 1.0)\n  (var x 1.0)\n  (for i 2 (+ stop 1)\n    (set x (- x))\n    (set pi (+ pi (/ x (- (* 2 i) 1)))))\n  (set pi (* pi 4.0))\n  (printf \"%.16f\" pi))\n",
+      "sha256": "8d2b941c87a4940b04121389ae07a8a8d7194b234942a37213c493461fa37bfd"
+    },
+    "src/leibniz_octave_vectorised.m": {
+      "content": "% Calculate Pi using the Leibniz formula (vectorised)\n\nrounds = csvread('rounds.txt');\n\n% Bound the temporary vectors while preserving the signed denominator sequence.\ntotal = 0;\nfor first = (1 + mod(rounds,2) * 2 - 2 * rounds):(4 * 1000000):(2 * rounds)\n    last = min(first + 4 * (1000000 - 1), 2 * rounds);\n    total = total + sum(1 ./ (first:4:last));\nend\npi = 4 * total;\n\nfprintf('%0.16f\\n', pi)\n\n",
+      "sha256": "4f3de64d990842294b4d46ec74190ba4e311ca63decaec7fe403c16549133edb"
+    },
+    "src/leibniz_np.py": {
+      "content": "#!/usr/bin/env python\n# coding=utf-8\n\nimport numpy as np\n\n\ndef main():\n    with open(\"rounds.txt\") as file:\n        rounds = int(file.read())\n\n    n = rounds\n    # Keep vectorized summation below the runner's memory limit at one billion terms.\n    total = 0.0\n    start = 1 + (n % 2) * 2 - 2 * n\n    for first in range(start, 2 * n + 1, 4 * 1_000_000):\n        total += (1 / np.arange(first, min(first + 4 * 1_000_000, 2 * n + 1), 4)).sum()\n    pi = 4 * total\n\n    print(\"{:.16f}\".format(pi))\n\n\nmain()\n",
+      "sha256": "094a9f27c1a877777cdf458598a60a8aca672c05a90e12e8faf3be72dd2c8f94"
+    },
+    "src/leibniz.gleam": {
+      "content": "import gleam/io\nimport gleam/int\nimport gleam/float\nimport gleam/string\nimport simplifile\n\npub fn main() {\n  let assert Ok(content) = simplifile.read(\"rounds.txt\")\n  let assert Ok(rounds) = int.parse(string.trim(content))\n  let stop = rounds + 2\n\n  let pi = leibniz(stop, 2, 1.0, 1.0)\n  io.println(float.to_string(pi *. 4.0))\n}\n\nfn leibniz(stop: Int, i: Int, x: Float, pi: Float) -> Float {\n  case i > stop {\n    True -> pi\n    False -> {\n      let new_x = float.negate(x)\n      let new_pi = pi +. new_x /. int.to_float(2 * i - 1)\n      leibniz(stop, i + 1, new_x, new_pi)\n    }\n  }\n}\n",
+      "sha256": "e214200c9a24b33c1c8b750a88c943d6bf8427f81087bb6345295e91a41d2f28"
+    },
+    "src/leibniz.rb": {
+      "content": "rounds = Integer(File.read(\"./rounds.txt\"))\nstop = rounds + 2\n\nx = 1.0\npi = 1.0\ni = 2\n\nwhile i <= stop\n  x = -x\n  pi += x / (2 * i - 1)\n  i += 1\nend\n\npi *= 4.0\nputs pi.to_s\n",
+      "sha256": "fe6e8bd45c027730c433706df67be3f7382e458919b299827e24341e970b9c6f"
+    },
+    "src/leibniz.janet": {
+      "content": "(def rounds (-> (slurp \"rounds.txt\") string/trim scan-number))\n(def stop (+ rounds 2))\n\n(var pi 1.0)\n(var x 1.0)\n\n(for i 2 (+ stop 1)\n  (set x (- x))\n  (set pi (+ pi (/ x (- (* 2 i) 1)))))\n\n(set pi (* pi 4.0))\n\n(printf \"%.16f\" pi)\n",
+      "sha256": "e02dae1e0ef5a8bb5993f6a72b06c651be13a9f3717c37fe3a08dd3e65f4eea3"
+    },
+    "src/leibniz.raku": {
+      "content": "#!/usr/bin/env raku\n\nmy int $rounds = \"rounds.txt\".IO.slurp.trim.Int + 2;\n\nmy num $x = 1e0;\nmy num $pi = 1e0;\n\nloop (my int $i = 2; $i <= $rounds; $i++) {\n    $x = -$x;\n    $pi = $pi + $x / (2 * $i - 1).Num;\n}\n\n$pi = $pi * 4e0;\n\nprint $pi;\n",
+      "sha256": "0fd68a9c0b732503e033f930649a68ec35a57497ec595ea8e7bdaf45449ea59e"
+    },
+    "src/leibniz.pl": {
+      "content": "#!/usr/bin/env perl\nuse strict;\n\nopen(my $fh, \"<rounds.txt\") or die \"$!\";\nmy $rounds = <$fh> || die \"$!\";\nchomp($rounds);\n$rounds += 0;  # Force numeric conversion\n\nmy $x = 1.0;\nmy $pi = 1.0;\n\nfor (my $i = 2; $i <= $rounds + 2; $i++) {\n    $x = -$x;\n    $pi += $x / (2 * $i - 1);\n}\n\n$pi *= 4.0;\n\nprintf(\"%.17g\", $pi);\n",
+      "sha256": "892e45d77b3f876f195174f44b40599d3ecf63b33550d67905fbfbe0eebab1cb"
+    },
+    "src/leibniz_octave.m": {
+      "content": "% Calculate Pi using the Leibniz formula\n\nrounds = csvread('rounds.txt');\n\npi = 1;\n\nfor ii=2:rounds\n    pi = pi + (-1) ^ (ii - 1) / (2 * ii - 1);\nend\n\npi = pi * 4;\nfprintf('%0.16f\\n', pi)\n\n",
+      "sha256": "72c35e2c56a706639aba9696e004a9a71887d51520dfe6016412f19f5f39a026"
+    }
+  }
+}

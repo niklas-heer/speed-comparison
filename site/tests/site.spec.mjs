@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { latest } from "../src/lib/results.mjs";
+import { latest, runData } from "../src/lib/results.mjs";
 test("filter, sort, inspect provenance and download original evidence", async ({
   page,
 }) => {
@@ -7,7 +7,17 @@ test("filter, sort, inspect provenance and download original evidence", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.locator("h1")).toContainText("One calculation.");
-  await expect(page.locator("#result-rows tr:visible")).toHaveCount(latest.languages);
+  await expect(page.locator(".run-duration")).toContainText("5h 18m 46s");
+  await page.locator(".share-chart img").scrollIntoViewIfNeeded();
+  await expect(page.locator(".share-chart img")).toBeVisible();
+  await expect
+    .poll(() =>
+      page.locator(".share-chart img").evaluate((img) => img.naturalWidth),
+    )
+    .toBeGreaterThan(1000);
+  await expect(page.locator("#result-rows tr:visible")).toHaveCount(
+    latest.languages,
+  );
   await page.goto("/runs/2026-09-05T193245/");
   await expect(page.locator("#result-rows tr:visible")).toHaveCount(75);
   await page.getByRole("searchbox").fill("go@1.25.5");
@@ -28,6 +38,19 @@ test("filter, sort, inspect provenance and download original evidence", async ({
   await page.getByRole("searchbox").fill("go@1.25.5");
   await page.getByRole("link", { name: "Inspect Go, go", exact: true }).click();
   await expect(page.locator("h1")).toContainText("Go");
+  const source = runData("2026-09-05T193245").results.find(
+    (r) => r.target === "go",
+  ).sources[0];
+  expect(await page.locator("#source code").first().textContent()).toBe(
+    source.content,
+  );
+  await expect(page.locator("#source pre").first()).toContainText(
+    "package main",
+  );
+  await expect(page.locator("#source pre span[style]").first()).toBeVisible();
+  await expect(page.locator("#build")).toContainText(
+    "separate-execution-after-measurement",
+  );
   await expect(page.locator("#samples")).toContainText("1.165925425");
   await page.getByText("go@1.25.5", { exact: true }).click();
   await expect(
@@ -54,6 +77,7 @@ test("archive, journal and narrow layouts remain usable", async ({
     "/results/2026-09-05T193245/go/",
     "/runs/2022-10-15T164557/",
     "/journal/a-more-inspectable-benchmark/",
+    "/journal/why-a-billion-terms/",
     "/methodology/",
   ]) {
     await page.goto(route);
@@ -72,6 +96,11 @@ test("archive, journal and narrow layouts remain usable", async ({
   await page.goto("/results/2026-09-05T193245/go/");
   await page.screenshot({
     path: `test-results/detail-${testInfo.project.name}.png`,
+    fullPage: false,
+  });
+  await page.locator("#source").scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: `test-results/source-${testInfo.project.name}.png`,
     fullPage: false,
   });
 });

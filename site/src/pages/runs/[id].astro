@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import RunDuration from "../../components/RunDuration.astro";
 import ResultTable from "../../components/ResultTable.astro";
 import Metadata from "../../components/Metadata.astro";
 import { runs, runData, repo } from "../../lib/results.mjs";
@@ -23,7 +24,7 @@ const { run, data } = Astro.props;
       source revision identifies what was measured; the later publication commit
       may differ.
     </p>
-  </div><section class="detail-section">
+  </div><RunDuration data={data} /><section class="detail-section">
     <div>
       <h2>Run identity.</h2><p>
         Downloads retain their original paths and content. Unknown historical
@@ -42,7 +43,7 @@ const { run, data } = Astro.props;
           "Source revision": data.revision,
           ...data.metadata,
         }}
-      /><div class="downloads">
+      /><div class="downloads"><a href={data.chart} download>Download results image ↓</a>
         {
           data.files.map((file) => (
             <a href={`/history/${run.id}/${file}`} download>

@@ -43,3 +43,24 @@ test("missing historical extremes stay unknown while recorded times retain units
   assert.equal(recordedTiming(1.5), "1.500 s");
   assert.throws(() => recordedTiming("NaNs"), /Invalid timing/);
 });
+
+test("run duration and recovered source stay bound to original evidence", async () => {
+  const { duration, validateSources, runData } =
+    await import("../src/lib/results.mjs");
+  assert.equal(duration(19126), "5h 18m 46s");
+  assert.equal(duration(null), "Not recorded");
+  assert.equal(duration(0), "0s");
+  assert.throws(() => duration(-1));
+  const run = runData("2026-09-05T193245");
+  assert.equal(run.execution.elapsed_seconds, 19126);
+  assert.equal(run.results.filter((r) => r.sources.length).length, 75);
+  const go = run.results.find((r) => r.target === "go");
+  assert.match(go.sources[0].content, /package main/);
+  assert.equal(go.sourcePrimary, "src/leibniz.go");
+  assert.throws(
+    () => validateSources({ "src/a": { content: "changed", sha256: "bad" } }),
+    /checksum/,
+  );
+  assert.throws(() => validateSources({ "src/../secret": {} }), /path/);
+  assert.deepEqual(runData("2022-10-15T164557").execution, {});
+});

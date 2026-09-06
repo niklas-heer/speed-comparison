@@ -1207,3 +1207,26 @@ pre {
     scroll-behavior: auto;
   }
 }
+
+/* Source stays readable without pushing narrow pages wider than the viewport. */
+.source-files { min-width: 0; }
+.source-file { border: 1px solid var(--line, #d5d8cd); border-radius: 10px; margin-bottom: 18px; overflow: hidden; background: #fffdf7; }
+.source-file summary { display: flex; justify-content: space-between; gap: 12px; cursor: pointer; padding: 18px; font-family: var(--font-mono, monospace); font-size: 13px; overflow-wrap: anywhere; }
+.source-file summary span:last-child { white-space: nowrap; color: #66746f; }
+.source-file[open] summary { border-bottom: 1px solid #d5d8cd; }
+.source-toolbar { display: flex; justify-content: space-between; padding: 12px 18px; align-items: center; font-size: 13px; }
+.copy-source { border: 1px solid #c7cec4; padding: 7px 12px; border-radius: 6px; background: transparent; color: #1e3b33; cursor: pointer; }
+.source-file pre { margin: 0; padding: 20px; border-radius: 0; font-size: 13px; line-height: 1.7; overflow-x: auto; white-space: pre; max-height: 680px; }
+.source-checksum { font: 11px/1.7 monospace; overflow-wrap: anywhere; padding: 12px 18px; margin: 0; color: #66746f; }
+.run-duration { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; padding: 30px 0; border-block: 1px solid #d5d8cd; margin: 30px 0; }
+.run-duration strong { font-size: clamp(28px, 4vw, 44px); letter-spacing: -1px; }
+.run-duration p { margin: 0 0 12px; }
+.run-duration .mono { font-size: 12px; overflow-wrap: anywhere; }
+.share-chart { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.share-chart-preview { display: block; max-height: 520px; overflow: hidden; border-radius: 12px; border: 1px solid #d5d8cd; position: relative; }
+.share-chart-preview img { width: 100%; display: block; }
+.share-chart-preview::after { content: 'Open full-resolution chart ↗'; position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 20px 16px; background: linear-gradient(transparent, #f5f4ed 40%); font-size: 14px; }
+@media (max-width: 720px) {
+  .run-duration, .share-chart { grid-template-columns: 1fr; gap: 22px; }
+  .source-file pre { font-size: 12px; padding: 12px; }
+}
