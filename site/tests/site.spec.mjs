@@ -104,3 +104,58 @@ test("archive, journal and narrow layouts remain usable", async ({
     fullPage: false,
   });
 });
+
+test("dark is the default and the reader's theme survives navigation", async ({
+  page,
+}, testInfo) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "dark");
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "light");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.screenshot({
+    path: `test-results/home-light-${testInfo.project.name}.png`,
+  });
+  await page.goto("/results/2026-09-05T193245/go/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  const code = page.locator("#source pre").first();
+  const lightBackground = await code.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  const token = page.locator("#source pre span[style]").first();
+  const lightToken = await token.evaluate((el) => getComputedStyle(el).color);
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await expect(code).not.toHaveCSS("background-color", lightBackground);
+  await expect(token).not.toHaveCSS("color", lightToken);
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
+    "content",
+    "#111a17",
+  );
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("theme control works when storage is unavailable", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "localStorage", {
+      get() {
+        throw new Error("Storage blocked");
+      },
+    });
+  });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(errors).toEqual([]);
+});
