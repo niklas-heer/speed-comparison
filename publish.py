@@ -26,10 +26,10 @@ def update_readme(readme: Path, run_id: str, count: int, metadata: dict) -> None
         f"**Latest full run: {duration} · {count} implementations.**\n\n"
         f"[Inspect the run](https://speed-comparison.vercel.app/runs/{run_id}/) · "
         "[Download the image](https://speed-comparison.vercel.app/report-images/latest.png)\n\n"
-        + clock.get(
-            "elapsed_scope",
-            "Whole-run time was not recorded; individual sample times are not a workflow clock.",
-        )
+        + (clock.get("elapsed_scope") or (
+            "Whole-run time was not recorded; individual sample times are not a workflow clock."
+            if elapsed is None else "Run-clock scope was not recorded."
+        ))
         + "\n<!-- latest-run:end -->"
     )
     readme.write_text(
