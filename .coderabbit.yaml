@@ -53,7 +53,7 @@ reviews:
       instructions: |
         Python scripts for analysis and publishing.
         Review for:
-        - Consistent chart styling (Tokyo Night theme)
+        - Consistent chart styling (the current cream/forest report palette; historical images retain their original theme)
         - Correct data handling from benchmark JSON files
 
     - path: ".github/workflows/**"
