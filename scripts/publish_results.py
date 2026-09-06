@@ -57,7 +57,7 @@ def main() -> None:
         check=True,
     )
     if args.push:
-        git("add", "docs/history")
+        git("add", "docs/history", "README.md")
         git(
             "-c",
             "user.name=Speed comparison benchmarks",

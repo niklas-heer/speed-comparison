@@ -1,0 +1,576 @@
+{
+  "workflow": "speed-comparison-manual-xj2px",
+  "uid": "7430c0ef-707a-4efd-90bc-570391ca9b07",
+  "started_at": "2026-09-05T13:57:02Z",
+  "finished_at": "2026-09-05T19:15:48Z",
+  "status": "Failed",
+  "elapsed_seconds": 19126.0,
+  "nodes": [
+    {
+      "displayName": "checkout",
+      "templateName": "checkout",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T13:57:02Z",
+      "finishedAt": "2026-09-05T13:57:32Z"
+    },
+    {
+      "displayName": "prepare",
+      "templateName": "prepare",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T13:57:38Z",
+      "finishedAt": "2026-09-05T13:58:15Z"
+    },
+    {
+      "displayName": "benchmark(0:c)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T13:58:23Z",
+      "finishedAt": "2026-09-05T13:59:33Z"
+    },
+    {
+      "displayName": "benchmark(1:c-clang)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T13:59:43Z",
+      "finishedAt": "2026-09-05T14:01:16Z"
+    },
+    {
+      "displayName": "benchmark(2:rust)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:01:26Z",
+      "finishedAt": "2026-09-05T14:02:56Z"
+    },
+    {
+      "displayName": "benchmark(3:rust-nightly)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:03:06Z",
+      "finishedAt": "2026-09-05T14:04:56Z"
+    },
+    {
+      "displayName": "benchmark(4:rust-fastmath)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:05:06Z",
+      "finishedAt": "2026-09-05T14:06:45Z"
+    },
+    {
+      "displayName": "benchmark(5:rust-simd)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:06:55Z",
+      "finishedAt": "2026-09-05T14:08:27Z"
+    },
+    {
+      "displayName": "benchmark(6:zig-simd)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:08:37Z",
+      "finishedAt": "2026-09-05T14:10:07Z"
+    },
+    {
+      "displayName": "benchmark(7:hare)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:10:17Z",
+      "finishedAt": "2026-09-05T14:11:40Z"
+    },
+    {
+      "displayName": "benchmark(8:chezscheme)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:11:49Z",
+      "finishedAt": "2026-09-05T14:13:11Z"
+    },
+    {
+      "displayName": "benchmark(9:janet)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:13:20Z",
+      "finishedAt": "2026-09-05T14:19:45Z"
+    },
+    {
+      "displayName": "benchmark(10:sbcl-simd)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:19:55Z",
+      "finishedAt": "2026-09-05T14:21:22Z"
+    },
+    {
+      "displayName": "benchmark(11:cpython-numba)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:21:32Z",
+      "finishedAt": "2026-09-05T14:23:06Z"
+    },
+    {
+      "displayName": "benchmark(12:mojo)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:23:16Z",
+      "finishedAt": "2026-09-05T14:24:55Z"
+    },
+    {
+      "displayName": "benchmark(13:nasm)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:25:05Z",
+      "finishedAt": "2026-09-05T14:26:35Z"
+    },
+    {
+      "displayName": "benchmark(14:fsharp-simd)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:26:45Z",
+      "finishedAt": "2026-09-05T14:30:21Z"
+    },
+    {
+      "displayName": "benchmark(15:kotlin-native)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:30:31Z",
+      "finishedAt": "2026-09-05T14:32:59Z"
+    },
+    {
+      "displayName": "benchmark(16:go)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:33:09Z",
+      "finishedAt": "2026-09-05T14:34:19Z"
+    },
+    {
+      "displayName": "benchmark(17:odin)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:34:29Z",
+      "finishedAt": "2026-09-05T14:36:06Z"
+    },
+    {
+      "displayName": "benchmark(18:zig)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:36:16Z",
+      "finishedAt": "2026-09-05T14:38:02Z"
+    },
+    {
+      "displayName": "benchmark(19:nim)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:38:12Z",
+      "finishedAt": "2026-09-05T14:39:42Z"
+    },
+    {
+      "displayName": "benchmark(20:v)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:39:52Z",
+      "finishedAt": "2026-09-05T14:41:25Z"
+    },
+    {
+      "displayName": "benchmark(21:d)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:41:36Z",
+      "finishedAt": "2026-09-05T14:42:59Z"
+    },
+    {
+      "displayName": "benchmark(22:d-ldc)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:43:09Z",
+      "finishedAt": "2026-09-05T14:46:34Z"
+    },
+    {
+      "displayName": "benchmark(23:cpp)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:46:44Z",
+      "finishedAt": "2026-09-05T14:47:43Z"
+    },
+    {
+      "displayName": "benchmark(24:cpp-clang)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:47:53Z",
+      "finishedAt": "2026-09-05T14:49:19Z"
+    },
+    {
+      "displayName": "benchmark(25:cpp-avx2)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:49:29Z",
+      "finishedAt": "2026-09-05T14:50:59Z"
+    },
+    {
+      "displayName": "benchmark(26:crystal)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:51:09Z",
+      "finishedAt": "2026-09-05T14:52:33Z"
+    },
+    {
+      "displayName": "benchmark(27:swift)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:52:43Z",
+      "finishedAt": "2026-09-05T14:54:35Z"
+    },
+    {
+      "displayName": "benchmark(28:swift-simd)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:54:45Z",
+      "finishedAt": "2026-09-05T14:56:38Z"
+    },
+    {
+      "displayName": "benchmark(29:swift-relaxed)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:56:48Z",
+      "finishedAt": "2026-09-05T14:58:46Z"
+    },
+    {
+      "displayName": "benchmark(30:objc)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T14:58:56Z",
+      "finishedAt": "2026-09-05T15:02:36Z"
+    },
+    {
+      "displayName": "benchmark(31:csharp)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:02:46Z",
+      "finishedAt": "2026-09-05T15:03:58Z"
+    },
+    {
+      "displayName": "benchmark(32:csharp-simd)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:04:08Z",
+      "finishedAt": "2026-09-05T15:05:43Z"
+    },
+    {
+      "displayName": "benchmark(33:fsharp)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:05:53Z",
+      "finishedAt": "2026-09-05T15:07:30Z"
+    },
+    {
+      "displayName": "benchmark(34:java)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:07:40Z",
+      "finishedAt": "2026-09-05T15:09:25Z"
+    },
+    {
+      "displayName": "benchmark(35:java-graalvm)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:09:35Z",
+      "finishedAt": "2026-09-05T15:12:15Z"
+    },
+    {
+      "displayName": "benchmark(36:java-vecops)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:12:25Z",
+      "finishedAt": "2026-09-05T15:17:40Z"
+    },
+    {
+      "displayName": "benchmark(37:kotlin)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:17:50Z",
+      "finishedAt": "2026-09-05T15:19:30Z"
+    },
+    {
+      "displayName": "benchmark(38:scala)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:19:40Z",
+      "finishedAt": "2026-09-05T15:24:51Z"
+    },
+    {
+      "displayName": "benchmark(39:clojure)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:25:01Z",
+      "finishedAt": "2026-09-05T15:28:53Z"
+    },
+    {
+      "displayName": "benchmark(40:groovy)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:29:03Z",
+      "finishedAt": "2026-09-05T15:30:32Z"
+    },
+    {
+      "displayName": "benchmark(41:python)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:30:41Z",
+      "finishedAt": "2026-09-05T15:39:40Z"
+    },
+    {
+      "displayName": "benchmark(42:pypy)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:39:50Z",
+      "finishedAt": "2026-09-05T15:43:22Z"
+    },
+    {
+      "displayName": "benchmark(43:cpython-numpy)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:43:32Z",
+      "finishedAt": "2026-09-05T15:46:41Z"
+    },
+    {
+      "displayName": "benchmark(44:mypyc)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:46:51Z",
+      "finishedAt": "2026-09-05T15:48:38Z"
+    },
+    {
+      "displayName": "benchmark(45:micropython)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T15:48:48Z",
+      "finishedAt": "2026-09-05T16:01:02Z"
+    },
+    {
+      "displayName": "benchmark(46:ruby)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:01:12Z",
+      "finishedAt": "2026-09-05T16:06:54Z"
+    },
+    {
+      "displayName": "benchmark(47:nodejs)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:07:04Z",
+      "finishedAt": "2026-09-05T16:08:39Z"
+    },
+    {
+      "displayName": "benchmark(48:bun)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:08:49Z",
+      "finishedAt": "2026-09-05T16:10:09Z"
+    },
+    {
+      "displayName": "benchmark(49:deno)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:10:19Z",
+      "finishedAt": "2026-09-05T16:11:58Z"
+    },
+    {
+      "displayName": "benchmark(50:lua)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:12:07Z",
+      "finishedAt": "2026-09-05T16:13:59Z"
+    },
+    {
+      "displayName": "benchmark(51:luajit)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:14:09Z",
+      "finishedAt": "2026-09-05T16:15:32Z"
+    },
+    {
+      "displayName": "benchmark(52:octave)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T16:15:42Z",
+      "finishedAt": "2026-09-05T17:56:57Z"
+    },
+    {
+      "displayName": "benchmark(53:octave-vectorised)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T17:57:07Z",
+      "finishedAt": "2026-09-05T18:00:28Z"
+    },
+    {
+      "displayName": "benchmark(54:perl)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:00:37Z",
+      "finishedAt": "2026-09-05T18:14:42Z"
+    },
+    {
+      "displayName": "benchmark(55:php)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:14:52Z",
+      "finishedAt": "2026-09-05T18:17:55Z"
+    },
+    {
+      "displayName": "benchmark(56:r)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:18:05Z",
+      "finishedAt": "2026-09-05T18:21:01Z"
+    },
+    {
+      "displayName": "benchmark(57:haskell)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:21:11Z",
+      "finishedAt": "2026-09-05T18:23:17Z"
+    },
+    {
+      "displayName": "benchmark(58:ocaml)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:23:27Z",
+      "finishedAt": "2026-09-05T18:24:33Z"
+    },
+    {
+      "displayName": "benchmark(59:elixir)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:24:43Z",
+      "finishedAt": "2026-09-05T18:27:15Z"
+    },
+    {
+      "displayName": "benchmark(60:erlang)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:27:25Z",
+      "finishedAt": "2026-09-05T18:30:02Z"
+    },
+    {
+      "displayName": "benchmark(61:racket)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:30:12Z",
+      "finishedAt": "2026-09-05T18:31:55Z"
+    },
+    {
+      "displayName": "benchmark(62:sbcl)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:32:06Z",
+      "finishedAt": "2026-09-05T18:33:28Z"
+    },
+    {
+      "displayName": "benchmark(63:gleam)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:33:38Z",
+      "finishedAt": "2026-09-05T18:38:47Z"
+    },
+    {
+      "displayName": "benchmark(64:fortran)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:38:57Z",
+      "finishedAt": "2026-09-05T18:39:58Z"
+    },
+    {
+      "displayName": "benchmark(65:pascal)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:40:08Z",
+      "finishedAt": "2026-09-05T18:41:07Z"
+    },
+    {
+      "displayName": "benchmark(66:ada)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:41:17Z",
+      "finishedAt": "2026-09-05T18:43:01Z"
+    },
+    {
+      "displayName": "benchmark(67:dart)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:43:11Z",
+      "finishedAt": "2026-09-05T18:44:36Z"
+    },
+    {
+      "displayName": "benchmark(68:dart-aot)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:44:46Z",
+      "finishedAt": "2026-09-05T18:46:18Z"
+    },
+    {
+      "displayName": "benchmark(69:janet-compiled)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:46:28Z",
+      "finishedAt": "2026-09-05T18:51:25Z"
+    },
+    {
+      "displayName": "benchmark(70:julia)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:51:35Z",
+      "finishedAt": "2026-09-05T18:55:34Z"
+    },
+    {
+      "displayName": "benchmark(71:raku)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T18:55:44Z",
+      "finishedAt": "2026-09-05T19:04:52Z"
+    },
+    {
+      "displayName": "benchmark(72:pony)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T19:05:02Z",
+      "finishedAt": "2026-09-05T19:06:42Z"
+    },
+    {
+      "displayName": "benchmark(73:haxe)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T19:06:52Z",
+      "finishedAt": "2026-09-05T19:09:55Z"
+    },
+    {
+      "displayName": "benchmark(74:wasm)",
+      "templateName": "benchmark",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T19:10:05Z",
+      "finishedAt": "2026-09-05T19:13:50Z"
+    },
+    {
+      "displayName": "analyze",
+      "templateName": "analyze",
+      "phase": "Succeeded",
+      "startedAt": "2026-09-05T19:14:00Z",
+      "finishedAt": "2026-09-05T19:14:46Z"
+    },
+    {
+      "displayName": "publish",
+      "templateName": "publish",
+      "phase": "Failed",
+      "startedAt": "2026-09-05T19:14:49Z",
+      "finishedAt": "2026-09-05T19:15:38Z"
+    }
+  ],
+  "scheduler": {
+    "workflow_deadline_seconds": 43200,
+    "benchmark_resources": {
+      "limits": {
+        "memory": "3Gi"
+      },
+      "requests": {
+        "cpu": "1",
+        "memory": "256Mi"
+      }
+    },
+    "provenance": "Retained Argo stored workflow template; declared settings, not an observation of effective cgroup limits"
+  }
+}

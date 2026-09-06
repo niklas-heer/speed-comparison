@@ -6,12 +6,11 @@ import json
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
+from report_metadata import execution_metadata
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 from PIL import Image, ImageFilter, ImageOps
 
@@ -157,7 +156,7 @@ def load_raw_results(folder: str) -> list[dict]:
     folder_path = Path(folder)
     results = []
     for file_path in folder_path.glob("*.json"):
-        if file_path.name in ("combined_results.json", "run_metadata.json"):
+        if file_path.name in ("combined_results.json", "run_metadata.json", "run.json"):
             continue
         with open(file_path, "r") as f:
             results.append(json.load(f))
@@ -187,41 +186,23 @@ def load_results(folder: str) -> pd.DataFrame:
     }
 
     for file_path in folder_path.glob("*.json"):
-        with open(file_path, "r") as f:
-            result = json.load(f)
-            data["name"].append(result["Language"])
-            # Use Target from JSON if available, otherwise infer from filename
-            target = result.get("Target") or file_path.stem
-            data["target"].append(target)
-            data["version"].append(result["Version"])
-            # Convert to milliseconds
-            data["median"].append(round(parse_time_value(result["Median"]) * 1000, 2))
-            data["max"].append(round(parse_time_value(result["Max"]) * 1000, 2))
-            data["min"].append(round(parse_time_value(result["Min"]) * 1000, 2))
-            data["accuracy"].append(round(result["Accuracy"], 4))
+        if file_path.name in {"combined_results.json", "run_metadata.json", "run.json"}:
+            continue
+        result = json.loads(file_path.read_text())
+        data["name"].append(result["Language"])
+        # Retain compatibility with older per-file exports without Target.
+        target = result.get("Target") or file_path.stem
+        data["target"].append(target)
+        data["version"].append(result["Version"])
+        # Convert to milliseconds
+        data["median"].append(round(parse_time_value(result["Median"]) * 1000, 2))
+        data["max"].append(round(parse_time_value(result["Max"]) * 1000, 2))
+        data["min"].append(round(parse_time_value(result["Min"]) * 1000, 2))
+        data["accuracy"].append(round(result["Accuracy"], 4))
 
     df = pd.DataFrame(data)
     df.sort_values(by=["min"], inplace=True, ascending=True)
     return df
-
-
-def create_neon_cmap():
-    """Create a neon colormap (Tokyo Night style) - pink to blue (inverted for variety)."""
-    colors = [
-        "#f7768e",  # Tokyo Night red/pink (low accuracy)
-        "#ff007c",  # Hot pink/magenta
-        "#bb9af7",  # Tokyo Night purple
-        "#7aa2f7",  # Tokyo Night blue
-        "#7dcfff",  # Tokyo Night cyan (high accuracy)
-    ]
-    return LinearSegmentedColormap.from_list("neon", colors, N=256)
-
-
-def create_color_mapping(values: np.ndarray):
-    """Create a color mapping based on values using neon colormap."""
-    norm = Normalize(vmin=values.min(), vmax=values.max())
-    cmap = create_neon_cmap()
-    return [cmap(norm(v)) for v in values], norm, cmap
 
 
 def format_time(ms: float) -> str:
@@ -241,236 +222,187 @@ def trim_text(text: str, max_len: int = 60) -> str:
 def plot_results(
     df: pd.DataFrame, rounds: str, output_path: str, env_summary: dict | None = None
 ):
-    """Generate the benchmark comparison chart."""
-    # Calculate dynamic figure size based on number of languages
-    num_languages = len(df)
-    bar_height = 0.30  # Height per bar in inches (compact)
-    fig_height = max(6, num_languages * bar_height + 1.2)  # Space for header
-    fig_width = 14
+    """Render an exportable median chart with sample ranges and method labels."""
+    from matplotlib.ticker import FuncFormatter, LogLocator
+    from matplotlib.lines import Line2D
 
-    # Setup the figure
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-
-    # Dark theme - Tokyo Night inspired colors
-    plt.style.use("dark_background")
-    bg_color = "#1a1b26"
-    fig.patch.set_facecolor(bg_color)
-    ax.set_facecolor(bg_color)
-
-    # Create display name with version
-    df = df.copy()
-    df["display_name"] = df["name"] + "  v" + df["version"].astype(str)
-
-    # Create color mapping based on accuracy (higher = more purple)
-    colors, norm, cmap = create_color_mapping(df["accuracy"].values)
-
-    # Create horizontal bar chart
-    y_pos = np.arange(len(df))
-    bars = ax.barh(
-        y_pos,
-        df["min"],
-        color=colors,
-        edgecolor="#1e1e2e",
-        linewidth=0.5,
-        height=0.75,
-    )
-
-    # Use log scale for x-axis
-    ax.set_xscale("log")
-
-    # Add language icons at the start of each bar
-    icon_cache = {}  # Cache loaded icons
-    for idx, (_, row) in enumerate(df.iterrows()):
-        lang_name = row["name"]
-        icon_name = ICON_MAP.get(lang_name, "default")  # Use default icon if not found
-
-        if icon_name not in icon_cache:
-            icon_cache[icon_name] = load_icon(icon_name)
-
-        icon_img = icon_cache.get(icon_name)
-        if icon_img:
-            # Position icon at the left edge of the bar
-            imagebox = OffsetImage(icon_img, zoom=0.4)
-            imagebox.image.axes = ax
-
-            # Place icon relative to y-axis (axes fraction 0 = left edge of plot)
-            # This stays consistent regardless of data values or label lengths
-            ab = AnnotationBbox(
-                imagebox,
-                (0, y_pos[idx]),
-                xybox=(10, 0),  # Offset in points from left edge of plot area
-                xycoords=("axes fraction", "data"),
-                boxcoords="offset points",
-                frameon=False,
-                pad=0,
+    df = df.sort_values("median").copy()
+    count = len(df)
+    height = max(7, count * 0.30 + 3.3)
+    bg, ink, muted = "#f5f4ed", "#203e36", "#596e64"
+    colors = {"default": "#467762", "simd": "#cf682e", "relaxed": "#79669e"}
+    with plt.rc_context({"font.family": "DejaVu Sans", "savefig.facecolor": bg}):
+        fig, ax = plt.subplots(figsize=(15, height))
+        fig.patch.set_facecolor(bg)
+        ax.set_facecolor(bg)
+        y = np.arange(count)
+        values = df["median"].to_numpy()
+        bar_colors = [
+            colors["simd"]
+            if row.get("explicit_simd") is True
+            else colors["relaxed"]
+            if row.get("math_mode") == "relaxed"
+            else colors["default"]
+            for _, row in df.iterrows()
+        ]
+        low = min(df["min"].min(), values.min()) * 0.45
+        ax.barh(y, values - low, left=low, height=0.63, color=bar_colors, alpha=0.9)
+        # Whiskers show observed min/max, not a confidence interval.
+        ax.hlines(y, df["min"], df["max"], color=ink, linewidth=1.2)
+        ax.scatter(df["min"], y, color=ink, marker="|", s=14, linewidths=0.9)
+        ax.scatter(df["max"], y, color=ink, marker="|", s=14, linewidths=0.9)
+        labels = []
+        for _, row in df.iterrows():
+            flags = (" [S]" if row.get("explicit_simd") is True else "") + (
+                " [R]" if row.get("math_mode") == "relaxed" else ""
             )
-            ax.add_artist(ab)
-
-    # Set y-axis labels - bold and bright white for readability
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(
-        df["display_name"],
-        fontsize=9,
-        fontfamily="monospace",
-        fontweight="bold",
-        color="#ffffff",
-    )
-
-    # Add value labels outside bars - bold and bright white
-    for bar, val in zip(bars, df["min"]):
-        ax.text(
-            bar.get_width() * 1.08,
-            bar.get_y() + bar.get_height() / 2,
-            format_time(val),
-            va="center",
-            ha="left",
-            fontsize=8,
-            fontweight="bold",
-            color="#ffffff",
-            fontfamily="monospace",
+            labels.append(f"{row['name']}  {row['version']}{flags}")
+        ax.set_yticks(y, labels, fontsize=8.3, color=ink)
+        ax.tick_params(axis="y", length=0, pad=28)
+        for index, (_, row) in enumerate(df.iterrows()):
+            base_name = str(row["name"]).split(" (")[0]
+            fallback = {
+                "Common Lisp": "lisp",
+                "F#": "fsharp",
+                "Python": "python",
+                "Kotlin": "kotlin",
+                "Rust": "rust",
+                "Zig": "zig",
+                "Hare": "hare",
+            }.get(base_name, base_name.lower())
+            icon_name = ICON_MAP.get(row["name"], fallback)
+            icon = (
+                load_icon(icon_name)
+                if (Path(__file__).parent / "icons" / f"{icon_name}.png").exists()
+                else None
+            )
+            if icon:
+                ax.add_artist(
+                    AnnotationBbox(
+                        OffsetImage(icon, zoom=0.30),
+                        (0, index),
+                        xycoords=("axes fraction", "data"),
+                        xybox=(-12, 0),
+                        boxcoords="offset points",
+                        frameon=False,
+                        pad=0,
+                    )
+                )
+            ax.text(
+                max(row["max"], row["median"]) * 1.10,
+                index,
+                format_time(row["median"]),
+                va="center",
+                fontsize=8.3,
+                color=ink,
+                fontfamily="DejaVu Sans Mono",
+            )
+        ax.set_xscale("log")
+        ax.set_xlim(low, df["max"].max() * 2.9)
+        ax.invert_yaxis()
+        ax.margins(y=0.005)
+        ax.xaxis.set_major_locator(LogLocator(base=10))
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda value, _: format_time(value)))
+        ax.tick_params(axis="x", labelsize=9, colors=muted)
+        ax.grid(axis="x", which="major", color="#c8d0c6", linewidth=0.7)
+        ax.set_axisbelow(True)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        ax.set_xlabel(
+            "Median execution time · logarithmic axis · whiskers show observed min–max",
+            color=muted,
+            fontsize=10,
+            labelpad=14,
         )
-
-    # X-axis label
-    ax.set_xlabel(
-        "Minimum execution time (log scale)",
-        fontsize=9,
-        color="#8b949e",
-        labelpad=5,
-    )
-    ax.set_ylabel("")
-
-    # Centered title
-    ax.set_title(
-        f"Speed Comparison  —  Leibniz π, {int(rounds):,} iterations",
-        fontsize=13,
-        fontweight="bold",
-        color="#ffffff",
-        pad=8,
-        loc="center",
-    )
-
-    # Language count at top right
-    fig.text(
-        0.99,
-        0.99,
-        f"{num_languages} Languages",
-        ha="right",
-        va="top",
-        fontsize=10,
-        fontweight="bold",
-        color="#7aa2f7",
-        fontfamily="monospace",
-        transform=fig.transFigure,
-    )
-
-    # Add colorbar for accuracy legend
-    sm = ScalarMappable(norm=norm, cmap=cmap)
-    sm.set_array([])
-    cbar = fig.colorbar(sm, ax=ax, pad=0.01, aspect=30, shrink=0.6)
-    cbar.set_label(
-        "π Accuracy",
-        fontsize=9,
-        color="#e6edf3",
-        labelpad=8,
-    )
-    cbar.ax.yaxis.set_tick_params(color="#e6edf3", labelsize=8)
-    cbar.outline.set_edgecolor("#1e1e2e")
-    plt.setp(plt.getp(cbar.ax.axes, "yticklabels"), color="#e6edf3")
-
-    # Grid for readability (only vertical lines)
-    ax.xaxis.grid(True, linestyle="-", alpha=0.12, color="#4a5568")
-    ax.yaxis.grid(False)
-    ax.set_axisbelow(True)
-
-    # Style spines
-    for spine in ax.spines.values():
-        spine.set_color("#1e1e2e")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-    # Tick styling
-    ax.tick_params(axis="x", colors="#8b949e", labelsize=8)
-    ax.tick_params(axis="y", colors="#e6edf3", length=0, pad=2)
-
-    # Invert y-axis so fastest is at top
-    ax.invert_yaxis()
-
-    # Extend x-axis to make room for time labels
-    x_max = df["min"].max()
-    ax.set_xlim(right=x_max * 2.2)
-
-    # Optional environment line
-    if env_summary and env_summary.get("environment"):
-        env = env_summary["environment"]
-        parts = []
-        cpu_model = env.get("cpu_model", "")
-        if cpu_model:
-            parts.append(trim_text(cpu_model, 48))
-        cores = env.get("cpu_cores", "")
-        threads = env.get("cpu_threads", "")
-        if cores:
-            parts.append(f"{cores}c/{threads}t" if threads else f"{cores}c")
-        arch = env.get("arch", "")
-        if arch:
-            parts.append(arch)
-        libc = env.get("libc", "")
-        if libc:
-            parts.append(trim_text(libc, 28))
-
-        env_line = " | ".join(parts)
-        if env_line:
-            fig.text(
-                0.01,
-                0.02,
-                f"Env: {env_line}",
-                ha="left",
-                va="bottom",
-                fontsize=8,
-                color="#4a5568",
-                alpha=0.8,
-                fontfamily="monospace",
-                transform=fig.transFigure,
+        top = 1 - 1.65 / height
+        bottom = 1.15 / height
+        fig.subplots_adjust(left=0.30, right=0.97, top=top, bottom=bottom)
+        fig.text(
+            0.03,
+            1 - 0.25 / height,
+            "SPEED COMPARISON / FIELD NOTES",
+            fontsize=10,
+            color=muted,
+            va="top",
+            fontfamily="DejaVu Sans Mono",
+        )
+        fig.text(
+            0.03,
+            1 - 0.52 / height,
+            "One calculation. Many ways to get there.",
+            fontsize=23,
+            fontweight="bold",
+            color=ink,
+            va="top",
+        )
+        fig.text(
+            0.03,
+            1 - 0.94 / height,
+            f"{count} implementations  ·  Leibniz π  ·  {int(rounds):,} terms per execution",
+            fontsize=11,
+            color=muted,
+            va="top",
+        )
+        legend = [
+            Line2D(
+                [0],
+                [0],
+                color=colors["default"],
+                lw=7,
+                label="Compiler default / see details",
+            ),
+            Line2D([0], [0], color=colors["simd"], lw=7, label="[S] Explicit SIMD"),
+            Line2D([0], [0], color=colors["relaxed"], lw=7, label="[R] Relaxed math"),
+        ]
+        fig.legend(
+            handles=legend,
+            loc="upper left",
+            bbox_to_anchor=(0.028, 1 - 1.16 / height),
+            ncol=3,
+            frameon=False,
+            fontsize=9,
+            labelcolor=ink,
+        )
+        meta = env_summary or {}
+        env = meta.get("environment", {})
+        machine = (
+            " · ".join(
+                str(env[k]) for k in ("cpu_model", "arch", "kernel") if env.get(k)
             )
-
-    # Add watermark with generation date+time (left) and repo URL (right)
-    generation_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
-    fig.text(
-        0.01,
-        0.005,
-        f"Generated: {generation_datetime}",
-        ha="left",
-        va="bottom",
-        fontsize=8,
-        color="#4a5568",
-        alpha=0.7,
-        fontfamily="monospace",
-        transform=fig.transFigure,
-    )
-    fig.text(
-        0.99,
-        0.005,
-        "github.com/niklas-heer/speed-comparison",
-        ha="right",
-        va="bottom",
-        fontsize=8,
-        color="#4a5568",
-        alpha=0.7,
-        fontfamily="monospace",
-        transform=fig.transFigure,
-    )
-
-    # Save with proper layout - tight margins
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.98, bottom=0.04, left=0.15, right=0.92)
-    plt.savefig(
-        output_path,
-        dpi=150,
-        bbox_inches="tight",
-        facecolor=fig.get_facecolor(),
-        edgecolor="none",
-        pad_inches=0.1,
-    )
-    plt.close()
+            or "Hardware not recorded"
+        )
+        elapsed = meta.get("execution", {}).get("elapsed_seconds")
+        if elapsed is not None:
+            total = round(elapsed)
+            runtime = f"{total // 3600}h {(total % 3600) // 60}m {total % 60}s"
+        else:
+            runtime = "not recorded"
+        revision = meta.get("source_revision", "not recorded")
+        fig.text(0.03, 0.76 / height, trim_text(machine, 135), fontsize=9, color=muted)
+        fig.text(
+            0.03,
+            0.53 / height,
+            f"Whole run: {runtime} · source: {revision}",
+            fontsize=8.5,
+            color=ink,
+        )
+        fig.text(
+            0.03,
+            0.30 / height,
+            "A numerical microbenchmark, not a universal language ranking. Conditions and run-clock scope on the website.",
+            fontsize=8,
+            color=muted,
+        )
+        fig.text(
+            0.97,
+            0.09 / height,
+            "speed-comparison.vercel.app",
+            ha="right",
+            fontsize=9,
+            color=ink,
+        )
+        fig.savefig(output_path, dpi=150, facecolor=bg)
+        plt.close(fig)
 
 
 def summarize_environment(raw_results: list[dict]) -> dict:
@@ -531,6 +463,16 @@ def build_combined_results(raw_results: list[dict]) -> list[dict]:
                 "measured_runs": result.get("MeasuredRuns"),
                 "output_capture": result.get("OutputCapture"),
                 "measurement_id": result.get("MeasurementID"),
+                "measurement_profile": result.get("MeasurementProfile"),
+                "measurement_timeout_seconds": result.get("MeasurementTimeoutSeconds"),
+                "source_revision": result.get("SourceRevision"),
+                "source_file": result.get("SourceFile"),
+                "source_files": result.get("SourceFiles"),
+                "execution_adapter": result.get("ExecutionAdapter"),
+                "dagger_sdk_version": result.get("DaggerSDKVersion"),
+                "dagger_engine_version": result.get("DaggerEngineVersion"),
+                "tooling": result.get("Tooling"),
+                "nix_setup": result.get("NixSetup"),
                 "environment": result.get("Environment", {}),
                 "compile": result.get("Compile", ""),
                 "run": result.get("Run", ""),
@@ -585,6 +527,7 @@ def main():
         return 1
 
     output_dir = Path(args.out)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save CSV
     csv_path = output_dir / "combined_results.csv"
@@ -592,6 +535,13 @@ def main():
 
     # Save combined JSON and run metadata
     env_summary = summarize_environment(raw_results) if raw_results else {}
+    run_record = Path(args.folder) / "run.json"
+    if not run_record.exists() and Path(args.folder).name == "targets":
+        run_record = Path(args.folder).parent / "run.json"
+    if run_record.exists():
+        env_summary["execution"] = execution_metadata(
+            json.loads(run_record.read_text()), raw_results
+        )
     if raw_results:
         combined_results = build_combined_results(raw_results)
         combined_json_path = output_dir / "combined_results.json"
@@ -608,6 +558,14 @@ def main():
     # Read rounds
     rounds = Path(args.rounds).read_text().strip()
 
+    # Use full-precision raw medians and methodology for the chart when available.
+    if raw_results and all(r.get("Target") for r in raw_results):
+        df = pd.DataFrame(build_combined_results(raw_results))
+        for field, raw_key in (("median", "Median"), ("min", "Min"), ("max", "Max")):
+            exact = {
+                r["Target"]: parse_time_value(r[raw_key]) * 1000 for r in raw_results
+            }
+            df[field] = df["target"].map(exact)
     # Generate visualization
     png_path = output_dir / "combined_results.png"
     plot_results(df, rounds, str(png_path), env_summary=env_summary)

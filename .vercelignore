@@ -4,6 +4,10 @@
 !docs
 !docs/history
 !docs/history/**
+!docs/report-evidence
+!docs/report-evidence/**
+!docs/report-images
+!docs/report-images/**
 !vercel.json
 site/node_modules
 site/dist

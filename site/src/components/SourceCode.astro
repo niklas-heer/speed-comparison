@@ -1,0 +1,54 @@
+---
+import { Code } from 'astro:components';
+import { repo } from '../lib/results.mjs';
+const { result, revision } = Astro.props;
+const languages = {
+  adb:'ada', asm:'asm', ss:'scheme', rs:'rust', go:'go', c:'c', h:'c', cpp:'cpp', cc:'cpp', cs:'csharp', fs:'fsharp',
+  java:'java', kt:'kotlin', scala:'scala', clj:'clojure', groovy:'groovy', py:'python',
+  rb:'ruby', pl:'perl', raku:'raku', php:'php', lua:'lua', js:'javascript', ts:'typescript',
+  hs:'haskell', ml:'ocaml', ex:'elixir', exs:'elixir', erl:'erlang', gleam:'gleam',
+  swift:'swift', zig:'zig', nim:'nim', d:'d', odin:'odin', v:'v', jl:'julia',
+  r:'r', m:'matlab', lisp:'common-lisp', lsp:'common-lisp', l:'common-lisp', scm:'scheme',
+  dart:'dart', pas:'pascal', pp:'pascal', f90:'fortran-free-form', f:'fortran-fixed-form',
+  cob:'cobol', cr:'crystal', hx:'haxe', pony:'text', rkt:'racket', sh:'shellscript',
+  json:'json', toml:'toml', xml:'xml', csproj:'xml', fsproj:'xml', txt:'text',
+  ha:'text', mojo:'mojo', s:'asm', wat:'wasm', bas:'vb',
+};
+const files = [...result.sources].sort((a,b) => a.name === result.sourcePrimary ? -1 : b.name === result.sourcePrimary ? 1 : a.name.localeCompare(b.name));
+---
+<section id="source" class="detail-section">
+  <div>
+    <p class="eyebrow">03 / The implementation</p>
+    <h2>Read what ran.</h2>
+    <p>The implementation and supporting files at the measured revision. Highlighting is added for readability; the source text is unchanged.</p>
+    <p class="notice">{result.sourceProvenance ?? 'No source snapshot was recorded for this historical run.'}</p>
+    {revision && <a class="text-link" href={`${repo}/tree/${revision}/src`}>Browse this revision ↗</a>}
+  </div>
+  <div class="source-files">
+    {files.map((file, index) => (
+      <details class="source-file" open={index === 0}>
+        <summary><span>{file.name}</span><span>{file.content.split('\n').length} lines</span></summary>
+        <div class="source-toolbar">
+          {revision && <a href={`${repo}/blob/${revision}/${file.name}`}>View on GitHub ↗</a>}
+          <button type="button" class="copy-source">Copy code</button>
+        </div>
+        <!-- Astro removes one final newline; append one so the recorded text survives. -->
+        <Code code={file.content + '\n'} lang={result.target === 'objc' ? 'objective-c' : (languages[file.name.split('.').pop().toLowerCase()] ?? 'text')} theme="github-light" wrap={false} />
+        <p class="source-checksum">SHA-256 · {file.sha256}</p>
+      </details>
+    ))}
+  </div>
+</section>
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copy-source').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const text = button.closest('.source-file')?.querySelector('code')?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Select code to copy';
+      }
+    });
+  });
+</script>

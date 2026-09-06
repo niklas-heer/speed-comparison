@@ -1,0 +1,252 @@
+{
+  "Mean": "0.00114532584s",
+  "Max": "0.00140699284s",
+  "Target": "go",
+  "Stddev": "0.0003881438710929235s",
+  "Version": "1.25.5",
+  "Language": "Go",
+  "UserTime": "0.0004887666666666666s",
+  "SystemTime": "0.00112564s",
+  "Median": "0.00132961684s",
+  "Command": "./leibniz",
+  "TimesPerRun": [
+    0.00140699284,
+    0.00132961684,
+    0.0006993678400000002
+  ],
+  "Accuracy": 4.497236723953859,
+  "Min": "0.0006993678400000002s",
+  "ExitCodesPerRun": [
+    0,
+    0,
+    0
+  ],
+  "CalculatedPi": "3.1414926735860353",
+  "MathMode": "compiler-default",
+  "ExplicitSIMD": false,
+  "Algorithm": "leibniz-series",
+  "Rounds": 10000,
+  "Compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+  "Run": "./leibniz",
+  "Nixpkgs": [
+    "go@1.25.5"
+  ],
+  "NixFlakes": [],
+  "Category": "systems",
+  "MeasurementProfile": "leibniz-1w-3m-v1",
+  "WarmupRuns": 1,
+  "MeasuredRuns": 3,
+  "OutputCapture": "first-warmup",
+  "MeasurementID": "b004da2ceb794e5caba0db20b283b164",
+  "Environment": {
+    "cpu_model": "",
+    "cpu_cores": "",
+    "cpu_threads": "6",
+    "cpu_flags": "",
+    "arch": "aarch64",
+    "kernel": "Linux 6.3.13-linuxkit",
+    "os_release": "Debian GNU/Linux 13 (trixie)",
+    "libc": "glibc 2.41",
+    "cpu_max": "max 100000",
+    "memory_max": "max",
+    "pids_max": "max",
+    "cpuset_cpus_effective": "0-5",
+    "process_limits": "time(seconds)        unlimited;file(blocks)         unlimited;data(kbytes)         unlimited;stack(kbytes)        8192;coredump(blocks)     0;memory(kbytes)       unlimited;locked memory(kbytes) 82000;process              unlimited;nofiles              1048576;vmemory(kbytes)      unlimited;locks                unlimited;rtprio               0;"
+  },
+  "ExecutionAdapter": "dagger",
+  "DaggerSDKVersion": "0.19.8",
+  "MeasurementTimeoutSeconds": null,
+  "SourceFile": "src/leibniz.go",
+  "SourceFiles": {
+    "src/leibniz.go": {
+      "content": "package main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nfunc main() {\n\tfile, _ := os.ReadFile(\"rounds.txt\")\n\trounds, _ := strconv.Atoi(strings.TrimSpace(string(file)))\n\n\tx := 1.0\n\tpi := 1.0\n\tstop := float64(rounds + 2)\n\n\tfor i := 2.0; i <= stop; i++ {\n\t\tx = -x\n\t\tpi += x / (2.0*i - 1.0)\n\t}\n\n\tpi *= 4.0\n\tfmt.Println(pi)\n}\n",
+      "sha256": "cbd91139fe92220e3ee179f7e0ffc1e02ff9712729e34a930140372473c9098e"
+    }
+  },
+  "NixSetup": null,
+  "Tooling": {
+    "devbox_image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+    "hyperfine": "1.18.0",
+    "micropython": "1.24.1"
+  },
+  "ImageTag": null,
+  "ImageFingerprint": "ae4ba875c7e9",
+  "DevboxImage": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+  "BuildSource": "local",
+  "AllowNativeFlags": false,
+  "DevboxLock": {
+    "lockfile_version": "1",
+    "packages": {
+      "github:NixOS/nixpkgs/nixpkgs-unstable": {
+        "last_modified": "2026-09-03T10:26:31Z",
+        "resolved": "github:NixOS/nixpkgs/9b9402b959a2276982ddd5ad3652a38b97f7c40b?lastModified=1788431191&narHash=sha256-MFClkboDeW56feBCAeAV3Z3J2quGSZFlAOXQ4JjIlIA%3D"
+      },
+      "go@1.25.5": {
+        "last_modified": "2026-01-23T17:20:52Z",
+        "resolved": "github:NixOS/nixpkgs/a1bab9e494f5f4939442a57a58d0449a109593fe#go",
+        "source": "devbox-search",
+        "version": "1.25.5",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/wh88zz6r1ihcp2mm7ys1f2anp8aga6n2-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/wh88zz6r1ihcp2mm7ys1f2anp8aga6n2-go-1.25.5"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/k3knzdi0v21bf2m7vcxpdy1jnqg1h0zk-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/k3knzdi0v21bf2m7vcxpdy1jnqg1h0zk-go-1.25.5"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/bwdahzajhqd5x14dbvkqww5f1wpsxif3-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/bwdahzajhqd5x14dbvkqww5f1wpsxif3-go-1.25.5"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zzvsjgylnphvhms3lgr2qlwdxmc68z66-go-1.25.5",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zzvsjgylnphvhms3lgr2qlwdxmc68z66-go-1.25.5"
+          }
+        }
+      },
+      "hyperfine@1.18.0": {
+        "last_modified": "2024-11-03T14:18:04Z",
+        "resolved": "github:NixOS/nixpkgs/4ae2e647537bcdbb82265469442713d066675275#hyperfine",
+        "source": "devbox-search",
+        "version": "1.18.0",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/9xndv63zi1n8i42l4fy4kdjw8rs8gnhf-hyperfine-1.18.0"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/klirs2wv0wm9p7rkp6v70v5770x73bgf-hyperfine-1.18.0"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/zvpjdyck0vj7w4piicfxbskv8fw7ik4i-hyperfine-1.18.0"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/7hj45kx7ln0ncn0i984zbh0gmbliya5j-hyperfine-1.18.0"
+          }
+        }
+      },
+      "micropython@1.24.1": {
+        "last_modified": "2025-04-10T20:20:34Z",
+        "resolved": "github:NixOS/nixpkgs/d19cf9dfc633816a437204555afeb9e722386b76#micropython",
+        "source": "devbox-search",
+        "version": "1.24.1",
+        "systems": {
+          "aarch64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/g4dz2lvzzhggnxkavi1jiiiy1dpa8c4p-micropython-1.24.1"
+          },
+          "aarch64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/3yggs5nl5pavnxh8k4adiq09s1f0ppry-micropython-1.24.1"
+          },
+          "x86_64-darwin": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/gav96yf4pxhj59idrs67z59cw3zfimfd-micropython-1.24.1"
+          },
+          "x86_64-linux": {
+            "outputs": [
+              {
+                "name": "out",
+                "path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1",
+                "default": true
+              }
+            ],
+            "store_path": "/nix/store/vhfgy8vnd904mlzw35z61rh177cvcb40-micropython-1.24.1"
+          }
+        }
+      }
+    }
+  },
+  "DevboxConfig": {
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+    "packages": [
+      "go@1.25.5",
+      "hyperfine@1.18.0",
+      "micropython@1.24.1"
+    ],
+    "shell": {
+      "init_hook": [
+        "echo 'Welcome to devbox!' > /dev/null"
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  },
+  "SourceRevision": null,
+  "CatalogSHA256": null,
+  "SuiteRunID": "831b28198cdb4fa9aae83c0daa68ff36",
+  "DaggerEngineVersion": "v0.19.8"
+}

@@ -56,11 +56,13 @@ def main() -> None:
         metadata = json.loads((results / 'run_metadata.json').read_text())
         assert metadata['source_revision'] == revision
 
+        (temporary / 'README.md').write_text('<!-- latest-run:start -->old<!-- latest-run:end -->')
         docs = temporary / 'docs'
         stale = docs / 'history/latest/raw/stale.json'
         stale.parent.mkdir(parents=True)
         stale.write_text('{}')
         run('publish.py', '--results', str(results), '--docs', str(docs))
+        assert 'Latest full run: not recorded' in (temporary / 'README.md').read_text()
         manifest = json.loads((docs / 'history/manifest.json').read_text())
         assert len(manifest['runs']) == 1
         assert manifest['runs'][0]['languages'] == len(expected)

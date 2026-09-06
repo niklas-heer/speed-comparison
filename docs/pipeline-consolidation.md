@@ -187,3 +187,20 @@ container image, profile and timeout against actual result metadata before attac
 `RunnerEnvironmentSHA256`. A mismatch fails the suite. This observed contract
 complements host isolation and the Argo mutex; it cannot prove that a shared host
 was idle. `environment.cpuset_cpus_effective` records the effective cgroup CPU set.
+
+## Inspectable source and whole-run clocks (September 6 follow-up)
+
+Dagger now records the pre-compilation implementation and supporting source files
+with SHA-256, SDK/engine versions, protocol and explicit timeout setting. Its run
+record captures UTC start/end and a monotonic elapsed time spanning connection,
+catalog, build/measurement phases and teardown. Analysis binds the clock to the
+exact successful suite before publication; scheduler queue and publication are
+outside this clock. The README and website show its scope rather than summing
+benchmark samples into a fictional workflow duration.
+
+The historical native baseline's retained Argo timestamps establish 5h 18m 46s,
+including its failed first publication attempt. Its two warmups, three measured
+runs and separate output capture are recovered from the measured driver. Recovery
+lives under `docs/report-evidence/`, separately from immutable originals. The source
+viewer, refreshed median/range PNG and workload journal are presentation changes,
+not a new benchmark cohort or a substitute for the isolated-worker gate above.

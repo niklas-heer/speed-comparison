@@ -42,7 +42,10 @@ import shlex
 import sys
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from importlib.metadata import version as package_version
 from pathlib import Path
+from time import perf_counter
 
 import dagger
 
@@ -288,6 +291,7 @@ class PreparedBenchmark:
     tooling: dict[str, str]
     use_local: bool
     registry: str
+    source_files: dict
 
 
 async def prepare_benchmark(
@@ -303,6 +307,18 @@ async def prepare_benchmark(
 ) -> PreparedBenchmark:
     """Finish environment setup and compilation before the measurement barrier."""
     tooling = dict(tooling or default_tooling())
+    # Read the declared implementation before compilation can modify its inputs.
+    source_files = {}
+    source_paths = set((lang.file, *lang.extra_files))
+    if "/" in lang.file:
+        prefix = lang.file.split("/")[0]
+        source_paths.update(p for p in await src_dir.glob(f"{prefix}/**/*") if not p.endswith("/"))
+    for name in sorted(source_paths):
+        content = await src_dir.file(name).contents()
+        source_files[f"src/{name}"] = {
+            "content": content,
+            "sha256": hashlib.sha256(content.encode()).hexdigest(),
+        }
     # Get container (from registry or build locally)
     container = await get_container(client, target, lang, use_local, registry, tooling)
 
@@ -366,7 +382,9 @@ async def prepare_benchmark(
 
     # Awaiting a container graph, not just constructing it, enforces the barrier.
     await container.sync()
-    return PreparedBenchmark(container, target, lang, rounds, version, tooling, use_local, registry)
+    return PreparedBenchmark(
+        container, target, lang, rounds, version, tooling, use_local, registry, source_files
+    )
 
 
 async def measure_benchmark(prepared: PreparedBenchmark, *, timeout_seconds=None) -> dict:
@@ -410,6 +428,13 @@ async def measure_benchmark(prepared: PreparedBenchmark, *, timeout_seconds=None
     enrich_result(result, target, lang, rounds)
     result.update(measurement_metadata(), MeasurementID=measurement_id)
     result["Environment"] = env_info
+    result["ExecutionAdapter"] = "dagger"
+    result["DaggerSDKVersion"] = package_version("dagger-io")
+    result["MeasurementTimeoutSeconds"] = timeout_seconds
+    result["SourceFile"] = f"src/{lang.file}"
+    result["SourceFiles"] = prepared.source_files
+    result["NixSetup"] = lang.nix_setup
+    result["Tooling"] = tooling
     result["Compile"] = lang.compile or ""
     result["Run"] = lang.run
     result["Nixpkgs"] = list(lang.nixpkgs)
@@ -499,6 +524,7 @@ async def main(
         "yes",
     )
     registry = os.environ.get("REGISTRY", DEFAULT_REGISTRY)
+    started = perf_counter()
     run_id = uuid.uuid4().hex
     output = Path(output) if output else RESULTS_DIR / run_id
     output.mkdir(parents=True, exist_ok=False)
@@ -506,6 +532,8 @@ async def main(
         "schema_version": 1,
         "run_id": run_id,
         "status": "preparing",
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "measurement_profile": measurement_metadata(),
         "source_revision": revision,
         "source_kind": "git" if revision else "working-tree",
         "publication_eligible": False,
@@ -540,6 +568,7 @@ async def main(
     print(f"Evidence bundle: {output}")
     try:
         async with dagger.Connection(dagger.Config(log_output=sys.stderr)) as client:
+            record["dagger_engine_version"] = await client.version()
             if revision:
                 from catalog_resolver import encode_manifest, resolve_catalog
 
@@ -604,6 +633,7 @@ async def main(
                     CatalogSHA256=record.get("catalog_sha256"),
                     SuiteRunID=run_id,
                     MeasurementTimeoutSeconds=measurement_timeout,
+                    DaggerEngineVersion=record["dagger_engine_version"],
                 )
                 if runner_environment is not None:
                     from runner_identity import bind_identity
@@ -629,6 +659,16 @@ async def main(
         record.update(status="failed", error=str(error))
         save_record()
         raise
+    finally:
+        if record["status"] not in {"succeeded", "failed"}:
+            record["status"] = "interrupted"
+        # Includes connection, catalog resolution and teardown, unlike phase totals.
+        record["finished_at"] = datetime.now(timezone.utc).isoformat()
+        record["elapsed_seconds"] = perf_counter() - started
+        record["elapsed_scope"] = (
+            "Dagger suite, including connection, catalog, builds, measurements and teardown; excludes scheduler queue and publication"
+        )
+        save_record()
 
 
 if __name__ == "__main__":

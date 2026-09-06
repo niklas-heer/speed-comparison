@@ -16,9 +16,9 @@ REPORT_INPUTS = {
     'pyproject.toml', 'uv.lock', 'analyze.py', 'publish.py', 'download_icons.py',
     'scripts/publish_results.py', 'scripts/validate_publish.py',
     'scripts/compare_results.py', 'scripts/check_report.py', '.github/workflows/ci.yml',
-    'vercel.json', '.vercelignore', '.github/workflows/site.yml',
+    'report_metadata.py', 'scripts/export_source.py', 'scripts/render_share_image.py', 'vercel.json', '.vercelignore', '.github/workflows/site.yml',
 }
-REPORT_PREFIXES = ('site/', 'icons/', 'docs/validation/2026-09-05-workload-calibration/')
+REPORT_PREFIXES = ('site/', 'docs/report-evidence/', 'docs/report-images/', 'icons/', 'docs/validation/2026-09-05-workload-calibration/')
 GLOBAL_CONSTANTS = {'HYPERFINE_VERSION', 'MICROPYTHON_VERSION', 'DEFAULT_DEVBOX_IMAGE', 'MARCH_NATIVE'}
 
 

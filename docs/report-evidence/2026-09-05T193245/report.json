@@ -1,0 +1,34 @@
+{
+  "source_revision": "c71e4cd81464b238172605982806c5bf827a70a1",
+  "execution": {
+    "started_at": "2026-09-05T13:57:02Z",
+    "finished_at": "2026-09-05T19:15:48Z",
+    "elapsed_seconds": 19126.0,
+    "status": "Measurements and analysis succeeded; publication failed and was retried separately",
+    "elapsed_scope": "Original Argo workflow: checkout, setup, all 75 targets, analysis and failed publication attempt. Excludes the later publication-only retry.",
+    "evidence": "workflow-timing.json"
+  },
+  "protocol": {
+    "WarmupRuns": 2,
+    "MeasuredRuns": 3,
+    "OutputCapture": "separate-execution-after-measurement",
+    "MeasurementProfile": "historical-native-2w-3m-plus-capture",
+    "MeasurementProfileProvenance": "Descriptive label reconstructed from the measured driver; not an original profile identifier",
+    "MeasurementTimeoutDescription": "No per-command timeout in the measured driver; scheduler deadlines are separate",
+    "evidence_url": "https://github.com/niklas-heer/speed-comparison/blob/c71e4cd81464b238172605982806c5bf827a70a1/dagger-poc/native.py#L85-L88"
+  },
+  "provenance": "Recovered from retained Argo status and the measured Git revision on 2026-09-06. Original raw artifacts are unchanged.",
+  "scheduler": {
+    "workflow_deadline_seconds": 43200,
+    "benchmark_resources": {
+      "limits": {
+        "memory": "3Gi"
+      },
+      "requests": {
+        "cpu": "1",
+        "memory": "256Mi"
+      }
+    },
+    "provenance": "Retained Argo stored workflow template; declared settings, not an observation of effective cgroup limits"
+  }
+}

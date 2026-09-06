@@ -2,7 +2,8 @@
 import Layout from "../../../layouts/Layout.astro";
 import Metadata from "../../../components/Metadata.astro";
 import Package from "../../../components/Package.astro";
-import { runs, runData, timing, recordedTiming, repo } from "../../../lib/results.mjs";
+import SourceCode from "../../../components/SourceCode.astro";
+import { runs, runData, timing, recordedTiming, duration, repo } from "../../../lib/results.mjs";
 export function getStaticPaths() {
   return runs.flatMap((run) => {
     const data = runData(run.id);
@@ -17,6 +18,11 @@ const raw = r.raw;
 const env = raw?.Environment ?? r.summary.environment ?? {};
 const packages =
   raw?.DevboxLock?.packages ?? r.summary.devbox_lock?.packages ?? {};
+const protocol = data.supplement.protocol ?? {};
+const scheduler = data.supplement.scheduler;
+const timeout = raw && Object.hasOwn(raw, "MeasurementTimeoutSeconds")
+  ? raw.MeasurementTimeoutSeconds === null ? "Not configured (no per-target timeout)" : `${raw.MeasurementTimeoutSeconds} seconds`
+  : protocol.MeasurementTimeoutDescription;
 const fields = {
   "Source revision": data.revision,
   "Workload (terms)": r.rounds,
@@ -24,16 +30,20 @@ const fields = {
   "Math mode": r.math,
   "Explicit SIMD": r.simd,
   "Native CPU flags allowed": raw?.AllowNativeFlags,
-  "Warmup executions": raw?.WarmupRuns,
-  "Measured executions": raw?.MeasuredRuns ?? raw?.TimesPerRun?.length,
-  "Output capture": raw?.OutputCapture,
+  "Warmup executions": raw?.WarmupRuns ?? r.summary.warmup_runs ?? protocol.WarmupRuns,
+  "Measured executions": raw?.MeasuredRuns ?? r.summary.measured_runs ?? raw?.TimesPerRun?.length ?? protocol.MeasuredRuns,
+  "Output capture": raw?.OutputCapture ?? r.summary.output_capture ?? protocol.OutputCapture,
   "Build adapter": raw?.BuildSource,
   "Container image": raw?.DevboxImage,
-  "Measurement profile": raw?.MeasurementProfile,
-  "Measurement timeout": raw?.MeasurementTimeoutSeconds,
+  "Execution adapter": raw?.ExecutionAdapter ?? r.summary.execution_adapter,
+  "Dagger SDK": raw?.DaggerSDKVersion ?? r.summary.dagger_sdk_version,
+  "Dagger engine": raw?.DaggerEngineVersion ?? r.summary.dagger_engine_version,
+  "Measurement profile": raw?.MeasurementProfile ?? r.summary.measurement_profile ?? protocol.MeasurementProfile,
+  "Measurement timeout": timeout,
+  "Profile provenance": protocol.MeasurementProfileProvenance,
 };
 const samples = raw?.TimesPerRun ?? [];
-const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
+const known = new Set(["DevboxLock", "Environment", "DevboxConfig", "SourceFiles"]);
 ---
 
 <Layout title={`${r.name} · ${r.target}`}
@@ -74,7 +84,7 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
   </div>
   <nav class="anchor-nav" aria-label="Result sections">
     <a href="#samples">Measurements</a><a href="#build">Build & protocol</a><a
-      href="#packages">Packages</a
+      href="#source">Source code</a><a href="#packages">Packages</a
     ><a href="#environment">Environment & limits</a><a href="#evidence"
       >Raw evidence</a>
   </nav>
@@ -132,20 +142,19 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
       </h3><pre>{raw?.Run || r.summary.run || 'Not recorded'}</pre><Metadata
         values={fields}
       />{
-        data.id === "2026-09-05T193245" && !raw?.WarmupRuns && (
+        protocol.evidence_url && !raw?.WarmupRuns && (
           <p class="notice">
-            Warmup counts were not embedded in this result. The September 5
-            native baseline used two warmups, three measured runs, and a
-            separate output capture. This is separate from the new
-            four-execution protocol.
+            Historical protocol recovered from the <a href={protocol.evidence_url}>measured driver</a>.
+            These fields were not embedded in the original result. The raw JSON remains unchanged.
           </p>
         )
       }
     </div>
   </section>
+  <SourceCode result={r} revision={data.revision} />
   <section id="packages" class="detail-section">
     <div>
-      <p class="eyebrow">03 / Package provenance</p><h2>
+      <p class="eyebrow">04 / Package provenance</p><h2>
         Beyond a version number.
       </h2><p>
         Resolved Nix revisions and store paths identify the packages in the
@@ -157,6 +166,8 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
         values={{
           "Requested packages": raw?.Nixpkgs ?? r.summary.nixpkgs,
           "Requested flakes": raw?.NixFlakes ?? r.summary.nix_flakes,
+          "Additional package setup": raw?.NixSetup ?? r.summary.nix_setup,
+          "Measurement tooling": raw?.Tooling ?? r.summary.tooling,
         }}
       />{
         Object.entries(packages).map(([name, p]) => (
@@ -182,7 +193,7 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
   </section>
   <section id="environment" class="detail-section">
     <div>
-      <p class="eyebrow">04 / Environment & limits</p><h2>
+      <p class="eyebrow">05 / Environment & limits</p><h2>
         The machine behind<br />the measurement.
       </h2><p>
         Container-visible resources are not necessarily dedicated resources.
@@ -197,13 +208,16 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
           Kernel: env.kernel,
           "Container OS release": env.os_release,
           "C library": env.libc,
-          "Visible cores": env.cpu_cores,
+          "Cores per socket (reported)": env.cpu_cores,
           "Visible threads": env.cpu_threads,
           Runner: env.runner,
           "CPU quota": env.cpu_max,
           "CPU affinity / set": env.cpuset_cpus_effective,
           "Memory limit": env.memory_max,
           "Process limit": env.pids_max,
+          "Process resource limits": env.process_limits,
+          "Runner identity": raw?.RunnerID,
+          "Runner environment SHA-256": raw?.RunnerEnvironmentSHA256,
           Virtualization: env.cpu_flags?.split(" ").includes("hypervisor")
             ? "Hypervisor CPU flag present"
             : undefined,
@@ -217,11 +231,21 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig"]);
         establish CPU isolation, host contention, thermal state or frequency
         stability.
       </p>
+      {scheduler && <>
+        <h3>Declared scheduler settings</h3>
+        <Metadata values={{
+          "Workflow deadline": duration(scheduler.workflow_deadline_seconds),
+          "Pod memory limit": scheduler.benchmark_resources.limits.memory,
+          "Pod CPU request": scheduler.benchmark_resources.requests.cpu,
+          "Pod CPU limit": scheduler.benchmark_resources.limits.cpu ?? "Not specified in workflow template",
+        }} />
+        <p class="notice">{scheduler.provenance}. A CPU request does not reserve exclusive hardware.</p>
+      </>}
     </div>
   </section>
   <section id="evidence" class="detail-section">
     <div>
-      <p class="eyebrow">05 / Evidence</p><h2>Take the data with you.</h2><p>
+      <p class="eyebrow">06 / Evidence</p><h2>Take the data with you.</h2><p>
         Original bytes are preserved. The checksum below identifies this exact
         raw JSON file.
       </p>

@@ -45,3 +45,5 @@ site/playwright-report/
 .vercel/
 .vercel
 .env*
+site/public/report-evidence/
+site/public/report-images/

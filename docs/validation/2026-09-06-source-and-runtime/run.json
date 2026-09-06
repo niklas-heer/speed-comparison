@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "run_id": "831b28198cdb4fa9aae83c0daa68ff36",
+  "status": "succeeded",
+  "started_at": "2026-09-06T09:21:43.024167+00:00",
+  "measurement_profile": {
+    "MeasurementProfile": "leibniz-1w-3m-v1",
+    "WarmupRuns": 1,
+    "MeasuredRuns": 3,
+    "OutputCapture": "first-warmup"
+  },
+  "source_revision": null,
+  "source_kind": "working-tree",
+  "publication_eligible": false,
+  "scope": "benchmark-only",
+  "runner_environment": null,
+  "prepare_jobs": 2,
+  "measurement_timeout_seconds": null,
+  "rounds_override": 10000,
+  "driver_sha256": {
+    "benchmark.py": "747e17b040543897b59f509ec461da1b2779025b4c55c0f53dff33ae5764c45a",
+    "suite.py": "b6459e18dc843ff6cdb1ba5369e549c8c5bda2dd67b158cb16b78edaef3e3cc1",
+    "measurement.py": "29564d4c9ffbc0a07122b8d89fe58af559ab42dfd12aedb5cc6db3b74f1c131b",
+    "runner_identity.py": "ffc58de49692dc556b3bf2ca4b46e488d6e544c3a8a1bd6dc22e891a46efb9c3",
+    "scmeta.py": "e6c2faac81a6af6c2ffb5402e941376675c381741cfd21186c2015420f65e1f3",
+    "result_metadata.py": "eb02714e3e722c7372f9fb6e17b2b7a2b7993388d2eca6c2691f63a3aac63ce7",
+    "languages.py": "59ccadb60731358a040df3f2405c1a72658ca1eb7bd2d7cbed361f48fa7598c9",
+    "catalog_manifest.py": "ecfa174ea035c207cd2295aff4a84f73a17f8783abf734dbe0733eef7e5cb09f",
+    "catalog_resolver.py": "729a44a6d22c1a12f4e5317d59058de11608a997bf9aa18560f397f922bc3b91",
+    "catalog_export.py": "6f3b9ca6955cb5c04ac261d990e760fc3e54c80d1476f26116a2f3be7766a5d9"
+  },
+  "dagger_engine_version": "v0.19.8",
+  "targets": [
+    "go"
+  ],
+  "tooling": {
+    "devbox_image": "jetpackio/devbox:0.16.0@sha256:0475601f3ddbc1d06be7f7d4d51143dcc005400593407d5e3627fdf7edf6c7dd",
+    "hyperfine": "1.18.0",
+    "micropython": "1.24.1"
+  },
+  "rounds": 10000,
+  "errors": {},
+  "target_phases": {
+    "go": {
+      "prepare_seconds": 0.1279024169780314,
+      "measure_seconds": 0.7265295838005841
+    }
+  },
+  "preparation_wall_seconds": 0.12807112513110042,
+  "total_wall_seconds": 0.854603209067136,
+  "completed_targets": [
+    "go"
+  ],
+  "finished_at": "2026-09-06T09:21:44.613645+00:00",
+  "elapsed_seconds": 1.5896496251225471,
+  "elapsed_scope": "Dagger suite, including connection, catalog, builds, measurements and teardown; excludes scheduler queue and publication"
+}

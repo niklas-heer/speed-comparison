@@ -7,6 +7,39 @@ import shutil
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
+import re
+
+
+def update_readme(readme: Path, run_id: str, count: int, metadata: dict) -> None:
+    """Keep the README's whole-run clock in sync with a new published snapshot."""
+    if not readme.exists():
+        return
+    clock = metadata.get("execution", {})
+    elapsed = clock.get("elapsed_seconds")
+    if elapsed is None:
+        duration = "not recorded"
+    else:
+        seconds = round(elapsed)
+        duration = f"{seconds // 3600}h {(seconds % 3600) // 60}m {seconds % 60}s"
+    text = (
+        "<!-- latest-run:start -->\n"
+        f"**Latest full run: {duration} · {count} implementations.**\n\n"
+        f"[Inspect the run](https://speed-comparison.vercel.app/runs/{run_id}/) · "
+        "[Download the image](https://speed-comparison.vercel.app/report-images/latest.png)\n\n"
+        + clock.get(
+            "elapsed_scope",
+            "Whole-run time was not recorded; individual sample times are not a workflow clock.",
+        )
+        + "\n<!-- latest-run:end -->"
+    )
+    readme.write_text(
+        re.sub(
+            r"<!-- latest-run:start -->.*?<!-- latest-run:end -->",
+            lambda _: text,
+            readme.read_text(),
+            flags=re.S,
+        )
+    )
 
 
 def update_manifest(history_dir: Path, new_run_id: str, lang_count: int) -> None:
@@ -98,11 +131,19 @@ def main():
         shutil.copy(json_file, latest_dir / "combined_results.json")
     if meta_file.exists():
         shutil.copy(meta_file, latest_dir / "run_metadata.json")
+    run_record = results_dir / "run.json"
+    if not run_record.exists() and results_dir.name == "targets":
+        run_record = results_dir.parent / "run.json"
+    if run_record.exists():
+        for destination in (run_dir, latest_dir):
+            shutil.copy(run_record, destination / "run.json")
+    else:
+        (latest_dir / "run.json").unlink(missing_ok=True)
 
     # Keep the original per-target evidence independently of presentation/schema changes.
     raw_results = []
     for path in results_dir.glob("*.json"):
-        if path.name in {"combined_results.json", "run_metadata.json"}:
+        if path.name in {"combined_results.json", "run_metadata.json", "run.json"}:
             continue
         data = json.loads(path.read_text())
         if isinstance(data, dict) and data.get("Target"):
@@ -128,6 +169,12 @@ def main():
     # Update manifest
     lang_count = count_languages(csv_file)
     update_manifest(history_dir, run_id, lang_count)
+    update_readme(
+        docs_dir.parent / "README.md",
+        run_id,
+        lang_count,
+        json.loads(meta_file.read_text()) if meta_file.exists() else {},
+    )
 
     print(f"Published benchmark results:")
     print(f"  Run ID: {run_id}")
