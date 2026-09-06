@@ -1,10 +1,10 @@
 name: Website
 on:
   pull_request:
-    paths: ['site/**', 'docs/history/**', 'vercel.json', '.github/workflows/site.yml']
+    paths: ['site/**', 'docs/history/**', 'vercel.json', '.vercelignore', '.github/workflows/site.yml']
   push:
     branches: [master]
-    paths: ['site/**', 'docs/history/**', 'vercel.json', '.github/workflows/site.yml']
+    paths: ['site/**', 'docs/history/**', 'vercel.json', '.vercelignore', '.github/workflows/site.yml']
   workflow_dispatch:
 permissions:
   contents: read

@@ -7,6 +7,7 @@ import {
   runData,
   historyDir,
   seconds,
+  recordedTiming,
 } from "../src/lib/results.mjs";
 const current = runData("2026-09-05T193245");
 
@@ -33,4 +34,12 @@ test("old snapshots never borrow current metadata or invented target identities"
   for (const run of runs) assert.doesNotThrow(() => runData(run.id));
   assert.throws(() => runData("../latest"));
   assert.throws(() => seconds("NaNs"));
+});
+
+test("missing historical extremes stay unknown while recorded times retain units", () => {
+  for (const value of [undefined, null, ""])
+    assert.equal(recordedTiming(value), "Not recorded");
+  assert.equal(recordedTiming("0.125s"), "125.00 ms");
+  assert.equal(recordedTiming(1.5), "1.500 s");
+  assert.throws(() => recordedTiming("NaNs"), /Invalid timing/);
 });
