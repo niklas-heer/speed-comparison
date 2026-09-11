@@ -251,7 +251,7 @@ LANGUAGES: dict[str, Language] = {
         run="./leibniz", version_cmd="zig version", base="zig", category="systems",
     ),
     "hare": Language(
-        name="Hare", nixpkgs=("hare@2024-02-08",), file="leibniz.ha",
+        name="Hare", nixpkgs=("hare@0.26.0.1",), file="leibniz.ha",
         compile="hare build -R -o leibniz leibniz.ha", run="./leibniz",
         version_cmd="hare version", base="hare", category="systems",
     ),
@@ -307,7 +307,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "go": Language(
         name="Go",
-        nixpkgs=("go@1.27rc3",),
+        nixpkgs=("go@1.27.0",),
         file="leibniz.go",
         compile="go build -ldflags='-s -w' -o leibniz leibniz.go",
         run="./leibniz",
