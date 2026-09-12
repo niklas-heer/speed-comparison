@@ -1,0 +1,1532 @@
+{
+  "date": "2026-09-12",
+  "purpose": "Native smoke validation for PR #331. These short runs verify package installation, compilation, execution and result validity; they are not performance rankings. The initial sweep found Gleam shell grouping, MicroPython package selection and Odin file API failures. Follow-up runs validate those fixes and a C control. MicroPython 1.27.0 then failed ten upstream Nix package tests; 1.26.0 is used and validated instead.",
+  "status": "passed",
+  "regression_tests_passed": 175,
+  "publication_eligible": false,
+  "runner": "slick-badger / homelab-argo",
+  "updated_targets": 56,
+  "runs": [
+    {
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "started_at": "2026-09-11T23:30:36Z",
+      "finished_at": "2026-09-12T00:53:21Z",
+      "passed": [
+        "benchmark(9:crystal)",
+        "benchmark(47:rust)",
+        "benchmark(41:php)",
+        "benchmark(10:csharp)",
+        "benchmark(27:julia)",
+        "benchmark(33:nim)",
+        "benchmark(43:r)",
+        "benchmark(23:janet)",
+        "benchmark(54:v)",
+        "benchmark(1:bun)",
+        "benchmark(42:pony)",
+        "benchmark(26:java-vecops)",
+        "benchmark(28:kotlin)",
+        "benchmark(11:csharp-simd)",
+        "benchmark(17:fsharp)",
+        "benchmark(20:go)",
+        "benchmark(18:fsharp-simd)",
+        "benchmark(31:mojo)",
+        "benchmark(48:rust-fastmath)",
+        "benchmark(53:scala)",
+        "benchmark(5:clojure)",
+        "benchmark(55:wasm)",
+        "benchmark(24:janet-compiled)",
+        "benchmark(22:hare)",
+        "benchmark(13:dart)",
+        "benchmark(38:octave-vectorised)",
+        "benchmark(45:raku)",
+        "benchmark(8:cpp-clang)",
+        "benchmark(16:fortran)",
+        "benchmark(29:luajit)",
+        "benchmark(2:c)",
+        "benchmark(50:rust-simd)",
+        "benchmark(21:groovy)",
+        "benchmark(32:nasm)",
+        "benchmark(52:sbcl-simd)",
+        "benchmark(44:racket)",
+        "benchmark(0:ada)",
+        "benchmark(51:sbcl)",
+        "benchmark(25:java)",
+        "benchmark(46:ruby)",
+        "benchmark(37:octave)",
+        "benchmark(34:nodejs)",
+        "benchmark(4:chezscheme)",
+        "benchmark(6:cpp)",
+        "benchmark(14:dart-aot)",
+        "benchmark(40:perl)",
+        "benchmark(49:rust-nightly)",
+        "benchmark(36:ocaml)",
+        "benchmark(15:deno)",
+        "benchmark(7:cpp-avx2)",
+        "benchmark(12:d-ldc)",
+        "benchmark(3:c-clang)",
+        "benchmark(35:objc)"
+      ],
+      "failed": [
+        "benchmark(39:odin)",
+        "benchmark(30:micropython)",
+        "benchmark(19:gleam)"
+      ]
+    },
+    {
+      "workflow": "speed-comparison-pr331-retest-vzmzp",
+      "source_revision": "b116da3f25866b40902735e450ae3b705f95dbfd",
+      "started_at": "2026-09-12T00:54:09Z",
+      "finished_at": "2026-09-12T01:02:55Z",
+      "passed": [
+        "benchmark(3:odin)",
+        "benchmark(1:gleam)",
+        "benchmark(0:c)"
+      ],
+      "failed": [
+        "benchmark(2:micropython)"
+      ]
+    },
+    {
+      "workflow": "speed-comparison-pr331-micropython-5pbdn",
+      "source_revision": "2421319cd6d1778ed1dae5da6976b9ef7351631b",
+      "started_at": "2026-09-12T01:04:45Z",
+      "finished_at": "2026-09-12T01:07:14Z",
+      "passed": [
+        "benchmark(0:micropython)"
+      ],
+      "failed": []
+    }
+  ],
+  "targets": [
+    {
+      "Target": "ada",
+      "Language": "Ada (gnat-gcc)",
+      "Version": "15.3.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "gnat@15.3.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "gnatmake -O3 -march=native -gnatp leibniz.adb -o leibniz",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.adb",
+      "source_sha256": "479398f68b0aa400ea4d611a4dfc59674e715e9460e109ecde69151723ef4449",
+      "result_sha256": "a8f1bbc270094f70479a366a1cd558a3025cb375b15b2ab5a2d094e0b44d0e9b"
+    },
+    {
+      "Target": "bun",
+      "Language": "Javascript (bun)",
+      "Version": "1.3.13",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "bun@1.3.13"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "bun run leibniz.js",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.js",
+      "source_sha256": "504bd88911eb600c5866ccc42bd6cca1196e486dc104ae7bb8cbc162216444f3",
+      "result_sha256": "6c5cfd73c9754e3ab2021397231edc44abb5c3c3dbf984f7a7e5f9fe09e1a7d0"
+    },
+    {
+      "Target": "c",
+      "Language": "C (gcc)",
+      "Version": "16.2.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905381",
+      "Nixpkgs": [
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "gcc -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-retest-vzmzp",
+      "source_revision": "b116da3f25866b40902735e450ae3b705f95dbfd",
+      "source_file": "src/leibniz.c",
+      "source_sha256": "a5ec546191d01ff3217e6500ecab8843a4b50ac04d497f12382774d64f67b99e",
+      "result_sha256": "03a266f0ebcda93e0f1f5f649fd822f9c79046ac2389c521f4dac3340355ef8c"
+    },
+    {
+      "Target": "c-clang",
+      "Language": "C (clang)",
+      "Version": "21.1.8",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905363",
+      "Nixpkgs": [
+        "clang@21.1.8"
+      ],
+      "NixFlakes": [],
+      "Compile": "clang -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -o leibniz leibniz.c -lm",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.c",
+      "source_sha256": "a5ec546191d01ff3217e6500ecab8843a4b50ac04d497f12382774d64f67b99e",
+      "result_sha256": "27e4f81d743939efcc320b38c9c87a3b668b3bb9e70284a650c05622c26dd17f"
+    },
+    {
+      "Target": "chezscheme",
+      "Language": "Chez Scheme",
+      "Version": "10.4.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "chez@10.4.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "echo '(compile-program \"leibniz.ss\")' | scheme --optimize-level 3",
+      "Run": "scheme --program leibniz.so",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.ss",
+      "source_sha256": "7a4553776136230016835051d83d4dd1b7374c6258905a7366da1c7cffdfa006",
+      "result_sha256": "80348235619c4c4c45bb4dd5fdb6ea2eb0fea79fbbdbffa2f215917201824137"
+    },
+    {
+      "Target": "clojure",
+      "Language": "Clojure",
+      "Version": "1.12.5",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "clojure@1.12.5.1664",
+        "jdk@25+36"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "clj leibniz.clj",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.clj",
+      "source_sha256": "a03bc400de5d117731cb6c4c9e8aad51bad6ecde422fe5d40772c396c17e3be0",
+      "result_sha256": "141fceb5798855e4f823fea75477c618a548dd7ce02efe850c41bb30b997f5a9"
+    },
+    {
+      "Target": "cpp",
+      "Language": "C++ (g++)",
+      "Version": "16.2.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905381",
+      "Nixpkgs": [
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "g++ leibniz.cpp -o leibniz -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.cpp",
+      "source_sha256": "8eae5347d7c509f79d15f4dd6c0548af24950c67dc66cfa2783c73e6109842c4",
+      "result_sha256": "716754f9cbdce429942bf2e08c8fe001261714d61077f58dadd9f5198506dacc"
+    },
+    {
+      "Target": "cpp-avx2",
+      "Language": "C++ (AVX2)",
+      "Version": "16.2.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926235905649",
+      "Nixpkgs": [
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "g++ leibniz_avx2.cpp -o leibniz_avx2 -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17 -mavx2",
+      "Run": "./leibniz_avx2",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz_avx2.cpp",
+      "source_sha256": "c2c50a83f4bf24c96f0c66c573390dc8a65d5c5d2b3e05a5a483367455e1143f",
+      "result_sha256": "4e299cb8383749f3390591f218e7594ac4fd778acb9279341b7e3a9e804b12cd"
+    },
+    {
+      "Target": "cpp-clang",
+      "Language": "C++ (clang++)",
+      "Version": "21.1.8",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905363",
+      "Nixpkgs": [
+        "clang@21.1.8",
+        "lld@21.1.2",
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "clang++ -fuse-ld=lld leibniz.cpp -o leibniz -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math -std=c++17 -Wl,-rpath,$(dirname $(gcc -print-file-name=libstdc++.so.6)) -Wl,-rpath,$(dirname $(gcc -print-file-name=libgcc_s.so.1))",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.cpp",
+      "source_sha256": "8eae5347d7c509f79d15f4dd6c0548af24950c67dc66cfa2783c73e6109842c4",
+      "result_sha256": "fbc1d122e63c9641c18a1e339fee9dc037b409da520d14dd9877347b741a1a68"
+    },
+    {
+      "Target": "crystal",
+      "Language": "Crystal",
+      "Version": "1.19.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "crystal@1.19.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "crystal build leibniz.cr --release",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.cr",
+      "source_sha256": "9b23d04bc2e1219c29d4c2aeb35f0dc4e54a1c2cd6b26514606458408a197976",
+      "result_sha256": "60a5d9b06b325e246ce024d13d13f6c8e41c3c9f2c04333b6a2811ef2e52e6c5"
+    },
+    {
+      "Target": "csharp",
+      "Language": "C#",
+      "Version": "8.0.424",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "dotnet-sdk@8.0.424"
+      ],
+      "NixFlakes": [],
+      "Compile": "dotnet new console -n leibniz -o _build --force && cp leibniz.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
+      "Run": "./out/leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.cs",
+      "source_sha256": "e156e3ef6a4ba7dcfe082d734c78a541f7c0bdd17a00d6ede7143bfc9b739e12",
+      "result_sha256": "d19f3b606baa6060a45d4e70984fecbb2f11171754e4bc2e40dcb1d480ea1419"
+    },
+    {
+      "Target": "csharp-simd",
+      "Language": "C# (SIMD)",
+      "Version": "8.0.424",
+      "Rounds": 10000,
+      "CalculatedPi": "3.141692643590527",
+      "Nixpkgs": [
+        "dotnet-sdk@8.0.424"
+      ],
+      "NixFlakes": [],
+      "Compile": "dotnet new console -n leibniz -o _build --force && cp leibniz-simd.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
+      "Run": "./out/leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz-simd.cs",
+      "source_sha256": "7d5bc67ffad3b4f6f366808dad36baefb4c17e6f54e9445eac91de9e4ac67d29",
+      "result_sha256": "b7256273a3cd1057fab01573a21419444f431c28fb5134e1ebd664e386d30e7b"
+    },
+    {
+      "Target": "d-ldc",
+      "Language": "D (LDC)",
+      "Version": "1.42.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905559",
+      "Nixpkgs": [
+        "ldc@1.42.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "ldc2 leibniz.d -of=leibniz -O3 -release -flto=thin -ffast-math",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.d",
+      "source_sha256": "ba54a41a295fc499b65b32c0685ea0b2fdb56d40f45204b31f7c6cc464002395",
+      "result_sha256": "e71c401e946d5be68fc44a6a6bedbbdb289ab319a59157687acdbff8e8feddf6"
+    },
+    {
+      "Target": "dart",
+      "Language": "Dart",
+      "Version": "3.13.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "dart@3.13.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "dart run leibniz.dart",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.dart",
+      "source_sha256": "33ee282968685a2ca88cc2adbf7a4dce008978ce585362b17f4d38cfc3637818",
+      "result_sha256": "63a631884e381e21bcfbfc150a7a56735d6c14ddb3e4995a3f0d1a47aec2dc69"
+    },
+    {
+      "Target": "dart-aot",
+      "Language": "Dart (AOT)",
+      "Version": "3.13.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "dart@3.13.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "dart compile exe leibniz.dart -o leibniz",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.dart",
+      "source_sha256": "33ee282968685a2ca88cc2adbf7a4dce008978ce585362b17f4d38cfc3637818",
+      "result_sha256": "213c2e84d67ddc2e257e1684410a3ac394c93eee15e4ab6a5c2952ec341b5b0b"
+    },
+    {
+      "Target": "deno",
+      "Language": "Deno (TypeScript)",
+      "Version": "2.9.5",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "deno@2.9.5"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "deno run --allow-read leibniz.ts",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.ts",
+      "source_sha256": "60eeefe9e58cbc23efc0e78370db6c151f663c8e605e33009681e126f082149d",
+      "result_sha256": "555da865112dd73e4c9842be7a55df917b69af3c7a246ad02c270bfb34ea90a8"
+    },
+    {
+      "Target": "fortran",
+      "Language": "Fortran 90",
+      "Version": "15.3.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.141692643591",
+      "Nixpkgs": [
+        "gfortran@15.3.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "gfortran leibniz.f90 -o leibniz -Ofast -flto -ffast-math -march=native -mtune=native",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.f90",
+      "source_sha256": "4623e21205910a8c2daa3e2707d2c48d021915b9fc00ca17019cc4bb6d2d9b5f",
+      "result_sha256": "2b366ea46353b5aa672d9e4488744954b11816255f462719b7914ea9350314c0"
+    },
+    {
+      "Target": "fsharp",
+      "Language": "F#",
+      "Version": "8.0.424",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "dotnet-sdk@8.0.424"
+      ],
+      "NixFlakes": [],
+      "Compile": "dotnet publish fs/leibniz.fsproj -c Release -o out",
+      "Run": "dotnet ./out/leibniz.dll",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/fs/Program.fs",
+      "source_sha256": "563c86ddb432242c201f712716d1550a1d33ef31161f1922d0574bb00d42e8f0",
+      "result_sha256": "cfe2c0d1020a15c0a4028c822941a086272996cfff5f6093633ef68231b7a603"
+    },
+    {
+      "Target": "fsharp-simd",
+      "Language": "F# (SIMD)",
+      "Version": "8.0.424",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905270",
+      "Nixpkgs": [
+        "dotnet-sdk@8.0.424"
+      ],
+      "NixFlakes": [],
+      "Compile": "dotnet publish fs-simd/leibniz.fsproj -c Release -o out",
+      "Run": "dotnet ./out/leibniz.dll",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/fs-simd/Program.fs",
+      "source_sha256": "fa612c7d3fc6015ba09711c88024e4ed3851f809247115ff8dfbebe738b5d8de",
+      "result_sha256": "407c34a58deb0c1bc95af61ab5ef099178f57aa603472cdfe81b4ca45acb9df1"
+    },
+    {
+      "Target": "gleam",
+      "Language": "Gleam",
+      "Version": "1.18.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "gleam@1.18.1",
+        "erlang@27.2"
+      ],
+      "NixFlakes": [],
+      "Compile": "cp leibniz.gleam leibniz_app/src/leibniz_app.gleam && cp rounds.txt leibniz_app/ && cd leibniz_app && gleam build",
+      "Run": "(cd leibniz_app && gleam run)",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-retest-vzmzp",
+      "source_revision": "b116da3f25866b40902735e450ae3b705f95dbfd",
+      "source_file": "src/leibniz.gleam",
+      "source_sha256": "e214200c9a24b33c1c8b750a88c943d6bf8427f81087bb6345295e91a41d2f28",
+      "result_sha256": "6e99f04cc9f07935d73109ea59e034a8d695b5f816ddb25e7127e2f4d40614c9"
+    },
+    {
+      "Target": "go",
+      "Language": "Go",
+      "Version": "1.27.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "go@1.27.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "go build -ldflags='-s -w' -o leibniz leibniz.go",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.go",
+      "source_sha256": "cbd91139fe92220e3ee179f7e0ffc1e02ff9712729e34a930140372473c9098e",
+      "result_sha256": "5431cc0bd6c949aef2e330b21dfaa99ddfc84d0c7d1c053417413460618165f6"
+    },
+    {
+      "Target": "groovy",
+      "Language": "Groovy",
+      "Version": "5.0.4",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "groovy@5.0.4",
+        "jdk@25+36"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "groovy leibniz.groovy",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.groovy",
+      "source_sha256": "d644b368b776e85dad60929775340ba0fffa8add32834dd8d83fe5f1a06313ee",
+      "result_sha256": "aee097b5eb0039ce49055571ac2ee01b091f72c562574c19e87657ac9e77af3d"
+    },
+    {
+      "Target": "hare",
+      "Language": "Hare",
+      "Version": "0.26.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "hare@0.26.0.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "hare build -R -o leibniz leibniz.ha",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.ha",
+      "source_sha256": "4e43d4cd39e4f4dee6cba727528a72dfce8537d2632f09bcfcb672f1d93af65a",
+      "result_sha256": "873004b4b847d7d9186558752bfebd0a853367d53d5e254770ac53e13fc74bb3"
+    },
+    {
+      "Target": "janet",
+      "Language": "Janet",
+      "Version": "1.41.2",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "janet@1.41.2"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "janet leibniz.janet",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.janet",
+      "source_sha256": "e02dae1e0ef5a8bb5993f6a72b06c651be13a9f3717c37fe3a08dd3e65f4eea3",
+      "result_sha256": "d95bbe4ffc210cbd1172e8fde234ee03f9c9f232fc81ae302fc44cf76388eb86"
+    },
+    {
+      "Target": "janet-compiled",
+      "Language": "Janet (compiled)",
+      "Version": "1.41.2",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "janet@1.41.2",
+        "git@2.47.1",
+        "gcc@14.2.0",
+        "gnumake@4.4.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "mkdir -p /tmp/janet-modules && JANET_PATH=/tmp/janet-modules /tmp/jpm-prefix/bin/jpm quickbin leibniz_compiled.janet leibniz",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz_compiled.janet",
+      "source_sha256": "8d2b941c87a4940b04121389ae07a8a8d7194b234942a37213c493461fa37bfd",
+      "result_sha256": "bea252df640c57ed81b6e6024789faa791b79a1538bdc048739302885a02d35e"
+    },
+    {
+      "Target": "java",
+      "Language": "Java",
+      "Version": "openjdk 25 2025-09-16",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926535900345",
+      "Nixpkgs": [
+        "jdk@25+36"
+      ],
+      "NixFlakes": [],
+      "Compile": "javac leibniz.java",
+      "Run": "java leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.java",
+      "source_sha256": "61f52444007fe14b55e1e0b1aabd2ffc732cf2bdb928189090647eea969bde66",
+      "result_sha256": "af785054a91d2fdf44f425c32159a8f9f38e2e7167984644971f43235024c01c"
+    },
+    {
+      "Target": "java-vecops",
+      "Language": "Java (Vec Ops)",
+      "Version": "openjdk version \"25\" 2025-09-16",
+      "Rounds": 10000,
+      "CalculatedPi": "3.141492653590019",
+      "Nixpkgs": [
+        "jdk@25+36"
+      ],
+      "NixFlakes": [],
+      "Compile": "javac --add-modules jdk.incubator.vector leibnizVecOps.java",
+      "Run": "java --add-modules jdk.incubator.vector leibnizVecOps",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibnizVecOps.java",
+      "source_sha256": "ab2f575b9613f73a5caa946662a72e6123b98a35f4313437433240ffd3ff9f7a",
+      "result_sha256": "cad85999bac78d6d94b13bb25eaebc0106c5bd1b80c4be3e905dec6a7075cef0"
+    },
+    {
+      "Target": "julia",
+      "Language": "Julia",
+      "Version": "1.12.7",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860367",
+      "Nixpkgs": [
+        "julia@1.12.7",
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "julia -e 'using Pkg; Pkg.activate(\"julia\"); Pkg.instantiate(); isempty(Pkg.Registry.reachable_registries()) && Pkg.Registry.add(\"General\"); Pkg.Apps.add(PackageSpec(name=\"JuliaC\", version=\"0.3.10\"))' && /tmp/bench-julia-depot/bin/juliac --output-exe leibniz --trim --experimental --bundle bun julia",
+      "Run": "bun/bin/leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/julia/src/LeibnizApp.jl",
+      "source_sha256": "df100ddf5c960e9a76beb935c5e244ccbac7ee89008810cb7b0bfd56101fce3a",
+      "result_sha256": "dfb8afa6a1b31951f14bc90f4a8a2c71e3d9540f9c03b6785f03b96832a5ecd2"
+    },
+    {
+      "Target": "kotlin",
+      "Language": "Kotlin",
+      "Version": "2.4.10",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "kotlin@2.4.10",
+        "jdk@25+36"
+      ],
+      "NixFlakes": [],
+      "Compile": "kotlinc leibniz.kt -include-runtime -d leibniz.jar",
+      "Run": "java -jar leibniz.jar",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.kt",
+      "source_sha256": "d7e133fb288eca817fc7dfd7b4a79861b40658c4e29e5598aad5826fb7c7c9a8",
+      "result_sha256": "a55c63b45cdb116398aa5ff363c6cfd52c2be7b97744ce5ee7a8dc006a1485ea"
+    },
+    {
+      "Target": "luajit",
+      "Language": "LuaJIT",
+      "Version": "2.1.1785763465",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "luajit@2.1.1785763465"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "luajit leibniz.lua",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.lua",
+      "source_sha256": "caf4ef038ed19b5d4db5163629ea108bc5065c68d640e63894aa02ee632028eb",
+      "result_sha256": "6788300b1b4408a33548067adc9b59ce256ac6bdb838198cb00f4e8ec7d46b62"
+    },
+    {
+      "Target": "micropython",
+      "Language": "MicroPython",
+      "Version": "1.26.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "micropython@1.26.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "micropython leibniz.py",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-micropython-5pbdn",
+      "source_revision": "2421319cd6d1778ed1dae5da6976b9ef7351631b",
+      "source_file": "src/leibniz.py",
+      "source_sha256": "d44a6eeabf2ffad9efb445a2b4dcb464e50cc3624b4b6ca718c8468dbf386666",
+      "result_sha256": "10de5dd7b79d9179af578779d60e7a89630ff0ffbe980da09da573a611ab7748"
+    },
+    {
+      "Target": "mojo",
+      "Language": "Mojo",
+      "Version": "1.0.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926535900345",
+      "Nixpkgs": [
+        "python3@3.12.8",
+        "uv@0.5.11",
+        "gcc@16.2.0",
+        "patchelf@0.15.2"
+      ],
+      "NixFlakes": [],
+      "Compile": "uv venv /app/.mojo && uv pip install --python /app/.mojo/bin/python --require-hashes -r mojo-requirements.txt && /app/.mojo/bin/mojo build -O3 leibniz.mojo -o leibniz && patchelf --force-rpath --set-interpreter \"$(cat $NIX_CC/nix-support/dynamic-linker)\" --set-rpath \"$(patchelf --print-rpath leibniz):$(dirname $(g++ -print-file-name=libstdc++.so.6))\" leibniz",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.mojo",
+      "source_sha256": "bcb9ba7d6f6c49bfce7de4fae2b57b8094b519a3ff66ddb3802d1765fe6856e5",
+      "result_sha256": "959b7c686c8fe2d79de6ed75e1828e64a0e394d0bd0fd4aa3bfd5c8bc7bd3d23"
+    },
+    {
+      "Target": "nasm",
+      "Language": "Assembly (NASM x64)",
+      "Version": "3.02",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "nasm@3.02",
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "nasm -f elf64 leibniz.asm -o leibniz.o && gcc -o leibniz leibniz.o",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.asm",
+      "source_sha256": "23b56103d0878a94315df583aa617b68c894a4999a3396196fd30efbef93a949",
+      "result_sha256": "4a25bb4260bb25fecfd52c5c2c9bb72f28b4321694fad0fc33479c48a38a687d"
+    },
+    {
+      "Target": "nim",
+      "Language": "Nim",
+      "Version": "2.2.10",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860389",
+      "Nixpkgs": [
+        "nim@2.2.10"
+      ],
+      "NixFlakes": [],
+      "Compile": "nim c --verbosity:0 -d:danger -d:lto --gc:arc --passC:'-march=native -fno-signed-zeros -fno-trapping-math -fassociative-math' --passL:'-s' -o:leibniz leibniz.nim",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.nim",
+      "source_sha256": "b39f2a08cb1cd40a3d94015e82ff6512da439db1562c8712a0618562767242ff",
+      "result_sha256": "ef0362f9d1e09737a16487808f14519a2cdc209b97a4c3913534a590d0d8f95d"
+    },
+    {
+      "Target": "nodejs",
+      "Language": "Javascript (nodejs)",
+      "Version": "26.8.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "nodejs@26.8.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "node leibniz.js",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.js",
+      "source_sha256": "504bd88911eb600c5866ccc42bd6cca1196e486dc104ae7bb8cbc162216444f3",
+      "result_sha256": "8cd713b2d4925854da52cb59eaf48928de4d2902a2b0f2bed0e016b79e1398c2"
+    },
+    {
+      "Target": "objc",
+      "Language": "Objective-C",
+      "Version": "21.1.8",
+      "Rounds": 10000,
+      "CalculatedPi": "3.141492673586046",
+      "Nixpkgs": [
+        "clang@21.1.8",
+        "gnustep-base@1.29.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "clang -O3 -s -flto -march=native -mtune=native -fomit-frame-pointer -fno-signed-zeros -fno-trapping-math -fassociative-math $(gnustep-config --objc-flags) $(gnustep-config --base-libs) -o leibniz leibniz.m",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.m",
+      "source_sha256": "5f50ca5803d063c2c1992b1a265f4afc482a8cbaf50f66dd78e35bfc019a548a",
+      "result_sha256": "ea15634f2449fab5300631420103473a83ecc5ed0ff8410ab9f43481f068d37d"
+    },
+    {
+      "Target": "ocaml",
+      "Language": "OCaml",
+      "Version": "5.4.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926535900500",
+      "Nixpkgs": [
+        "ocaml@5.4.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "ocamlopt -O3 -o leibniz leibniz.ml",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.ml",
+      "source_sha256": "a0b9565bbbbe152e81085e0242007fd520d115747047d5360b47d7e3b5df010e",
+      "result_sha256": "1ad9e4be50c708a07610270a1cb6efdb4155fb86af148e4cef3a57e084e0c759"
+    },
+    {
+      "Target": "octave",
+      "Language": "Octave",
+      "Version": "11.3.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926535900345",
+      "Nixpkgs": [
+        "octave@11.3.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "octave leibniz_octave.m",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz_octave.m",
+      "source_sha256": "72c35e2c56a706639aba9696e004a9a71887d51520dfe6016412f19f5f39a026",
+      "result_sha256": "514c32a412967a5c4e5ba3edcbaa65fbfa6d56a87216e8a3a665b9134db6d866"
+    },
+    {
+      "Target": "octave-vectorised",
+      "Language": "Octave (Vectorised)",
+      "Version": "11.3.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926535900500",
+      "Nixpkgs": [
+        "octave@11.3.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "octave leibniz_octave_vectorised.m",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz_octave_vectorised.m",
+      "source_sha256": "4f3de64d990842294b4d46ec74190ba4e311ca63decaec7fe403c16549133edb",
+      "result_sha256": "4c74c8a805475d7d04c6239b340a56447615410b19210a63f54becddfc35967f"
+    },
+    {
+      "Target": "odin",
+      "Language": "Odin",
+      "Version": "2026-08",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "odin@2026-07a"
+      ],
+      "NixFlakes": [],
+      "Compile": "odin build leibniz.odin -file -o:speed -no-bounds-check -disable-assert -out:leibniz",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-retest-vzmzp",
+      "source_revision": "b116da3f25866b40902735e450ae3b705f95dbfd",
+      "source_file": "src/leibniz.odin",
+      "source_sha256": "a8c8fd8da988b93c0ae4ee399ceb363faecfb2944aee117aa980324442771a16",
+      "result_sha256": "b98bb0fdf04664bbca6ff45d9df1df5372fa4cc5fb26c4aef7bf3588bbf3b4ef"
+    },
+    {
+      "Target": "perl",
+      "Language": "Perl",
+      "Version": "5.42.3",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "perl@5.42.3"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "perl leibniz.pl",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.pl",
+      "source_sha256": "892e45d77b3f876f195174f44b40599d3ecf63b33550d67905fbfbe0eebab1cb",
+      "result_sha256": "252806561a8fb3f268bfe3a590161e458f3ffa5ae5adf52c851f78f63be9285d"
+    },
+    {
+      "Target": "php",
+      "Language": "PHP",
+      "Version": "8.5.9",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "php@8.5.9"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "php -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.php",
+      "source_sha256": "7dfa84905991671612bc851d94e5a91b8bcd78eec7d8586b384eee65af553e6a",
+      "result_sha256": "df41875909ede084d0b911925dad740e69410000d3c5cbb5de9ce031056a3b9a"
+    },
+    {
+      "Target": "pony",
+      "Language": "Pony",
+      "Version": "0.68.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "ponyc@0.68.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "ponyc ./ -o=out --bin-name=leibniz",
+      "Run": "./out/leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.pony",
+      "source_sha256": "c1dd44b28ed6f2eedf4e626ca867d30cb97c3a5011ce3168679d57fd0ae05823",
+      "result_sha256": "f18b65d1484eba545e99c700dc8de1c4b8a6a29a66be31041a610730e8428945"
+    },
+    {
+      "Target": "r",
+      "Language": "R",
+      "Version": "4.6.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926535900434",
+      "Nixpkgs": [
+        "R@4.6.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "Rscript leibniz.r",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.r",
+      "source_sha256": "9358e53a11535b666fd9a2cc21401e4d2416686fe94b97fa8cfdf7630c2bfd7f",
+      "result_sha256": "dea775a2aa48bd7ca2935da15f43ce25afc27fb8a47cb82d33cb2188abf3e23a"
+    },
+    {
+      "Target": "racket",
+      "Language": "Racket",
+      "Version": "9.3",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "racket@9.3"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "racket leibniz.rkt",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.rkt",
+      "source_sha256": "074d343b25f7176aa997be396e1049d6eccfa47538e8c2a7ff99ebc70e77cea6",
+      "result_sha256": "be0a3fa38a50a5630b125c76b1d0bfb6083e22c242eb1ff59abcf3a5de5db450"
+    },
+    {
+      "Target": "raku",
+      "Language": "Raku",
+      "Version": "2026.07.",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "rakudo@2026.07"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "raku leibniz.raku",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.raku",
+      "source_sha256": "0fd68a9c0b732503e033f930649a68ec35a57497ec595ea8e7bdaf45449ea59e",
+      "result_sha256": "f1db3066c08c3138141073112562679d10bfa1cbf66e7150564d0f2a0e5b4d94"
+    },
+    {
+      "Target": "ruby",
+      "Language": "Ruby",
+      "Version": "4.0.6",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1414926735860353",
+      "Nixpkgs": [
+        "ruby@4.0.6"
+      ],
+      "NixFlakes": [],
+      "Compile": "",
+      "Run": "ruby --yjit leibniz.rb",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.rb",
+      "source_sha256": "fe6e8bd45c027730c433706df67be3f7382e458919b299827e24341e970b9c6f",
+      "result_sha256": "4f2d1a8a07bc019b0ededbab68a9412c7cabf625a0bf0ca520c61cf8e47d2d83"
+    },
+    {
+      "Target": "rust",
+      "Language": "Rust",
+      "Version": "1.97.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "rustc@1.97.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "rustc -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -o leibniz leibniz.rs",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.rs",
+      "source_sha256": "3db53dd8b09ae9fbd456daf478882518dc20b4b835fb41cfe98fa71d54688fce",
+      "result_sha256": "fcf58fd2553b96811873456103a95f694534afdbf4a8393bc76482637a0a4c03"
+    },
+    {
+      "Target": "rust-fastmath",
+      "Language": "Rust (fast-math)",
+      "Version": "1.97.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "rustc@1.97.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "rustc -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -C llvm-args=-enable-unsafe-fp-math -o leibniz leibniz.rs",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.rs",
+      "source_sha256": "3db53dd8b09ae9fbd456daf478882518dc20b4b835fb41cfe98fa71d54688fce",
+      "result_sha256": "25fa2c43546fd4ae4947105970569ad8618e74def686073f21f29b8b1a704ca3"
+    },
+    {
+      "Target": "rust-nightly",
+      "Language": "Rust (nightly SIMD)",
+      "Version": "1.100.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905483",
+      "Nixpkgs": [
+        "gcc@16.2.0"
+      ],
+      "NixFlakes": [
+        "github:nix-community/fenix/03864c059200a8a96f2ee6bb050c69eae96f57ca#minimal.toolchain"
+      ],
+      "Compile": "rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_nightly.rs -o leibniz",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz_nightly.rs",
+      "source_sha256": "3ebc3d51a3b7c94bffd8099622a56552ff63928e43cb210383520b320b92f251",
+      "result_sha256": "47c49a90cddae9a5b2d7cce9d4bc98bf9273dd49dec81829c988ce194ed07fde"
+    },
+    {
+      "Target": "rust-simd",
+      "Language": "Rust (SIMD)",
+      "Version": "1.97.1",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905395",
+      "Nixpkgs": [
+        "rustc@1.97.1"
+      ],
+      "NixFlakes": [],
+      "Compile": "rustc -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort -o leibniz leibniz_simd.rs",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz_simd.rs",
+      "source_sha256": "8a35d0b0fc07b596df6ccf5fd8f1a1a006ef01f669a272e992d32e703e4a7f9e",
+      "result_sha256": "126b6dbe307b1e897e5b341759b4953a9ac30a40128529083fe7baae2d8b8962"
+    },
+    {
+      "Target": "sbcl",
+      "Language": "Common Lisp (SBCL)",
+      "Version": "2.6.7",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "sbcl@2.6.7"
+      ],
+      "NixFlakes": [],
+      "Compile": "sbcl --noinform --eval '(compile-file \"leibniz.lisp\")' --quit",
+      "Run": "sbcl --noinform --load leibniz.fasl --eval '(main)' --quit",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.lisp",
+      "source_sha256": "11e35be52e800e7eebd4e5518469b5de792b16e29cb4959389ce92634e31f4c1",
+      "result_sha256": "d4a56381e795cc1af22a5041ed3adb61fe24fe3718ad24eee29dca290a3b0247"
+    },
+    {
+      "Target": "sbcl-simd",
+      "Language": "Common Lisp (SBCL SIMD)",
+      "Version": "2.6.7",
+      "Rounds": 10000,
+      "CalculatedPi": "3.141692623581682",
+      "Nixpkgs": [
+        "sbcl@2.6.7"
+      ],
+      "NixFlakes": [],
+      "Compile": "sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die \"leibniz\" :executable t :toplevel (quote cl-user::main) :purify t)'",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz-sbcl-simd.lisp",
+      "source_sha256": "bd2b874f06f55ccf2b0d49b896d6fece6b423fdae693186a28b77727f5f4a0f3",
+      "result_sha256": "6759bfdb2e331088326d25d150b24da29ca555dbd8a792f001401cd912e0fd1d"
+    },
+    {
+      "Target": "scala",
+      "Language": "Scala",
+      "Version": "3.8.4",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "scala-cli@1.16.0",
+        "clang@21.1.8",
+        "gcc@14.2.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "scala-cli package leibniz.scala -o leibniz --native --native-mode release-full --power",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.scala",
+      "source_sha256": "effb928b507d56054fbbd9b7f9b22889cbcf27754840e099e70fe10b75db9e94",
+      "result_sha256": "120c4cba8df832daf3265ee97be33737ec4a65c72a9644fb00e7cb1f74c9d3a8"
+    },
+    {
+      "Target": "v",
+      "Language": "V",
+      "Version": "0.5.2",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "vlang@0.5.2"
+      ],
+      "NixFlakes": [],
+      "Compile": "v -prod -o leibniz leibniz.v",
+      "Run": "./leibniz",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.v",
+      "source_sha256": "8d039082c50af291fe5a2b733f14d73253ab4e17818c097fdf78d6abaa8f036b",
+      "result_sha256": "6a77fcfcb66e9618eb4315a2cc6c94d894905f0aa2438b6a701a1cdd4d4d7c6f"
+    },
+    {
+      "Target": "wasm",
+      "Language": "WASM (C via Wasmtime)",
+      "Version": "48.0.0",
+      "Rounds": 10000,
+      "CalculatedPi": "3.1416926435905346",
+      "Nixpkgs": [
+        "wasmtime@48.0.0",
+        "wget@1.25.0"
+      ],
+      "NixFlakes": [],
+      "Compile": "/tmp/wasi-sdk/bin/clang -O3 -o leibniz.wasm leibniz.c",
+      "Run": "wasmtime --dir=. leibniz.wasm",
+      "WarmupRuns": 1,
+      "MeasuredRuns": 3,
+      "ExitCodesPerRun": [
+        0,
+        0,
+        0
+      ],
+      "workflow": "speed-comparison-pr331-lxqx5",
+      "source_revision": "0d915b7fcb56d4babc62633564b71bc48a43a9ae",
+      "source_file": "src/leibniz.c",
+      "source_sha256": "a5ec546191d01ff3217e6500ecab8843a4b50ac04d497f12382774d64f67b99e",
+      "result_sha256": "cd27bd3d559ba7e211a800807183a92ff9269d5f7afbdc0c6a9b1f02e13ef6e5"
+    }
+  ],
+  "deferred_updates": [
+    {
+      "package": "micropython@1.27.0",
+      "replacement": "micropython@1.26.0",
+      "reason": "The Nix derivation fails ten upstream tests during package installation.",
+      "nixpkgs_revision": "c27cdad491a991b11ed731760aa2ef8db0cb0410",
+      "workflow": "speed-comparison-pr331-retest-vzmzp"
+    }
+  ]
+}
