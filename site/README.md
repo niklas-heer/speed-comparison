@@ -11,6 +11,9 @@ npm run test:browser
 npm run dev
 ```
 
+If another project is using port 4321, run browser checks with
+`PLAYWRIGHT_PORT=4341 npm run test:browser`.
+
 Vercel uses the repository-root `vercel.json` (project root must remain the repo
 root, not `site/`). It needs no PostgreSQL credential. The public site is
 https://speed-comparison.vercel.app. Original `/history/...` download paths are
@@ -18,9 +21,26 @@ preserved. Published Git snapshots remain the portable source of truth.
 
 ## Editing the journal
 
-Add a Markdown file to `src/content/journal/` with `title`, ISO `date`, `category`
-and `summary` frontmatter. Filename becomes its URL. Record what changed, why,
-validation and remaining limitations; do not describe a planned rollout as live.
+Add a Markdown or MDX file to `src/content/journal/` with `title`, ISO `date`,
+`category`, `summary`, approximate `readingTime` (minutes), and `art` (`flow`,
+`samples`, or `evidence`) frontmatter. Use `updated` when substantially revising an
+existing story. The filename becomes its URL; retain it when changing a title.
+The shared catalog supplies the index, article routes and related reading. H2
+headings automatically become the article navigation.
+
+Write for someone meeting the project for the first time: open with a concrete
+question, define components when introduced, follow a real example, then explain
+the tradeoffs. Link technical claims to the measured snapshot or a pinned source
+revision. Distinguish deployed behaviour, implemented code and planned rollout.
+
+MDX stories can import the Astro components in `src/components/journal/` directly.
+`PipelineFlow` provides opt-in playback and selectable stages; `MeasurementLab`
+explores execution/workload counts without predicting timings. `EvidenceTrail`
+and `WorkloadShare` derive their numbers from the named historical snapshot at
+build time. Keep data and captions together, and label illustrative diagrams.
+These components use plain browser JavaScript, without a client UI framework.
+All explanations remain readable without JavaScript; reduced-motion readers get
+manual pipeline steps. Browser tests cover those paths and both colour themes.
 
 ## Private Postgres archive
 

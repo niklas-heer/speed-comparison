@@ -15,6 +15,7 @@
     "archive": "node scripts/archive.mjs"
   },
   "dependencies": {
+    "@astrojs/mdx": "8.0.1",
     "astro": "7.3.1",
     "pg": "8.16.3"
   },

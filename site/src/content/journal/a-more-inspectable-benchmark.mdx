@@ -1,0 +1,118 @@
+---
+title: "A fast result is only the beginning."
+date: "2026-09-06"
+updated: "2026-09-12"
+category: "Reading the results"
+summary: "Follow one Go measurement backwards—from a number on the chart to the source, compiler and machine that produced it."
+readingTime: 6
+art: "evidence"
+---
+
+import EvidenceTrail from "../../components/journal/EvidenceTrail.astro";
+
+You open a programming language benchmark. There is a chart, a very fast bar, and your favourite language somewhere below it. Before deciding what that means, try a different question: what would it take to explain just one of those numbers?
+
+Speed comparison gives many implementations the same small mathematical problem: approximate π with the Leibniz series. The calculation is deliberately simple enough to read. The experiment around it is where things become interesting.
+
+A compiler can change the generated instructions. A vectorized implementation can process several terms together. Floating-point options can change the arithmetic. A busy machine can change the time. The language name is only the beginning of the description.
+
+## Open one result, not a leaderboard
+
+Take Go in the September 5, 2026 snapshot. Its median is about **1.166 seconds** for one billion terms. That is a useful observation, but it becomes much more useful when you can open it up.
+
+<EvidenceTrail />
+
+The three durations are close, but they are not identical. Sorting them puts the third recorded sample in the middle; that is the median shown in the table. The minimum and maximum tell you what happened in these three observations. They do not establish how much variation a longer experiment might reveal.
+
+Now follow the build link. You can see Go 1.25.5, the compilation command and the resolved Nix package. Follow the source link and you can read the program associated with the measured Git revision, rather than whatever happens to be on the main branch today.
+
+That distinction matters the moment somebody improves the implementation. A new source file cannot explain an old timing.
+
+## The compiler is part of the experiment
+
+“Written in Go” is a broad label. “This file, built by this compiler with these flags, on this machine” describes something another person can investigate.
+
+The project’s language declarations hold the build recipe: package requirements, source paths, compilation commands and runtime commands. Devbox uses Nix packages to construct the environment. The report retains the requested versions and the resolved package information, including the Nix store paths where recorded.
+
+Think of the version label as the name on an ingredient jar. The resolved package record is the batch information. Both are useful when a result changes after an update.
+
+The same principle applies to optimization. An explicitly SIMD implementation uses vector instructions to do several pieces of arithmetic at once. A compiler’s relaxed floating-point mode can permit transformations that a stricter mode would reject. Those are interesting experiments, provided the reader can see which experiment each row represents.
+
+> A result should give you enough context to ask a better question than “which language won?”
+
+## A reproducible recipe still needs an honest clock
+
+Recording the compiler does not make the machine perfectly repeatable. The September baseline ran on a shared virtual machine. It recorded a virtualized AMD EPYC CPU model and four visible threads; that is useful context, not a guarantee of exclusive physical cores or identical conditions on another host.
+
+The site therefore preserves missing information as **“Not recorded”**. Filling a historical gap with today’s configuration would make the page look more complete while making the evidence worse.
+
+The baseline’s source files were recovered later from its recorded revision and checked by hash. Newer runner output records source before compilation. Those paths arrive at inspectable code in different ways, and the report labels the difference. The [methodology](/methodology/) explains the remaining limits on comparison.
+
+## How the project learned to show its workings
+
+The interesting evolution is a change in what the project saves. A timing table answers “what happened?” An inspectable experiment also lets someone ask “how do you know?”
+
+<ol className="evolution">
+  <li>
+    <span className="milestone-date">Earlier reports</span>
+    <strong>A portable history of results</strong>
+    <p>
+      Charts and downloadable snapshots made comparisons easy to share. The{" "}
+      <a href="/runs/2022-10-15T164557/">October 2022 report</a> remains
+      available, including the limits of the metadata recorded at the time.
+    </p>
+  </li>
+  <li>
+    <time dateTime="2026-02-09">February 2026</time>
+    <strong>Bring the execution paths into agreement</strong>
+    <p>
+      The Dagger and Buildkite work compared the new runner against the legacy
+      Earthfile recipes. Matching flags, toolchains and runtime behaviour
+      mattered before interpreting changes in speed.{" "}
+      <a href="https://github.com/niklas-heer/speed-comparison/commit/89c0998">
+        Read the implementation milestone.
+      </a>
+    </p>
+  </li>
+  <li>
+    <time dateTime="2026-09-05">September 5, 2026</time>
+    <strong>Preserve a native migration baseline</strong>
+    <p>
+      A full Argo run produced results for 75 implementations through native
+      Devbox environments. Its original samples were retained, including the
+      evidence needed to distinguish measurement from the later publication
+      retry.
+    </p>
+  </li>
+  <li>
+    <time dateTime="2026-09-06">September 6, 2026</time>
+    <strong>Let the reader inspect a number</strong>
+    <p>
+      The Astro report added package provenance, source views, raw samples and
+      fuller run context. Reporting can improve without repeating the numerical
+      experiment.{" "}
+      <a href="https://github.com/niklas-heer/speed-comparison/pull/328">
+        See the source and report changes.
+      </a>
+    </p>
+  </li>
+  <li className="planned">
+    <span className="milestone-date">Next / Not yet deployed</span>
+    <strong>A persistent, isolated measurement worker</strong>
+    <p>
+      The unified Dagger runner is implemented. Moving scheduled execution onto
+      its isolated worker still needs deployment validation, followed by
+      workload calibration.
+    </p>
+  </li>
+</ol>
+
+This work is also the accumulated effort of contributors improving implementations and questioning comparisons: Odin, Rust, Gleam, V, Elixir, Hare, Zig SIMD, OCaml and floating-point behaviour have all benefited from that attention. Better programs and better explanations belong in the same project.
+
+## Try reading the next chart differently
+
+Choose two rows that interest you. Check that they used the same workload. Look at their math and SIMD labels. Open their sources, compare the compiler commands, and inspect the individual timings before drawing a conclusion from a small gap.
+
+If something looks surprising, there is now a concrete place to start: a program, a package, a machine, or a sample. That is a more productive conversation than a dispute between language names.
+
+Start with the [Go result](/results/2026-09-05T193245/go/), explore the [complete snapshot](/runs/2026-09-05T193245/), or follow [how code becomes a benchmark](/journal/how-code-becomes-a-benchmark/).

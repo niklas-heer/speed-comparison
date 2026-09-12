@@ -1,25 +1,76 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import JournalArt from "../../components/journal/JournalArt.astro";
+import { posts } from "../../lib/journal";
+import "../../styles/journal.css";
 export function getStaticPaths() {
-  return Object.entries(
-    import.meta.glob("../../content/journal/*.md", { eager: true }),
-  ).map(([path, post]) => ({
-    params: { slug: path.split("/").pop().replace(".md", "") },
+  return posts.map((post) => ({
+    params: { slug: post.slug },
     props: { post },
   }));
 }
 const { post } = Astro.props;
 const { Content, frontmatter: p } = post;
+const headings = post.getHeadings().filter((h) => h.depth === 2);
+const related = posts.filter((other) => other.slug !== post.slug);
 ---
 
-<Layout title={p.title} description={p.summary}
-  ><article class="journal-article">
-    <a class="breadcrumb" href="/journal/">← Project journal</a><p
-      class="eyebrow"
-    >
-      {p.category} / {p.date}
-    </p><h1>{p.title}</h1><p class="lead">{p.summary}</p><div class="prose">
-      <Content />
+<Layout title={p.title} description={p.summary}>
+  <article class="journal-story">
+    <header class="story-header">
+      <a class="breadcrumb" href="/journal/">← Project journal</a>
+      <p class="eyebrow">
+        {p.category}
+        <span aria-hidden="true">/</span>
+        {p.readingTime} min read
+      </p>
+      <h1>{p.title}</h1>
+      <p class="lead">{p.summary}</p>
+      <p class="story-byline">
+        Niklas Heer & contributors <span aria-hidden="true">·</span>
+        <time datetime={p.date}>{p.date}</time>{
+          p.updated && (
+            <>
+              {" "}
+              <span aria-hidden="true">·</span> Updated{" "}
+              <time datetime={p.updated}>{p.updated}</time>
+            </>
+          )
+        }
+      </p>
+    </header>
+    <div class="story-cover"><JournalArt kind={p.art} /></div>
+    <div class="story-layout">
+      <aside class="story-sidebar">
+        <nav aria-label="In this article" class="story-toc">
+          <p class="eyebrow">In this story</p>
+          {
+            headings.map((h, i) => (
+              <a href={`#${h.slug}`}>
+                <span>{String(i + 1).padStart(2, "0")}</span>
+                {h.text}
+              </a>
+            ))
+          }
+        </nav>
+      </aside>
+      <div class="prose story-prose"><Content /></div>
     </div>
-  </article></Layout
->
+    <footer class="story-next">
+      <p class="eyebrow">Keep exploring</p>
+      <div>
+        {
+          related.map((other) => (
+            <a href={`/journal/${other.slug}/`}>
+              <>
+                <span class="eyebrow">{other.frontmatter.category}</span>
+                <strong>{other.frontmatter.title}</strong>
+                <span aria-hidden="true">↗</span>
+              </>
+            </a>
+          ))
+        }
+      </div>
+    </footer>
+  </article>
+</Layout>
