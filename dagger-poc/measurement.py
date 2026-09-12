@@ -29,7 +29,8 @@ def measurement_command(run: str, *, show_output: bool = False) -> str:
     if show_output:
         hyperfine.append("--show-output")
     hyperfine.append(run)
-    return f"({run}) > pi.txt && {shlex.join(hyperfine)}"
+    # Separate nested parentheses so shells do not parse (( as arithmetic.
+    return f"( {run} ) > pi.txt && {shlex.join(hyperfine)}"
 
 
 def measurement_metadata() -> dict:

@@ -46,6 +46,7 @@ from languages import (
     LANGUAGES,
     Language,
     get_devbox_image,
+    get_tool_packages,
     get_base_image_name,
     get_base_languages,
     get_language,
@@ -94,10 +95,7 @@ async def build_devbox_image(
     container = container.with_workdir("/app").with_exec(["devbox", "init"])
 
     # Add standard nixpkgs packages (including hyperfine and micropython)
-    packages = list(lang.nixpkgs) + [
-        f"hyperfine@{HYPERFINE_VERSION}",
-        f"micropython@{MICROPYTHON_VERSION}",
-    ]
+    packages = list(lang.nixpkgs) + get_tool_packages(lang)
     if packages:
         packages_str = " ".join(packages)
         # Use --allow-insecure=<pkg> for packages that depend on insecure deps (e.g., haxe -> mbedtls)

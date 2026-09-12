@@ -6,10 +6,13 @@ import shlex
 import subprocess
 import sys
 
+import pytest
+
 from measurement import measurement_command
 
 
-def test_four_executions_retain_three_measurements_and_first_output(tmp_path):
+@pytest.mark.parametrize("subshell", [False, True])
+def test_four_executions_retain_three_measurements_and_first_output(tmp_path, subshell):
     hyperfine = tmp_path / "hyperfine"
     hyperfine.write_text(
         f"#!{sys.executable}\n"
@@ -31,6 +34,8 @@ def test_four_executions_retain_three_measurements_and_first_output(tmp_path):
         "print(n)\n"
     )
     command = shlex.join([sys.executable, str(program)])
+    if subshell:
+        command = f"(cd {shlex.quote(str(tmp_path))} && {command})"
     subprocess.run(
         ["sh", "-ec", measurement_command(command, show_output=True)],
         cwd=tmp_path,

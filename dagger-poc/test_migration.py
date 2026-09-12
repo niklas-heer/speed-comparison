@@ -49,7 +49,7 @@ def test_version_checker_sorts_release_numbers(monkeypatch):
     assert info.update_available
 
 
-@pytest.mark.parametrize("version", ["1.27rc3", "1.27-rc.3", "1.27beta1"])
+@pytest.mark.parametrize("version", ["1.27rc3", "1.27-rc.3", "1.27beta1", "0.pre+date=2022-04-27"])
 def test_version_checker_excludes_prereleases(version):
     assert not check_versions.is_stable_version(version)
 

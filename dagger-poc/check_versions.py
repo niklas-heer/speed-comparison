@@ -61,7 +61,7 @@ UNSTABLE_PATTERNS = [
 
 # Compiled regex for efficiency
 UNSTABLE_REGEX = re.compile(
-    r"[-._](" + "|".join(UNSTABLE_PATTERNS) + r")[-._\d]*$",
+    r"[-._](" + "|".join(UNSTABLE_PATTERNS) + r")[-._\d]*(?:\+.*)?$",
     re.IGNORECASE,
 )
 

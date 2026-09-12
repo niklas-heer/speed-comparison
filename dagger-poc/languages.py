@@ -978,6 +978,16 @@ def get_all_versions() -> dict[str, str]:
     return {name: lang.primary_version for name, lang in LANGUAGES.items()}
 
 
+def get_tool_packages(lang: Language) -> list[str]:
+    """Add measurement tools without replacing a target's own runtime pin."""
+    provided = {package.split("@", 1)[0] for package in lang.nixpkgs}
+    return [
+        f"{name}@{version}"
+        for name, version in (("hyperfine", HYPERFINE_VERSION), ("micropython", MICROPYTHON_VERSION))
+        if name not in provided
+    ]
+
+
 def get_devbox_image() -> str:
     """Get the Devbox base image reference.
 
