@@ -12,7 +12,7 @@ measurement. `result_metadata.py` validates finite, plausible Leibniz output and
 adds actual rounds and math/SIMD labels. Native results retain the resolved
 `devbox.lock`, including transitive Nix inputs.
 
-Both adapters perform two warmups and three measured executions. The first warmup
+Both adapters perform one warmup and three measured executions. The warmup
 also captures the output for validation, avoiding an extra execution solely for
 metadata. Dagger retains setup/build caches but adds a fresh measurement ID before
 warmup so requested timings cannot come from an earlier cached run.
@@ -31,7 +31,7 @@ trusting a PR-produced artifact.
 ```bash
 # From the repository root:
 uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
-QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \\
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
   uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust go python
 python scripts/argo_bench.py --targets 'rust go python' --rounds 10000
 ```

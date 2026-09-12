@@ -1,6 +1,58 @@
+# Speed comparison of programming languages
+
 [![CI](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml/badge.svg)](https://github.com/niklas-heer/speed-comparison/actions/workflows/ci.yml)
 
-![plot](https://speed-comparison.vercel.app/report-images/latest.png "Speed comparison of programming languages")
+**One calculation, many implementations, and the evidence behind every timing.**
+
+Speed comparison is an open microbenchmark of loops and floating-point arithmetic.
+It asks how different implementations compute the same Leibniz approximation of π,
+then records the source, toolchain, commands and individual measurements needed to
+investigate the result. A target can be a language, a compiler choice, or an optimized
+variant—not just a language name.
+
+[Explore the results](https://speed-comparison.vercel.app/) ·
+[Read the methodology](https://speed-comparison.vercel.app/methodology/) ·
+[Follow the interactive pipeline](https://speed-comparison.vercel.app/journal/how-code-becomes-a-benchmark/)
+
+**In this README:** [Scope](#what-this-measures) · [Latest results](#latest-results) ·
+[Quick start](#quick-start) · [How it works](#how-it-works) ·
+[History](#how-the-project-evolved) · [Contributing](#contributing) ·
+[Repository map](#find-your-way-around)
+
+## What this measures
+
+Every implementation evaluates terms of the same alternating series:
+
+```text
+π ≈ 4 × (1 − 1/3 + 1/5 − 1/7 + …)
+```
+
+The formula is deliberately small enough to inspect across languages. It converges
+slowly, so it is useful here as a repeatable arithmetic workload rather than an
+efficient way to calculate π. Outputs must be finite and pass a workload-dependent
+convergence check; correctness still matters even though maximum π precision is not
+the goal.
+
+| This project is | It does not establish |
+| --- | --- |
+| A comparison of specific implementations, compilers and settings | A universal ranking of programming languages |
+| A single-threaded numerical microbenchmark | Web-server, database, I/O or whole-application performance |
+| An experiment that exposes source, samples and recorded environment details | Identical hardware conditions or guaranteed reproducibility on every machine |
+| A place to study scalar code, compiler optimization and explicit SIMD | That different math modes or algorithms are interchangeable |
+
+Ranked implementations stay single-threaded and use the Leibniz series. Explicit
+SIMD variants, which process several values per instruction, get separate targets.
+Compiler flags, relaxed floating-point math and paired-term transformations must
+remain visible. The [standalone Fortran OpenMP example](src/alt/README.md#fortran-with-openmp)
+is preserved outside the ranked comparison.
+
+Read differences within a compatible hardware, workload and protocol group. Check
+source and build settings before attributing a gap to the language. Three samples
+and their observed range cannot establish a statistically reliable winner for every
+small difference. See [how to inspect a result](https://speed-comparison.vercel.app/journal/a-more-inspectable-benchmark/)
+for a walkthrough using actual Go measurements.
+
+## Latest results
 
 <!-- latest-run:start -->
 **Latest full run: 5h 18m 46s · 75 implementations · 1 billion terms per execution.**
@@ -15,242 +67,249 @@ protocol is distinct from the new one-warmup/three-measurement protocol. The cha
 shows **median** times and observed sample ranges, with SIMD and relaxed math labeled.
 <!-- latest-run:end -->
 
----
+<details>
+<summary>View the full comparison chart</summary>
 
-# Speed comparison of programming languages
+[![Implementation medians and observed sample ranges, with compiler versions and optimization labels](https://speed-comparison.vercel.app/report-images/latest.png)](https://speed-comparison.vercel.app/report-images/latest.png)
 
-This projects tries to compare the speed of different programming languages.
-In this project we don't really care about getting a precise calculation of pi. We only want to see how fast are the programming languages doing. <br />
-It uses an implementation of the [Leibniz formula for π](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) to do the comparison. <br />
-Here is a video which explains how it works: [Calculating π by hand](https://www.youtube.com/watch?v=HrRMnzANHHs)
+</details>
 
-You can find the results here: https://speed-comparison.vercel.app/
+The published September 5, 2026 baseline used native Devbox jobs in Argo on a shared
+x86-64 VM. It predates the current runner protocol. New package pins and successful
+smoke checks do **not** replace that published dataset. Historical snapshots retain
+their original samples and missing metadata; later recovery evidence is kept separately.
 
-## Disclaimer
+## Quick start
 
-I'm no expert in all these languages, so take my results with a grain of salt.<br>
+Run these commands from the repository root unless a step says otherwise.
 
-This is a microbenchmark. It can certainly give you some clue about a language, but it doesn't tell you the whole picture. 
+### Check the code without running benchmarks
 
-Also the findings just show how good a language is (or can be) at loops and floating-point math, which is just a small subset of a programming language.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and use Python
+3.11 or newer (CI uses 3.12). This runs the configuration, selection, measurement and
+metadata regression tests; it does not need Docker or install language toolchains.
 
-You are also welcome to contribute and help me fix my possible horrible code in some languages. :smile:
-
-## Rules
-
-The benchmark measures **single-threaded computational performance**. To keep comparisons fair:
-
-1. **No concurrency/parallelism**: Implementations must be single-threaded. No multi-threading, async, or parallel processing.
-
-2. **SIMD is allowed but separate**: SIMD optimizations (using wider registers) are permitted but should be separate targets (e.g., `swift-simd`, `cpp-avx2`) rather than replacing the standard implementation.
-
-3. **Standard language features**: Use idiomatic code for the language. Compiler optimizations flags are fine.
-
-4. **Same algorithm**: All implementations must use the Leibniz formula as shown in the existing implementations.
-
-**Why no concurrency?** Concurrency results depend heavily on core count (4-core vs 64-core gives vastly different results), making comparisons meaningless. SIMD stays single-threaded - it just processes more data per instruction.
-
-For an example of parallel execution, see [François's Fortran OpenMP contribution](src/alt/README.md#fortran-with-openmp),
-preserved as a standalone example outside the ranked benchmark.
-
-<!-- TODO: Create a new video for hyperfine and scmeta -->
-<!-- ## Adding new languages
-
-[<img src="https://github.com/niklas-heer/speed-comparison/raw/master/assets/how-to-contribute_thumbnail.png" width="50%">](https://www.youtube.com/watch?v=ksV4WObYSiQ "Contributing to speed comparison ") -->
-
-## Run it yourself
-
-The benchmark toolchains are installed with **Nix through Devbox**. Language
-versions, compilation flags, source files, and execution commands live in
-[`dagger-poc/languages.py`](dagger-poc/languages.py). The directory name is retained
-for compatibility. Hyperfine measures execution; `scmeta.py` records the output,
-timings, and accuracy. Compilation is outside the timed command.
-
-### Local testing with Dagger
-
-Install Docker and [uv](https://docs.astral.sh/uv/), then run:
-
-```bash
-# Configuration and metadata regression tests
+```sh
+git clone https://github.com/niklas-heer/speed-comparison.git
+cd speed-comparison
 uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
+```
 
-# Quick end-to-end test (10,000 rounds)
+### Run one implementation
+
+Start Docker, then run a short Go check. The Dagger Python SDK provisions its CLI
+and engine; Nix and Devbox run inside the container, so you do not need to install
+every compiler on your host. The first run needs network access and may spend much
+longer downloading the toolchain than doing the calculation.
+
+```sh
 QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
-  uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust go python
-
-# Full benchmark: omit QUICK_TEST_ROUNDS
-USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust
-
-# List targets and their exact commands
-uv run --directory dagger-poc python -c \
-  "from languages import LANGUAGES; print('\\n'.join(LANGUAGES))"
+  uv run --locked --project dagger-poc python dagger-poc/benchmark.py \
+  --output ./results/quick-go go
 ```
 
-Each suite writes a new `results/RUN_ID/` evidence bundle (`--output` selects a new
-directory). Target JSON and actual rounds are under `targets/`; run status and the
-resolved catalog sit alongside it. `run.json` records UTC start/end and total elapsed
-time including engine connection, catalog resolution and teardown; per-target build
-and measurement costs are separate. New target results retain the implementation
-source and checksum, protocol, tooling, observed environment and resource limits. `--revision FULL_SHA` binds declarations and
-sources to an authorized commit; `--base BASE_SHA` selects affected targets.
-See the [consolidation plan](docs/pipeline-consolidation.md) for execution stages.
+`USE_LOCAL_IMAGES=1` builds the environment locally instead of relying on a published
+registry image. Choose a **new output directory** for each attempt, or omit `--output`
+to create `results/<run-id>/` automatically. Add target names to check several
+implementations in one suite. To list available target IDs:
 
-The Dagger Python SDK provisions its CLI/engine. Docker must be running.
-Some targets require x86_64 and specific CPU instructions (AVX2 or AVX-512).
-Use native Linux for performance measurements; emulated runs only test functionality.
-
-### Homelab benchmarks with Argo
-
-Argo Workflows is the primary scheduled/manual execution path. Its native adapter
-uses the same definitions and measurement tools as Dagger, inside restricted
-Devbox containers. It runs one target at a time and archives raw JSON, charts,
-CSV, compiler commands, hardware information, and the resolved Devbox lock.
-No registry write credentials or Docker socket are needed for benchmarks.
-
-With the cluster kubeconfig configured:
-
-```bash
-python scripts/argo_bench.py --targets "c rust go python" --rounds 10000
-python scripts/argo_bench.py --targets all --rounds 1000000000
-kubectl -n speed-comparison get workflows,pods
+```sh
+uv run --locked --directory dagger-poc python -c \
+  'from languages import LANGUAGES; print("\n".join(LANGUAGES))'
 ```
 
-The manifests and operator commands are maintained in the homelab repository.
-The weekly schedule stays suspended until migration validation is complete.
-See [the migration tracker](docs/nix-migration.md) for rollout and issue status.
+Omitting `QUICK_TEST_ROUNDS` uses [`src/rounds.txt`](src/rounds.txt), currently one
+billion terms. Keep the short workload while developing: it checks functionality,
+not performance. Some targets require x86-64 and AVX2 or AVX-512 instructions;
+emulation and a busy development machine are unsuitable for publishing comparable
+timings.
 
-### Analyze results
+### Inspect and analyze that run
 
-```bash
-uv run --locked analyze.py --folder ./results --out ./results --rounds ./src/rounds.txt
+The quick check above writes a bundle like this:
+
+```text
+results/quick-go/
+├── run.json          # Status, protocol, tooling and whole-invocation clock
+└── targets/
+    ├── go.json       # Samples, output, source, commands and environment
+    └── rounds.txt    # The workload actually used
 ```
 
-Use the `rounds.txt` from the corresponding run. Quick-test timings are not suitable
-for ranking languages and must never replace the public full-benchmark results.
+Successful targets are saved immediately, including when a later target fails.
+Run the analyzer against the **targets directory** and its matching workload file:
 
-## CI/CD and versions
+```sh
+uv run --locked analyze.py \
+  --folder ./results/quick-go/targets \
+  --rounds ./results/quick-go/targets/rounds.txt \
+  --out ./results/quick-go/report
+```
 
-GitHub Actions runs configuration and metadata tests on hosted Ubuntu. Expensive
-Ubicloud builds are removed from the normal path. The optional Dagger workflow is
-manual; normal benchmarks run in Argo. The former `/bench` and `/dagger-bench`
-comment commands are replaced by the Argo submission command above.
+This generates local CSV, JSON, metadata and a PNG chart. It does not publish them.
+The analyzer discovers the sibling `run.json`; individual execution times and the
+whole-run clock remain distinct. The reporting dependencies are in the root
+[`pyproject.toml`](pyproject.toml), separate from the Dagger runner's dependencies.
 
-The weekly Nix version checker proposes explicit package updates in draft PRs.
-Configuration tests validate those proposals; affected targets still need a native
-smoke test before merging. Flake packages use immutable nixpkgs revisions and are
-reviewed separately. The Earthfile and its manually triggered version workflow
-remain as migration references.
+### Work on the website
 
-## Hardware and interpretation
+With Node.js 24 and npm installed:
 
-New homelab runs record their actual CPU and environment in result metadata. Older
-published results were collected on Ubicloud AMD EPYC 9454P runners. Do not compare
-absolute times across different hardware, compiler versions, or round counts.
+```sh
+cd site
+npm ci
+npm test
+npm run build
+npm run dev
+```
 
-Optimized variants remain allowed. Results label relaxed floating-point math,
-explicit SIMD/vectorized variants, and paired-term algebraic transformations.
-`compiler-default` describes the absence of explicitly requested relaxed math; it
-does not promise identical IEEE evaluation order across languages. Every result
-must be finite and pass a round-dependent Leibniz convergence check. This catches
-gross errors while allowing existing rounding and boundary-term differences.
+Astro builds from the committed snapshots. You need neither a benchmark run nor a
+database connection to work on the site. See the [site guide](site/README.md) for
+browser checks, journal authoring and archive operations.
 
-## FAQ
+## How it works
 
-<details>
-<summary><strong>Why do you also count reading a file and printing the output?</strong></summary>
+```mermaid
+flowchart TD
+    Recipe["Python language declarations + source"] --> Dagger["Dagger: local / manual suites"]
+    Recipe --> Native["Native Devbox adapter: Argo jobs"]
+    Dagger --> Evidence["Raw samples + output + provenance"]
+    Native --> Evidence
+    Evidence --> Report["Validate, analyze and publish"]
+    Report --> Git["Published Git snapshots"]
+    Git --> Astro["Astro static build"]
+    Astro --> Browser["Vercel: pages + downloads"]
+    Git --> Archive["Separate private Postgres archive"]
+```
 
-Because I think this is a more realistic scenario to compare speeds.
-</details>
+The two execution paths currently share declarations and measurement helpers. The
+intended consolidation is Argo scheduling the same Dagger runner used locally;
+**that deployment to an isolated, persistent worker is still pending**.
 
-<details>
-<summary><strong>Are the compile times included in the measurements?</strong></summary>
+| Component | Responsibility |
+| --- | --- |
+| [`languages.py`](dagger-poc/languages.py) | Declares packages, source paths, setup, compile/run commands and implementation labels. |
+| Nix through Devbox | Resolves and installs the toolchain; resolved package information is retained with results. |
+| [`benchmark.py`](dagger-poc/benchmark.py) and [`suite.py`](dagger-poc/suite.py) | Prepare a Dagger suite, measure selected targets and preserve its evidence. The `dagger-poc/` name remains for compatibility. |
+| [Hyperfine](https://github.com/sharkdp/hyperfine) and [`measurement.py`](dagger-poc/measurement.py) | Execute the common timing protocol. |
+| [`scmeta.py`](dagger-poc/scmeta.py) and [`result_metadata.py`](dagger-poc/result_metadata.py) | Collect samples/output and validate and describe the result. |
+| [`native.py`](dagger-poc/native.py) and [Argo submission](scripts/argo_bench.py) | Run the native migration adapter in the homelab; cluster access is for operators. |
+| [`analyze.py`](analyze.py), [`publish.py`](publish.py) and [`site/`](site/) | Turn recorded evidence into archived snapshots and inspectable static reports. |
 
-No they are not included, because when running the program in the real world this would also be done before.
-</details>
+### Reuse preparation; take fresh measurements
 
-<details>
-<summary><strong>Isn't this just measuring startup time for fast languages?</strong></summary>
+The Dagger runner prepares environments and builds with bounded concurrency (two
+by default). It waits for **every preparation to finish or fail before timing any
+target**, then measures targets serially. Compilers should not compete with the
+program being measured.
 
-No. The benchmark runs 1 billion iterations. Testing with Zig by timing segments inside the program:
+Reusable build layers can be cached. A fresh measurement ID is introduced after
+the build boundary so a cached timing cannot masquerade as a new observation.
+The current `leibniz-1w-3m-v1` protocol runs one warmup, which also captures π,
+followed by three measured executions. Compilation is outside the stopwatch;
+process startup, input/output and any JIT work within an execution remain inside.
+Warmups are separate processes, not a persistent warmed-up runtime.
 
-- Startup + file read: ~0.01ms
-- Computation: ~200ms
-- Overhead: ~0.01%
+The report shows the median and observed minimum/maximum where available. Its
+range is not a confidence interval. The [measurement story](https://speed-comparison.vercel.app/journal/why-a-billion-terms/)
+explains the workload, repetition count and calibration work.
 
-Even at 1 million iterations, startup would only be ~4% overhead. At 1 billion, it's essentially zero.
-</details>
+### Keep the source and recipe together
 
-<details>
-<summary><strong>Why is C++ (AVX2) slower than regular C++?</strong></summary>
+Working-tree mode is useful while editing. For a committed experiment,
+`--revision FULL_SHA` resolves declarations and source from the same repository
+commit and retains `catalog.json` and source-revision evidence. This fetches the
+revision from GitHub, so it must already be available there. The runner itself
+remains trusted code.
 
-The standard C++ uses `i & 0x1` which lets the compiler auto-vectorize. With `-O3 -ffast-math -march=native`, modern compilers do this extremely well. The explicit AVX2 version has overhead from manual vector setup and horizontal sum operations. Often compiler auto-vectorization beats hand-written SIMD for simple loops.
-</details>
+Add `--base BASE_SHA` to select affected targets instead of naming them explicitly.
+Both commits must be available locally for planning. Shared source changes select
+all consuming variants; shared runner/tooling changes can select the whole suite.
+See the [runner guide](dagger-poc/README.md) and [catalog boundary](docs/catalog-resolution.md).
 
-<details>
-<summary><strong>Why are Crystal/Odin/Ada so slow?</strong></summary>
+### Separate validation, measurement and publication
 
-All three use the `x = -x` pattern which creates a loop-carried dependency that blocks auto-vectorization. The fast implementations use the branchless `i & 0x1` trick instead, which allows the compiler to vectorize the loop.
-</details>
+GitHub Actions runs regression tests and produces an affected-target plan for PRs.
+Website and reporting changes have their own checks. Producing a plan does not
+automatically dispatch a benchmark to the homelab. The optional Dagger workflow is
+manually triggered; native Argo jobs remain available to operators.
 
-<details>
-<summary><strong>Does Zig use fast-math?</strong></summary>
+The weekly Nix version checker opens update proposals. Package updates require
+native smoke validation, not just syntactically valid declarations. The weekly
+full-benchmark schedule remains suspended pending worker isolation and rollout
+validation. The planned policy is to report only when benchmark inputs changed
+since the last successful publication.
 
-Yes. Zig uses `@setFloatMode(.optimized)` which is equivalent to `-ffast-math`. This is documented in the source code.
-</details>
+Published Git snapshots are the portable record. The private Postgres archive
+indexes evidence independently, and the public site reads snapshots at build time.
+A website edit or publication retry can use existing results without rerunning the
+calculation. Public language images and an optional builder also exist, but current
+images contain Devbox environments; minimal dependency-only image export is not
+implemented. See the [consolidation record](docs/pipeline-consolidation.md) for the
+current execution status and remaining deployment gates.
 
-<details>
-<summary><strong>Does Julia use fast-math and SIMD?</strong></summary>
+## How the project evolved
 
-Yes. Julia uses `@fastmath @simd for` - both annotations together. The `@simd` enables vectorization hints (similar to compiler auto-vectorization), while `@fastmath` relaxes floating-point strictness.
-</details>
+The project began as a small, shareable comparison inspired by Thomas Christlieb's
+work. Contributions expanded both the language coverage and the questions worth
+asking about optimization and fairness.
 
-<details>
-<summary><strong>Why is Nim faster than C?</strong></summary>
+| Period | What changed |
+| --- | --- |
+| **2022 onward** | Published charts and downloadable snapshots established a history that can still be explored in the [archive](https://speed-comparison.vercel.app/runs/), including [October 2022](https://speed-comparison.vercel.app/runs/2022-10-15T164557/). |
+| **2025** | The Earthly/GitHub Actions pipeline grew automated builds and version checks. Results gained more hardware and environment context; the [Earthfile](Earthfile) remains a legacy reference. |
+| **February 2026** | Dagger and Buildkite work explored a portable runner and checked parity with legacy toolchains, flags and runtime behaviour. |
+| **September 2026** | Nix/Devbox declarations and native Argo jobs produced the 75-implementation migration baseline. The unified Dagger runner added reusable preparation, fresh measurements and revision-bound sources. Astro brought source inspection, package provenance and raw samples to the public report. |
+| **Next** | Validate an isolated persistent Dagger worker behind Argo, calibrate a practical reporting workload, and connect authorized contribution checks to that execution path. |
 
-Both compile to native code via gcc with similar flags. The marginal difference is likely measurement variance. Nim's code explicitly uses `cuint` to match C's unsigned int type for the loop counter.
-</details>
+These changes improve how experiments are run and explained; they do not make old
+and new hardware/protocols directly comparable. Read the [project journal](https://speed-comparison.vercel.app/journal/)
+for the stories, or the [migration tracker](docs/nix-migration.md) for implementation
+and validation details.
 
-<details>
-<summary><strong>Some implementations aren't optimized / weren't written by experts</strong></summary>
+## Contributing
 
-Fair point. I'm not an expert in all 40+ languages. The goal was idiomatic-ish code, but some implementations could definitely be improved. That's why PRs are always welcome! For example, Swift has 3 variants (standard, relaxed, SIMD) showing different optimization levels.
+Improvements to implementations, methodology, reporting and documentation are all
+welcome. A surprising result is a good starting point for an investigation.
 
-This benchmark shows what performance you can expect when someone not deeply versed in a language writes the code - which is actually a useful data point.
-</details>
+1. **Find the target.** Read its source under `src/` and its declaration in
+   [`languages.py`](dagger-poc/languages.py). For a new language, add both.
+2. **Keep the experiment explicit.** Preserve the single-threaded Leibniz workload.
+   Give optimized variants distinct target IDs and accurate math/SIMD labels.
+   Record compiler flags, pin package versions and use immutable revisions for
+   flake inputs.
+3. **Check correctness and integration.** Run the regression tests and a small
+   native smoke check for affected targets. Exercise odd/even term counts and
+   vector-tail handling when changing those paths. A short timing is not evidence
+   of a speedup.
+4. **Explain the change.** Include what changed, the commands and environment used
+   to validate it, and any limitations. Performance claims need comparable before/
+   after samples; retain the underlying evidence.
 
-<details>
-<summary><strong>Which languages use -ffast-math or equivalent?</strong></summary>
+Report a problem through [GitHub issues](https://github.com/niklas-heer/speed-comparison/issues).
+For a result discrepancy, include the run/target link, workload, hardware, compiler
+and command when available. Existing code is open to improvement; the current
+implementation of a language is not a ceiling on its performance.
 
-| Language | Fast-math | Notes |
-|----------|-----------|-------|
-| C/C++ (gcc/clang) | `-ffast-math` | Full optimizations |
-| D (GDC/LDC) | `-ffast-math` | Full optimizations |
-| Zig | `@setFloatMode(.optimized)` | Equivalent to fast-math |
-| Julia | `@fastmath` | Plus `@simd` hint |
-| Fortran | **No** | Uses manual loop unrolling instead |
-| Rust | **No** | But uses vectorizable pattern |
-</details>
+## Find your way around
 
-## Thanks
+| Path | Start here for |
+| --- | --- |
+| [`src/`](src/) | Programs and the reference workload in `rounds.txt`. |
+| [`dagger-poc/`](dagger-poc/) | Language definitions, execution adapters, measurement helpers and regression tests. |
+| [`scripts/`](scripts/) | Target selection, Argo submission, calibration and report utilities. |
+| [`results/`](results/) | Local run bundles; generated results do not become published automatically. |
+| [`docs/history/`](docs/history/) | Published snapshots and original downloadable artifacts. |
+| [`docs/report-evidence/`](docs/report-evidence/) | Separately recovered provenance and historical run context. |
+| [`docs/validation/`](docs/validation/) | Recorded migration, calibration and smoke-check evidence. |
+| [`site/`](site/) | Astro pages, journal articles, data preparation and browser tests. |
 
-### Contributors
+## Credits and license
 
-See all contributors on the [Contributors page](https://github.com/niklas-heer/speed-comparison/graphs/contributors).
+Created by [Niklas Heer](https://nheer.com) and the
+[contributors](https://github.com/niklas-heer/speed-comparison/graphs/contributors).
+Thanks to [sharkdp](https://github.com/sharkdp/hyperfine) for Hyperfine, and to
+[Thomas Christlieb](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/)
+for the original inspiration.
 
-### Special thanks
-
-#### sharkdp
-
-For creating [hyperfine](https://github.com/sharkdp/hyperfine) which is used for the fundamental benchmarking.
-
-#### Thomas
-
-This projects takes inspiration from [Thomas](https://www.thomaschristlieb.de) who did a similar comparison [on his blog](https://www.thomaschristlieb.de/performance-vergleich-zwischen-verschiedenen-programmiersprachen-und-systemen/).
-
-## Website and result archive
-
-The [Astro report](https://speed-comparison.vercel.app/) exposes per-implementation
-measurements, math/SIMD labels, resolved Nix packages, build commands and recorded
-resource limits. Historical evidence remains unchanged. The [project journal](https://speed-comparison.vercel.app/journal/)
-explains the changes and remaining limitations. See [site/README.md](site/README.md)
-for development and the private homelab PostgreSQL archive.
+Code is available under the [MIT license](LICENSE).
