@@ -17,7 +17,7 @@ import shlex
 import shutil
 import subprocess
 
-from languages import LANGUAGES, HYPERFINE_VERSION, MICROPYTHON_VERSION, get_devbox_image
+from languages import LANGUAGES, get_devbox_image, get_tool_packages
 from result_metadata import enrich_result
 from measurement import measurement_command, measurement_metadata
 
@@ -38,8 +38,7 @@ def run(target: str, source: Path, workspace: Path, output: Path, rounds: int) -
             (
                 *lang.nixpkgs,
                 *lang.nix_flakes,
-                f"hyperfine@{HYPERFINE_VERSION}",
-                f"micropython@{MICROPYTHON_VERSION}",
+                *get_tool_packages(lang),
             )
         )
     )

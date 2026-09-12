@@ -15,8 +15,8 @@ parse_int :: proc(buf: []u8) -> int{
 }
 
 main :: proc() {
-    data, ok := os.read_entire_file("rounds.txt")
-    if !ok {
+    data, err := os.read_entire_file("rounds.txt", context.allocator)
+    if err != nil {
         fmt.eprintln("Failed to read rounds.txt")
         return
     }

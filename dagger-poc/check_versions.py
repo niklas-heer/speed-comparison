@@ -61,7 +61,7 @@ UNSTABLE_PATTERNS = [
 
 # Compiled regex for efficiency
 UNSTABLE_REGEX = re.compile(
-    r"[-._](" + "|".join(UNSTABLE_PATTERNS) + r")[-._\d]*$",
+    r"[-._](" + "|".join(UNSTABLE_PATTERNS) + r")[-._\d]*(?:\+.*)?$",
     re.IGNORECASE,
 )
 
@@ -89,6 +89,8 @@ def is_stable_version(version: str) -> bool:
     for pattern in ["alpha", "beta", "preview", "nightly", "dev", "canary"]:
         if pattern in lower:
             return False
+    if re.search(r"\drc\d*$", lower):
+        return False
 
     return True
 
@@ -150,9 +152,18 @@ def compare_versions(current: str, latest: str) -> bool:
     Returns:
         True if latest > current
     """
+    # Date snapshots and numbered releases cannot be ordered numerically.
+    # For example, Hare 2024-02-08 predates its 0.26.0 release.
+    if is_date_version(current) != is_date_version(latest):
+        return False
     current_tuple = parse_version(current)
     latest_tuple = parse_version(latest)
     return latest_tuple > current_tuple
+
+
+def is_date_version(version: str) -> bool:
+    """Recognize calendar versions, including Odin's YYYY-MM suffixes."""
+    return bool(re.match(r"^\d{4}-\d{2}(?:-|[a-z]|$)", version))
 
 
 def check_language_version(target: str, lang: Language, stable_only: bool = True) -> VersionInfo:
@@ -178,6 +189,7 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
     # Get available versions from the Devbox catalog
     versions = get_nixhub_versions(package, stable_only=stable_only)
 
+    versions = [v for v in versions if is_date_version(v) == is_date_version(current)]
     latest = max(versions, key=parse_version) if versions else None
 
     # Determine if update is available

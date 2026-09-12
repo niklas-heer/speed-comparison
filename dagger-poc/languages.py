@@ -195,7 +195,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "c": Language(
         name="C (gcc)",
-        nixpkgs=("gcc@15.2.0",),
+        nixpkgs=("gcc@16.2.0",),
         file="leibniz.c",
         compile=f"gcc {C_FLAGS} -o leibniz leibniz.c -lm",
         run="./leibniz",
@@ -205,7 +205,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "c-clang": Language(
         name="C (clang)",
-        nixpkgs=("clang@21.1.2",),
+        nixpkgs=("clang@21.1.8",),
         file="leibniz.c",
         compile=f"clang {C_FLAGS} -o leibniz leibniz.c -lm",
         run="./leibniz",
@@ -215,7 +215,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "rust": Language(
         name="Rust",
-        nixpkgs=("rustc@1.92.0",),
+        nixpkgs=("rustc@1.97.1",),
         file="leibniz.rs",
         compile=f"rustc {RUST_FLAGS} -o leibniz leibniz.rs",
         run="./leibniz",
@@ -225,7 +225,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "rust-nightly": Language(
         name="Rust (nightly SIMD)",
-        nixpkgs=("gcc@15.2.0",),
+        nixpkgs=("gcc@16.2.0",),
         nix_flakes=("github:nix-community/fenix/03864c059200a8a96f2ee6bb050c69eae96f57ca#minimal.toolchain",),
         file="leibniz_nightly.rs",
         compile="rustc -C debuginfo=0 -C opt-level=3 -C target-cpu=native -C lto=fat -C codegen-units=1 -C panic=abort leibniz_nightly.rs -o leibniz",
@@ -233,14 +233,14 @@ LANGUAGES: dict[str, Language] = {
     ),
     "rust-fastmath": Language(
         name="Rust (fast-math)",
-        nixpkgs=("rustc@1.92.0",),
+        nixpkgs=("rustc@1.97.1",),
         file="leibniz.rs",
         compile=f"rustc {RUST_FLAGS} -C llvm-args=-enable-unsafe-fp-math -o leibniz leibniz.rs",
         run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
     ),
     "rust-simd": Language(
         name="Rust (SIMD)",
-        nixpkgs=("rustc@1.92.0",),
+        nixpkgs=("rustc@1.97.1",),
         file="leibniz_simd.rs",
         compile=f"rustc {RUST_FLAGS} -o leibniz leibniz_simd.rs",
         run="./leibniz", version_cmd="rustc --version", base="rust", category="systems",
@@ -251,22 +251,22 @@ LANGUAGES: dict[str, Language] = {
         run="./leibniz", version_cmd="zig version", base="zig", category="systems",
     ),
     "hare": Language(
-        name="Hare", nixpkgs=("hare@0.26.0",), file="leibniz.ha",
+        name="Hare", nixpkgs=("hare@0.26.0.1",), file="leibniz.ha",
         compile="hare build -R -o leibniz leibniz.ha", run="./leibniz",
         version_cmd="hare version", base="hare", category="systems",
     ),
     "chezscheme": Language(
-        name="Chez Scheme", nixpkgs=("chez@10.3.0",), file="leibniz.ss",
+        name="Chez Scheme", nixpkgs=("chez@10.4.1",), file="leibniz.ss",
         compile="echo '(compile-program \"leibniz.ss\")' | scheme --optimize-level 3",
         run="scheme --program leibniz.so", version_cmd="scheme --version",
         base="lisp", category="functional",
     ),
     "janet": Language(
-        name="Janet", nixpkgs=("janet@1.40.1",), file="leibniz.janet",
+        name="Janet", nixpkgs=("janet@1.41.2",), file="leibniz.janet",
         run="janet leibniz.janet", version_cmd="janet --version", base="janet", category="interpreted",
     ),
     "sbcl-simd": Language(
-        name="Common Lisp (SBCL SIMD)", nixpkgs=("sbcl@2.5.10",), file="leibniz-sbcl-simd.lisp",
+        name="Common Lisp (SBCL SIMD)", nixpkgs=("sbcl@2.6.7",), file="leibniz-sbcl-simd.lisp",
         compile="sbcl --noinform --load leibniz-sbcl-simd.lisp --eval '(sb-ext:save-lisp-and-die \"leibniz\" :executable t :toplevel (quote cl-user::main) :purify t)'",
         run="./leibniz", version_cmd="sbcl --version", base="lisp", category="functional",
     ),
@@ -276,19 +276,19 @@ LANGUAGES: dict[str, Language] = {
         version_cmd="python3 --version", base="python", category="jit",
     ),
     "mojo": Language(
-        name="Mojo", nixpkgs=("python3@3.12.8", "uv@0.5.11", "gcc@15.2.0", "patchelf@0.15.2"),
+        name="Mojo", nixpkgs=("python3@3.12.8", "uv@0.5.11", "gcc@16.2.0", "patchelf@0.15.2"),
         file="leibniz.mojo", extra_files=("mojo-requirements.txt",),
         compile="uv venv /app/.mojo && uv pip install --python /app/.mojo/bin/python --require-hashes -r mojo-requirements.txt && /app/.mojo/bin/mojo build -O3 leibniz.mojo -o leibniz && patchelf --force-rpath --set-interpreter \"$(cat $NIX_CC/nix-support/dynamic-linker)\" --set-rpath \"$(patchelf --print-rpath leibniz):$(dirname $(g++ -print-file-name=libstdc++.so.6))\" leibniz",
         run="./leibniz", version_cmd="/app/.mojo/bin/mojo --version",
         base="mojo", category="compiled",
     ),
     "nasm": Language(
-        name="Assembly (NASM x64)", nixpkgs=("nasm@2.16.03", "gcc@15.2.0"),
+        name="Assembly (NASM x64)", nixpkgs=("nasm@3.02", "gcc@16.2.0"),
         file="leibniz.asm", compile="nasm -f elf64 leibniz.asm -o leibniz.o && gcc -o leibniz leibniz.o",
         run="./leibniz", version_cmd="nasm -v", base="default", category="systems",
     ),
     "fsharp-simd": Language(
-        name="F# (SIMD)", nixpkgs=("dotnet-sdk@8.0.416",), file="fs-simd/Program.fs",
+        name="F# (SIMD)", nixpkgs=("dotnet-sdk@8.0.424",), file="fs-simd/Program.fs",
         compile="dotnet publish fs-simd/leibniz.fsproj -c Release -o out",
         run="dotnet ./out/leibniz.dll", version_cmd="dotnet --version", base="fsharp", category="dotnet",
     ),
@@ -307,7 +307,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "go": Language(
         name="Go",
-        nixpkgs=("go@1.25.5",),
+        nixpkgs=("go@1.27.0",),
         file="leibniz.go",
         compile="go build -ldflags='-s -w' -o leibniz leibniz.go",
         run="./leibniz",
@@ -318,7 +318,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "odin": Language(
         name="Odin",
-        nixpkgs=("odin@2025-11",),
+        nixpkgs=("odin@2026-07a",),
         file="leibniz.odin",
         compile="odin build leibniz.odin -file -o:speed -no-bounds-check -disable-assert -out:leibniz",
         run="./leibniz",
@@ -339,7 +339,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "nim": Language(
         name="Nim",
-        nixpkgs=("nim@2.2.4",),
+        nixpkgs=("nim@2.2.10",),
         file="leibniz.nim",
         compile=(
             "nim c --verbosity:0 -d:danger -d:lto --gc:arc "
@@ -353,7 +353,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "v": Language(
         name="V",
-        nixpkgs=("vlang@0.4.11",),
+        nixpkgs=("vlang@0.5.2",),
         file="leibniz.v",
         compile="v -prod -o leibniz leibniz.v",
         run="./leibniz",
@@ -373,7 +373,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "d-ldc": Language(
         name="D (LDC)",
-        nixpkgs=("ldc@1.41.0",),
+        nixpkgs=("ldc@1.42.0",),
         file="leibniz.d",
         compile=(
             # Avoid static link mode in nixpkgs hosted environments where libc static
@@ -391,7 +391,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "cpp": Language(
         name="C++ (g++)",
-        nixpkgs=("gcc@15.2.0",),
+        nixpkgs=("gcc@16.2.0",),
         file="leibniz.cpp",
         compile=f"g++ leibniz.cpp -o leibniz {CPP_FLAGS}",
         run="./leibniz",
@@ -401,7 +401,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpp-clang": Language(
         name="C++ (clang++)",
-        nixpkgs=("clang@21.1.2", "lld@21.1.2", "gcc@15.2.0"),
+        nixpkgs=("clang@21.1.8", "lld@21.1.2", "gcc@16.2.0"),
         file="leibniz.cpp",
         # Note: -static removed because nixpkgs doesn't include glibc.static by default
         compile=(
@@ -417,7 +417,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "cpp-avx2": Language(
         name="C++ (AVX2)",
-        nixpkgs=("gcc@15.2.0",),
+        nixpkgs=("gcc@16.2.0",),
         file="leibniz_avx2.cpp",
         compile=f"g++ leibniz_avx2.cpp -o leibniz_avx2 {CPP_FLAGS} -mavx2",
         run="./leibniz_avx2",
@@ -430,7 +430,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "crystal": Language(
         name="Crystal",
-        nixpkgs=("crystal@1.18.2",),
+        nixpkgs=("crystal@1.19.1",),
         file="leibniz.cr",
         compile="crystal build leibniz.cr --release",
         run="./leibniz",
@@ -474,7 +474,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "objc": Language(
         name="Objective-C",
-        nixpkgs=("clang@18.1.8", "gnustep-base@1.29.0"),  # 21.1.2/1.30.0 not available
+        nixpkgs=("clang@21.1.8", "gnustep-base@1.29.0"),  # 21.1.2/1.30.0 not available
         file="leibniz.m",
         compile=f"clang {C_FLAGS} $(gnustep-config --objc-flags) $(gnustep-config --base-libs) -o leibniz leibniz.m",
         run="./leibniz",
@@ -487,7 +487,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "csharp": Language(
         name="C#",
-        nixpkgs=("dotnet-sdk@8.0.416",),
+        nixpkgs=("dotnet-sdk@8.0.424",),
         file="leibniz.cs",
         compile="dotnet new console -n leibniz -o _build --force && cp leibniz.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
         run="./out/leibniz",
@@ -497,7 +497,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "csharp-simd": Language(
         name="C# (SIMD)",
-        nixpkgs=("dotnet-sdk@8.0.416",),
+        nixpkgs=("dotnet-sdk@8.0.424",),
         file="leibniz-simd.cs",
         compile="dotnet new console -n leibniz -o _build --force && cp leibniz-simd.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
         run="./out/leibniz",
@@ -507,7 +507,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "fsharp": Language(
         name="F#",
-        nixpkgs=("dotnet-sdk@8.0.416",),
+        nixpkgs=("dotnet-sdk@8.0.424",),
         file="fs/Program.fs",
         compile="dotnet publish fs/leibniz.fsproj -c Release -o out",
         run="dotnet ./out/leibniz.dll",
@@ -520,7 +520,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "java": Language(
         name="Java",
-        nixpkgs=("jdk@21.0.9",),
+        nixpkgs=("jdk@25+36",),
         file="leibniz.java",
         compile="javac leibniz.java",
         run="java leibniz",
@@ -540,7 +540,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "java-vecops": Language(
         name="Java (Vec Ops)",
-        nixpkgs=("jdk@23.0.2",),  # Vector API needs JDK 23+
+        nixpkgs=("jdk@25+36",),  # Vector API needs JDK 23+
         file="leibnizVecOps.java",
         compile="javac --add-modules jdk.incubator.vector leibnizVecOps.java",
         run="java --add-modules jdk.incubator.vector leibnizVecOps",
@@ -550,7 +550,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "kotlin": Language(
         name="Kotlin",
-        nixpkgs=("kotlin@2.1.0", "jdk@21.0.9"),
+        nixpkgs=("kotlin@2.4.10", "jdk@25+36"),
         file="leibniz.kt",
         compile="kotlinc leibniz.kt -include-runtime -d leibniz.jar",
         run="java -jar leibniz.jar",
@@ -560,7 +560,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "scala": Language(
         name="Scala",
-        nixpkgs=("scala-cli@1.10.1", "clang@21.1.2", "gcc@14.2.0"),
+        nixpkgs=("scala-cli@1.16.0", "clang@21.1.8", "gcc@14.2.0"),
         file="leibniz.scala",
         compile="scala-cli package leibniz.scala -o leibniz --native --native-mode release-full --power",
         run="./leibniz",
@@ -570,7 +570,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "clojure": Language(
         name="Clojure",
-        nixpkgs=("clojure@1.12.0.1530", "jdk@21.0.9"),
+        nixpkgs=("clojure@1.12.5.1664", "jdk@25+36"),
         file="leibniz.clj",
         run="clj leibniz.clj",
         version_cmd="clj --version",
@@ -579,7 +579,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "groovy": Language(
         name="Groovy",
-        nixpkgs=("groovy@4.0.26", "jdk@21.0.9"),
+        nixpkgs=("groovy@5.0.4", "jdk@25+36"),
         file="leibniz.groovy",
         run="groovy leibniz.groovy",
         version_cmd="groovy --version",
@@ -635,7 +635,8 @@ LANGUAGES: dict[str, Language] = {
     ),
     "micropython": Language(
         name="MicroPython",
-        nixpkgs=("micropython@1.24.1",),
+        # The catalog's 1.27.0 Nix derivation fails its upstream test suite.
+        nixpkgs=("micropython@1.26.0",),
         file="leibniz.py",
         run="micropython leibniz.py",
         version_cmd="micropython --version",
@@ -644,7 +645,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "ruby": Language(
         name="Ruby",
-        nixpkgs=("ruby@3.4.7",),
+        nixpkgs=("ruby@4.0.6",),
         file="leibniz.rb",
         run="ruby --yjit leibniz.rb",
         version_cmd="ruby --version",
@@ -653,7 +654,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "nodejs": Language(
         name="Javascript (nodejs)",
-        nixpkgs=("nodejs@25.2.1",),
+        nixpkgs=("nodejs@26.8.1",),
         file="leibniz.js",
         run="node leibniz.js",
         version_cmd="node --version",
@@ -662,7 +663,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "bun": Language(
         name="Javascript (bun)",
-        nixpkgs=("bun@1.3.4",),
+        nixpkgs=("bun@1.3.13",),
         file="leibniz.js",
         run="bun run leibniz.js",
         version_cmd="bun --version",
@@ -671,7 +672,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "deno": Language(
         name="Deno (TypeScript)",
-        nixpkgs=("deno@2.6.6",),
+        nixpkgs=("deno@2.9.5",),
         file="leibniz.ts",
         run="deno run --allow-read leibniz.ts",
         version_cmd="deno --version",
@@ -689,7 +690,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "luajit": Language(
         name="LuaJIT",
-        nixpkgs=("luajit@2.1.1741730670",),
+        nixpkgs=("luajit@2.1.1785763465",),
         file="leibniz.lua",
         run="luajit leibniz.lua",
         version_cmd="luajit -v",
@@ -698,7 +699,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "octave": Language(
         name="Octave",
-        nixpkgs=("octave@10.3.0",),
+        nixpkgs=("octave@11.3.0",),
         file="leibniz_octave.m",
         run="octave leibniz_octave.m",
         version_cmd="octave -v",
@@ -707,7 +708,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "octave-vectorised": Language(
         name="Octave (Vectorised)",
-        nixpkgs=("octave@10.3.0",),
+        nixpkgs=("octave@11.3.0",),
         file="leibniz_octave_vectorised.m",
         run="octave leibniz_octave_vectorised.m",
         version_cmd="octave -v",
@@ -716,7 +717,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "perl": Language(
         name="Perl",
-        nixpkgs=("perl@5.40.0",),
+        nixpkgs=("perl@5.42.3",),
         file="leibniz.pl",
         run="perl leibniz.pl",
         version_cmd="perl -v",
@@ -726,7 +727,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "php": Language(
         name="PHP",
-        nixpkgs=("php@8.4.15",),
+        nixpkgs=("php@8.5.9",),
         file="leibniz.php",
         run="php -dopcache.enable_cli=1 -dopcache.jit=1255 -dopcache.jit_buffer_size=64M leibniz.php",
         version_cmd="php --version",
@@ -735,7 +736,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "r": Language(
         name="R",
-        nixpkgs=("R@4.5.2",),
+        nixpkgs=("R@4.6.1",),
         file="leibniz.r",
         run="Rscript leibniz.r",
         version_cmd="R --version",
@@ -757,7 +758,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "ocaml": Language(
         name="OCaml",
-        nixpkgs=("ocaml@5.3.0",),
+        nixpkgs=("ocaml@5.4.1",),
         file="leibniz.ml",
         compile="ocamlopt -O3 -o leibniz leibniz.ml",
         run="./leibniz",
@@ -787,7 +788,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "racket": Language(
         name="Racket",
-        nixpkgs=("racket@9.0",),
+        nixpkgs=("racket@9.3",),
         file="leibniz.rkt",
         run="racket leibniz.rkt",
         version_cmd="racket --version",
@@ -796,7 +797,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "sbcl": Language(
         name="Common Lisp (SBCL)",
-        nixpkgs=("sbcl@2.5.10",),
+        nixpkgs=("sbcl@2.6.7",),
         file="leibniz.lisp",
         compile="sbcl --noinform --eval '(compile-file \"leibniz.lisp\")' --quit",
         run="sbcl --noinform --load leibniz.fasl --eval '(main)' --quit",
@@ -806,7 +807,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "gleam": Language(
         name="Gleam",
-        nixpkgs=("gleam@1.14.0", "erlang@27.2"),
+        nixpkgs=("gleam@1.18.1", "erlang@27.2"),
         nix_setup="gleam new leibniz_app && cd leibniz_app && sed -i 's/\\[dependencies\\]/[dependencies]\\nsimplifile = \"~> 2.0\"/' gleam.toml && gleam deps download",
         file="leibniz.gleam",
         # Build in leibniz_app, then run with output to /app level
@@ -822,7 +823,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "fortran": Language(
         name="Fortran 90",
-        nixpkgs=("gfortran@14.3.0",),
+        nixpkgs=("gfortran@15.3.0",),
         file="leibniz.f90",
         compile=f"gfortran leibniz.f90 -o leibniz -Ofast -flto -ffast-math {MARCH_NATIVE} -mtune=native",
         run="./leibniz",
@@ -842,7 +843,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "ada": Language(
         name="Ada (gnat-gcc)",
-        nixpkgs=("gnat@13.4.0",),
+        nixpkgs=("gnat@15.3.0",),
         file="leibniz.adb",
         compile=f"gnatmake -O3 {MARCH_NATIVE} -gnatp leibniz.adb -o leibniz",
         run="./leibniz",
@@ -855,7 +856,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "dart": Language(
         name="Dart",
-        nixpkgs=("dart@3.9.4",),
+        nixpkgs=("dart@3.13.0",),
         file="leibniz.dart",
         run="dart run leibniz.dart",
         version_cmd="dart --version",
@@ -864,7 +865,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "dart-aot": Language(
         name="Dart (AOT)",
-        nixpkgs=("dart@3.9.4",),
+        nixpkgs=("dart@3.13.0",),
         file="leibniz.dart",
         compile="dart compile exe leibniz.dart -o leibniz",
         run="./leibniz",
@@ -874,7 +875,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "janet-compiled": Language(
         name="Janet (compiled)",
-        nixpkgs=("janet@1.39.1", "git@2.47.1", "gcc@14.2.0", "gnumake@4.4.1"),
+        nixpkgs=("janet@1.41.2", "git@2.47.1", "gcc@14.2.0", "gnumake@4.4.1"),
         nix_setup=(
             "rm -rf /tmp/jpm /tmp/janet-modules /tmp/jpm-prefix && "
             "mkdir -p /tmp/janet-modules /tmp/jpm-prefix && "
@@ -897,7 +898,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "julia": Language(
         name="Julia",
-        nixpkgs=("julia@1.12.1", "gcc@15.2.0"),
+        nixpkgs=("julia@1.12.7", "gcc@16.2.0"),
         file="julia/src/LeibnizApp.jl",
         compile=(
             "julia -e 'using Pkg; Pkg.activate(\"julia\"); Pkg.instantiate(); "
@@ -913,7 +914,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "raku": Language(
         name="Raku",
-        nixpkgs=("rakudo@2025.06.1",),
+        nixpkgs=("rakudo@2026.07",),
         file="leibniz.raku",
         run="raku leibniz.raku",
         version_cmd="raku --version",
@@ -923,7 +924,7 @@ LANGUAGES: dict[str, Language] = {
     ),
     "pony": Language(
         name="Pony",
-        nixpkgs=("ponyc@0.60.4",),
+        nixpkgs=("ponyc@0.68.0",),
         file="leibniz.pony",
         compile="ponyc ./ -o=out --bin-name=leibniz",
         run="./out/leibniz",
@@ -951,7 +952,7 @@ LANGUAGES: dict[str, Language] = {
     # =========================================================================
     "wasm": Language(
         name="WASM (C via Wasmtime)",
-        nixpkgs=("wasmtime@29.0.1", "wget@1.25.0"),
+        nixpkgs=("wasmtime@48.0.0", "wget@1.25.0"),
         nix_setup=(
             "wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-x86_64-linux.tar.gz && "
             "tar -xf wasi-sdk-25.0-x86_64-linux.tar.gz && "
@@ -976,6 +977,16 @@ LANGUAGES: dict[str, Language] = {
 def get_all_versions() -> dict[str, str]:
     """Get all pinned versions for external tooling."""
     return {name: lang.primary_version for name, lang in LANGUAGES.items()}
+
+
+def get_tool_packages(lang: Language) -> list[str]:
+    """Add measurement tools without replacing a target's own runtime pin."""
+    provided = {package.split("@", 1)[0] for package in lang.nixpkgs}
+    return [
+        f"{name}@{version}"
+        for name, version in (("hyperfine", HYPERFINE_VERSION), ("micropython", MICROPYTHON_VERSION))
+        if name not in provided
+    ]
 
 
 def get_devbox_image() -> str:

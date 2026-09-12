@@ -49,6 +49,30 @@ def test_version_checker_sorts_release_numbers(monkeypatch):
     assert info.update_available
 
 
+@pytest.mark.parametrize("version", ["1.27rc3", "1.27-rc.3", "1.27beta1", "0.pre+date=2022-04-27"])
+def test_version_checker_excludes_prereleases(version):
+    assert not check_versions.is_stable_version(version)
+
+
+def test_version_checker_keeps_hare_on_numbered_releases(monkeypatch):
+    monkeypatch.setattr(check_versions, "get_nixhub_versions", lambda *a, **k: [
+        "0.26.0.1", "0.26.0", "2024-02-08", "2023-11-27",
+    ])
+    lang = Language(name="Hare", file="leibniz.ha", run="./leibniz", nixpkgs=("hare@0.26.0",))
+    info = check_versions.check_language_version("hare", lang)
+    assert info.latest == "0.26.0.1"
+    assert info.update_available
+    assert not check_versions.compare_versions("0.26.0", "2024-02-08")
+
+
+def test_version_checker_preserves_calendar_updates(monkeypatch):
+    monkeypatch.setattr(check_versions, "get_nixhub_versions", lambda *a, **k: ["2025-11", "2026-07a"])
+    lang = Language(name="Odin", file="leibniz.odin", run="./leibniz", nixpkgs=("odin@2025-11",))
+    info = check_versions.check_language_version("odin", lang)
+    assert info.latest == "2026-07a"
+    assert info.update_available
+
+
 def test_updates_cover_variants_without_rewriting_shell_commands():
     source = 'a = ("rustc@1.92.0",)\nb = ("rustc@1.92.0",)\ncommand = "echo rustc@1.92.0"\n'
     report = [

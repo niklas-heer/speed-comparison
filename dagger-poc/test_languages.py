@@ -12,6 +12,7 @@ from languages import (
     LANGUAGES,
     Language,
     get_devbox_image,
+    get_tool_packages,
     get_all_versions,
     get_languages_by_category,
     get_variants,
@@ -21,6 +22,17 @@ from languages import (
 
 # Path to source files (relative to repo root, not dagger-poc)
 SRC_DIR = Path(__file__).parent.parent / "src"
+
+
+def test_micropython_target_pin_is_not_replaced_by_metadata_runtime():
+    lang = LANGUAGES["micropython"]
+    packages = [*lang.nixpkgs, *get_tool_packages(lang)]
+    assert [p for p in packages if p.startswith("micropython@")] == list(lang.nixpkgs)
+    assert any(p.startswith("hyperfine@") for p in packages)
+
+
+def test_other_targets_still_receive_both_measurement_tools():
+    assert {p.split("@", 1)[0] for p in get_tool_packages(LANGUAGES["c"])} == {"hyperfine", "micropython"}
 
 
 class TestLanguageDefinitions:
