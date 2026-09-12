@@ -635,7 +635,8 @@ LANGUAGES: dict[str, Language] = {
     ),
     "micropython": Language(
         name="MicroPython",
-        nixpkgs=("micropython@1.27.0",),
+        # The catalog's 1.27.0 Nix derivation fails its upstream test suite.
+        nixpkgs=("micropython@1.26.0",),
         file="leibniz.py",
         run="micropython leibniz.py",
         version_cmd="micropython --version",
