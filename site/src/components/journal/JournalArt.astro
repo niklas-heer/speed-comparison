@@ -1,0 +1,173 @@
+---
+const { kind = "flow" } = Astro.props;
+---
+
+<div class:list={["journal-art", `art-${kind}`]} aria-hidden="true">
+  <div class="art-caption">
+    <span>Speed comparison / Field notes</span><span
+      >{
+        kind === "flow"
+          ? "01 — The system"
+          : kind === "samples"
+            ? "02 — The clock"
+            : "03 — The evidence"
+      }</span>
+  </div>
+  {
+    kind === "flow" ? (
+      <svg viewBox="0 0 900 250" fill="none">
+        <path
+          class="art-line"
+          d="M135 125H220V65H345V125H440M220 125V185H345V125M515 125H765"
+        />
+        {[65, 185].map((y) => (
+          <g>
+            <rect
+              class="art-box"
+              x="245"
+              y={y - 25}
+              width="75"
+              height="50"
+              rx="7"
+            />
+            <path class="art-line" d={`M268 ${y}h29`} />
+          </g>
+        ))}
+        <>
+          <rect class="art-box" x="65" y="90" width="90" height="70" rx="9" />
+          <text x="110" y="131" text-anchor="middle">
+            &lt;/&gt;
+          </text>
+        </>
+        <>
+          <circle class="art-focus" cx="478" cy="125" r="43" />
+          <path class="art-ink" d="M478 100v27l16 10" />
+        </>
+        {[585, 620, 655].map((x, i) => (
+          <rect
+            class="art-bar"
+            x={x}
+            y={110 - i * 9}
+            width="17"
+            height={30 + i * 9}
+            rx="2"
+          />
+        ))}
+        <>
+          <rect class="art-box" x="735" y="78" width="100" height="95" rx="8" />
+          <path
+            class="art-line"
+            d="M750 102h70M750 120h40M750 137h58M750 154h48"
+          />
+        </>
+        <>
+          <circle class="art-dot" cx="205" cy="125" r="5" />
+          <circle class="art-dot" cx="702" cy="125" r="5" />
+        </>
+        <>
+          <text class="art-label" x="110" y="215" text-anchor="middle">
+            SOURCE
+          </text>
+          <text class="art-label" x="282" y="235" text-anchor="middle">
+            PREPARE
+          </text>
+          <text class="art-label" x="478" y="215" text-anchor="middle">
+            MEASURE
+          </text>
+          <text class="art-label" x="785" y="215" text-anchor="middle">
+            PUBLISH
+          </text>
+        </>
+      </svg>
+    ) : kind === "samples" ? (
+      <svg viewBox="0 0 900 250" fill="none">
+        <>
+          <text class="art-formula" x="95" y="139">
+            π
+          </text>
+          <text class="art-label" x="125" y="187" text-anchor="middle">
+            ONE CALCULATION
+          </text>
+        </>
+        <path
+          class="art-line"
+          d="M200 125H310M310 65v120M310 65h80M310 125h80M310 185h80"
+        />
+        {[65, 125, 185].map((y, i) => (
+          <g>
+            <rect
+              class:list={["art-bar", { "art-median": i === 2 }]}
+              x="390"
+              y={y - 13}
+              width={[245, 253, 250][i]}
+              height="26"
+              rx="3"
+            />
+            <text class="art-label" x="663" y={y + 5}>
+              {["1.157 s", "1.171 s", "1.166 s"][i]}
+            </text>
+          </g>
+        ))}
+        <text class="art-label" x="512" y="230" text-anchor="middle">
+          THREE OBSERVATIONS · GO / SEPT 2026
+        </text>
+      </svg>
+    ) : (
+      <svg viewBox="0 0 900 250" fill="none">
+        <path class="art-line" d="M180 125H730" />
+        <>
+          <rect
+            class="art-box"
+            x="65"
+            y="65"
+            width="225"
+            height="120"
+            rx="10"
+          />
+          <text class="art-number" x="177" y="127" text-anchor="middle">
+            1.166<tspan class="art-label"> s</tspan>
+          </text>
+          <text class="art-label" x="177" y="159" text-anchor="middle">
+            FOLLOW THE EVIDENCE →
+          </text>
+        </>
+        {["SOURCE", "TOOLCHAIN", "SAMPLES"].map((label, i) => (
+          <g>
+            <rect
+              class="art-box"
+              x={365 + i * 155}
+              y={70 + i * 9}
+              width="120"
+              height="100"
+              rx="7"
+            />
+            <path
+              class="art-line"
+              d={`M${385 + i * 155} ${95 + i * 9}h50m-50 16h80m-80 16h65`}
+            />
+            <text
+              class="art-label"
+              x={425 + i * 155}
+              y={151 + i * 9}
+              text-anchor="middle"
+            >
+              {label}
+            </text>
+          </g>
+        ))}
+        <circle class="art-dot" cx="328" cy="125" r="5" />
+      </svg>
+    )
+  }
+  <div class="art-caption">
+    <span
+      >{
+        kind === "flow"
+          ? "Reusable preparation → fresh observations"
+          : kind === "samples"
+            ? "The workload repeats. The clock observes."
+            : "A number is the beginning of a question."
+      }</span
+    ><span>SC ↗</span>
+  </div>
+</div>

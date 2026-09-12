@@ -1,0 +1,101 @@
+---
+title: "A billion terms. Three measurements. Why?"
+date: "2026-09-06"
+updated: "2026-09-12"
+category: "The measurement"
+summary: "One tiny formula can keep a machine busy for hours. Here is what the clock sees, why we repeat the work, and where the time really goes."
+readingTime: 7
+art: "samples"
+---
+
+import MeasurementLab from "../../components/journal/MeasurementLab.astro";
+import WorkloadShare from "../../components/journal/WorkloadShare.astro";
+
+The formula fits on a line. The full benchmark took more than five hours. To understand the distance between those two facts, we need to count two different things: the work inside a program, and the number of times we start it.
+
+Every implementation approximates π by adding and subtracting fractions:
+
+<div className="explainer">
+  <span className="eyebrow">The Leibniz series</span>
+  <p
+    style={{
+      fontFamily: "Georgia, serif",
+      fontSize: "clamp(19px, 3vw, 28px)",
+      marginBottom: 12,
+    }}
+  >
+    π ≈ 4 × (1 − ⅓ + ⅕ − ⅐ + …)
+  </p>
+  <p className="figure-detail">
+    Each fraction is a term. More terms mean more numerical work and, in exact
+    arithmetic, a closer approximation. Real implementations also accumulate
+    floating-point rounding error.
+  </p>
+</div>
+
+This is not an efficient way to calculate π. Its attraction here is the opposite: a small, understandable task with plenty of repeated arithmetic. We can examine how different implementations perform that task without first learning a large application.
+
+## One billion is the workload
+
+One billion terms describes **one complete execution** of the program. It does not mean one billion benchmark runs. An implementation using SIMD or paired terms may process several terms in one loop iteration, so “terms” is more precise than “iterations.”
+
+Three measurements means starting that complete program three times and recording three durations. Warmups and output capture can add further executions. Try switching between the historical and current protocols:
+
+<MeasurementLab />
+
+The September 5 baseline used six executions per target: two warmups, three timed runs and a separate run to capture π. The current runner uses four: one warmup, which also captures π, followed by three timed runs. The historical results keep their original protocol.
+
+At one billion terms each, removing those two extra executions saves two billion terms of computation per target. It does not remove a third of the entire workflow: compiler installation, preparation and publication are separate costs.
+
+## What the clock includes
+
+Compilation happens before measurement. Each timed execution then starts the program, performs the calculation and exits. Process startup and any runtime or just-in-time compilation work inside that execution remain part of the observation.
+
+Warmups can help populate filesystem caches. They do not keep one long-lived runtime process alive between samples: Hyperfine launches separate processes. A JIT compiler cannot simply carry its in-memory optimization state from a warmup process into the next one.
+
+A longer workload gives repeated arithmetic more weight relative to fixed startup cost. A very short workload can mostly tell you how quickly the process starts. Neither is a universal definition of “language speed”; they answer different questions.
+
+There is a practical lower limit, too. Hyperfine corrects for its intermediate shell’s overhead, and some tiny integration checks have produced corrected durations of zero. Those checks can demonstrate that a program runs and emits results. They cannot support a useful performance ranking. The [Hyperfine documentation](https://github.com/sharkdp/hyperfine#intermediate-shell) explains the correction.
+
+## Three samples tell a small story
+
+The table reports the median: sort three durations and take the middle one. We also preserve the individual samples and their observed minimum and maximum. You can see a real example in [the Go evidence walkthrough](/journal/a-more-inspectable-benchmark/#open-one-result-not-a-leaderboard).
+
+Three observations keep the cost manageable, but they provide limited information about variability. If two implementations are close enough that noise might explain the difference, more samples or a better-controlled experiment are needed. The displayed range is not a confidence interval; [pyperf’s stability guidance](https://pyperf.readthedocs.io/en/latest/analyze.html#benchmark-stability) is a useful next read.
+
+> The goal is enough work to see the behaviour clearly, and enough observations to know when the picture is blurry.
+
+## Where five hours went
+
+The original September 5 Argo workflow lasted **5 hours, 18 minutes and 46 seconds**, measured from checkout-step start to workflow termination. That clock included setup, compilation, all 75 targets, analysis and a failed publication attempt. A later publication-only retry made the results available. The [recorded workflow timing](/report-evidence/2026-09-05T193245/workflow-timing.json) preserves that scope.
+
+The numerical work was very unevenly distributed:
+
+<WorkloadShare />
+
+The five slowest implementations account for roughly 82% of that summed-median total. Repeating a long interpreted calculation is expensive even when its compiler or interpreter is already installed.
+
+Fast targets expose a different problem. In the recorded workflow, C spent roughly one second across six executions inside an Argo step of about 70 seconds. Rust SIMD spent roughly one second inside a step of about 92 seconds. Repeated environment setup can dominate the orchestration around a fast program. The [pipeline analysis](https://github.com/niklas-heer/speed-comparison/blob/72cb8336360588ab2cbe4892ecb039b945c9c2aa/docs/pipeline-consolidation.md) documents these observations.
+
+That gives us two separate jobs: reuse preparation where possible, and choose a workload that yields useful measurements at a reasonable cost. A faster orchestration SDK alone cannot solve both.
+
+## A smaller workload needs evidence
+
+One billion terms is the historical reference, not a law of benchmarking. A [six-language calibration](https://github.com/niklas-heer/speed-comparison/blob/72cb8336360588ab2cbe4892ecb039b945c9c2aa/docs/validation/2026-09-05-workload-calibration/README.md) made 100 million terms a candidate for routine reporting. The slow tail and runtime behaviour still need validation on the isolated reporting worker.
+
+We cannot simply divide every published time by ten. Startup costs and scaling differ across implementations. A new comparison needs measurements at a common workload, with hardware and protocol differences kept visible. The historical billion-term cohort remains available on its own terms.
+
+## A contribution should get a shorter feedback loop
+
+Changing one Go source file should select Go. Changing a source shared by several variants should select those variants. Changing the shared runner may legitimately require the whole suite. Editing this article should run website checks.
+
+The affected-target planner and Dagger runner implement that selection. For a quick local functional check, with the repository’s Dagger prerequisites installed:
+
+```sh
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
+  uv run --locked --project dagger-poc python dagger-poc/benchmark.py go
+```
+
+That command is a smoke check, not a published performance comparison. Automatic homelab dispatch still awaits the isolated worker. The intended reporting schedule is at most weekly when benchmark inputs have changed since the last successful publication; failed runs should not advance that checkpoint.
+
+The payoff is simple: save the long numerical experiments for questions that need them. To see how the runner makes that separation possible, follow [the path from code to a published result](/journal/how-code-becomes-a-benchmark/).

@@ -1,0 +1,200 @@
+---
+const steps = [
+  {
+    name: "Select",
+    token: "Git SHA → targets",
+    title: "Start with a specific piece of code",
+    description:
+      "The planner finds the language variants affected by a change. The Dagger runner resolves their Python declarations into a validated catalog and reads source from that same Git revision. This keeps the recipe and the program together.",
+    artifact: "Source revision + catalog.json",
+    detail:
+      "A shared runner change can select the whole suite. A website change selects no benchmark targets.",
+  },
+  {
+    name: "Prepare",
+    token: "Nix → executable",
+    title: "Build the environment before starting the clock",
+    description:
+      "Devbox resolves the Nix packages. Dagger prepares toolchains and compiled programs with bounded concurrency (two preparations by default). Reusable build layers can come from its cache.",
+    artifact: "Resolved packages + compiled programs",
+    detail:
+      "The barrier matters: every preparation must finish or fail before any target is timed. No compiler competes with a measurement.",
+  },
+  {
+    name: "Measure",
+    token: "1 warmup + 3 samples",
+    title: "Reuse the build. Make new observations.",
+    description:
+      "A fresh measurement ID enters after the reusable build stages. Targets are timed one at a time. Hyperfine launches separate executions; the warmup also supplies the calculated value of π.",
+    artifact: "Fresh sample times + output + execution ID",
+    detail:
+      "A cached timing is an old observation. The fresh ID prevents the runner from treating it as a new experiment.",
+  },
+  {
+    name: "Preserve",
+    token: "Samples → JSON",
+    title: "Keep the evidence, including partial results",
+    description:
+      "The runner saves each completed target immediately. Its result travels with the source, commands, package information and machine metadata; run.json records the suite context. A later failure does not erase earlier successes.",
+    artifact: "targets/*.json + run.json",
+    detail:
+      "A bundle is evidence of an attempt. Publication still has to check whether that bundle is suitable for a public comparison.",
+  },
+  {
+    name: "Publish",
+    token: "Validate → snapshot",
+    title: "Promote a checked snapshot",
+    description:
+      "Reporting checks the result bundle and generates the public tables and charts. Published results are committed to the Git history archive. Original samples remain available alongside the presentation.",
+    artifact: "docs/history/<run>/ + report evidence",
+    detail:
+      "If publication fails, retry from the saved results. There is no reason to repeat hours of numerical work to fix an upload.",
+  },
+  {
+    name: "Read",
+    token: "Astro → your browser",
+    title: "Build the website from recorded results",
+    description:
+      "Astro reads published snapshots at build time. Vercel serves the resulting pages and downloads. A separate private Postgres archive can index the data; the public page does not query that database.",
+    artifact: "Static HTML + JSON / CSV downloads",
+    detail:
+      "Changing this article rebuilds the site. It does not start another benchmark.",
+  },
+];
+---
+
+<figure
+  class="explainer pipeline-figure"
+  data-pipeline
+  aria-labelledby="pipeline-title"
+>
+  <div class="figure-heading">
+    <div>
+      <span class="eyebrow">Interactive / Follow one result</span><h3
+        id="pipeline-title"
+      >
+        From a commit to your browser
+      </h3>
+    </div><button class="figure-control" data-play hidden type="button"
+      >Play the flow</button>
+  </div>
+  <p class="figure-intro">
+    The implemented Dagger runner, followed by the publication path. Select a
+    stage to look inside. This is a walkthrough, not a live run.
+  </p>
+  <ol class="pipeline-track">
+    {
+      steps.map((step, i) => (
+        <li>
+          <>
+            <button
+              type="button"
+              data-step={i}
+              disabled
+              aria-controls={`pipeline-panel-${i}`}
+            >
+              <>
+                <span class="step-number">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <strong>{step.name}</strong>
+                <small>{step.token}</small>
+              </>
+            </button>
+            <span class="flow-connector" aria-hidden="true">
+              <i />
+            </span>
+          </>
+        </li>
+      ))
+    }
+  </ol>
+  <div class="pipeline-panels" aria-live="polite" aria-atomic="true">
+    {
+      steps.map((step, i) => (
+        <section id={`pipeline-panel-${i}`} data-panel={i}>
+          <>
+            <span class="eyebrow">
+              Stage {i + 1} / {step.name}
+            </span>
+            <h4>{step.title}</h4>
+            <p>{step.description}</p>
+            <div class="artifact-label">
+              <>
+                <span>Output</span>
+                <code>{step.artifact}</code>
+              </>
+            </div>
+            <p class="figure-detail">{step.detail}</p>
+          </>
+        </section>
+      ))
+    }
+  </div>
+  <figcaption>
+    <strong>Deployment boundary:</strong> the September 5 public baseline used native
+    Devbox jobs in Argo. The unified Dagger runner is implemented; Argo dispatch to
+    an isolated, persistent Dagger worker is still pending.
+  </figcaption>
+</figure>
+<script>
+  document
+    .querySelectorAll<HTMLElement>("[data-pipeline]")
+    .forEach((figure) => {
+      const buttons = [
+        ...figure.querySelectorAll<HTMLButtonElement>("[data-step]"),
+      ];
+      const panels = [...figure.querySelectorAll<HTMLElement>("[data-panel]")];
+      const play = figure.querySelector<HTMLButtonElement>("[data-play]")!;
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      let active = 0;
+      let timer: ReturnType<typeof setInterval> | undefined;
+      function select(index: number) {
+        active = index;
+        buttons.forEach((button, i) => {
+          button.setAttribute("aria-pressed", String(i === active));
+          button.closest("li")!.classList.toggle("is-active", i === active);
+          panels[i].hidden = i !== active;
+        });
+      }
+      function pause() {
+        clearInterval(timer);
+        timer = undefined;
+        figure.classList.remove("is-playing");
+        play.textContent = reducedMotion.matches
+          ? "Next stage"
+          : "Play the flow";
+      }
+      buttons.forEach((button, i) => {
+        button.disabled = false;
+        button.addEventListener("click", () => {
+          pause();
+          select(i);
+        });
+      });
+      play.addEventListener("click", () => {
+        if (reducedMotion.matches) {
+          select((active + 1) % buttons.length);
+          return;
+        }
+        if (timer) {
+          pause();
+          return;
+        }
+        select(0);
+        figure.classList.add("is-playing");
+        play.textContent = "Pause the flow";
+        timer = setInterval(() => {
+          if (active === buttons.length - 1) pause();
+          else select(active + 1);
+        }, 3500);
+      });
+      reducedMotion.addEventListener("change", pause);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) pause();
+      });
+      select(0);
+      pause();
+      play.hidden = false;
+    });
+</script>

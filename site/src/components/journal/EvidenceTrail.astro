@@ -1,0 +1,73 @@
+---
+import { runData, timing } from "../../lib/results.mjs";
+const run = runData("2026-09-05T193245");
+const go = run.results.find((r) => r.target === "go");
+const samples = go.raw.TimesPerRun;
+const max = Math.max(...samples);
+const base = `/results/${run.id}/go/`;
+---
+
+<figure class="explainer evidence-figure" aria-labelledby="evidence-title">
+  <div class="figure-heading">
+    <div>
+      <span class="eyebrow">A real result / September 5, 2026</span><h3
+        id="evidence-title"
+      >
+        What sits behind {timing(go.median)}?
+      </h3>
+    </div><span class="figure-tag">Go {go.version}</span>
+  </div>
+  <p class="figure-intro">
+    Three recorded executions, in their original order. The middle value after
+    sorting becomes the median.
+  </p>
+  <div class="evidence-samples">
+    {
+      samples.map((sample, i) => (
+        <div
+          class:list={[
+            "evidence-sample",
+            { "median-sample": sample === go.median },
+          ]}
+        >
+          <>
+            <span>Sample {i + 1}</span>
+            <span class="evidence-bar">
+              <i style={`width:${(sample / max) * 100}%`} />
+            </span>
+            <strong>{sample.toFixed(6)} s</strong>
+            <small>{sample === go.median ? "← median" : ""}</small>
+          </>
+        </div>
+      ))
+    }
+  </div>
+  <div class="evidence-links">
+    <a href={`${base}#source`}
+      ><span class="eyebrow">01 / The program</span><strong
+        >Read the source ↗</strong
+      ><span>The Go file at the measured revision, with its checksum.</span></a
+    >
+    <a href={`${base}#build`}
+      ><span class="eyebrow">02 / The recipe</span><strong
+        >Inspect the build ↗</strong
+      ><span
+        >Compiler command, package version and resolved Nix environment.</span
+      ></a
+    >
+    <a href={`${base}#environment`}
+      ><span class="eyebrow">03 / The machine</span><strong
+        >Meet the runner ↗</strong
+      ><span>x86-64, virtualized EPYC, four visible CPU threads.</span></a
+    >
+    <a href={`/history/${run.id}/raw/go.json`}
+      ><span class="eyebrow">04 / The record</span><strong
+        >Open the raw JSON ↗</strong
+      ><span>All three durations, output, exit codes and metadata.</span></a
+    >
+  </div>
+  <figcaption>
+    Bars start at zero. These observations describe this implementation on this
+    runner. The observed range is not a confidence interval.
+  </figcaption>
+</figure>

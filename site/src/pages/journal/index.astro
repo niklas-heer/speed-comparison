@@ -1,40 +1,49 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-const posts = Object.entries(
-  import.meta.glob("../../content/journal/*.md", { eager: true }),
-)
-  .map(([path, post]) => ({
-    ...post.frontmatter,
-    slug: path.split("/").pop().replace(".md", ""),
-  }))
-  .sort((a, b) => b.date.localeCompare(a.date));
+import JournalArt from "../../components/journal/JournalArt.astro";
+import { posts } from "../../lib/journal";
+import "../../styles/journal.css";
 ---
 
-<Layout title="Project journal"
-  ><div class="page-heading">
-    <p class="eyebrow">The project journal</p><h1>
-      An open record<br /><em>of getting better.</em>
-    </h1><p class="lead">
-      What changed, why it changed, and what remains uncertain. The reasoning
-      belongs next to the results.
+<Layout
+  title="Project journal"
+  description="Inside a programming language benchmark: the code, the clocks and the decisions behind the results."
+>
+  <header class="page-heading journal-heading">
+    <p class="eyebrow">The project journal / Field notes</p>
+    <h1>Behind the numbers.<br /><em>Inside the experiment.</em></h1>
+    <p class="lead">
+      A small calculation opens up some surprisingly big questions. Explore the
+      code, the clocks, and the decisions behind a programming language
+      benchmark.
     </p>
-  </div><div class="journal-grid">
+  </header>
+  <div class="story-grid">
     {
-      posts.map((p) => (
-        <a class="journal-card" href={`/journal/${p.slug}/`}>
-          <>
-            <div class="journal-card-top">
-              <>
-                <span class="badge">{p.category}</span>
-                <time>{p.date}</time>
-              </>
-            </div>
+      posts.map(({ frontmatter: p, slug }, i) => (
+        <a
+          class:list={["story-card", { "story-feature": i === 0 }]}
+          href={`/journal/${slug}/`}
+        >
+          <div class="story-card-art">
+            <JournalArt kind={p.art} />
+          </div>
+          <div class="story-card-copy">
+            <p class="eyebrow">
+              {i === 0 ? "Start here / " : ""}
+              {p.category}
+            </p>
             <h2>{p.title}</h2>
             <p>{p.summary}</p>
-            <span class="text-link">Read the update ↗</span>
-          </>
+            <div class="story-card-meta">
+              <>
+                <span>{p.readingTime} min read</span>
+                <span class="text-link">Explore the story ↗</span>
+              </>
+            </div>
+          </div>
         </a>
       ))
     }
-  </div></Layout
->
+  </div>
+</Layout>

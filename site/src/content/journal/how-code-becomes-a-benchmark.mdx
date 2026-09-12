@@ -1,0 +1,112 @@
+---
+title: "How code becomes a benchmark."
+date: "2026-09-12"
+category: "Inside the system"
+summary: "Follow a source change through toolchains, caches, clocks and archives—and see why the most important boundary is where the stopwatch starts."
+readingTime: 8
+art: "flow"
+---
+
+import PipelineFlow from "../../components/journal/PipelineFlow.astro";
+
+Imagine fixing a few lines in the Go implementation. The interesting question is whether the program still works, and perhaps whether it runs faster. Answering it should not require reinstalling dozens of unrelated compilers or waiting for every language in the project.
+
+Speed comparison starts with a small calculation: many implementations approximate π using the same series. Around that calculation sits a system that has to choose the right programs, build them, measure them, and preserve enough evidence for somebody else to question the result.
+
+Here is the path through the implemented Dagger runner and the reporting system. The animation is an explanation of the stages, not a view of a running job.
+
+<PipelineFlow />
+
+## The recipe travels with the source
+
+Each implementation has a Python `Language` declaration: where its source lives, which packages it needs, how to compile it, and what command to execute. A “target” is one of these runnable variants. Two targets can share a language and still use different compilers, flags or vectorized code.
+
+The affected-target planner inspects a Git change and follows those relationships. A Go-only change selects Go; a shared source change selects every consuming variant. Unknown inputs or shared execution changes deliberately select broadly. An empty selection does no preparation or measurement work.
+
+There is a subtle requirement here: the recipe and source must come from the same revision. Otherwise a new declaration might accidentally compile an old program, or the runner’s own checkout might leak into an experiment intended for another commit.
+
+The runner resolves the selected revision’s declarations inside Dagger, validates the resulting JSON catalog, and consumes source from that same Git tree. The trusted driver stays separate from the code being evaluated. The [catalog-resolution design](https://github.com/niklas-heer/speed-comparison/blob/72cb8336360588ab2cbe4892ecb039b945c9c2aa/docs/catalog-resolution.md) explains that boundary in detail.
+
+## Give each component one job
+
+The names are easier to remember when attached to concrete responsibilities:
+
+- **Nix supplies the packages.** Devbox describes and resolves the environment containing the compiler, runtime and measurement tools. Resolved package information becomes part of the evidence.
+- **Dagger runs the build and experiment.** Its Python pipeline prepares environments, compiles programs, runs measurements and collects results. The same entry point can be used locally and in automation.
+- **Hyperfine holds the stopwatch.** It launches the benchmark command repeatedly and records individual durations. The current protocol uses one warmup and three measured executions.
+- **Argo schedules cluster work.** It handles workflow steps and artifacts. The published September baseline used native Devbox jobs here; connecting Argo to an isolated persistent Dagger engine remains a deployment step.
+- **Astro builds the report.** It reads recorded snapshots and produces the pages and downloads served by Vercel. Reading a result does not run a compiler or query the private archive database.
+
+The benefit is practical. A typography change belongs to the website build. A compiler update belongs to the experiment. A failed upload belongs to publication recovery. Those events should not all trigger the same expensive work.
+
+## Where the stopwatch must start
+
+Installing a toolchain can take far longer than executing a fast benchmark. Dagger can cache reusable preparation, but the system needs to distinguish a cached executable from a cached observation.
+
+The runner first prepares targets with bounded concurrency, two preparations by default. Then it waits at a barrier: **all preparation must finish or fail before any measurement starts**. After that, measurement is serial on the worker.
+
+Why wait for all builds? A compiler running beside the benchmark can compete for CPU time, memory and I/O. Finishing the measured target’s own build is not enough if another target is still being compiled next door.
+
+At the measurement boundary, the runner introduces a fresh execution ID. Dagger can reuse the work before that boundary, while the timed commands after it must execute again. A second run should be able to say “same build, new samples.”
+
+<figure className="explainer">
+  <span className="eyebrow">Recorded integration check / Go + Hare</span>
+  <h3>Preparation can disappear into the cache</h3>
+  <div className="cache-comparison">
+    <div>
+      <span>First observed suite</span>
+      <strong>20.59 s</strong>
+      <span>preparation</span>
+    </div>
+    <div>
+      <span>Repeat suite</span>
+      <strong>0.17 s</strong>
+      <span>preparation</span>
+    </div>
+  </div>
+  <p className="figure-detail">
+    The sample arrays and measurement IDs changed between runs. The reusable
+    preparation was reused; the observations were fresh.
+  </p>
+  <figcaption>
+    Local Dagger 0.19.8 on an ARM development engine, 10,000 terms, two targets.
+    Existing caches were already present before the first suite. These
+    preparation times exclude catalog resolution, connection and teardown; they
+    are not cold-start results or a prediction for the full x86-64 suite.{" "}
+    <a href="https://github.com/niklas-heer/speed-comparison/blob/72cb8336360588ab2cbe4892ecb039b945c9c2aa/docs/validation/2026-09-06-unified-runner/README.md">
+      Read the experiment and raw evidence.
+    </a>
+  </figcaption>
+</figure>
+
+That cache boundary is more consequential than changing the language of the orchestration code. The separate [Python-versus-Go SDK experiment](https://github.com/niklas-heer/speed-comparison/blob/72cb8336360588ab2cbe4892ecb039b945c9c2aa/docs/dagger-sdk-comparison.md) found savings measured in seconds. The full workload’s expensive calculations still had to happen.
+
+## A result is a bundle, not a floating-point number
+
+The runner saves each target as it finishes. Its JSON contains individual durations alongside output and context: the target identity, workload, commands, source revision, toolchain information and recorded environment. Newer output includes source contents and hashes from before compilation.
+
+A `run.json` file ties the suite together. It records the invocation and its phases, so preparation time does not have to be mistaken for numerical execution time. The runner’s clock has its own scope; scheduler queueing and later publication are outside it.
+
+Saving incrementally matters when target number 60 fails. The first 59 completed results are still evidence. They can be inspected even if the attempt cannot be promoted as a complete public comparison.
+
+Publication checks the bundle, derives the summary and commits a validated snapshot to the history archive. Raw files remain downloadable. The site can then change how it presents a measurement without changing what was measured.
+
+## The website lives downstream of the experiment
+
+Astro reads committed snapshots during its build. That produces static result pages, source views, charts and JSON/CSV downloads. Vercel serves those assets to your browser. The private Postgres archive is a separate index of historical data, not a live dependency of the public page.
+
+This separation proved useful in the September baseline: the original workflow completed measurement but failed during publication. The results could be recovered and published later without repeating the calculation. The [run page](/runs/2026-09-05T193245/) retains the original workflow clock and its scope.
+
+It also makes this article cheap to improve. A new diagram requires a website build. It does not require another billion-term calculation in 75 implementations.
+
+## Why the architecture is still in motion
+
+The project did not arrive here in one rewrite. Earlier Earthfile recipes provided the behaviour against which the Dagger migration was checked. February’s Buildkite and Dagger work dealt with parity: matching the toolchains, flags and runtime details before treating timing differences as meaningful.
+
+In September, native Devbox jobs in Argo provided an operational migration path and a full published baseline. But disposable per-target environments repeated setup, and a second execution path meant more behaviour to keep aligned. The unified Dagger runner brought suite preparation and measurement back into one entry point.
+
+The next step is operational: a persistent engine on an isolated benchmark worker, with Argo scheduling that runner. Isolation matters because a container is not a promise of quiet physical hardware, and the existing shared workers also host other applications. The rollout still needs to demonstrate cache reuse, fresh samples, preserved artifacts and no overlap between compilation and measurement.
+
+Only then should the routine workload and scheduled reporting policy be finalized. The [consolidation record](https://github.com/niklas-heer/speed-comparison/blob/72cb8336360588ab2cbe4892ecb039b945c9c2aa/docs/pipeline-consolidation.md) documents the implemented pieces and the remaining acceptance gates.
+
+The direction is a tighter connection between a question and the work needed to answer it. Change a program, check that program. Question a result, open its evidence. Improve an explanation, rebuild the page.

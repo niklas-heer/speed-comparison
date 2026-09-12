@@ -1,0 +1,119 @@
+---
+const protocols = [
+  {
+    id: "current",
+    name: "Current runner protocol",
+    steps: ["Warmup + π", "Sample 1", "Sample 2", "Sample 3"],
+    note: "One warmup captures π, followed by three measured executions. Four complete executions per target.",
+  },
+  {
+    id: "baseline",
+    name: "September 5 baseline",
+    steps: [
+      "Warmup 1",
+      "Warmup 2",
+      "Sample 1",
+      "Sample 2",
+      "Sample 3",
+      "Capture π",
+    ],
+    note: "Two warmups, three measured executions and a separate π capture. Six complete executions per target.",
+  },
+];
+---
+
+<figure
+  class="explainer measurement-lab"
+  data-measurement
+  aria-labelledby="measurement-title"
+>
+  <div class="figure-heading">
+    <div>
+      <span class="eyebrow">Interactive / Count the work</span><h3
+        id="measurement-title"
+      >
+        A term is not a run
+      </h3>
+    </div>
+  </div>
+  <div class="lab-controls" hidden>
+    <label
+      ><span id="protocol-label">Protocol</span><select data-protocol aria-labelledby="protocol-label"
+        >{protocols.map((p) => <option value={p.id}>{p.name}</option>)}</select
+      ></label
+    ><label
+      ><span id="terms-label">Terms in each execution</span><select data-terms aria-labelledby="terms-label"
+        ><option value="10000">10,000 — smoke check</option><option
+          value="100000000">100 million — candidate</option
+        ><option value="1000000000" selected>1 billion — reference</option
+        ></select
+      ></label>
+  </div>
+  {
+    protocols.map((p) => (
+      <section data-protocol-panel={p.id}>
+        <>
+          <h4>{p.name}</h4>
+          <ol class="execution-track">
+            {p.steps.map((step) => (
+              <li class:list={[{ measured: step.startsWith("Sample") }]}>
+                <span>{step.startsWith("Sample") ? "Timed" : "Untimed"}</span>
+                <strong>{step}</strong>
+                <small>
+                  <span data-terms-label>1 billion</span> terms
+                </small>
+              </li>
+            ))}
+          </ol>
+          <p class="figure-detail">{p.note}</p>
+        </>
+      </section>
+    ))
+  }
+  <div class="work-total" hidden aria-live="polite" aria-atomic="true">
+    <span
+      ><strong data-total>4 billion</strong><small
+        >terms across all executions</small
+      ></span
+    ><span
+      ><strong>3</strong><small>timing samples, at every workload</small></span>
+  </div>
+  <figcaption>
+    <strong>Work-count illustration, not a time prediction.</strong> Changing the
+    selector does not run code or rescale published timings. The 100-million-term
+    workload remains a calibration candidate; the published baseline used one billion.
+  </figcaption>
+</figure>
+<script>
+  document
+    .querySelectorAll<HTMLElement>("[data-measurement]")
+    .forEach((figure) => {
+      const protocol =
+        figure.querySelector<HTMLSelectElement>("[data-protocol]")!;
+      const terms = figure.querySelector<HTMLSelectElement>("[data-terms]")!;
+      const format = (n: number) =>
+        n >= 1e9
+          ? `${n / 1e9} billion`
+          : n >= 1e6
+            ? `${n / 1e6} million`
+            : n.toLocaleString("en-US");
+      function update() {
+        figure
+          .querySelectorAll<HTMLElement>("[data-protocol-panel]")
+          .forEach((panel) => {
+            panel.hidden = panel.dataset.protocolPanel !== protocol.value;
+          });
+        figure.querySelectorAll("[data-terms-label]").forEach((label) => {
+          label.textContent = format(Number(terms.value));
+        });
+        figure.querySelector("[data-total]")!.textContent = format(
+          Number(terms.value) * (protocol.value === "baseline" ? 6 : 4),
+        );
+      }
+      protocol.addEventListener("change", update);
+      terms.addEventListener("change", update);
+      update();
+      figure.querySelector<HTMLElement>(".lab-controls")!.hidden = false;
+      figure.querySelector<HTMLElement>(".work-total")!.hidden = false;
+    });
+</script>

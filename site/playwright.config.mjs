@@ -1,8 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+const port = process.env.PLAYWRIGHT_PORT || "4321";
+const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: "./tests",
   testMatch: "*.spec.mjs",
-  use: { baseURL: "http://127.0.0.1:4321" },
+  use: { baseURL },
   projects: [
     {
       name: "desktop",
@@ -17,8 +19,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run preview -- --port 4321",
-    url: "http://127.0.0.1:4321",
+    command: `npm run preview -- --port ${port}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
   },
   reporter: "list",

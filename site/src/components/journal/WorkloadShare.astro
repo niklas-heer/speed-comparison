@@ -1,0 +1,59 @@
+---
+import { runData } from "../../lib/results.mjs";
+const run = runData("2026-09-05T193245");
+const slowest = [...run.results].sort((a, b) => b.median - a.median);
+const total = slowest.reduce((sum, r) => sum + r.median, 0);
+const groups = [
+  {
+    name: "Scalar Octave",
+    seconds: slowest.find((r) => r.target === "octave").median,
+  },
+  {
+    name: "The next four slowest",
+    seconds: slowest.slice(1, 5).reduce((sum, r) => sum + r.median, 0),
+  },
+  {
+    name: `The other ${slowest.length - 5} implementations`,
+    seconds: slowest.slice(5).reduce((sum, r) => sum + r.median, 0),
+  },
+];
+---
+
+<figure class="explainer workload-share" aria-labelledby="workload-title">
+  <span class="eyebrow">Where the numerical work goes / Published baseline</span
+  >
+  <h3 id="workload-title">One implementation accounts for most of the time</h3>
+  <p class="figure-intro">
+    Add one median from each of the {run.results.length} implementations: {
+      (total / 60).toFixed(2)
+    } minutes. Here is how that sum breaks down.
+  </p>
+  <div class="workload-stack" aria-hidden="true">
+    {
+      groups.map((group, i) => (
+        <span
+          class={`share-${i}`}
+          style={`width:${(group.seconds / total) * 100}%`}
+        />
+      ))
+    }
+  </div>
+  <ol class="workload-legend">
+    {
+      groups.map((group, i) => (
+        <li>
+          <>
+            <i class={`share-${i}`} aria-hidden="true" />
+            <span>{group.name}</span>
+            <strong>{((group.seconds / total) * 100).toFixed(1)}%</strong>
+          </>
+        </li>
+      ))
+    }
+  </ol>
+  <figcaption>
+    This is a derived share of summed medians, not the workflow’s elapsed time.
+    It excludes repeated executions and preparation. <a
+      href={`/runs/${run.id}/`}>Inspect the source snapshot ↗</a>
+  </figcaption>
+</figure>
