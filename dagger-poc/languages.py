@@ -505,6 +505,16 @@ LANGUAGES: dict[str, Language] = {
         base="csharp",
         category="dotnet",
     ),
+      "csharp-avx512": Language(
+        name="C# (AVX-512)",
+        nixpkgs=("dotnet-sdk@8.0.424",),
+        file="leibniz-avx512.cs",
+        compile="dotnet new console -n leibniz -o _build --force && cp leibniz-avx512.cs _build/Program.cs && cd _build && dotnet publish -c Release -r linux-x64 --self-contained -o ../out",
+        run="./out/leibniz",
+        version_cmd="dotnet --version",
+        base="csharp",
+        category="dotnet",
+    ),
     "fsharp": Language(
         name="F#",
         nixpkgs=("dotnet-sdk@8.0.424",),
