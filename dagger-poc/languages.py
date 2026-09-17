@@ -505,7 +505,7 @@ LANGUAGES: dict[str, Language] = {
         base="csharp",
         category="dotnet",
     ),
-      "csharp-avx512": Language(
+    "csharp-avx512": Language(
         name="C# (AVX-512)",
         nixpkgs=("dotnet-sdk@8.0.424",),
         file="leibniz-avx512.cs",
