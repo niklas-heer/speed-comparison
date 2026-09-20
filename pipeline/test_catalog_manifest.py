@@ -203,3 +203,11 @@ def test_catalog_reader_rejects_symlinked_parent_directories(tmp_path):
     (root / "pipeline").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ValueError, match="symlinks"):
         read_catalog_source(root, "pipeline/languages.py")
+
+
+def test_catalog_path_handles_dagger_trailing_slashes():
+    from catalog_resolver import CATALOG_PATH, LEGACY_CATALOG_PATH, catalog_path
+
+    assert catalog_path(["src/", "pipeline/", "README.md"]) == CATALOG_PATH
+    assert catalog_path(["src", "pipeline", "README.md"]) == CATALOG_PATH
+    assert catalog_path(["src/", "dagger-poc/", "Earthfile"]) == LEGACY_CATALOG_PATH

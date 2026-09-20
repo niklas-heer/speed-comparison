@@ -7,7 +7,7 @@ from dataclasses import replace
 import dagger
 
 import benchmark
-from catalog_resolver import resolve_catalog
+from catalog_resolver import catalog_path, resolve_catalog
 
 REVISION = "3d0220e28f495d3feaca03f730a00b7259924848"
 
@@ -19,9 +19,10 @@ async def check():
             .commit(REVISION)
             .tree()
         )
-        # This pinned revision predates the 2026-09-20 rename of dagger-poc/ to pipeline/.
-        catalog_path = "pipeline/languages.py" if "pipeline" in await tree.entries() else "dagger-poc/languages.py"
-        manifest = await resolve_catalog(client, tree.file(catalog_path), source_revision=REVISION)
+        # The pinned revision predates the 2026-09-20 rename of dagger-poc/ to pipeline/.
+        manifest = await resolve_catalog(
+            client, tree.file(catalog_path(await tree.entries())), source_revision=REVISION
+        )
         # Deliberately differ from the host checkout's billion-round input.
         source = tree.directory("src").with_new_file("rounds.txt", contents="17\n")
         lang = replace(manifest.languages["go"], name='Go "quoted" $(exit 97)', base="new-go")
