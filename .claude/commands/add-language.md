@@ -69,7 +69,7 @@ Local quick check from the repository root:
 QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py mylang
 ```
 
-x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench.py`.
+x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench.py --targets mylang`.
 
 ### 5. Commit
 

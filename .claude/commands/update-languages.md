@@ -143,5 +143,5 @@ Common breaking changes to watch for:
 
 1. **Sub-agents don't persist**: Don't spawn sub-agents for updates - their file changes don't persist
 2. **Unstable versions**: By default, version checker filters out alpha/beta/RC versions
-3. **ARM64 compatibility**: Some packages may have issues on ARM Mac; validate x86-64-only targets via `python scripts/argo_bench.py`
+3. **ARM64 compatibility**: Some packages may have issues on ARM Mac; validate x86-64-only targets via `python scripts/argo_bench.py --targets <lang>`
 4. **Version format**: Package versions must include `@` separator (e.g., `go@1.23.4`)
