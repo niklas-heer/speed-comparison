@@ -1,6 +1,0 @@
-version: 2.0
-shards:
-  json_on_steroids:
-    git: https://github.com/anykeyh/json_on_steroids.git
-    version: 0.1.0+git.commit.9c43ff02a7c315290ba00a9257a88db0018124d7
-

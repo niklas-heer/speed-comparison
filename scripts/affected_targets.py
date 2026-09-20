@@ -97,7 +97,7 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
             continue
         if path.startswith(('dagger-poc/', 'scripts/')) and path.endswith(('.md', '.rst')):
             continue
-        if path in GLOBAL_INPUTS or path.startswith(('dagger-poc/', 'scripts/', 'scmeta/')):
+        if path in GLOBAL_INPUTS or path.startswith(('dagger-poc/', 'scripts/')):
             include(head, f'Shared pipeline input: {path}')
             continue
         if not path.startswith('src/'):

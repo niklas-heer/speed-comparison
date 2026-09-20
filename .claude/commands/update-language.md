@@ -89,10 +89,12 @@ uv run pytest
 just test $ARGUMENTS
 ```
 
-**On ARM Mac with emulation issues** (Java, C#, Swift, WASM):
+Local quick check from the repository root:
 ```bash
-just remote-test $ARGUMENTS
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py $ARGUMENTS
 ```
+
+x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench.py --targets '$ARGUMENTS'`.
 
 ### Step 8: Report
 
@@ -126,5 +128,5 @@ Do NOT commit. The user will decide whether to commit after reviewing.
 | `just check-versions <lang>` | Check for version updates |
 | `just test <lang>` | Quick benchmark test (10k iterations) |
 | `just bench <lang>` | Full benchmark (1B iterations) |
-| `just remote-test <lang>` | Test on remote x86_64 (ARM Mac) |
+| `python scripts/argo_bench.py --targets <lang>` | Validate x86-64-only targets in homelab Argo |
 | `devbox search <pkg>` | Search for package versions |
