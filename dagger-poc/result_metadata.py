@@ -8,6 +8,7 @@ from languages import Language
 EXPLICIT_SIMD = {
     "cpp-avx2",
     "csharp-simd",
+    "csharp-avx512",
     "fsharp-simd",
     "java-vecops",
     "rust-simd",
@@ -18,6 +19,8 @@ EXPLICIT_SIMD = {
     "octave-vectorised",
 }
 SOURCE_RELAXED_MATH = {"zig", "zig-simd", "julia", "cpython-numba", "swift-relaxed"}
+# Approximate reciprocals refined by one Newton-Raphson step are not IEEE division.
+SOURCE_RELAXED_MATH |= {"csharp-avx512"}
 
 
 def methodology(target: str, lang: Language) -> dict:
