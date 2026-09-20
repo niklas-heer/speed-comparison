@@ -12,7 +12,7 @@ Create `src/leibniz.<ext>` with the Leibniz formula implementation:
 - Calculate pi using the Leibniz formula: pi = 4 * (1 - 1/3 + 1/5 - 1/7 + ...)
 - Print the result with full precision (no newline if possible)
 
-### 2. Add Language to `dagger-poc/languages.py`
+### 2. Add Language to `pipeline/languages.py`
 
 Add an entry to the `LANGUAGES` dict:
 
@@ -52,7 +52,7 @@ devbox search <package>           # Search Devbox packages
 ### 4. Run Tests and Validate
 
 ```bash
-cd dagger-poc
+cd pipeline
 
 # Run validation tests
 uv run pytest
@@ -66,7 +66,7 @@ just bench mylang
 
 Local quick check from the repository root:
 ```bash
-QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py mylang
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project pipeline python pipeline/benchmark.py mylang
 ```
 
 x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench.py --targets mylang`.
@@ -74,14 +74,14 @@ x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench
 ### 5. Commit
 
 ```bash
-git add src/leibniz.<ext> dagger-poc/languages.py icons/<name>.png analyze.py download_icons.py
+git add src/leibniz.<ext> pipeline/languages.py icons/<name>.png analyze.py download_icons.py
 git commit -m "feat: add <Language> implementation"
 ```
 
 ## Checklist
 - [ ] Source file created in `src/leibniz.<ext>`
-- [ ] Language added to `dagger-poc/languages.py`
-- [ ] Validation tests pass (`uv run pytest` in dagger-poc/)
+- [ ] Language added to `pipeline/languages.py`
+- [ ] Validation tests pass (`uv run pytest` in pipeline/)
 - [ ] Quick benchmark works (`just test mylang`)
 - [ ] Icon added (devicon or custom)
 - [ ] ICON_MAP updated in `analyze.py`

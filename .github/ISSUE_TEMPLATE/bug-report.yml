@@ -57,5 +57,5 @@ body:
       label: Steps to Reproduce
       description: How can we reproduce this issue?
       placeholder: |
-        1. Run `QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust`
+        1. Run `QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project pipeline python pipeline/benchmark.py rust`
         2. See error...

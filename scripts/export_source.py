@@ -12,7 +12,7 @@ from pathlib import Path
 import re
 import subprocess
 
-from affected_targets import catalog
+from affected_targets import CATALOG, LEGACY_CATALOG, catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,7 +28,13 @@ def export(run_id):
     def git(*args):
         return subprocess.check_output(["git", *args], cwd=ROOT)
 
-    catalog_bytes = git("show", f"{revision}:dagger-poc/languages.py")
+    catalog_path = CATALOG
+    probe = subprocess.run(
+        ["git", "cat-file", "-e", f"{revision}:{CATALOG}"], cwd=ROOT, capture_output=True
+    )
+    if probe.returncode:
+        catalog_path = LEGACY_CATALOG  # runs published before the 2026-09-20 rename
+    catalog_bytes = git("show", f"{revision}:{catalog_path}")
     definitions, _, _ = catalog(catalog_bytes.decode())
     available = (
         git("ls-tree", "-r", "--name-only", revision, "src/").decode().splitlines()

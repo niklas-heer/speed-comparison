@@ -30,14 +30,13 @@ trusting a PR-produced artifact.
 
 ```bash
 # From the repository root:
-uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
+uv run --locked --project pipeline --extra dev pytest pipeline -q
 QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
-  uv run --locked --project dagger-poc python dagger-poc/benchmark.py rust go python
+  uv run --locked --project pipeline python pipeline/benchmark.py rust go python
 python scripts/argo_bench.py --targets 'rust go python' --rounds 10000
 ```
 
-The directory keeps its original name to preserve scripts and dependency update
-paths. Use `just` inside this directory for convenience commands. `uv sync --extra
+Use `just` inside this directory for convenience commands. `uv sync --extra
 dev` installs pytest and the development tooling.
 
 The [catalog resolver](../docs/catalog-resolution.md) is integrated into
@@ -55,8 +54,8 @@ finish. Existing
 single-target `run_benchmark()` callers remain supported.
 
 ```bash
-QUICK_TEST_ROUNDS=10000 uv run --locked --project dagger-poc python \
-  dagger-poc/benchmark.py --revision FULL_AUTHORIZED_SHA --output /tmp/new-run go
+QUICK_TEST_ROUNDS=10000 uv run --locked --project pipeline python \
+  pipeline/benchmark.py --revision FULL_AUTHORIZED_SHA --output /tmp/new-run go
 ```
 
 The [consolidation plan](../docs/pipeline-consolidation.md) explains the bottlenecks,

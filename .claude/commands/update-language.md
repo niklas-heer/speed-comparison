@@ -13,7 +13,7 @@ Update the specified language benchmark to its latest stable version.
 ### Step 1: Check Current Version
 
 ```bash
-cd dagger-poc
+cd pipeline
 just lang-info $ARGUMENTS
 ```
 
@@ -22,7 +22,7 @@ This shows the current configuration including package version.
 ### Step 2: Check for Available Updates
 
 ```bash
-cd dagger-poc
+cd pipeline
 just check-versions $ARGUMENTS
 ```
 
@@ -50,7 +50,7 @@ If the version jump is significant (e.g., major version bump):
    - Python: Print syntax, async changes
    - Go: Module system changes
 
-### Step 5: Update `dagger-poc/languages.py`
+### Step 5: Update `pipeline/languages.py`
 
 Edit the language entry to update the version:
 
@@ -80,7 +80,7 @@ If there are breaking changes, update `src/leibniz.<ext>`:
 ### Step 7: Test Locally
 
 ```bash
-cd dagger-poc
+cd pipeline
 
 # Run validation tests
 uv run pytest
@@ -91,7 +91,7 @@ just test $ARGUMENTS
 
 Local quick check from the repository root:
 ```bash
-QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py $ARGUMENTS
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project pipeline python pipeline/benchmark.py $ARGUMENTS
 ```
 
 x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench.py --targets '$ARGUMENTS'`.

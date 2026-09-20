@@ -18,7 +18,7 @@ Update all programming languages directly (do NOT use sub-agents as they don't p
 ### Step 1: Check All Versions
 
 ```bash
-cd dagger-poc
+cd pipeline
 just check-versions
 ```
 
@@ -32,17 +32,17 @@ just check-versions-unstable
 ### Step 2: List All Languages
 
 ```bash
-cd dagger-poc
+cd pipeline
 just list-langs
 ```
 
 ### Step 3: Update Each Language
 
-Languages are configured in `dagger-poc/languages.py` using Devbox packages with pinned versions.
+Languages are configured in `pipeline/languages.py` using Devbox packages with pinned versions.
 
 For each language with an available update:
 
-1. **Edit `dagger-poc/languages.py`**:
+1. **Edit `pipeline/languages.py`**:
    - Update `nixpkgs` version: `("pkg@old",)` → `("pkg@new",)`
    ```python
    nixpkgs=("rustc@1.83.0",)  →  nixpkgs=("rustc@1.85.0",)
@@ -62,7 +62,7 @@ For each language with an available update:
 After all updates:
 
 ```bash
-cd dagger-poc
+cd pipeline
 
 # Run all validation tests
 uv run pytest
@@ -90,7 +90,7 @@ After all updates, provide a summary table:
 
 Ask if user wants to commit:
 ```bash
-git add dagger-poc/languages.py src/
+git add pipeline/languages.py src/
 git commit -m "chore: update language versions to latest stable releases
 
 - Rust: 1.83.0 → 1.85.0
@@ -108,7 +108,7 @@ Some languages have issues when running Devbox containers on macOS/Apple Silicon
 - Run a local quick check, then validate x86-64-only targets in homelab Argo:
 
 ```bash
-QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py java csharp swift wasm
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project pipeline python pipeline/benchmark.py java csharp swift wasm
 python scripts/argo_bench.py --targets 'java csharp swift wasm'
 ```
 

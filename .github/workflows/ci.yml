@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Test pipeline and language definitions
-        run: uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
+        run: uv run --locked --project pipeline --extra dev pytest pipeline -q
       - name: Plan affected language checks
         id: plan
         env:
@@ -51,4 +51,4 @@ jobs:
           name: benchmark-plan
           path: benchmark-plan.json
       - name: Check Python syntax and undefined names
-        run: uv run --locked --project dagger-poc --extra dev ruff check --select F821,F822,F823 dagger-poc
+        run: uv run --locked --project pipeline --extra dev ruff check --select F821,F822,F823 pipeline

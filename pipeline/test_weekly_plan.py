@@ -24,10 +24,10 @@ def repo(tmp_path, monkeypatch):
     git("init", "-q")
     git("config", "user.email", "test@example.invalid")
     git("config", "user.name", "Test")
-    (tmp_path / "dagger-poc").mkdir()
+    (tmp_path / "pipeline").mkdir()
     (tmp_path / "src").mkdir()
     (tmp_path / "site").mkdir()
-    (tmp_path / "dagger-poc/languages.py").write_text(
+    (tmp_path / "pipeline/languages.py").write_text(
         "LANGUAGES = {'go': Language(file='go.go'), 'rust': Language(file='rust.rs')}\n"
     )
     (tmp_path / "src/go.go").write_text("original")

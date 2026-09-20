@@ -6,13 +6,13 @@ map, contribution integration, and current validation gates.
 
 ## Build and execution
 
-`dagger-poc/languages.py` is the shared source of truth for Nix/Devbox packages,
+`pipeline/languages.py` is the shared source of truth for Nix/Devbox packages,
 setup, compiler flags, execution commands, and variant names. Pin package
 versions and flake commits. Auxiliary upstream packages must be pinned too.
 
 The primary executor is the homelab's restricted Argo WorkflowTemplate, defined
 in the homelab repository under `cluster/apps/speed-comparison/`. It runs one
-target at a time on a fixed x86_64 worker using `dagger-poc/native.py`.
+target at a time on a fixed x86_64 worker using `pipeline/native.py`.
 The optional Dagger adapter (`benchmark.py`, `build_images.py`) uses the same
 definitions. The legacy Earthly, Crystal scmeta, Buildkite and Fly tooling was
 removed on 2026-09-20 and remains available in Git history at
@@ -22,7 +22,7 @@ do not add new mandatory paid runners.
 Commands from the repository root:
 
 ```bash
-uv run --project dagger-poc --extra dev pytest dagger-poc -q
+uv run --project pipeline --extra dev pytest pipeline -q
 python scripts/argo_bench.py --targets 'c rust go python' --rounds 10000
 python scripts/argo_bench.py --targets all --rounds 1000000000
 ```

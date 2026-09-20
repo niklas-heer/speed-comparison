@@ -43,7 +43,7 @@ def version_status(pinned: str, baseline: str) -> str:
 
 
 def load_languages(path: Path) -> dict[str, Any]:
-    """Load LANGUAGES from dagger-poc/languages.py."""
+    """Load LANGUAGES from pipeline/languages.py."""
     spec = importlib.util.spec_from_file_location("dagger_languages", path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Failed to load {path}")
@@ -56,7 +56,7 @@ def load_languages(path: Path) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Compare language package pins in dagger-poc/languages.py against docs/history/latest"
+        description="Compare language package pins in pipeline/languages.py against docs/history/latest"
     )
     parser.add_argument(
         "--baseline",
@@ -65,7 +65,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--languages",
-        default="dagger-poc/languages.py",
+        default="pipeline/languages.py",
         help="Path to languages.py",
     )
     parser.add_argument(

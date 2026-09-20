@@ -95,7 +95,7 @@ def encode_manifest(manifest: CatalogManifest) -> str:
 async def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", type=Path, required=True)
-    parser.add_argument("--catalog", default="dagger-poc/languages.py")
+    parser.add_argument("--catalog", default="pipeline/languages.py")
     parser.add_argument("--source-revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()

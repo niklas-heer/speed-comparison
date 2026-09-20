@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 async def check() -> dict:
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    catalog = ROOT / "dagger-poc/languages.py"
+    catalog = ROOT / "pipeline/languages.py"
     environment_key = "SPEED_CATALOG_CLIENT_" + uuid.uuid4().hex.upper()
     os.environ[environment_key] = "client-only-test-value"
     marker = Path("/tmp") / ("speed-catalog-sentinel-" + uuid.uuid4().hex)

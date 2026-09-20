@@ -93,7 +93,7 @@ The affected-target planner and Dagger runner implement that selection. For a qu
 
 ```sh
 QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
-  uv run --locked --project dagger-poc python dagger-poc/benchmark.py go
+  uv run --locked --project pipeline python pipeline/benchmark.py go
 ```
 
 That command is a smoke check, not a published performance comparison. Automatic homelab dispatch still awaits the isolated worker. The intended reporting schedule is at most weekly when benchmark inputs have changed since the last successful publication; failed runs should not advance that checkpoint.

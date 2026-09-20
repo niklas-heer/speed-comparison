@@ -87,7 +87,9 @@ BENCH_JULIA_DEPOT_PATH = "/tmp/bench-julia-depot"
 # Registry (same as build_images.py)
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
 
-# Paths (relative to repo root - benchmark.py lives in dagger-poc/)
+# Paths (relative to repo root - benchmark.py lives in pipeline/)
+CATALOG_PATH = "pipeline/languages.py"
+LEGACY_CATALOG_PATH = "dagger-poc/languages.py"  # revisions before 2026-09-20
 REPO_ROOT = Path(__file__).parent.parent
 SRC_DIR = REPO_ROOT / "src"
 RESULTS_DIR = REPO_ROOT / "results"
@@ -577,8 +579,11 @@ async def main(
                     .commit(revision)
                     .tree()
                 )
+                catalog_path = (
+                    CATALOG_PATH if "pipeline" in await source.entries() else LEGACY_CATALOG_PATH
+                )
                 manifest = await resolve_catalog(
-                    client, source.file("dagger-poc/languages.py"), source_revision=revision
+                    client, source.file(catalog_path), source_revision=revision
                 )
                 languages, tooling = manifest.languages, manifest.tooling
                 src_dir = source.directory("src")

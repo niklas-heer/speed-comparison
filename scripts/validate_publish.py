@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dagger-poc"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
 from languages import LANGUAGES
 from result_metadata import enrich_result
 

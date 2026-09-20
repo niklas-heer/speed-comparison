@@ -25,7 +25,7 @@ reviews:
         - Potential performance optimizations that don't involve parallelism
         - SIMD is allowed but should be in separate files (e.g., leibniz_simd.*)
 
-    - path: "dagger-poc/**"
+    - path: "pipeline/**"
       instructions: |
         Python Language declarations are the source of truth for Nix/Devbox tooling.
         The common Dagger runner prepares builds with bounded concurrency, awaits
