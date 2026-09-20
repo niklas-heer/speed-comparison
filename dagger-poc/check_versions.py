@@ -26,7 +26,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from urllib.parse import quote
 
-from languages import LANGUAGES, Language
+from languages import LANGUAGES, VERSION_HOLDS, Language
 
 
 @dataclass
@@ -39,6 +39,7 @@ class VersionInfo:
     latest: Optional[str]
     update_available: bool
     package_type: str  # "devbox" or "flake"
+    hold: str | None = None
 
 
 # Patterns that indicate unstable/preview versions
@@ -197,6 +198,10 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
     if latest and current:
         update_available = compare_versions(current, latest)
 
+    hold = VERSION_HOLDS.get(f"{package}@{current}")
+    if hold is not None:
+        update_available = False
+
     return VersionInfo(
         language=target,
         package=package,
@@ -204,6 +209,7 @@ def check_language_version(target: str, lang: Language, stable_only: bool = True
         latest=latest,
         update_available=update_available,
         package_type=package_type,
+        hold=hold,
     )
 
 
@@ -249,6 +255,7 @@ def print_results(results: list[VersionInfo], as_json: bool = False) -> None:
                 "latest": r.latest,
                 "update_available": r.update_available,
                 "package_type": r.package_type,
+                "hold": r.hold,
             }
             for r in results
         ]
@@ -266,6 +273,12 @@ def print_results(results: list[VersionInfo], as_json: bool = False) -> None:
         print("-" * 80)
 
         for r in devbox_results:
+            if r.hold:
+                print(
+                    f"⏸ {r.package}@{r.current} held: {r.hold} "
+                    f"(catalog latest {r.latest or 'N/A'})"
+                )
+                continue
             if r.update_available:
                 status = "UPDATE AVAILABLE"
             elif r.latest:
@@ -286,6 +299,12 @@ def print_results(results: list[VersionInfo], as_json: bool = False) -> None:
         print("-" * 85)
 
         for r in flake_results:
+            if r.hold:
+                print(
+                    f"⏸ {r.package}@{r.current} held: {r.hold} "
+                    f"(catalog latest {r.latest or 'N/A'})"
+                )
+                continue
             if r.update_available:
                 status = "UPDATE AVAILABLE"
             elif r.latest:
