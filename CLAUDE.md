@@ -14,8 +14,10 @@ The primary executor is the homelab's restricted Argo WorkflowTemplate, defined
 in the homelab repository under `cluster/apps/speed-comparison/`. It runs one
 target at a time on a fixed x86_64 worker using `dagger-poc/native.py`.
 The optional Dagger adapter (`benchmark.py`, `build_images.py`) uses the same
-definitions. `Earthfile`, Crystal `scmeta/`, Buildkite, and Fly helpers are
-historical references; do not add new mandatory paid runners.
+definitions. The legacy Earthly, Crystal scmeta, Buildkite and Fly tooling was
+removed on 2026-09-20 and remains available in Git history at
+https://github.com/niklas-heer/speed-comparison/tree/c2262c17c801abf16fc70b5124c93f304880970a;
+do not add new mandatory paid runners.
 
 Commands from the repository root:
 

@@ -64,10 +64,12 @@ just test mylang
 just bench mylang
 ```
 
-**On ARM Mac with emulation issues** (Java, C#, Swift, WASM):
+Local quick check from the repository root:
 ```bash
-just remote-test mylang    # Uses Fly.io x86_64 builder
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py mylang
 ```
+
+x86-64-only targets are validated in homelab Argo via `python scripts/argo_bench.py`.
 
 ### 5. Commit
 

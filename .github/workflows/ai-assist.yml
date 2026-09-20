@@ -103,7 +103,7 @@ jobs:
             Project context (from CLAUDE.md):
             - Benchmark comparing 40+ programming languages using the Leibniz formula for Pi
             - Rules: NO concurrency/parallelism, SIMD allowed as separate targets, use idiomatic code
-            - Uses Earthly build system with Docker
+            - Uses Nix/Devbox declarations with an optional Dagger adapter
             - Prefer Alpine over Debian for images
 
             You are responding to a comment on a ${isPR ? 'pull request' : 'issue'}.

@@ -258,7 +258,7 @@ asking about optimization and fairness.
 | --- | --- |
 | **February 2018** | The repository began with its [initial commit](https://github.com/niklas-heer/speed-comparison/commit/54f3cfd38d54f2a049f368fd36d53792b4fa5640), establishing the project and its MIT license. |
 | **2022 onward** | Published charts and downloadable snapshots established a history that can still be explored in the [archive](https://speed-comparison.vercel.app/runs/), including [October 2022](https://speed-comparison.vercel.app/runs/2022-10-15T164557/). |
-| **2025** | The Earthly/GitHub Actions pipeline grew automated builds and version checks. Results gained more hardware and environment context; the [Earthfile](Earthfile) remains a legacy reference. |
+| **2025** | The Earthly/GitHub Actions pipeline grew automated builds and version checks. Results gained more hardware and environment context; the [Earthfile](https://github.com/niklas-heer/speed-comparison/blob/c2262c17c801abf16fc70b5124c93f304880970a/Earthfile) is preserved in history. |
 | **February 2026** | Dagger and Buildkite work explored a portable runner and checked parity with legacy toolchains, flags and runtime behaviour. |
 | **September 2026** | Nix/Devbox declarations and native Argo jobs produced the 75-implementation migration baseline. The unified Dagger runner added reusable preparation, fresh measurements and revision-bound sources. Astro brought source inspection, package provenance and raw samples to the public report. |
 | **Next** | Validate an isolated persistent Dagger worker behind Argo, calibrate a practical reporting workload, and connect authorized contribution checks to that execution path. |

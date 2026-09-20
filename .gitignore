@@ -16,8 +16,6 @@ src/*.deps.json
 src/*.runtimeconfig.json
 *.o
 *.hi
-.tmp-earthly-out
-scmeta-bin/
 test_output/
 .venv/
 .env

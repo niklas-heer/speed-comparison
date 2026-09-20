@@ -105,7 +105,12 @@ git commit -m "chore: update language versions to latest stable releases
 
 Some languages have issues when running Devbox containers on macOS/Apple Silicon:
 - Java, C#, Swift, WASM may fail with SIGILL errors
-- Use remote builds for these: `just remote-test java csharp swift wasm`
+- Run a local quick check, then validate x86-64-only targets in homelab Argo:
+
+```bash
+QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 uv run --locked --project dagger-poc python dagger-poc/benchmark.py java csharp swift wasm
+python scripts/argo_bench.py --targets 'java csharp swift wasm'
+```
 
 ### Package Not Found in nixhub
 
@@ -138,5 +143,5 @@ Common breaking changes to watch for:
 
 1. **Sub-agents don't persist**: Don't spawn sub-agents for updates - their file changes don't persist
 2. **Unstable versions**: By default, version checker filters out alpha/beta/RC versions
-3. **ARM64 compatibility**: Some packages may have issues on ARM Mac - use `just remote-test` for those
+3. **ARM64 compatibility**: Some packages may have issues on ARM Mac; validate x86-64-only targets via `python scripts/argo_bench.py`
 4. **Version format**: Package versions must include `@` separator (e.g., `go@1.23.4`)

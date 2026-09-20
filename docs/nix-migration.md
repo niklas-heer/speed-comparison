@@ -16,8 +16,8 @@ Base: `codex/dagger-parity-repro`, merged with `master` at `8917f3c`.
 | `publish.py` | Timestamped history, latest result links, manifest |
 | `docs/index.html` | Interactive historical results, CSV download, methodology details |
 | `scripts/compare_results.py` | Migration comparison diagnostics; hardware must match for performance claims |
-| `Earthfile`, `scmeta/` | Legacy Earthly/Crystal implementation, retained as a reference |
-| `.buildkite/` | Previous migration-validation adapter, superseded by homelab Argo |
+| `Earthfile`, `scmeta/` | Removed on 2026-09-20; [Earthfile](https://github.com/niklas-heer/speed-comparison/blob/c2262c17c801abf16fc70b5124c93f304880970a/Earthfile) and [scmeta/](https://github.com/niklas-heer/speed-comparison/blob/c2262c17c801abf16fc70b5124c93f304880970a/scmeta) remain in Git history |
+| `.buildkite/` | Removed on 2026-09-20; [preserved in Git history](https://github.com/niklas-heer/speed-comparison/blob/c2262c17c801abf16fc70b5124c93f304880970a/.buildkite) |
 | Homelab `cluster/apps/speed-comparison/` | Argo execution, restricted namespace, artifacts, suspended weekly schedule |
 
 The migration branch contained toolchain fixes but was eight commits behind master.

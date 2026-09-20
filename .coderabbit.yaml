@@ -25,12 +25,6 @@ reviews:
         - Potential performance optimizations that don't involve parallelism
         - SIMD is allowed but should be in separate files (e.g., leibniz_simd.*)
 
-    - path: "Earthfile"
-      instructions: |
-        This is a retained legacy reference, not the active execution path.
-        New language/toolchain changes belong in dagger-poc/languages.py; do not
-        require duplicate Earthly implementations as a migration prerequisite.
-
     - path: "dagger-poc/**"
       instructions: |
         Python Language declarations are the source of truth for Nix/Devbox tooling.
