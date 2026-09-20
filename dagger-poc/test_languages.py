@@ -10,6 +10,7 @@ import pytest
 
 from languages import (
     LANGUAGES,
+    VERSION_HOLDS,
     Language,
     get_devbox_image,
     get_tool_packages,
@@ -22,6 +23,12 @@ from languages import (
 
 # Path to source files (relative to repo root, not dagger-poc)
 SRC_DIR = Path(__file__).parent.parent / "src"
+
+
+def test_version_holds_match_current_nixpkgs_pins():
+    specs = {pkg for lang in LANGUAGES.values() for pkg in lang.nixpkgs}
+    stale = sorted(key for key in VERSION_HOLDS if key not in specs)
+    assert stale == [], f"VERSION_HOLDS keys missing from Language.nixpkgs: {stale}"
 
 
 def test_micropython_target_pin_is_not_replaced_by_metadata_runtime():

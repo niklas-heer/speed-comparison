@@ -234,7 +234,8 @@ Website and reporting changes have their own checks. Producing a plan does not
 automatically dispatch a benchmark to the homelab. The optional Dagger workflow is
 manually triggered; native Argo jobs remain available to operators.
 
-The weekly Nix version checker opens update proposals. Package updates require
+The weekly Nix version checker opens update proposals, skipping deliberately
+held pins declared in `VERSION_HOLDS`. Package updates require
 native smoke validation, not just syntactically valid declarations. The weekly
 full-benchmark schedule remains suspended pending worker isolation and rollout
 validation. The planned policy is to report only when benchmark inputs changed

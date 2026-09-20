@@ -170,6 +170,14 @@ class Language:
         return version_output.strip().split("\n")[0]
 
 
+# Deliberately keep these Devbox pins at the recorded spec. The weekly checker
+# still looks up the catalog latest, but it does not propose an update. Re-evaluate
+# holds occasionally so they do not outlive the reason they were added.
+VERSION_HOLDS: dict[str, str] = {
+    "micropython@1.26.0": "1.27.0 Nix derivation fails its upstream test suite (checked 2026-09-12, PR #331)",
+}
+
+
 # =============================================================================
 # Shared Compiler Flags
 # =============================================================================

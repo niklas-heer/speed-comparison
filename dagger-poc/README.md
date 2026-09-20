@@ -70,6 +70,9 @@ must reference immutable commits. Capture actual compiler versions in the output
 `check_versions.py --json` queries the Devbox catalog. `update_versions.py` applies
 only literal package-version changes, including shared variants, while leaving
 compile/setup commands intact. Proposed upgrades require native validation.
+`VERSION_HOLDS` in `languages.py` keeps a pin at its current spec: the checker
+still records the catalog latest, but it does not mark that package as an
+available update. Re-evaluate holds when the blocked version or its reason changes.
 
 Registry image builds remain optional (`build_images.py`). Their tags fingerprint
 the package/setup/tool configuration. Registry access is not needed by Argo.
