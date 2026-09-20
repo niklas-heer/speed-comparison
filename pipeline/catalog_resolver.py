@@ -34,6 +34,20 @@ PROXY_ENV_NAMES = tuple(
 )
 
 
+CATALOG_PATH = "pipeline/languages.py"
+# Revisions before 2026-09-20 kept the catalog under dagger-poc/.
+LEGACY_CATALOG_PATH = "dagger-poc/languages.py"
+
+
+def catalog_path(entries: list[str]) -> str:
+    """Pick the catalog path for a source tree from its top-level entries.
+
+    Dagger lists directories with a trailing slash, so compare stripped names.
+    """
+    names = {entry.rstrip("/") for entry in entries}
+    return CATALOG_PATH if "pipeline" in names else LEGACY_CATALOG_PATH
+
+
 async def resolve_catalog(
     client: dagger.Client,
     catalog: dagger.File,

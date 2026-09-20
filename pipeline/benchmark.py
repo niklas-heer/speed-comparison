@@ -88,8 +88,6 @@ BENCH_JULIA_DEPOT_PATH = "/tmp/bench-julia-depot"
 DEFAULT_REGISTRY = "ghcr.io/niklas-heer/speed-comparison"
 
 # Paths (relative to repo root - benchmark.py lives in pipeline/)
-CATALOG_PATH = "pipeline/languages.py"
-LEGACY_CATALOG_PATH = "dagger-poc/languages.py"  # revisions before 2026-09-20
 REPO_ROOT = Path(__file__).parent.parent
 SRC_DIR = REPO_ROOT / "src"
 RESULTS_DIR = REPO_ROOT / "results"
@@ -572,18 +570,17 @@ async def main(
         async with dagger.Connection(dagger.Config(log_output=sys.stderr)) as client:
             record["dagger_engine_version"] = await client.version()
             if revision:
-                from catalog_resolver import encode_manifest, resolve_catalog
+                from catalog_resolver import catalog_path, encode_manifest, resolve_catalog
 
                 source = (
                     client.git("https://github.com/niklas-heer/speed-comparison.git")
                     .commit(revision)
                     .tree()
                 )
-                catalog_path = (
-                    CATALOG_PATH if "pipeline" in await source.entries() else LEGACY_CATALOG_PATH
-                )
                 manifest = await resolve_catalog(
-                    client, source.file(catalog_path), source_revision=revision
+                    client,
+                    source.file(catalog_path(await source.entries())),
+                    source_revision=revision,
                 )
                 languages, tooling = manifest.languages, manifest.tooling
                 src_dir = source.directory("src")
