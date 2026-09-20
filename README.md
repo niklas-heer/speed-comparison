@@ -92,7 +92,7 @@ metadata regression tests; it does not need Docker or install language toolchain
 ```sh
 git clone https://github.com/niklas-heer/speed-comparison.git
 cd speed-comparison
-uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
+uv run --locked --project pipeline --extra dev pytest pipeline -q
 ```
 
 ### Run one implementation
@@ -104,7 +104,7 @@ longer downloading the toolchain than doing the calculation.
 
 ```sh
 QUICK_TEST_ROUNDS=10000 USE_LOCAL_IMAGES=1 \
-  uv run --locked --project dagger-poc python dagger-poc/benchmark.py \
+  uv run --locked --project pipeline python pipeline/benchmark.py \
   --output ./results/quick-go go
 ```
 
@@ -114,7 +114,7 @@ to create `results/<run-id>/` automatically. Add target names to check several
 implementations in one suite. To list available target IDs:
 
 ```sh
-uv run --locked --directory dagger-poc python -c \
+uv run --locked --directory pipeline python -c \
   'from languages import LANGUAGES; print("\n".join(LANGUAGES))'
 ```
 
@@ -188,12 +188,12 @@ intended consolidation is Argo scheduling the same Dagger runner used locally;
 
 | Component | Responsibility |
 | --- | --- |
-| [`languages.py`](dagger-poc/languages.py) | Declares packages, source paths, setup, compile/run commands and implementation labels. |
+| [`languages.py`](pipeline/languages.py) | Declares packages, source paths, setup, compile/run commands and implementation labels. |
 | Nix through Devbox | Resolves and installs the toolchain; resolved package information is retained with results. |
-| [`benchmark.py`](dagger-poc/benchmark.py) and [`suite.py`](dagger-poc/suite.py) | Prepare a Dagger suite, measure selected targets and preserve its evidence. The `dagger-poc/` name remains for compatibility. |
-| [Hyperfine](https://github.com/sharkdp/hyperfine) and [`measurement.py`](dagger-poc/measurement.py) | Execute the common timing protocol. |
-| [`scmeta.py`](dagger-poc/scmeta.py) and [`result_metadata.py`](dagger-poc/result_metadata.py) | Collect samples/output and validate and describe the result. |
-| [`native.py`](dagger-poc/native.py) and [Argo submission](scripts/argo_bench.py) | Run the native migration adapter in the homelab; cluster access is for operators. |
+| [`benchmark.py`](pipeline/benchmark.py) and [`suite.py`](pipeline/suite.py) | Prepare a Dagger suite, measure selected targets and preserve its evidence. |
+| [Hyperfine](https://github.com/sharkdp/hyperfine) and [`measurement.py`](pipeline/measurement.py) | Execute the common timing protocol. |
+| [`scmeta.py`](pipeline/scmeta.py) and [`result_metadata.py`](pipeline/result_metadata.py) | Collect samples/output and validate and describe the result. |
+| [`native.py`](pipeline/native.py) and [Argo submission](scripts/argo_bench.py) | Run the native migration adapter in the homelab; cluster access is for operators. |
 | [`analyze.py`](analyze.py), [`publish.py`](publish.py) and [`site/`](site/) | Turn recorded evidence into archived snapshots and inspectable static reports. |
 
 ### Reuse preparation; take fresh measurements
@@ -225,7 +225,7 @@ remains trusted code.
 Add `--base BASE_SHA` to select affected targets instead of naming them explicitly.
 Both commits must be available locally for planning. Shared source changes select
 all consuming variants; shared runner/tooling changes can select the whole suite.
-See the [runner guide](dagger-poc/README.md) and [catalog boundary](docs/catalog-resolution.md).
+See the [runner guide](pipeline/README.md) and [catalog boundary](docs/catalog-resolution.md).
 
 ### Separate validation, measurement and publication
 
@@ -275,7 +275,7 @@ Improvements to implementations, methodology, reporting and documentation are al
 welcome. A surprising result is a good starting point for an investigation.
 
 1. **Find the target.** Read its source under `src/` and its declaration in
-   [`languages.py`](dagger-poc/languages.py). For a new language, add both.
+   [`languages.py`](pipeline/languages.py). For a new language, add both.
 2. **Keep the experiment explicit.** Preserve the single-threaded Leibniz workload.
    Give optimized variants distinct target IDs and accurate math/SIMD labels.
    Record compiler flags, pin package versions and use immutable revisions for
@@ -298,7 +298,7 @@ implementation of a language is not a ceiling on its performance.
 | Path | Start here for |
 | --- | --- |
 | [`src/`](src/) | Programs and the reference workload in `rounds.txt`. |
-| [`dagger-poc/`](dagger-poc/) | Language definitions, execution adapters, measurement helpers and regression tests. |
+| [`pipeline/`](pipeline/) | Language definitions, execution adapters, measurement helpers and regression tests. |
 | [`scripts/`](scripts/) | Target selection, Argo submission, calibration and report utilities. |
 | [`results/`](results/) | Local run bundles; generated results do not become published automatically. |
 | [`docs/history/`](docs/history/) | Published snapshots and original downloadable artifacts. |

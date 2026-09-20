@@ -10,7 +10,9 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 
-CATALOG = 'dagger-poc/languages.py'
+CATALOG = 'pipeline/languages.py'
+# Revisions before 2026-09-20 kept the catalog under dagger-poc/.
+LEGACY_CATALOG = 'dagger-poc/languages.py'
 GLOBAL_INPUTS = {'src/rounds.txt'}
 REPORT_INPUTS = {
     'pyproject.toml', 'uv.lock', 'analyze.py', 'publish.py', 'download_icons.py',
@@ -95,9 +97,9 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
             continue
         if path == CATALOG:
             continue
-        if path.startswith(('dagger-poc/', 'scripts/')) and path.endswith(('.md', '.rst')):
+        if path.startswith(('pipeline/', 'scripts/')) and path.endswith(('.md', '.rst')):
             continue
-        if path in GLOBAL_INPUTS or path.startswith(('dagger-poc/', 'scripts/')):
+        if path in GLOBAL_INPUTS or path.startswith(('pipeline/', 'scripts/')):
             include(head, f'Shared pipeline input: {path}')
             continue
         if not path.startswith('src/'):
@@ -135,7 +137,9 @@ def plan_revisions(base_ref: str, head_ref: str) -> dict:
     if merge_base:
         merge_base = merge_base.strip()
         changes = git('diff', '--name-only', '--no-renames', '-z', merge_base, head).split('\0')
-        plan = affected(git('show', f'{merge_base}:{CATALOG}', required=False),
+        base_catalog = (git('show', f'{merge_base}:{CATALOG}', required=False)
+                        or git('show', f'{merge_base}:{LEGACY_CATALOG}', required=False))
+        plan = affected(base_catalog,
                         git('show', f'{head}:{CATALOG}'), [p for p in changes if p])
     else:
         # A force push can make the previous commit unreachable even in a full

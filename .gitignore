@@ -23,12 +23,12 @@ __pycache__/
 build-output.txt
 version-info/
 
-# Dagger POC
-dagger-poc/.venv/
-dagger-poc/__pycache__/
-dagger-poc/.pytest_cache/
-dagger-poc/results/
-dagger-poc/_nix_cache/
+# Pipeline
+pipeline/.venv/
+pipeline/__pycache__/
+pipeline/.pytest_cache/
+pipeline/results/
+pipeline/_nix_cache/
 
 # Isolated Dagger suite evidence bundles
 results/*/

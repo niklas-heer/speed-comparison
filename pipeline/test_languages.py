@@ -21,7 +21,7 @@ from languages import (
     language_image_version_tag,
 )
 
-# Path to source files (relative to repo root, not dagger-poc)
+# Path to source files (relative to repo root, not pipeline)
 SRC_DIR = Path(__file__).parent.parent / "src"
 
 

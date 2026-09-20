@@ -19,9 +19,9 @@ async def check():
             .commit(REVISION)
             .tree()
         )
-        manifest = await resolve_catalog(
-            client, tree.file("dagger-poc/languages.py"), source_revision=REVISION
-        )
+        # This pinned revision predates the 2026-09-20 rename of dagger-poc/ to pipeline/.
+        catalog_path = "pipeline/languages.py" if "pipeline" in await tree.entries() else "dagger-poc/languages.py"
+        manifest = await resolve_catalog(client, tree.file(catalog_path), source_revision=REVISION)
         # Deliberately differ from the host checkout's billion-round input.
         source = tree.directory("src").with_new_file("rounds.txt", contents="17\n")
         lang = replace(manifest.languages["go"], name='Go "quoted" $(exit 97)', base="new-go")

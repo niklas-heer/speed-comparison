@@ -75,7 +75,7 @@ def get_toolchain_key(namespace: dict) -> str:
 def get_old_languages():
     """Get LANGUAGES dict from the previous commit."""
     result = subprocess.run(
-        ["git", "show", "HEAD~1:dagger-poc/languages.py"],
+        ["git", "show", "HEAD~1:pipeline/languages.py"],
         capture_output=True,
         text=True,
     )

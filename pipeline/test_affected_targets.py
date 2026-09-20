@@ -28,23 +28,23 @@ def test_directory_and_extra_files_select_the_owner():
 def test_transitive_flags_select_only_dependents():
     old = CATALOG.replace('FLAGS = "-O2"', 'OPT = "-O2"\nFLAGS = OPT')
     new = old.replace('OPT = "-O2"', 'OPT = "-O3"')
-    assert affected(old, new, ['dagger-poc/languages.py'])['targets'] == ['c', 'c-clang']
+    assert affected(old, new, ['pipeline/languages.py'])['targets'] == ['c', 'c-clang']
 
 
 def test_definition_edit_selects_only_changed_language():
     new = CATALOG.replace('name="Swift"', 'name="Swift 6"')
-    assert affected(CATALOG, new, ['dagger-poc/languages.py'])['targets'] == ['swift']
+    assert affected(CATALOG, new, ['pipeline/languages.py'])['targets'] == ['swift']
 
 
 def test_shared_runner_and_tooling_changes_select_everything():
     all_targets = ['c', 'c-clang', 'fs', 'swift']
-    assert affected(CATALOG, CATALOG, ['dagger-poc/measurement.py'])['targets'] == all_targets
+    assert affected(CATALOG, CATALOG, ['pipeline/measurement.py'])['targets'] == all_targets
     new = CATALOG.replace('1.18.0', '1.19.0')
-    assert affected(CATALOG, new, ['dagger-poc/languages.py'])['targets'] == all_targets
+    assert affected(CATALOG, new, ['pipeline/languages.py'])['targets'] == all_targets
 
 
 def test_docs_and_comments_do_not_trigger_benchmarks():
-    assert affected(CATALOG, CATALOG + '\n# explanation\n', ['README.md', 'dagger-poc/README.md', 'scripts/README.rst', 'dagger-poc/languages.py'])['targets'] == []
+    assert affected(CATALOG, CATALOG + '\n# explanation\n', ['README.md', 'pipeline/README.md', 'scripts/README.rst', 'pipeline/languages.py'])['targets'] == []
 
 
 def test_source_rename_and_removed_target_are_reported():
@@ -91,7 +91,7 @@ def test_mixed_report_and_source_changes_preserve_both_selections():
 
 
 def test_execution_lock_still_selects_all_targets():
-    plan = affected(CATALOG, CATALOG, ['dagger-poc/uv.lock'])
+    plan = affected(CATALOG, CATALOG, ['pipeline/uv.lock'])
     assert len(plan['targets']) == 4
     assert plan['report_check'] is False
 
@@ -106,8 +106,8 @@ def test_revision_planning_handles_missing_history(tmp_path, monkeypatch):
     git('init', '-q')
     git('config', 'user.name', 'Planner Test')
     git('config', 'user.email', 'planner@example.invalid')
-    (tmp_path / 'dagger-poc').mkdir()
-    (tmp_path / 'dagger-poc/languages.py').write_text(CATALOG)
+    (tmp_path / 'pipeline').mkdir()
+    (tmp_path / 'pipeline/languages.py').write_text(CATALOG)
     git('add', '.')
     git('commit', '-qm', 'Initial catalog')
     first = git('rev-parse', 'HEAD')

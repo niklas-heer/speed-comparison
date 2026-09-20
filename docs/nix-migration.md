@@ -8,10 +8,10 @@ Base: `codex/dagger-parity-repro`, merged with `master` at `8917f3c`.
 | Area | Responsibility |
 | --- | --- |
 | `src/` | Single-threaded Leibniz implementations and separate optimized variants |
-| `dagger-poc/languages.py` | Nix/Devbox packages, setup, compile/run commands, variant names |
-| `dagger-poc/native.py` | Restricted-container execution for homelab Argo |
-| `dagger-poc/benchmark.py` | Common portable Dagger execution; homelab integration is the next rollout gate |
-| `dagger-poc/scmeta.py`, `result_metadata.py` | Hyperfine output, accuracy, sanity checks, methodology metadata |
+| `pipeline/languages.py` | Nix/Devbox packages, setup, compile/run commands, variant names |
+| `pipeline/native.py` | Restricted-container execution for homelab Argo |
+| `pipeline/benchmark.py` | Common portable Dagger execution; homelab integration is the next rollout gate |
+| `pipeline/scmeta.py`, `result_metadata.py` | Hyperfine output, accuracy, sanity checks, methodology metadata |
 | `analyze.py` | Combined CSV/JSON, chart, hardware metadata |
 | `publish.py` | Timestamped history, latest result links, manifest |
 | `docs/index.html` | Interactive historical results, CSV download, methodology details |
@@ -19,6 +19,8 @@ Base: `codex/dagger-parity-repro`, merged with `master` at `8917f3c`.
 | `Earthfile`, `scmeta/` | Removed on 2026-09-20; [Earthfile](https://github.com/niklas-heer/speed-comparison/blob/c2262c17c801abf16fc70b5124c93f304880970a/Earthfile) and [scmeta/](https://github.com/niklas-heer/speed-comparison/tree/c2262c17c801abf16fc70b5124c93f304880970a/scmeta) remain in Git history |
 | `.buildkite/` | Removed on 2026-09-20; [preserved in Git history](https://github.com/niklas-heer/speed-comparison/tree/c2262c17c801abf16fc70b5124c93f304880970a/.buildkite) |
 | Homelab `cluster/apps/speed-comparison/` | Argo execution, restricted namespace, artifacts, suspended weekly schedule |
+
+The `pipeline/` directory was previously called `dagger-poc`.
 
 The migration branch contained toolchain fixes but was eight commits behind master.
 Those commits are integrated, preserving Swift improvements, Octave, Numba, Chez,

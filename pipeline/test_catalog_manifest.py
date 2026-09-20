@@ -176,20 +176,20 @@ def test_catalog_reader_accepts_only_regular_files_under_the_source_root(tmp_pat
     from catalog_manifest import read_catalog_source
 
     root = tmp_path / "source"
-    (root / "dagger-poc").mkdir(parents=True)
-    source = root / "dagger-poc/languages.py"
+    (root / "pipeline").mkdir(parents=True)
+    source = root / "pipeline/languages.py"
     source.write_text("# catalog\n")
-    assert read_catalog_source(root, "dagger-poc/languages.py") == "# catalog\n"
+    assert read_catalog_source(root, "pipeline/languages.py") == "# catalog\n"
     with pytest.raises(ValueError):
         read_catalog_source(root, "../outside.py")
     with pytest.raises(ValueError):
-        read_catalog_source(root, "dagger-poc")
+        read_catalog_source(root, "pipeline")
     outside = tmp_path / "outside.py"
     outside.write_text("private client data")
     source.unlink()
     source.symlink_to(outside)
     with pytest.raises(ValueError, match="symlinks"):
-        read_catalog_source(root, "dagger-poc/languages.py")
+        read_catalog_source(root, "pipeline/languages.py")
 
 
 def test_catalog_reader_rejects_symlinked_parent_directories(tmp_path):
@@ -200,6 +200,6 @@ def test_catalog_reader_rejects_symlinked_parent_directories(tmp_path):
     (outside / "languages.py").write_text("private client data")
     root = tmp_path / "source"
     root.mkdir()
-    (root / "dagger-poc").symlink_to(outside, target_is_directory=True)
+    (root / "pipeline").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ValueError, match="symlinks"):
-        read_catalog_source(root, "dagger-poc/languages.py")
+        read_catalog_source(root, "pipeline/languages.py")

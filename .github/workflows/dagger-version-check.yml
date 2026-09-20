@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check package versions
-        working-directory: dagger-poc
+        working-directory: pipeline
         env:
           INCLUDE_UNSTABLE: ${{ inputs.include_unstable }}
         run: |
@@ -40,10 +40,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nix-version-report
-          path: dagger-poc/version-report.json
+          path: pipeline/version-report.json
       - name: Apply proposed updates and validate
         if: '!inputs.dry_run'
-        working-directory: dagger-poc
+        working-directory: pipeline
         run: |
           uv run --locked python update_versions.py version-report.json
           uv run --locked --extra dev pytest -q
@@ -54,7 +54,7 @@ jobs:
           draft: true
           title: 'chore(nix): update pinned language packages'
           commit-message: 'chore(nix): update pinned language packages'
-          add-paths: dagger-poc/languages.py
+          add-paths: pipeline/languages.py
           body: |
             Proposes explicit package version updates from the Devbox catalog.
             Configuration tests passed. Run the affected targets in homelab Argo

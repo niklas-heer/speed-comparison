@@ -39,8 +39,8 @@ jobs:
           if not targets:
               raise SystemExit('Specify targets or all')
           subprocess.run([
-              'uv', 'run', '--locked', '--project', 'dagger-poc', 'python',
-              'dagger-poc/benchmark.py', '--revision', os.environ['SOURCE_REVISION'],
+              'uv', 'run', '--locked', '--project', 'pipeline', 'python',
+              'pipeline/benchmark.py', '--revision', os.environ['SOURCE_REVISION'],
               '--output', 'results/manual', '--prepare-jobs', '2', '--', *targets,
           ], check=True)
           PY

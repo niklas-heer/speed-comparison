@@ -1,6 +1,6 @@
 # Resolving language declarations
 
-Contributors keep editing `dagger-poc/languages.py`. A trusted driver can now resolve
+Contributors keep editing `pipeline/languages.py`. A trusted driver can now resolve
 that Python file inside a Dagger container and consume a validated JSON manifest.
 There is no second manually maintained catalog. `benchmark.py --revision FULL_SHA`
 now resolves and consumes this manifest, including tooling, using sources from the
@@ -57,14 +57,14 @@ build from the resolved tooling through the Dagger cache. See the
 From a trusted checkout, with an existing local Dagger-compatible runtime:
 
 ```sh
-uv run --locked --project dagger-poc python dagger-poc/catalog_resolver.py \
+uv run --locked --project pipeline python pipeline/catalog_resolver.py \
   --source-root /path/to/verified-source \
-  --catalog dagger-poc/languages.py \
+  --catalog pipeline/languages.py \
   --source-revision FULL_VERIFIED_COMMIT_SHA \
   --output /tmp/catalog.json
 
-uv run --locked --project dagger-poc --extra dev pytest dagger-poc -q
-uv run --locked --project dagger-poc python dagger-poc/check_catalog_resolver.py
+uv run --locked --project pipeline --extra dev pytest pipeline -q
+uv run --locked --project pipeline python pipeline/check_catalog_resolver.py
 ```
 
 The unit suite checks lossless parity for all 75 targets, image fingerprints and
