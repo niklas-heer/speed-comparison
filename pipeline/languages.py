@@ -433,6 +433,18 @@ LANGUAGES: dict[str, Language] = {
         base="cplusplus",
         category="systems",
     ),
+    "strict": Language(
+        name="Strict",
+        nix_flakes=(
+            "github:strict-lang/Strict/008809e445add812fb88a7f921bfe2dcb4758310#strict",
+        ),
+        file="leibniz.strict",
+        compile="STRICT_GPU=0 strict build leibniz.strict",
+        run="STRICT_THREADS=1 STRICT_GPU=0 ./leibniz",
+        version_cmd="strict version",
+        base="strict",
+        category="systems",
+    ),
     # =========================================================================
     # Crystal / Swift
     # =========================================================================
