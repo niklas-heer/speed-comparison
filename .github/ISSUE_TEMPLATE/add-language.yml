@@ -21,7 +21,7 @@ body:
     id: toolchain
     attributes:
       label: Toolchain
-      description: How to install it reproducibly, if known. Toolchains come from a pinned Devbox package or a Nix flake at a fixed commit; no Docker image is needed.
+      description: How to install it reproducibly, if known. Use a pinned Devbox package, a Nix flake at a fixed commit, or hash-pinned packages (as Mojo does); no Docker image is needed.
       placeholder: e.g., zig@0.16.0 (Devbox), or github:owner/repo/<commit>#package
 
   - type: textarea

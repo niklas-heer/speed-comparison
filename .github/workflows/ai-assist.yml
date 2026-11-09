@@ -104,7 +104,7 @@ jobs:
             - Benchmark comparing 75+ implementations using the Leibniz formula for Pi
             - Rules: NO concurrency/parallelism, SIMD allowed as separate targets, use idiomatic code
             - Relaxed math and paired-term algorithms are allowed when labeled in pipeline/result_metadata.py
-            - Toolchains are pinned Nix/Devbox packages or flakes at immutable commits in pipeline/languages.py
+            - Toolchains are pinned in pipeline/languages.py: Devbox package versions, flakes at immutable commits, or hash-pinned packages (Mojo)
 
             You are responding to a comment on a ${isPR ? 'pull request' : 'issue'}.
             Be helpful, concise, and technical. Use markdown formatting.
