@@ -21,6 +21,10 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 
 from languages import DEFAULT_DEVBOX_IMAGE, LANGUAGES  # noqa: E402
 
+# Targets whose programs refuse to run without AVX-512. GitHub's runners do not
+# always have it, so these are skipped there and validated on the homelab worker.
+REQUIRES_AVX512 = {"csharp-avx512", "fsharp-simd", "rust-simd"}
+
 # Mirrors the benchmark step of the homelab WorkflowTemplate: bootstrap Python,
 # then launch native.py outside that Devbox shell so the target gets only its
 # own toolchain.
@@ -54,6 +58,16 @@ def main() -> int:
     rounds = args.rounds.split()
     if not rounds or not all(r.isdigit() and 1 <= int(r) <= 1_000_000_000 for r in rounds):
         parser.error("rounds must be integers between 1 and 1,000,000,000")
+
+    cpuinfo = Path("/proc/cpuinfo")
+    flags = cpuinfo.read_text().split() if cpuinfo.exists() else []
+    if args.target in REQUIRES_AVX512 and "avx512f" not in flags:
+        print(f"::warning::{args.target} needs AVX-512, which this runner lacks; "
+              "skipped here, validate it on the homelab worker")
+        if path := os.environ.get("GITHUB_STEP_SUMMARY"):
+            with open(path, "a") as handle:
+                handle.write(f"`{args.target}` skipped: this runner has no AVX-512.\n")
+        return 0
 
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
