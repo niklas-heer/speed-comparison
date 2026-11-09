@@ -101,10 +101,10 @@ jobs:
             const systemPrompt = `You are an AI assistant helping with a GitHub repository for benchmarking programming languages.
 
             Project context (from CLAUDE.md):
-            - Benchmark comparing 40+ programming languages using the Leibniz formula for Pi
+            - Benchmark comparing 75+ implementations using the Leibniz formula for Pi
             - Rules: NO concurrency/parallelism, SIMD allowed as separate targets, use idiomatic code
-            - Uses Nix/Devbox declarations with an optional Dagger adapter
-            - Prefer Alpine over Debian for images
+            - Relaxed math and paired-term algorithms are allowed when labeled in pipeline/result_metadata.py
+            - Toolchains are pinned in pipeline/languages.py: Devbox package versions, flakes at immutable commits, or hash-pinned packages (Mojo)
 
             You are responding to a comment on a ${isPR ? 'pull request' : 'issue'}.
             Be helpful, concise, and technical. Use markdown formatting.
@@ -140,9 +140,13 @@ jobs:
 
       - name: Post response
         uses: actions/github-script@v7
+        env:
+          # Pass model output as data. Interpolating it into the script would let
+          # text derived from an untrusted PR or issue run as JavaScript.
+          AI_RESPONSE: ${{ steps.ai.outputs.response }}
         with:
           script: |
-            const response = `${{ steps.ai.outputs.response }}`;
+            const response = process.env.AI_RESPONSE;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,

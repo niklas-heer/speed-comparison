@@ -18,11 +18,11 @@ body:
       required: true
 
   - type: input
-    id: docker-image
+    id: toolchain
     attributes:
-      label: Docker Image
-      description: Official or recommended Docker image (if known)
-      placeholder: e.g., rust:1.83-alpine, python:3.13-alpine
+      label: Toolchain
+      description: How to install it reproducibly, if known. Use a pinned Devbox package, a Nix flake at a fixed commit, or hash-pinned packages (as Mojo does); no Docker image is needed.
+      placeholder: e.g., zig@0.16.0 (Devbox), or github:owner/repo/<commit>#package
 
   - type: textarea
     id: implementation
