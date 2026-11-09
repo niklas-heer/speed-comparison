@@ -132,3 +132,15 @@ def test_revision_planning_handles_missing_history(tmp_path, monkeypatch):
     git('commit', '-qm', 'Unrelated catalog')
     assert plan_revisions(first, 'HEAD')['base_revision'] is None
     assert len(plan_revisions(first, 'HEAD')['targets']) == 4
+
+
+def test_smoke_checks_affected_targets_and_canaries_for_wide_changes():
+    import affected_targets
+    assert affected(CATALOG, CATALOG, ['src/leibniz.c'])['smoke_targets'] == ['c', 'c-clang']
+    assert affected(CATALOG, CATALOG, ['README.md'])['smoke_targets'] == []
+    old_limit = affected_targets.SMOKE_LIMIT
+    affected_targets.SMOKE_LIMIT = 2
+    try:
+        assert affected(CATALOG, CATALOG, ['pipeline/native.py'])['smoke_targets'] == ['c']
+    finally:
+        affected_targets.SMOKE_LIMIT = old_limit

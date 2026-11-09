@@ -230,7 +230,11 @@ See the [runner guide](pipeline/README.md) and [catalog boundary](docs/catalog-r
 ### Separate validation, measurement and publication
 
 GitHub Actions runs regression tests and produces an affected-target plan for PRs.
-Website and reporting changes have their own checks. Producing a plan does not
+It then builds and runs each affected target (up to 30; wider changes check a few
+canaries) in the same pinned Devbox image the homelab uses, with a short odd
+workload and a million terms, and applies the published convergence check. These
+smoke timings come from shared CI runners and are not results. Website and
+reporting changes have their own checks. Producing a plan does not
 automatically dispatch a benchmark to the homelab. The optional Dagger workflow is
 manually triggered; native Argo jobs remain available to operators.
 
@@ -281,7 +285,8 @@ welcome. A surprising result is a good starting point for an investigation.
    Record compiler flags, pin package versions and use immutable revisions for
    flake inputs.
 3. **Check correctness and integration.** Run the regression tests and a small
-   native smoke check for affected targets. Exercise odd/even term counts and
+   native smoke check for affected targets; CI repeats that smoke check on your
+   pull request. Exercise odd/even term counts and
    vector-tail handling when changing those paths. A short timing is not evidence
    of a speedup.
 4. **Explain the change.** Include what changed, the commands and environment used

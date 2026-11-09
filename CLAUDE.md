@@ -29,8 +29,9 @@ python scripts/argo_bench.py --targets all --rounds 1000000000
 
 Argo submission requires the homelab kubeconfig. Quick/subset runs are validation
 artifacts, not performance publications. Review source before submitting a
-`codex/` branch. Automated GitHub Actions runs only code validation and a weekly
-package update check; the optional Dagger benchmark is manually dispatched.
+`codex/` branch. Automated GitHub Actions runs code validation, a smoke check that
+builds and runs affected targets (`scripts/smoke_target.py`), and a weekly package
+update check; the optional Dagger benchmark is manually dispatched.
 
 ## Contributions and methodology
 
