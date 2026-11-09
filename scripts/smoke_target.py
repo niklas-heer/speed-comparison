@@ -40,9 +40,8 @@ done
 
 
 def seconds(value: str) -> float:
-    """Parse scmeta's H:MM:SS.ffffff durations."""
-    hours, minutes, rest = value.split(":")
-    return int(hours) * 3600 + int(minutes) * 60 + float(rest)
+    """Parse scmeta's durations, such as "0.0019809077s"."""
+    return float(value.removesuffix("s"))
 
 
 def main() -> int:
