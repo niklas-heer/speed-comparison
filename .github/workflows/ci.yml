@@ -79,7 +79,6 @@ jobs:
         run: uv run --locked --project pipeline --extra dev ruff check --select F821,F822,F823 pipeline
 
   smoke:
-    name: smoke (${{ matrix.target }})
     needs: validate
     if: needs.validate.outputs.smoke_targets != '[]'
     runs-on: ubuntu-24.04
