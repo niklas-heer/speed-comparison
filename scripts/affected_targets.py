@@ -22,6 +22,11 @@ REPORT_INPUTS = {
 }
 REPORT_PREFIXES = ('site/', 'docs/report-evidence/', 'docs/report-images/', 'icons/', 'docs/validation/2026-09-05-workload-calibration/')
 GLOBAL_CONSTANTS = {'HYPERFINE_VERSION', 'MICROPYTHON_VERSION', 'DEFAULT_DEVBOX_IMAGE', 'MARCH_NATIVE'}
+# Pull requests build and run affected targets on GitHub runners. A change that
+# selects more than this many runs representative canaries instead; the full
+# suite belongs to the homelab.
+SMOKE_LIMIT = 30
+SMOKE_CANARIES = ('c', 'go', 'python', 'rust')
 
 
 def catalog(source: str) -> tuple[dict, str, dict]:
@@ -114,7 +119,8 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
         elif not any(path in config['paths'] or (config['prefix'] and path.startswith(config['prefix'])) for config in base.values()):
             include(head, f'Unmapped source input: {path}')
     selected = sorted(reasons)
-    return {'schema_version': 1, 'targets': selected,
+    smoke = selected if len(selected) <= SMOKE_LIMIT else [t for t in SMOKE_CANARIES if t in head]
+    return {'schema_version': 1, 'targets': selected, 'smoke_targets': smoke,
             'removed_targets': sorted(set(base) - set(head)),
             'reasons': {t: sorted(set(reasons[t])) for t in selected},
             'report_check': any(path in REPORT_INPUTS or path.startswith(REPORT_PREFIXES) for path in paths),

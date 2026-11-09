@@ -6,6 +6,15 @@ on:
     paths-ignore: ["docs/history/**"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      targets:
+        description: 'Targets to build and run, separated by spaces (all for every target); empty uses the affected-target plan'
+        type: string
+        default: ''
+      rounds:
+        description: 'Workloads to run each target with, separated by spaces'
+        type: string
+        default: '7 1000000'
 
 permissions:
   contents: read
@@ -14,6 +23,8 @@ jobs:
   validate:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    outputs:
+      smoke_targets: ${{ steps.plan.outputs.smoke_targets }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,15 +40,29 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REQUESTED_TARGETS: ${{ inputs.targets }}
         run: |
           python scripts/affected_targets.py --base "$BASE_SHA" --head "$HEAD_SHA" --output benchmark-plan.json
           python - <<'PY'
           import json, os
           plan = json.load(open('benchmark-plan.json'))
+          smoke = plan['smoke_targets']
+          requested = os.environ.get('REQUESTED_TARGETS', '').split()
+          if requested:
+              import sys
+              sys.path.insert(0, 'scripts')
+              from affected_targets import catalog
+              known = sorted(catalog(open('pipeline/languages.py').read())[0])
+              smoke = known if requested == ['all'] else requested
+              unknown = sorted(set(smoke) - set(known))
+              if unknown:
+                  raise SystemExit('Unknown targets: ' + ' '.join(unknown))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write('report_check=' + str(plan['report_check']).lower() + '\n')
+              output.write('smoke_targets=' + json.dumps(smoke) + '\n')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
               summary.write('Affected benchmark targets: ' + (', '.join(plan['targets']) or 'none') + '\n')
+              summary.write('Smoke-checked on GitHub: ' + (', '.join(smoke) or 'none') + '\n')
               summary.write('Report validation: ' + ('yes' if plan['report_check'] else 'no') + '\n')
               summary.write('This plan selects validation work; it is not a published performance report.\n')
           PY
@@ -52,3 +77,30 @@ jobs:
           path: benchmark-plan.json
       - name: Check Python syntax and undefined names
         run: uv run --locked --project pipeline --extra dev ruff check --select F821,F822,F823 pipeline
+
+  smoke:
+    name: smoke (${{ matrix.target }})
+    needs: validate
+    if: needs.validate.outputs.smoke_targets != '[]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        target: ${{ fromJSON(needs.validate.outputs.smoke_targets) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build and run in the pinned Devbox image
+        env:
+          TARGET: ${{ matrix.target }}
+          ROUNDS: ${{ inputs.rounds || '7 1000000' }}
+        run: python3 scripts/smoke_target.py "$TARGET" --rounds "$ROUNDS" --output smoke-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-${{ matrix.target }}
+          path: smoke-results/*/*.json
+          if-no-files-found: ignore
