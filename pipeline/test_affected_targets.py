@@ -142,5 +142,9 @@ def test_smoke_checks_affected_targets_and_canaries_for_wide_changes():
     affected_targets.SMOKE_LIMIT = 2
     try:
         assert affected(CATALOG, CATALOG, ['pipeline/native.py'])['smoke_targets'] == ['c']
+        # A new language that also edits shared pipeline code is still built.
+        new = CATALOG.replace(' "fs":', ' "zig": Language(name="Zig", file="leibniz.zig"),\n "fs":')
+        plan = affected(CATALOG, new, ['pipeline/languages.py', 'pipeline/result_metadata.py', 'src/leibniz.zig'])
+        assert plan['smoke_targets'] == ['c', 'zig']
     finally:
         affected_targets.SMOKE_LIMIT = old_limit
