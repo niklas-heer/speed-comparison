@@ -436,7 +436,7 @@ LANGUAGES: dict[str, Language] = {
     "strict": Language(
         name="Strict",
         nix_flakes=(
-            "github:strict-lang/Strict/008809e445add812fb88a7f921bfe2dcb4758310#strict",
+            "github:strict-lang/Strict/4935d7aa29326ae5ea3ba62a3a880165e9525d06#strict",
         ),
         file="leibniz.strict",
         compile="STRICT_GPU=0 strict build leibniz.strict",
