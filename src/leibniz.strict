@@ -1,0 +1,28 @@
+has logger
+constant Digits = 16
+Pi(rounds Number) Number
+	Leibniz.Pi(0) is 4
+	Leibniz.Pi(1) is (1 - 1 / 3) * 4
+	Leibniz.Pi(2) is (1 - 1 / 3 + 1 / 5) * 4
+	Leibniz.Pi(4) is (1 - 1 / 3 + 1 / 5 - 1 / 7 + 1 / 9) * 4
+	mutable pi = 1
+	for Range(1, rounds + 1)
+		pi = pi + (1 - 2 * (value % 2)) / (2 * value + 1)
+	pi * 4
+Run(times = 1) Number
+	let rounds = File("rounds.txt").ReadLines.First.Trim to Number
+	if times < 2
+		logger.Log(Pi(rounds).Fixed(Digits))
+	else
+		Timed(rounds, times)
+	0
+Timed(rounds Number, times Number) Number
+	Leibniz.Timed(0, 0) is 0
+	let warmup = Pi(rounds)
+	for times
+		let started = Process.Elapsed
+		let pi = Pi(rounds)
+		let milliseconds = ((Process.Elapsed - started) * 1000).Round(1)
+		let difference = warmup is pi then "" else ", the first call differs"
+		logger.Log("" + milliseconds + " ms " + pi.Fixed(Digits) + difference)
+	0

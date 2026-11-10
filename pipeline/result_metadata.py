@@ -21,6 +21,8 @@ EXPLICIT_SIMD = {
 SOURCE_RELAXED_MATH = {"zig", "zig-simd", "julia", "cpython-numba", "swift-relaxed"}
 # Approximate reciprocals refined by one Newton-Raphson step are not IEEE division.
 SOURCE_RELAXED_MATH |= {"csharp-avx512"}
+# Strict reassociates and contracts the paired-term fraction. That is not IEEE default.
+SOURCE_RELAXED_MATH |= {"strict"}
 
 
 def methodology(target: str, lang: Language) -> dict:
@@ -33,7 +35,7 @@ def methodology(target: str, lang: Language) -> dict:
         "ExplicitSIMD": target in EXPLICIT_SIMD,
         "Algorithm": (
             "paired-terms"
-            if target == "swift"
+            if target in {"swift", "strict"}
             else "bounded-vector-sum"
             if target in {"cpython-numpy", "octave-vectorised", "r"}
             else "leibniz-series"
