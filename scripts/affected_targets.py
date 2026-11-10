@@ -82,10 +82,16 @@ def catalog(source: str) -> tuple[dict, str, dict]:
 def affected(base_source: str | None, head_source: str, paths: list[str]) -> dict:
     head, framework, shared = catalog(head_source)
     reasons: dict[str, list[str]] = {}
+    # Targets whose own definition or source changed. A wide change still
+    # smoke-checks these, so a new language that also touches shared tooling
+    # is built on GitHub rather than replaced by the canaries.
+    direct: set[str] = set()
 
-    def include(targets, reason):
+    def include(targets, reason, own=False):
         for target in targets:
             reasons.setdefault(target, []).append(reason)
+            if own:
+                direct.add(target)
 
     if base_source is None:
         include(head, 'No base catalog; validate every target')
@@ -96,7 +102,7 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
             include(head, 'Shared catalog/tooling behavior changed')
         for target, config in head.items():
             if target not in base or config != base[target]:
-                include([target], 'Language definition or shared compiler settings changed')
+                include([target], 'Language definition or shared compiler settings changed', own=True)
     for path in paths:
         if path in REPORT_INPUTS:
             continue
@@ -115,11 +121,16 @@ def affected(base_source: str | None, head_source: str, paths: list[str]) -> dic
                 if config and (path in config['paths'] or (config['prefix'] and path.startswith(config['prefix']))):
                     matched.add(target)
         if matched:
-            include(matched, f'Source dependency: {path}')
+            include(matched, f'Source dependency: {path}', own=True)
         elif not any(path in config['paths'] or (config['prefix'] and path.startswith(config['prefix'])) for config in base.values()):
             include(head, f'Unmapped source input: {path}')
     selected = sorted(reasons)
-    smoke = selected if len(selected) <= SMOKE_LIMIT else [t for t in SMOKE_CANARIES if t in head]
+    if len(selected) <= SMOKE_LIMIT:
+        smoke = selected
+    else:
+        smoke = sorted({t for t in SMOKE_CANARIES if t in head} | direct)
+        if len(smoke) > SMOKE_LIMIT:
+            smoke = [t for t in SMOKE_CANARIES if t in head]
     return {'schema_version': 1, 'targets': selected, 'smoke_targets': smoke,
             'removed_targets': sorted(set(base) - set(head)),
             'reasons': {t: sorted(set(reasons[t])) for t in selected},
