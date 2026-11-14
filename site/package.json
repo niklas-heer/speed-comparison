@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "8.0.1",
-    "astro": "7.3.3",
+    "astro": "7.4.12",
     "pg": "8.16.3"
   },
   "devDependencies": {
