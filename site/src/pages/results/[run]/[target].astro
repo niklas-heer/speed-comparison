@@ -58,8 +58,13 @@ const known = new Set(["DevboxLock", "Environment", "DevboxConfig", "SourceFiles
       An inspectable measurement, with the exact build and environment evidence
       retained from this run.
     </p><div class="tags">
-      <span class="badge">{r.category}</span><span class="badge badge-orange"
-        >{r.math}</span
+      <span class="badge">{r.category}</span><span
+        class:list={["badge", r.math === "relaxed" && "badge-orange"]}
+        >{r.math === "compiler-default"
+          ? "Default math"
+          : r.math === "relaxed"
+            ? "Relaxed math"
+            : "Math not recorded"}</span
       >{r.simd && <span class="badge">Explicit SIMD</span>}
     </div>
   </div>
