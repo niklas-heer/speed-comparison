@@ -14,6 +14,10 @@ variant—not just a language name.
 [Read the methodology](https://speed-comparison.vercel.app/methodology/) ·
 [Follow the interactive pipeline](https://speed-comparison.vercel.app/journal/how-code-becomes-a-benchmark/)
 
+**[Watch the 59-second film](https://youtu.be/MXUVgy7btSo)** on YouTube: one loop, 75 implementations, and what you can open behind each number.
+
+[![One loop. 75 ways. over five race lanes: Rust (SIMD), C (gcc), Go and Java finished, Python (CPython) a quarter of the way and "still going", with a "Watch the film · 0:59" button.](assets/video.webp)](https://youtu.be/MXUVgy7btSo)
+
 **In this README:** [Scope](#what-this-measures) · [Latest results](#latest-results) ·
 [Quick start](#quick-start) · [How it works](#how-it-works) ·
 [History](#how-the-project-evolved) · [Contributing](#contributing) ·
