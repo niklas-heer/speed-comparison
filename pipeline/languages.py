@@ -36,6 +36,8 @@ MARCH_NATIVE = "-march=native"
 # Shared tooling versions used for image builds
 HYPERFINE_VERSION = "1.18.0"
 MICROPYTHON_VERSION = "1.24.1"
+GOOSE_RELEASE = "v2026.4"
+GOOSE_DIST = f"goose-{GOOSE_RELEASE}-linux-x64"
 
 # Pinned Devbox base image for reproducibility.
 # Can be overridden by DEVBOX_IMAGE for experiments.
@@ -324,11 +326,43 @@ LANGUAGES: dict[str, Language] = {
         category="systems",
         version_regex=r"go(\d+\.\d+\.?\d*)",
     ),
+    "goose": Language(
+        name="Goose",
+        nixpkgs=("clang@21.1.8", "curl@8.11.1"),
+        file="leibniz.goose",
+        nix_setup=(
+            "curl --fail --location --retry 3 -o goose.tar.gz "
+            f"https://github.com/aardappel/goose/releases/download/{GOOSE_RELEASE}/{GOOSE_DIST}.tar.gz\n"
+            "printf '%s  %s\\n' 559ad7572df89fcd1273512d8679528bcdf876c252ec1f31608d3808b24125b3 goose.tar.gz "
+            "| sha256sum -c -\n"
+            "tar -xzf goose.tar.gz"
+        ),
+        compile=(
+            f"./{GOOSE_DIST}/goose -o goose_program.c leibniz.goose && "
+            f"./{GOOSE_DIST}/goose --emit-runtime goose_runtime.c && "
+            f"clang {C_FLAGS} -mprefer-vector-width=512 goose_program.c goose_runtime.c -o leibniz -lm -pthread"
+        ),
+        run="./leibniz",
+        version_cmd=f"./{GOOSE_DIST}/goose version",
+        base="goose",
+        category="systems",
+    ),
     "odin": Language(
         name="Odin",
         nixpkgs=("odin@2026-09",),
         file="leibniz.odin",
         compile="odin build leibniz.odin -file -o:speed -no-bounds-check -disable-assert -out:leibniz",
+        run="./leibniz",
+        version_cmd="odin version",
+        base="odin",
+        category="systems",
+        version_regex=r"dev-(\d{4}-\d+[a-z]?)",
+    ),
+    "odin-simd": Language(
+        name="Odin (SIMD)",
+        nixpkgs=("odin@2026-09",),
+        file="leibniz-simd.odin",
+        compile="odin build leibniz-simd.odin -file -o:speed -microarch:native -out:leibniz",
         run="./leibniz",
         version_cmd="odin version",
         base="odin",

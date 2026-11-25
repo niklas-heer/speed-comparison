@@ -11,6 +11,7 @@ EXPLICIT_SIMD = {
     "csharp-avx512",
     "fsharp-simd",
     "java-vecops",
+    "odin-simd",
     "rust-simd",
     "rust-nightly",
     "swift-simd",
@@ -23,6 +24,8 @@ SOURCE_RELAXED_MATH = {"zig", "zig-simd", "julia", "cpython-numba", "swift-relax
 SOURCE_RELAXED_MATH |= {"csharp-avx512"}
 # Strict reassociates and contracts the paired-term fraction. That is not IEEE default.
 SOURCE_RELAXED_MATH |= {"strict"}
+# Odin computes the smallest pairs in f32 before widening the block sums.
+SOURCE_RELAXED_MATH |= {"odin-simd"}
 
 
 def methodology(target: str, lang: Language) -> dict:
@@ -35,7 +38,7 @@ def methodology(target: str, lang: Language) -> dict:
         "ExplicitSIMD": target in EXPLICIT_SIMD,
         "Algorithm": (
             "paired-terms"
-            if target in {"swift", "strict"}
+            if target in {"goose", "odin-simd", "swift", "strict"}
             else "bounded-vector-sum"
             if target in {"cpython-numpy", "octave-vectorised", "r"}
             else "leibniz-series"
