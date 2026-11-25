@@ -66,6 +66,12 @@ a native smoke test. Validate small odd/even round counts and SIMD tail handling
 Variants need distinct display names. Keep package versions explicit; flake inputs
 must reference immutable commits. Capture actual compiler versions in the output.
 
+`goose` and `odin-simd` evaluate adjacent negative and positive terms as one
+fraction. They sum the smallest pairs in blocks of 512 in `f32`, widening each
+block sum to `f64`. The largest pairs and any odd tail use `f64`. Goose uses
+Clang's automatic vectorization with reassociation. Odin uses explicit
+vectors and keeps the existing `odin` target as a scalar baseline.
+
 `check_versions.py --json` queries the Devbox catalog. `update_versions.py` applies
 only literal package-version changes, including shared variants, while leaving
 compile/setup commands intact. Proposed upgrades require native validation.
